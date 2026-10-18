@@ -33,7 +33,7 @@ export { LAND_W, LAND_H } from "./constants"
  * multi-MB) ed è geometricamente perfetto per LAND_W=768 — niente
  * upscale, niente spreco di RAM/latenza sul cold render.
  */
-export const LANDSCAPE_BACKDROP_SIZE = "w780" as const
+export const LANDSCAPE_BACKDROP_SIZE = "w1280" as const
 
 /**
  * URL CDN TMDB per un backdrop alla risoluzione landscape. Stessa allowlist
