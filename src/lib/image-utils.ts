@@ -42,15 +42,32 @@ export const LANDSCAPE_BACKDROP_SIZE = "w1280" as const
  */
 const TMDB_IMG_BASE = process.env.TMDB_IMG_URL || "https://image.tmdb.org/t/p"
 
+
 export function landscapeBackdropUrl(path: string): string {
   if (path.startsWith("http")) {
     if (!path.startsWith(`${TMDB_IMG_BASE}/`)) {
       throw new Error(`Blocked external image URL: ${path.slice(0, 60)}...`)
     }
+
+    const prefix = `${TMDB_IMG_BASE}/`
+    const relativePath = path.slice(prefix.length)
+    const slashIndex = relativePath.indexOf("/")
+
+    if (slashIndex > 0) {
+      const size = relativePath.slice(0, slashIndex)
+      const match = /^w(\d+)$/.exec(size)
+
+      if (match && Number(match[1]) < 1280) {
+        return `${prefix}${LANDSCAPE_BACKDROP_SIZE}/${relativePath.slice(slashIndex + 1)}`
+      }
+    }
+
     return path
   }
+
   return `${TMDB_IMG_BASE}/${LANDSCAPE_BACKDROP_SIZE}${path}`
 }
+
 
 /**
  * Base 16:9 di fallback quando il titolo non ha backdrop TMDB: poster
