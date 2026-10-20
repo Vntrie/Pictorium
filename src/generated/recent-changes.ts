@@ -11,6 +11,4 @@ export interface RecentChange {
 }
 
 export const RECENT_CHANGES: RecentChange[] = [
-  { type: "fix", text: "Recognize catalog and search titles in watchlists", sha: "80dc48d", date: "2026-10-18" },
-  { type: "feature", text: "Customize seasonal frames for lists and posters", sha: "1c2db60", date: "2026-10-18" },
 ]

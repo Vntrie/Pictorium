@@ -222,11 +222,6 @@ export function buildStremioPosterUrl(input: BuildStremioPosterUrlInput): URL {
     topShade: eff?.topShade ?? sd.topShade ?? 50,
     topShadeHeight: eff?.topShadeHeight ?? sd.topShadeHeight ?? 25,
     customBadge,
-    // Binding Badge Lab atomico a coppia per formato: il valore effettivo
-    // della forma (profilo landscape vince sul flat a coppia, mai mescolati —
-    // vedi effectiveMappingForShape). Legacy senza profilo = flat invariato.
-    badgePresetId: eff?.badgePresetId,
-    badgePresetRev: eff?.badgePresetRev,
     dateFormat: sd.dateFormat ?? undefined,
     title: mapping?.title ?? undefined,
     networkLogo: eff?.networkLogo ?? sd.networkLogo,

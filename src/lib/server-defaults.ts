@@ -10,6 +10,7 @@ import type { VideoFormat } from "@/lib/av-specs"
 import { isVideoFormat } from "@/lib/av-specs"
 import { isBadgeStyle, isRankingBadgeStyle, isQualityBadgeStyle, isBadgeFont } from "@/lib/badge-styles"
 import type { DateFormat } from "@/lib/release-badge"
+import type { RetiredBadgeFamilyBindings } from "@/lib/types"
 import { normalizeRegion } from "@/lib/regions"
 import { envWithFallback } from "@/lib/env-compat"
 import { atomicWriteFile } from "@/lib/atomic-write"
@@ -135,6 +136,12 @@ export interface LandscapeServerDefaults {
   posterFreshScope?: import("@/lib/types").PosterFreshScope | null
   /** Enabled sash buckets (canonical order; empty = all off). */
   sashOrder?: SashBucket[]
+  /**
+   * Retired Badge Lab family map (custom badge library removed): inert
+   * stored key, never rendered. Same sparse semantics as before so legacy
+   * defaults survive untouched.
+   */
+  badgePresets?: RetiredBadgeFamilyBindings | null
 }
 
 /**
@@ -153,6 +160,12 @@ export interface ServerDefaults {
   extraBadgeStyle?: ExtraBadgeStyle | ExtraBadgeFollowRank | null
   /** Font dei testi badge ("inter" = resa storica). */
   badgeFont?: BadgeFont | null
+  /**
+   * Retired Badge Lab family map (custom badge library removed): inert
+   * stored key, never rendered. Same sparse semantics as before so legacy
+   * defaults survive untouched.
+   */
+  badgePresets?: RetiredBadgeFamilyBindings | null
   /** Stile icone del badge qualità (standard = pill testuale). */
   qualityBadgeStyle?: QualityBadgeStyle | null
   /** Formati A/V abilitati di default (dv, hdr, hdr10plus, atmos, imax). */

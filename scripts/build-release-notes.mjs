@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { SUBJECT_RE } from "./check-commit-subjects.mjs"
+import { isExcludedReleaseNoteCommit } from "./release-note-exclusions.mjs"
 
 // GitHub Release notes from conventional commits (same grouping as the
 // in-app changelog in write-changelog-release.mjs, plus emojis + links).
@@ -12,6 +13,12 @@ import { SUBJECT_RE } from "./check-commit-subjects.mjs"
 //   node scripts/build-release-notes.mjs <prevTag> <newTag> [--repo owner/repo]
 // Prints Markdown to stdout. Fails when the range has no visible items.
 
+/**
+ * @typedef {{ text: string, sha: string }} ReleaseNoteItem
+ * @typedef {{ features: ReleaseNoteItem[], fixes: ReleaseNoteItem[], perf: ReleaseNoteItem[] }} ReleaseNoteGroups
+ * @typedef {{ sha: string, subject: string }} ReleaseNoteEntry
+ */
+
 const SECTIONS = new Map([
   ["feat", { key: "features", title: "✨ Features" }],
   ["fix", { key: "fixes", title: "🐛 Bug Fixes" }],
@@ -20,6 +27,10 @@ const SECTIONS = new Map([
 
 // Pure: visible release item from a commit subject, or null when it must
 // not appear on the release page. Scope is stripped (user-facing text only).
+/**
+ * @param {string} subject
+ * @returns {{ section: "features" | "fixes" | "perf", text: string } | null}
+ */
 export function toNoteItem(subject) {
   const m = SUBJECT_RE.exec(subject)
   if (!m) return null
@@ -31,9 +42,17 @@ export function toNoteItem(subject) {
 }
 
 // Pure: entries ({ sha, subject }) grouped by section, order preserved.
+// Commits listed in scripts/release-note-exclusions.mjs (withdrawn,
+// unpublished work, matched by exact full SHA) are skipped.
+/**
+ * @param {ReleaseNoteEntry[]} entries
+ * @returns {ReleaseNoteGroups}
+ */
 export function groupNoteItems(entries) {
+  /** @type {ReleaseNoteGroups} */
   const groups = { features: [], fixes: [], perf: [] }
   for (const { sha, subject } of entries) {
+    if (isExcludedReleaseNoteCommit(sha)) continue
     const item = toNoteItem(subject)
     if (item) groups[item.section].push({ text: item.text, sha })
   }
@@ -41,6 +60,10 @@ export function groupNoteItems(entries) {
 }
 
 // Pure: full Markdown body for the GitHub Release.
+/**
+ * @param {{ repo: string, prevTag: string, newTag: string, groups: ReleaseNoteGroups }} args
+ * @returns {string}
+ */
 export function renderReleaseNotes({ repo, prevTag, newTag, groups }) {
   const lines = []
   for (const [, { key, title }] of SECTIONS) {

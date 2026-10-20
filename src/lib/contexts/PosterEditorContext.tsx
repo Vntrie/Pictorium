@@ -7,6 +7,7 @@ import type { LandscapeServerDefaults } from "@/lib/server-defaults"
 import type { DateFormat } from "@/lib/release-badge"
 import type { BadgeStyle, RankingBadgeStyle, ExtraBadgeStyle, ExtraBadgeFollowRank, QualityBadgeStyle, BadgeFont, SeparateRatingsStyle } from "@/lib/badge-styles"
 import type { AgeBadgeStyle } from "@/lib/badge-styles"
+
 import { DEFAULT_AGE_BADGE_STYLE, getSeparateBadgeDefaultScale, isAgeBadgeStyle } from "@/lib/badge-styles"
 import { DEFAULT_AGE_COUNTRY, normalizeCertificationCountry } from "@/lib/certification"
 import type { SashBucket } from "@/lib/badge-priority"
@@ -158,10 +159,7 @@ export interface PosterEditorCtx {
   setVideoFormats: (v: VideoFormat[] | null | ((prev: VideoFormat[] | null) => VideoFormat[] | null)) => void
   customBadge: string | null
   setCustomBadge: (v: string | null | ((prev: string | null) => string | null)) => void
-  badgePresetId: string | null
-  setBadgePresetId: (v: string | null | ((prev: string | null) => string | null)) => void
-  badgePresetRev: string | null
-  setBadgePresetRev: (v: string | null | ((prev: string | null) => string | null)) => void
+
   networkLogo: boolean
   setNetworkLogo: (v: boolean | ((prev: boolean) => boolean)) => void
   networkLogoPosition: NetworkLogoPosition
@@ -198,6 +196,7 @@ export interface PosterEditorCtx {
   /** Font dei testi badge di default ("inter" = resa storica). */
   defaultBadgeFont: BadgeFont
   setDefaultBadgeFont: (v: BadgeFont | ((prev: BadgeFont) => BadgeFont)) => void
+
   /** Stile icone del badge qualità di default. */
   defaultQualityBadgeStyle: QualityBadgeStyle
   setDefaultQualityBadgeStyle: (v: QualityBadgeStyle | ((prev: QualityBadgeStyle) => QualityBadgeStyle)) => void
@@ -608,8 +607,7 @@ export function PosterEditorProvider({
 
   // ---- Custom badge ----
   const [customBadge, setCustomBadge] = useState<string | null>(null)
-  const [badgePresetId, setBadgePresetId] = useState<string | null>(null)
-  const [badgePresetRev, setBadgePresetRev] = useState<string | null>(null)
+
   // Badge età per-titolo (stesso pattern dei visuali un tempo condivisi
   // sopra: stato live per-titolo, mai nei default persistiti — i default
   // restano i `defaultAge*`, con legacy alias bare `ageBadge*` intatti).
@@ -1687,8 +1685,6 @@ export function PosterEditorProvider({
     setBackdropOffsetX(0)
     setBackdropOffsetY(0)
     setCustomBadge(null)
-    setBadgePresetId(null)
-    setBadgePresetRev(null)
     // Badge età per-titolo: default effettivi di forma (mai il live del
     // titolo precedente — stesso isolamento degli altri visuali; i setter
     // validano fail-closed come il server).
@@ -1763,10 +1759,6 @@ export function PosterEditorProvider({
       setVideoFormats,
       customBadge,
       setCustomBadge,
-      badgePresetId,
-      setBadgePresetId,
-      badgePresetRev,
-      setBadgePresetRev,
       networkLogo,
       setNetworkLogo,
       networkLogoPosition,
@@ -2076,8 +2068,6 @@ export function PosterEditorProvider({
       qualityBadgeStyle, setQualityBadgeStyle,
       videoFormats, setVideoFormats,
       customBadge, setCustomBadge,
-      badgePresetId, setBadgePresetId,
-      badgePresetRev, setBadgePresetRev,
       networkLogo, setNetworkLogo,
       networkLogoPosition, setNetworkLogoPosition,
       networkLogoFollowTitle, setNetworkLogoFollowTitle,

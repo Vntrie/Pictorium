@@ -97,6 +97,14 @@ describe("HomeHero", () => {
     expect(push).toHaveBeenCalledWith("cataloghi")
   })
 
+  it("retired Badge Lab: no Lab link or route is exposed on the home hero", () => {
+    stubPosterFetch()
+    renderWithCtx(<HomeHero />)
+    expect(screen.queryByRole("link", { name: "ui.labTitle" })).toBeNull()
+    const hrefs = screen.queryAllByRole("link").map((a) => a.getAttribute("href") ?? "")
+    expect(hrefs.some((h) => h.includes("/lab/badges") || h.includes("/presets"))).toBe(false)
+  })
+
   it("opens the editor when a podium poster is clicked", async () => {
     stubPosterFetch()
     const u = userEvent.setup()

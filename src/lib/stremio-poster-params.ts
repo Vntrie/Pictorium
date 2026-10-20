@@ -6,7 +6,6 @@ import type { VideoFormat } from "@/lib/av-specs"
 import { parseMinQuality, type StreamQuality } from "@/lib/quality-tiers"
 import { normalizeSeasonalTheme } from "./seasonal-theme"
 import { parseSashOrder, isDefaultSashOrder, type SashBucket } from "@/lib/badge-priority"
-import { BADGE_PRESET_ID_RE, BADGE_PRESET_REV_RE } from "@/lib/badge-preset"
 import type { PosterShape, PosterLayout, PosterFreshScope } from "@/lib/types"
 import { isPosterLayout } from "@/lib/types"
 import type { DateFormat } from "@/lib/release-badge"
@@ -203,8 +202,6 @@ export interface StremioPosterParamsInput {
   /** Titolo per-titolo (dal mapping): match JustWatch per rilevamento
    *  pre-digitale e qualità. Senza, il server ripiega su valori generici. */
   readonly title?: string | null
-  readonly badgePresetId?: string | null
-  readonly badgePresetRev?: string | null
   /**
    * Formato data badge "in uscita": emesso come `df` solo quando esplicito
    * (non-`locale`) — gli URL esistenti restano identici e la cache non si
@@ -426,12 +423,6 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
     if (parsed) params.set("sash", parsed.join(","))
   }
   if (input.customBadge) params.set("extra", input.customBadge)
-  if (input.badgePresetId && BADGE_PRESET_ID_RE.test(input.badgePresetId)) {
-    params.set("badgePreset", input.badgePresetId)
-    if (input.badgePresetRev && BADGE_PRESET_REV_RE.test(input.badgePresetRev)) {
-      params.set("prv", input.badgePresetRev)
-    }
-  }
   if (input.dateFormat && input.dateFormat !== "locale") {
     params.set("df", input.dateFormat)
   }
@@ -497,7 +488,9 @@ export function buildStremioPosterSearchParams(input: StremioPosterParamsInput):
   // dv: firma del tuning quando è omesso (compact) — senza, un cambio default
   // lascerebbe URL identici e cache stantie ovunque (browser/edge/Stremio).
   // Con tuning esplicito (template, ?config=) i valori invalidano da soli.
-  if (input.compactTuning) params.set("dv", tuningSignature(input))
+  if (input.compactTuning) {
+    params.set("dv", tuningSignature(input))
+  }
   params.set("bs", input.badgeStyle || DEFAULT_STREMIO_POSTER_PARAMS.badgeStyle)
   params.set("rs", input.rankingBadgeStyle || DEFAULT_STREMIO_POSTER_PARAMS.rankingBadgeStyle)
   // Standalone extra style: opt-in only (absent = legacy `rs` fallback,

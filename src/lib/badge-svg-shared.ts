@@ -1,8 +1,6 @@
-import type { BadgeDesign, HouseBadge, PresetLike } from "./badge-preset"
 import type { BadgeStyle, RankingBadgeStyle, BadgeFont } from "./badge-styles"
 import { isBadgeFont } from "./badge-styles"
 import { isWarmGoldAccent, textColorForBg } from "./accent-color"
-import { resolveBadgeText, type BadgeVariableContext } from "./badge-variables"
 
 const TEXT_SAFE_PAD = 1.15
 const GENRE_TEXT_MAX_RATIO = 0.84
@@ -45,6 +43,49 @@ export function genreTextMaxW(containerW: number): number {
 
 export function escSvg(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+}
+
+/**
+ * Applica un'opacità 0-100 a un fill già risolto (hex o rgba/rgb): gli
+ * override house lavorano sul colore finale della ricetta, mai su un
+ * secondo canale. Formati ignoti → invariato (fail-safe, mai 500).
+ */
+export function applyFillOpacity(color: string, opacityPct: number): string {
+  const a = Math.min(Math.max(Math.round(opacityPct) / 100, 0), 1)
+  const hex = color.match(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/)
+  if (hex) return presetHexToRgba(hex[0], Math.round(a * 100))
+  const rgba = color.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/)
+  if (rgba) {
+    const base = Number(rgba[4] ?? 1)
+    const out = Math.round(Math.min(Math.max(base * a, 0), 1) * 1000) / 1000
+    return `rgba(${rgba[1]},${rgba[2]},${rgba[3]},${out})`
+  }
+  return color
+}
+
+/**
+ * Recolors BODY <text> fills (technical-family typography overrides): splits
+ * off <defs> blocks first so masks/paint servers (knockout cut-outs, star
+ * gradients) stay byte-identical, then sets fill on body text tags only.
+ * Null color keeps the recipe fill (opacity-only still applies via
+ * applyFillOpacity on the existing fill); both null = no-op. Pure string op.
+ */
+export function recolorBadgeBodyText(svg: string, color: string | null | undefined, opacityPct?: number | null): string {
+  if (!color && (opacityPct === undefined || opacityPct === null)) return svg
+  const parts = svg.split(/(<defs>[\s\S]*?<\/defs>)/g)
+  for (let i = 0; i < parts.length; i++) {
+    if (parts[i].startsWith("<defs>")) continue
+    parts[i] = parts[i].replace(/<text\b[^>]*>/g, (tag) => {
+      const m = tag.match(/ fill="([^"]*)"/)
+      const base = color ?? m?.[1] ?? null
+      if (!base) return tag
+      const ink = opacityPct === undefined || opacityPct === null ? base : applyFillOpacity(base, opacityPct)
+      const safe = ink.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;")
+      if (m) return tag.replace(/ fill="[^"]*"/, ` fill="${safe}"`)
+      return tag.replace(/\s*\/?>(?=$)/, (end) => ` fill="${safe}"${end}`)
+    })
+  }
+  return parts.join("")
 }
 
 /** Ebraico (blocco base + presentation forms). */
@@ -201,68 +242,55 @@ function buildGenreTextFlow({ genreName, voteStr, yearStr, fs, centerX, y, parts
   // genere per l'intero testo). Ebraico/arabo → Rubik anche coi condensed
   // (Barlow/Oswald non hanno quei glifi), come per Inter.
   const flowFamily = fontFamilyFor(genreName, font)
-  // resvg duplica il glifo precedente e allarga il layout (~+40%) quando una
-  // tspan ★ in "Noto Sans Symbols 2" segue contenuto non-Inter nello stesso
-  // <text> (misurato coi condensed: stringa naturale 228 → 327 renderizzati;
-  // il caso Rubik+ebraico con voto è rotto allo stesso modo anche oggi con
-  // font "inter"). Con questi font il flusso si spezza in due testi rigidi
-  // senza switch di famiglia (genere a sinistra, voto+anno a destra) e la ★
-  // diventa un path SVG: niente shaping, niente fallback, gap costante.
-  // Inter latino resta sul ramo storico byte-identico (sotto).
-  const separateStar = hasRating && flowFamily !== "Inter"
-  const bullet = (dx: number) => isMinimal
-    ? `<tspan dx="${dx}" fill-opacity="0.45">|</tspan>`
-    : `<tspan dx="${dx}" fill-opacity="0.45">${escSvg("\u2022")}</tspan>`
-  // Il dx di separazione va emesso SOLO se il segmento ha un precedente visibile:
-  // quando stella o anno sono il PRIMO segmento (es. solo anno, solo voto) il dx
-  // sposterebbe il testo fuori centro. Con tutti ON l'output resta byte-identico:
-  // stella emette gap (dopo il genere), anno emette gap (dopo stella o genere).
-  const starGapDx = hasGenre ? dims.gap : 0
-  const yearGapDx = (hasGenre || hasRating) ? dims.gap : 0
-  if (!separateStar) {
-    const tspan: string[] = []
-    if (hasGenre) {
-      tspan.push(`<tspan>${escSvg(genreName)}</tspan>`)
-      if (hasRating || hasYear) tspan.push(bullet(dims.gap))
-    }
-    if (hasRating) {
-      tspan.push(`<tspan dx="${starGapDx}" dy="${starDy}" font-family="Noto Sans Symbols 2" font-weight="400" fill="${starFill ?? "url(#starg)"}">${escSvg("\u2605")}</tspan>`)
-      tspan.push(`<tspan dx="${dims.gapStar}" dy="${-starDy}">${escSvg(voteStr)}</tspan>`)
-      if (hasYear) tspan.push(bullet(dims.gap))
-    }
-    if (hasYear) {
-      tspan.push(`<tspan dx="${yearGapDx}">${escSvg(yearStr)}</tspan>`)
-    }
-    // Ogni separatore tra segmenti contribuisce gap*2 ai dx (gap prima e dopo il
-    // bullet); il gap della stella contribuisce gapStar. Con tutti ON: gap*4 + gapStar.
-    const separators = (hasGenre ? 1 : 0) + (hasRating ? 1 : 0) + (hasYear ? 1 : 0) - 1
-    const totalDx = separators * dims.gap * 2 + (hasRating ? dims.gapStar : 0)
-    const adjustedX = centerX - totalDx / 2
-    let t = `<text x="${adjustedX}" y="${y}" text-anchor="middle" dominant-baseline="central" font-family="${flowFamily}" font-weight="${GENRE_FONT_WEIGHT}" font-size="${fs}"${textFitAttrs(dims.textContentW)}>`
-    t += tspan.join("")
-    t += "</text>"
-    return t
+  // Layout a segmenti espliciti, senza dx/dy e senza textLength multi-chunk:
+  // Blink e resvg divergono su TUTTI E TRE — Blink include i dx nella misura
+  // di text-anchor middle/end (spec) mentre resvg li esclude, e resvg ignora
+  // textLength sui flussi multi-tspan (misurato: span invariato con
+  // textLength 200 e 100 su resvg 2.6, onorato solo sul testo a tspan singola
+  // e in Blink sempre). La vecchia compensazione -totalDx/2 era corretta per
+  // resvg ma spostava la riga a sinistra di ~13-18px in Blink, tagliando la
+  // prima lettera nei badge senza margine (bordo/vetro) e sforando il corpo
+  // pill (vedi badge-genre-ink-clipping.test.ts). Ogni segmento ha il suo
+  // <text> ad ancora centrale + textLength = larghezza stimata (tspan singola:
+  // onorato da entrambi i renderer) e la stella e un path posizionato dalle
+  // stesse stime — i due renderer convergono per costruzione e la riga non
+  // puo piu uscire dal contenitore stimato.
+  const bulletText = isMinimal ? "|" : "•"
+  const texts: string[] = []
+  const segText = (text: string, cx: number, w: number, opacity?: number): void => {
+    const op = opacity !== undefined ? ` fill-opacity="${opacity}"` : ""
+    texts.push(`<text x="${round2(cx)}" y="${y}" text-anchor="middle" dominant-baseline="central" font-family="${flowFamily}" font-weight="${GENRE_FONT_WEIGHT}" font-size="${fs}"${textFitAttrs(w)}${op}>${escSvg(text)}</text>`)
   }
-  // Anchor each text against the star, rather than the outer badge edges.
-  // Estimated text widths determine centering, never the star-to-text gaps.
-  const contentLeft = centerX - dims.textContentW / 2
-  const starLeft = contentLeft + (hasGenre ? dims.genreW + dims.gap + dims.bulletW + dims.gap : 0)
-  const starCx = starLeft + dims.starW / 2
-  let t = ""
+  let cursor = centerX - dims.textContentW / 2
   if (hasGenre) {
-    const head = [`<tspan>${escSvg(genreName)}</tspan>`]
-    if (hasRating || hasYear) head.push(bullet(dims.gap))
-    t += `<text x="${starLeft - dims.gap - dims.gapStar}" y="${y}" text-anchor="end" dominant-baseline="central" font-family="${flowFamily}" font-weight="${GENRE_FONT_WEIGHT}" font-size="${fs}">${head.join("")}</text>`
-  }
-  {
-    const tail = [`<tspan>${escSvg(voteStr)}</tspan>`]
-    if (hasYear) {
-      tail.push(bullet(dims.gap))
-      tail.push(`<tspan dx="${dims.gap}">${escSvg(yearStr)}</tspan>`)
+    segText(genreName, cursor + dims.genreW / 2, dims.genreW)
+    cursor += dims.genreW
+    if (hasRating || hasYear) {
+      cursor += dims.gap
+      segText(bulletText, cursor + dims.bulletW / 2, dims.bulletW, 0.45)
+      cursor += dims.bulletW + dims.gap
     }
-    t += `<text x="${starLeft + dims.starW + dims.gapStar}" y="${y}" text-anchor="start" dominant-baseline="central" font-family="${flowFamily}" font-weight="${GENRE_FONT_WEIGHT}" font-size="${fs}">${tail.join("")}</text>`
   }
-  t += `<g transform="translate(${round2(starCx)},${round2(y + starDy)})" fill="${starFill ?? "url(#starg)"}"><path d="${starPath(dims.starW / 2)}"/></g>`
+  let starCx: number | null = null
+  if (hasRating) {
+    starCx = cursor + dims.starW / 2
+    cursor += dims.starW + dims.gapStar
+    segText(voteStr, cursor + dims.voteW / 2, dims.voteW)
+    cursor += dims.voteW
+    if (hasYear) {
+      cursor += dims.gap
+      segText(bulletText, cursor + dims.bulletW / 2, dims.bulletW, 0.45)
+      cursor += dims.bulletW + dims.gap
+    }
+  }
+  if (hasYear) {
+    segText(yearStr, cursor + dims.yearW / 2, dims.yearW)
+    cursor += dims.yearW
+  }
+  let t = texts.join("")
+  if (starCx !== null) {
+    t += `<g transform="translate(${round2(starCx)},${round2(y + starDy)})" fill="${starFill ?? "url(#starg)"}"><path d="${starPath(dims.starW / 2)}"/></g>`
+  }
   return t
 }
 
@@ -815,7 +843,7 @@ export function buildAgeKnockoutSvg(label: string, fs: number, font: BadgeFont =
   return { svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${renderW}" height="${renderH}" viewBox="0 0 ${renderW} ${renderH}">${defs}${bgEl}</svg>`, w: renderW, h: renderH }
 }
 
-// --- Custom preset badges (Badge Lab + poster Stremio: stessa funzione) ---
+// --- Color helpers (shared native recipes) ---
 
 /** `#RGB/#RRGGBB/#RRGGBBAA` + opacity 0-100 → `rgba(...)` deterministico. */
 export function presetHexToRgba(hex: string, opacityPct: number): string {
@@ -830,93 +858,10 @@ export function presetHexToRgba(hex: string, opacityPct: number): string {
   return `rgba(${r},${g},${b},${as})`
 }
 
-function presetGradientAttrs(direction: "horizontal" | "vertical" | "diagonal"): string {
-  if (direction === "horizontal") return `x1="0" y1="0" x2="1" y2="0"`
-  if (direction === "vertical") return `x1="0" y1="0" x2="0" y2="1"`
-  return `x1="0" y1="0" x2="1" y2="1"`
-}
-
-/**
- * Badge custom dichiarativo: funzione pura (zero I/O), deterministica,
- * compatibile con DOM browser e resvg. L'editor la esegue live a 0ms, il
- * server riusa lo stesso SVG prima di `renderSVG` — Golden Rule per costruzione.
- *
- * I preset custom hanno tipografia propria (font/temp del design) e ignorano
- * il selettore "Font dei badge": il contratto del Badge Lab resta pixel-
- * identico tra preview e poster. Stessa regola per i preset house
- * (buildHousePresetSvg sotto): seguono la ricetta house, non `bfont`.
- */
-export function buildCustomBadgeSvg(design: BadgeDesign, resolvedText: string): { svg: string; w: number; h: number } {
-  const k = design.scale / 100
-  const fs = Math.max(1, Math.round(design.text.fontSize * k))
-  const label = (design.text.uppercase ? resolvedText.toUpperCase() : resolvedText).slice(0, 80)
-  const track = Math.round(design.text.letterSpacing * Math.max(label.length - 1, 0))
-  const textW = label ? Math.max(estimateTextWidth(label, fs) + track, Math.round(fs * 0.35)) : 0
-  const padX = Math.round(design.padding.x * k)
-  const padY = Math.round(design.padding.y * k)
-  const autoW = textW + padX * 2
-  const boxW = Math.max(design.width !== undefined ? Math.round(design.width * k) : autoW, autoW, 20)
-  const autoH = fs + padY * 2
-  const boxH = Math.max(design.height !== undefined ? Math.round(design.height * k) : autoH, fs + 4, 16)
-  const r = design.radius !== undefined
-    ? Math.round(design.radius * k)
-    : design.shape === "pill"
-      ? Math.floor(boxH / 2)
-      : design.shape === "squircle"
-        ? Math.round(Math.min(boxW, boxH) * 0.28)
-        : design.shape === "ribbon"
-          ? Math.round(fs * RANKING_DEFAULT_RADIUS_FACTOR)
-          : design.shape === "bordo"
-            ? Math.round(fs * 0.55)
-            : 0
-
-  const bg = design.background
-  const fill = bg.type === "gradient" && bg.gradient
-    ? "url(#cpbg)"
-    : presetHexToRgba(bg.color ?? "#000000", bg.opacity)
-  const gradDef = bg.type === "gradient" && bg.gradient
-    ? `<linearGradient id="cpbg" ${presetGradientAttrs(bg.gradient.direction)}><stop offset="0%" stop-color="${bg.gradient.from}" stop-opacity="${Math.min(Math.max(bg.opacity / 100, 0), 1)}"/><stop offset="100%" stop-color="${bg.gradient.to}" stop-opacity="${Math.min(Math.max(bg.opacity / 100, 0), 1)}"/></linearGradient>`
-    : ""
-
-  const border = design.border
-  const bw = border && border.enabled ? Math.round(border.width * k) : 0
-  const stroke = bw > 0 && border ? presetHexToRgba(border.color, border.opacity) : "none"
-
-  const shadow = design.shadow
-  const shOn = !!shadow && shadow.enabled && (shadow.blur > 0 || shadow.offsetX !== 0 || shadow.offsetY !== 0)
-  const shBlur = shOn ? Math.round(shadow!.blur * k) : 0
-  const shDx = shOn ? Math.round(shadow!.offsetX * k) : 0
-  const shDy = shOn ? Math.round(shadow!.offsetY * k) : 0
-  const shPad = shOn ? Math.round(shBlur + Math.max(Math.abs(shDx), Math.abs(shDy))) + 4 : 0
-  const shadowDef = shOn
-    ? `<filter id="cpbsh" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="${shDx}" dy="${shDy}" stdDeviation="${shBlur}" flood-color="#000000" flood-opacity="${Math.min(Math.max(shadow!.opacity / 100, 0), 1)}"/></filter>`
-    : ""
-  const filterAttr = shOn ? ` filter="url(#cpbsh)"` : ""
-
-  const renderW = boxW + shPad * 2 + (bw > 0 ? 2 : 0)
-  const renderH = boxH + shPad * 2 + (bw > 0 ? 2 : 0)
-  const ox = shPad + (bw > 0 ? 1 : 0)
-  const oy = shPad + (bw > 0 ? 1 : 0)
-  const inset = bw / 2
-  const textX = design.text.align === "left"
-    ? ox + padX + textW / 2
-    : design.text.align === "right"
-      ? ox + boxW - padX - textW / 2
-      : ox + boxW / 2
-  const fg = presetHexToRgba(design.text.color, design.text.opacity)
-  const lsAttr = design.text.letterSpacing !== 0 ? ` letter-spacing="${design.text.letterSpacing}"` : ""
-  const textEl = label
-    ? `<text x="${textX}" y="${oy + boxH / 2}" text-anchor="middle" dominant-baseline="central" font-family="${fontFamilyFor(label)}" font-weight="${design.text.fontWeight}" font-size="${fs}" fill="${fg}"${lsAttr}${textFitAttrs(textW)}>${escSvg(label)}</text>`
-    : ""
-  const defs = gradDef || shadowDef ? `<defs>${gradDef}${shadowDef}</defs>` : ""
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${renderW}" height="${renderH}" viewBox="0 0 ${renderW} ${renderH}">${defs}<rect x="${ox + inset}" y="${oy + inset}" width="${boxW - bw}" height="${boxH - bw}" rx="${Math.max(r - inset, 0)}" fill="${fill}" stroke="${stroke}" stroke-width="${bw}"${filterAttr}/>${textEl}</svg>`
-  return { svg, w: renderW, h: renderH }
-}
-
 // --- House badge dispatch (single source of truth) ---------------------------
 // Pure SVG builders for the real poster styles. The server selectors in
-// svg-badge.ts delegate here (plus resvg); the Badge Lab calls the same
-// functions in the browser — Lab preview and Stremio poster cannot diverge.
+// svg-badge.ts delegate here (plus resvg): native preview and Stremio poster
+// share the same recipe and cannot diverge.
 
 /**
  * Testo adattivo dei badge traslucidi (vetro/bordo): stesso bianco del badge
@@ -939,6 +884,8 @@ export interface HouseGenreInput {
   readonly fontSize?: number
   /** Fill testo esplicito (rgba già risolto; senza = adattivo della ricetta). */
   readonly textColor?: string
+  /** Opacità 0-100 sul fill finale (ricetta o override; senza = ricetta). */
+  readonly textOpacity?: number
   /** Font dei testi (default "inter" = resa storica). */
   readonly font?: BadgeFont
 }
@@ -998,7 +945,8 @@ export function buildHouseGenreSvg(input: HouseGenreInput): { svg: string; w: nu
         // (su fondo chiaro la pill diventa grafite → testo chiaro).
         ? (bottomLight ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.88)")
         : TRANSLUCENT_BADGE_TEXT)
-  const textColor = input.textColor ?? recipeText
+  const textColorRaw = input.textColor ?? recipeText
+  const textColor = input.textOpacity !== undefined ? applyFillOpacity(textColorRaw, input.textOpacity) : textColorRaw
   const bgColor = s === "colored"
     ? (accentColor && accentColor !== "#555555" ? accentColor : "rgba(255,255,255,0.80)")
     : (isPill ? "rgba(255,255,255,0.80)" : "rgba(0,0,0,0.80)")
@@ -1010,7 +958,8 @@ export function buildHouseGenreSvg(input: HouseGenreInput): { svg: string; w: nu
     result = buildGenreGlassSvg(genreName, voteStr, yearStr, fs, textColor, bottomLight ?? false, 0, parts, font)
   } else if (isBar) {
     // Barra genere: testo ad alto contrasto polarizzato sul fondo (come pill).
-    result = buildGenreBarSvg(genreName, voteStr, yearStr, pw, fs, bottomLight ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.88)", !!bottomLight, 0, parts, font)
+    const barText = input.textColor ?? (bottomLight ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.88)")
+    result = buildGenreBarSvg(genreName, voteStr, yearStr, pw, fs, input.textOpacity === undefined ? barText : applyFillOpacity(barText, input.textOpacity), !!bottomLight, 0, parts, font)
   } else if (isPill) {
     // colored: tinta piatta (niente satinatura); pill: satinatura polare.
     // Su accent caldo (oro/ambra) la stella oro annega: fallback in colore testo.
@@ -1148,10 +1097,18 @@ export interface HouseRankingInput {
   readonly isAnime?: boolean
   /** Placca fluttuante con 4 angoli raccordati (badge staccato dal top via toy). */
   readonly detached?: boolean
+  /**
+   * Nastro top per lo style `colored` (Task P parity gap #1): `false` = placca
+   * piatta con tinta accent (nativo `colored`+ribbon OFF via `accentFill`),
+   * absent/true = nastro (legacy behavior, storico). Altri stili lo ignorano.
+   */
+  readonly ribbon?: boolean
   /** Dimensione font assoluta (px su griglia 380; senza = base 30 della ricetta). */
   readonly fontSize?: number
   /** Fill testo esplicito (rgba già risolto; senza = adattivo della ricetta). */
   readonly textColor?: string
+  /** Opacità 0-100 sul fill finale (ricetta o override; senza = ricetta). */
+  readonly textOpacity?: number
   /**
    * Riempimento piatto con l'accent sul badge default centrato (degrado del
    * "colored" a nastro disattivato): senza nastro deve colorare il badge
@@ -1179,7 +1136,8 @@ export function buildHouseRankingSvg(input: HouseRankingInput): { svg: string; w
 
   const fs = Math.round(finalFs)
   const isColored = s === "colored"
-  const isRibbon = s === "netflix" || isColored
+  const ribbonOn = input.ribbon ?? true
+  const isRibbon = s === "netflix" || (isColored && ribbonOn)
   const coloredBg = isColored && accentColor && accentColor !== "#555555" ? accentColor : undefined
   const bg = coloredBg || (topLight ? "rgba(0,0,0,0.80)" : "rgba(255,255,255,0.80)")
   const recipeFg = isColored
@@ -1187,7 +1145,8 @@ export function buildHouseRankingSvg(input: HouseRankingInput): { svg: string; w
     : (s === "vetro" || s === "bordo")
       ? (topLight ? "rgba(0,0,0,0.80)" : TRANSLUCENT_BADGE_TEXT)
       : (topLight ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.88)")
-  const fg = input.textColor ?? recipeFg
+  const rawFg = input.textColor ?? recipeFg
+  const fg = input.textOpacity !== undefined ? applyFillOpacity(rawFg, input.textOpacity) : rawFg
 
   if (isRibbon) {
     // Il nastro mostra l'etichetta sotto il numero: per gli anime è "anime",
@@ -1196,7 +1155,7 @@ export function buildHouseRankingSvg(input: HouseRankingInput): { svg: string; w
     const ribbonAccent = isColored ? coloredBg : undefined
     return buildNetflixRankBadgeSVG(rank, pw, !!topLight, side, isAnime, input.label ?? periodText, ribbonAccent, {
       fontSize: input.fontSize,
-      textColor: input.textColor,
+      textColor: input.textOpacity === undefined ? input.textColor : applyFillOpacity(input.textColor ?? (ribbonAccent ? textColorForBg(ribbonAccent) : (topLight ? "rgba(255,255,255,0.80)" : "rgba(0,0,0,0.80)")), input.textOpacity),
       font,
     })
   } else if (s === "pill") {
@@ -1214,86 +1173,144 @@ export function buildHouseRankingSvg(input: HouseRankingInput): { svg: string; w
   }
   // Senza nastro il "colored" colora il badge default: tinta accent piatta
   // (stesso contratto del builder extra) invece del gradiente satinato.
-  const accentFlat = input.accentFill && accentColor && accentColor !== "#555555" ? accentColor : undefined
+  // Task P parity: ribbon=false forza la placca anche senza accentFill esterno.
+  const accentFlat = (input.accentFill || (isColored && !ribbonOn)) && accentColor && accentColor !== "#555555" ? accentColor : undefined
   return buildRankingDefaultSvg(fullText, fs, accentFlat ? textColorForBg(accentFlat) : fg, bg, !!topLight, accentFlat, detached, font)
 }
 
-export interface HousePresetScene {
-  readonly topLight: boolean
-  readonly bottomLight: boolean
-  /** Accent esadecimale o null (null = sentinella "nessun accent", come "#555555"). */
-  readonly accentColor: string | null
-  readonly side?: "left" | "right"
-  readonly isAnime?: boolean
+export interface HouseExtraInput {
+  readonly label: string
+  readonly pw: number
+  readonly topLight?: boolean
+  readonly style?: BadgeStyle | RankingBadgeStyle
+  readonly accentColor?: string
+  /** Placca fluttuante con 4 angoli raccordati (badge staccato dal top via toy). */
+  readonly detached?: boolean
+  /** Dimensione font assoluta (px su griglia 380; senza = base 27 della ricetta, 90% del ranking). */
+  readonly fontSize?: number
+  /** Fill testo esplicito (rgba già risolto; senza = adattivo della ricetta). */
+  readonly textColor?: string
+  /** Opacità 0-100 sul fill finale (ricetta o override; senza = ricetta). */
+  readonly textOpacity?: number
+  /** Font dei testi (default "inter" = resa storica). */
+  readonly font?: BadgeFont
 }
 
 /**
- * Render SVG puro di un preset house con gli stessi builder dei badge poster
- * (stessa ricetta, non un'approssimazione). Server, route preview.svg e
- * Badge Lab usano questa unica funzione — Golden Rule per costruzione. La
- * scala del preset agisce sulla larghezza di lavoro così font e geometria
- * restano proporzionali; testo vuoto o rank assente → null (fail-open).
+ * Shared sync recipe for the extra badge (custom text, no rank digits):
+ * the single source used by the native poster path (`buildExtraBadgeSVG` in
+ * svg-badge.ts, plus resvg there) and by the Badge Lab house presets
+ * (identical inputs → identical SVG, never a copied renderer). Ribbon and
+ * numeral styles degrade exactly like the native extra badge (default plate,
+ * corner pill) — they stay accepted for backwards compatibility but are not
+ * advertised as native extra styles in the Lab gallery.
  */
-export function buildHousePresetSvg(
-  preset: PresetLike,
-  context: BadgeVariableContext,
-  pw: number,
-  scene: HousePresetScene,
-): { svg: string; w: number; h: number } | null {
-  const house: HouseBadge | undefined = preset.house
-  if (preset.variant !== "house" || !house) return null
-  const effPw = Math.max(1, (pw * house.scale) / 100)
-  // Override esplicito del preset, altrimenti accent di scena (come il poster).
-  const accent = house.accent ?? scene.accentColor ?? undefined
-  // Override di testo (variabili ammesse): vuoto o irrisolto = dato live.
-  const overrideText = (v: string | undefined): string => {
-    const t = v?.trim()
-    return t ? resolveBadgeText(t, context) : ""
+export function buildHouseExtraSvg(input: HouseExtraInput): { svg: string; w: number; h: number } {
+  const s = input.style || "default"
+  const f = normalizeBadgeFont(input.font)
+  // Cap estetico per gli stili compatti: oltre il 65% di pw il testo si
+  // rimpicciolisce (le label corte restano invariate).
+  const maxBadgeW = Math.round(input.pw * 0.65)
+  // Extra al 90% del badge ranking (base 30): a pari fs le label lunghe
+  // ("Candidato Golden Globe") restano compatte rispetto ai rank.
+  let finalFs = (input.fontSize ?? 30 * 0.9) * input.pw / 380
+  const projectedW = estimateTextWidth(input.label, finalFs, f) + Math.round(finalFs * 2) + Math.round(finalFs * 0.6) * 2
+  if (projectedW > maxBadgeW) {
+    finalFs = Math.max(maxBadgeW / projectedW * finalFs, 10)
   }
-  if (preset.target === "genre") {
-    const genreName = overrideText(house.genreText) || context.genre || ""
-    const ratingLive = context.rating
-    const yearLive = context.year
-    const voteStr =
-      overrideText(house.ratingText) ||
-      (ratingLive === null || ratingLive === undefined || ratingLive === "" ? "" : String(ratingLive))
-    const yearStr =
-      overrideText(house.yearText) ||
-      (yearLive === null || yearLive === undefined || yearLive === "" ? "" : String(yearLive))
-    const parts = {
-      showGenre: house.showGenre ?? true,
-      showYear: house.showYear ?? true,
-      showRating: house.showRating ?? true,
-    }
-    if (!((parts.showGenre && genreName) || (parts.showRating && voteStr) || (parts.showYear && yearStr))) {
-      return null
-    }
-    const bottomLight = house.polarity === "auto" ? scene.bottomLight : house.polarity === "light"
-    return buildHouseGenreSvg({
-      genreName,
-      voteStr,
-      yearStr,
-      pw: effPw,
-      style: house.style as BadgeStyle,
-      accentColor: accent,
-      bottomLight,
-      parts,
-      scale: 100,
-    })
+
+  const fs = Math.round(finalFs)
+  const isColored = s === "colored"
+  const isGlass = s === "vetro"
+  const coloredBg = isColored && input.accentColor && input.accentColor !== "#555555" ? input.accentColor : undefined
+  const bg = coloredBg || (input.topLight ? "rgba(0,0,0,0.80)" : "rgba(255,255,255,0.80)")
+  const recipeFg = isColored
+    ? textColorForBg(input.accentColor || "")
+    : (isGlass || s === "bordo")
+      ? (input.topLight ? "rgba(0,0,0,0.80)" : TRANSLUCENT_BADGE_TEXT)
+      : (input.topLight ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.88)")
+  const rawFg = input.textColor ?? recipeFg
+  const fg = input.textOpacity !== undefined ? applyFillOpacity(rawFg, input.textOpacity) : rawFg
+
+  let result: { svg: string; w: number; h: number }
+  if (s === "pill") {
+    result = buildExtraPillSvg(input.label, fs, fg, bg, !!input.topLight, true, f)
+  } else if (s === "corner") {
+    // Corner style for every top badge (rank or extra): same flat accent
+    // pill as the ranking corner, fed by the extra label. The 65% cap,
+    // font and accent fallback above apply unchanged.
+    result = buildRankingCornerSvg(input.label, fs, input.accentColor || "#555555", f)
+  } else if (s === "number") {
+    // An extra badge carries no digits: degrade to the corner flat pill so
+    // rank and extra share the same corner anchor under `rs=number`.
+    result = buildRankingCornerSvg(input.label, fs, input.accentColor || "#555555", f)
+  } else if (isGlass) {
+    result = buildExtraGlassSvg(input.label, fs, fg, bg, !!input.topLight, f)
+  } else if (s === "bordo") {
+    result = buildExtraBorderedSvg(input.label, fs, fg, !!input.topLight, f)
+  } else {
+    // colored: passa la tinta accent come flatBg (resta piatta); default: gradiente satinato.
+    result = buildExtraDefaultSvg(input.label, fs, fg, bg, !!input.detached, !!input.topLight, isColored ? bg : undefined, f)
   }
-  const rank = house.rankOverride ?? Number(context.rank)
-  if (!Number.isFinite(rank) || rank <= 0) return null
-  const label = resolveBadgeText(house.label ?? "", context) || "Oggi"
-  const topLight = house.polarity === "auto" ? scene.topLight : house.polarity === "light"
-  return buildHouseRankingSvg({
-    rank,
-    label,
-    pw: effPw,
-    topLight,
-    style: house.style as RankingBadgeStyle,
-    accentColor: accent,
-    side: house.side ?? scene.side ?? "left",
-    isAnime: scene.isAnime,
-  })
+  return result
 }
 
+/**
+ * Corner-ribbon SVG for the pre-digital "coming soon" sticker (pure,
+ * sync, single source): the same corner geometry the poster composites
+ * with a negative offset (`comingSoonRibbonLayout(pw).offset`), red
+ * gradient band + fitted uppercase label + drop shadow. `svg-badge.ts`
+ * `renderComingSoonRibbon` rasterizes this builder (no second recipe).
+ */
+export function buildComingSoonRibbonSvg(
+  label: string,
+  pw: number,
+  side: "left" | "right" = "left",
+  font: BadgeFont = "inter",
+  /** Optional typography override: absolute font size on the
+   *  380 grid, explicit text color/opacity, opt-out of the reference
+   *  uppercase. All absent = historic look, byte-identical. */
+  typo?: { fontSize?: number; textColor?: string; textOpacity?: number; uppercase?: boolean },
+): { svg: string; w: number; h: number } {
+  const s = pw / 380
+  const CS = Math.round(200 * s)
+  const offset = Math.round(20 * s)
+  const c = CS - offset - Math.round(100 * s)
+  const cx = side === "right" ? CS - c : c
+  const rot = side === "right" ? 45 : -45
+  const half = Math.round(140 * s)
+  const bandH = Math.round(44 * s)
+  const text = typo?.uppercase === false ? label : label.toUpperCase()
+  let fs = typo?.fontSize !== undefined
+    ? Math.max(8, Math.round(typo.fontSize * s))
+    : Math.round(21 * s)
+  const ink = typo?.textColor ?? "#ffffff"
+  const inkFill = typo?.textOpacity !== undefined ? applyFillOpacity(ink, typo.textOpacity) : ink
+  // Il testo deve stare nel segmento visibile (tra i due bordi poster):
+  // oltre sborda a metà lettera e sembra rotto, non "nastro da angolo".
+  // Tetto stretto (120, non tutta la banda): le parole lunghe
+  // ("Prossimamente", "Prochainement"...) respirano invece di toccare i bordi.
+  const maxTextW = Math.round(120 * s)
+  const textW = estimateTextWidth(text, fs, normalizeBadgeFont(font))
+  if (textW > maxTextW) {
+    fs = Math.max(12, Math.floor((fs * maxTextW) / textW))
+  }
+  const labelSvg =
+    `<text x="0" y="${Math.round(1 * s)}" text-anchor="middle" dominant-baseline="central" font-family="${fontFamilyFor(text, normalizeBadgeFont(font))}" font-weight="800" font-size="${fs}" fill="${inkFill}" letter-spacing="0.05em">${escSvg(text)}</text>`
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${CS}" height="${CS}" viewBox="0 0 ${CS} ${CS}">` +
+    `<defs>` +
+    `<filter id="csShadow" x="-40%" y="-40%" width="180%" height="180%">` +
+    `<feDropShadow dx="0" dy="${Math.round(3 * s)}" stdDeviation="${Math.round(4 * s)}" flood-color="#000000" flood-opacity="0.80"/>` +
+    `</filter>` +
+    `<linearGradient id="csGrad" x1="0" y1="0" x2="0" y2="1">` +
+    `<stop offset="0%" stop-color="#e50914"/>` +
+    `<stop offset="100%" stop-color="#a30810"/>` +
+    `</linearGradient>` +
+    `</defs>` +
+    `<g transform="translate(${cx},${c}) rotate(${rot})" filter="url(#csShadow)">` +
+    `<rect x="${-half}" y="${Math.round(-bandH / 2)}" width="${half * 2}" height="${bandH}" fill="url(#csGrad)"/>` +
+    labelSvg +
+    `</g></svg>`
+  return { svg, w: CS, h: CS }
+}

@@ -222,7 +222,7 @@ export default function EditView() {
     ed.defaultPosterShape,
   ), [previewPosterFilePath, previewCustomPosterUrl, selectedBackdropFilePath, selectedCustomBackdropUrl, ed.posterShape, selectedLogo?.file_path, ed.logoDisabled, selectedMapping, ed.defaultPosterShape])
 
-  const mappingDirty = useMemo(() => isMappingDirty(
+  const mappingDirtyBase = useMemo(() => isMappingDirty(
     {
       artwork: {
         posterPath: previewPosterFilePath,
@@ -306,6 +306,7 @@ export default function EditView() {
       },
     ed.defaultPosterShape,
   ), [ed, previewPosterFilePath, previewCustomPosterUrl, selectedBackdropFilePath, selectedCustomBackdropUrl, selectedLogo?.file_path, selectedMapping, isLandscapeTuning])
+  const mappingDirty = mappingDirtyBase
 
   const [saveState, setSaveState] = useState<"idle" | "saving" | "error">("idle")
   const saveStateRef = useRef(saveState)
@@ -681,8 +682,6 @@ export default function EditView() {
       // un null stashato non è mai un inherit intoccato. Preset a coppia.
       customBadge: ed.customBadge,
       accentColor: isManualAccent(accentColor, autoAccentColor) ? accentColor : null,
-      badgePresetId: ed.badgePresetId,
-      badgePresetRev: ed.badgePresetRev,
       // Sfumatura ESCLUSA: ha profili dedicati per formato (flat = portrait,
       // landscapeBlur = landscape) e non passa più dallo stash.
     }
@@ -912,15 +911,6 @@ export default function EditView() {
       setAccentColor(
         typeof restoredAccent === "string" && restoredAccent.length > 0 ? restoredAccent : autoAccentColor,
       )
-      const stashedId = stashedTarget?.badgePresetId
-      const stashedRev = stashedTarget?.badgePresetRev
-      if (stashedId !== undefined || stashedRev !== undefined) {
-        ed.setBadgePresetId((stashedId ?? null) as string | null)
-        ed.setBadgePresetRev((stashedRev ?? null) as string | null)
-      } else {
-        ed.setBadgePresetId((savedEff?.badgePresetId ?? null) as string | null)
-        ed.setBadgePresetRev((savedEff?.badgePresetRev ?? null) as string | null)
-      }
     }
   }, [ed, removeBackdrop, selectedMapping, selected, currentUserId, shapeStashKey, setShapeStashKey, accentColor, autoAccentColor, setAccentColor])
 

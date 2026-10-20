@@ -150,9 +150,9 @@ export async function renderSeparateRatingStack(
   for (const item of capped) {
     const logo = await loadSeparateRatingLogo(item.id, logoH)
     if (!logo) continue
-    const display = formatSeparateValue(item.id, item.value)
-    const textW = Math.max(estimateTextWidth(display, fs, f), 1)
-    rows.push({ logo, display, textW, pillH: pt + logo.h + gap + fs + pt })
+    const rawDisplay = formatSeparateValue(item.id, item.value)
+    const textW = Math.max(estimateTextWidth(rawDisplay, fs, f), 1)
+    rows.push({ logo, display: rawDisplay, textW, pillH: pt + logo.h + gap + fs + pt })
   }
   if (rows.length === 0) return null
 

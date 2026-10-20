@@ -31,7 +31,7 @@ interface PosterSaveDeps {
   setPreviewPoster: (poster: TMDBImage | null) => void
   setPreviewId: (id: string | null) => void
   posters: TMDBImage[]
-  metaInfo: { genres: { id: number; name: string }[]; voteAverage: number; type?: string; status?: string; release_date?: string; first_air_date?: string; last_air_date?: string; number_of_seasons?: number; awards?: string[]; nominations?: string[]; studios?: string[]; director?: string | null; keywords?: string[]; imdb_id?: string | null; wikidata_id?: string | null; networksDetailed?: { name: string; logo_path: string | null; origin_country?: string }[]; productionCompaniesDetailed?: { name: string; logo_path: string | null; origin_country?: string }[] }
+  metaInfo: { genres: { id: number; name: string }[]; voteAverage: number; type?: string; status?: string; release_date?: string; first_air_date?: string; last_air_date?: string; next_episode_to_air?: { air_date: string } | null; number_of_seasons?: number; number_of_episodes?: number; awards?: string[]; nominations?: string[]; studios?: string[]; director?: string | null; keywords?: string[]; imdb_id?: string | null; wikidata_id?: string | null; networksDetailed?: { name: string; logo_path: string | null; origin_country?: string }[]; productionCompaniesDetailed?: { name: string; logo_path: string | null; origin_country?: string }[] }
   /** IMDb Top 250 membership for the selected content. */
   imdbTop250?: boolean
   trendRank: number | null
@@ -76,8 +76,6 @@ interface PosterSaveDeps {
    */
   seasonalTheme?: import("./seasonal-theme").SeasonalThemeChoice | null
   customBadge: string | null
-  badgePresetId?: string | null
-  badgePresetRev?: string | null
   badgeStyle: string
   rankingBadgeStyle: string
   /** Standalone extra-badge style per-titolo (congelato al save; null = legacy eredita, "follow-rank" = own-rank esplicito persistito). */
@@ -211,9 +209,10 @@ export interface SaveConfigOverrides {
    * Staged style values of the shape NOT in editing (EditView shape stash,
    * newer than the saved mapping): portrait values for a landscape save,
    * landscape values for a portrait save. Only MAPPING_SHAPE_LAND_KEYS are
-   * consumed (tuning, logo and gradient keep their existing rules); absent =
-   * no staged edits (boundary from the saved mapping). Enables both-shape
-   * edits before a single save without leaking either look into the other.
+   * consumed (tuning, logo and gradient keep their existing rules);
+   * absent = no staged edits (boundary from the saved mapping). Enables
+   * both-shape edits before a single save without leaking either look into
+   * the other.
    */
   otherShapeStash?: Partial<Record<MappingShapeLandKey, unknown>> | null
 }
@@ -239,7 +238,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
     logoScale, logoOffsetX, logoOffsetY,
     selectedBackdrop, setSelectedBackdrop, backdropScale, backdropOffsetX, backdropOffsetY,
     setBackdropScale, setBackdropOffsetX, setBackdropOffsetY,
-    globalBadges, rankingBadges, customBadge, badgePresetId, badgePresetRev, badgeStyle, rankingBadgeStyle, extraBadgeStyle, badgeFont, qualityBadgeStyle,
+    globalBadges, rankingBadges, customBadge, badgeStyle, rankingBadgeStyle, extraBadgeStyle, badgeFont, qualityBadgeStyle,
     videoFormats,
     badgeGenre, badgeYear, badgeRating, badgeQuality, ageBadge, ageCountry, ageBadgeStyle, customRatings, ratingSources, separateRatings, separateRatingsStyle,
     seasonalTheme,
@@ -412,6 +411,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
       originCountries: [...(metaInfo.networksDetailed ?? []), ...(metaInfo.productionCompaniesDetailed ?? [])]
         .map((c) => c.origin_country)
         .filter((c): c is string => !!c),
+      genreIds: Array.isArray(metaInfo.genres) ? metaInfo.genres.map((g) => g.id).filter((id): id is number => Number.isFinite(id)) : null,
       voteAverage: metaInfo.voteAverage,
       trendRank: trendRank ?? null,
       animeRank: animeRankData?.rank ?? null,
@@ -421,6 +421,9 @@ export function usePosterSave(deps: PosterSaveDeps) {
       director: metaInfo.director ?? null,
       tvType: selected.media_type === "tv" ? metaInfo.type : null,
       tvStatus: selected.media_type === "tv" ? metaInfo.status : null,
+      nextEpisodeAirDate: selected.media_type === "tv" ? (metaInfo.next_episode_to_air?.air_date ?? null) : null,
+      numberOfEpisodes: selected.media_type === "tv" ? (metaInfo.number_of_episodes ?? null) : null,
+      keywords: metaInfo.keywords ?? [],
       imdbTop250: !!imdbTop250,
     }
     const computed = computeTopBadge(badgeInput, t, lang, defaultSashOrder ?? null)
@@ -663,20 +666,16 @@ export function usePosterSave(deps: PosterSaveDeps) {
         if (v !== undefined) landscapeStashStyles[k] = v
       }
     }
-    // Binding preset atomico a coppia nel merge portrait-save: il backfill è
-    // per-chiave, ma id/rev non devono mai mescolare i lati flat e profilo.
-    // Se il profilo risultante possiede UNA sola delle due chiavi, l'altra si
-    // completa dal flat salvato (mai dal live portrait): la coppia resta di
-    // un solo lato. Entrambe assenti = eredita (legacy invariato).
-    const repairPresetPair = (profile: Record<string, unknown> | null): void => {
-      if (!profile) return
-      const hasId = profile.badgePresetId !== undefined
-      const hasRev = profile.badgePresetRev !== undefined
-      if (hasId === hasRev) return
-      const prevRec = (prevMapping ?? null) as unknown as Record<string, unknown> | null
-      if (!hasId) profile.badgePresetId = (prevRec?.badgePresetId ?? null) as unknown
-      else profile.badgePresetRev = (prevRec?.badgePresetRev ?? null) as unknown
-    }
+    // Retired Badge Lab (custom badge library removed): the editor no longer
+    // stages family bindings, so the stored values round-trip verbatim —
+    // never edited, never deleted by a save (full-replace upsert would drop
+    // omitted keys). The renderer ignores them unconditionally.
+    const prevRec = (prevMapping ?? null) as unknown as Record<string, unknown> | null
+    const carryStored = (key: string): unknown =>
+      prevRec && Object.prototype.hasOwnProperty.call(prevRec, key) ? prevRec[key] : undefined
+    const prevLandRec = (prevMapping?.landscape ?? null) as unknown as Record<string, unknown> | null
+    const carryStoredLand = (key: string): unknown =>
+      prevLandRec && Object.prototype.hasOwnProperty.call(prevLandRec, key) ? prevLandRec[key] : undefined
     const landscapeProfile = isLandscapeMode
       ? {
           // Correzione c1: auto (provenance) → null (resta auto al
@@ -702,14 +701,17 @@ export function usePosterSave(deps: PosterSaveDeps) {
           // preset coppia atomica (null/null = nessun preset per la forma).
           customBadge,
           accentColor: isManualAccent(accentColor, autoAccentColor) ? accentColor : null,
-          badgePresetId: badgePresetId ?? null,
-          badgePresetRev: badgePresetRev ?? null,
+          // Retired Badge Lab (custom badge library removed): the stored
+          // profile keys round-trip verbatim (never edited, never deleted).
+          ...(carryStoredLand("badgePresetId") !== undefined ? { badgePresetId: carryStoredLand("badgePresetId") } : {}),
+          ...(carryStoredLand("badgePresetRev") !== undefined ? { badgePresetRev: carryStoredLand("badgePresetRev") } : {}),
+          ...(carryStoredLand("badgePresets") !== undefined ? { badgePresets: carryStoredLand("badgePresets") } : {}),
+          ...(carryStoredLand("badgePresetFollows") !== undefined ? { badgePresetFollows: carryStoredLand("badgePresetFollows") } : {}),
           ...landscapeBlurPatch,
         }
       : (useLandscapeBlur || prevMapping?.landscape || Object.keys(styleBackfill).length > 0 || Object.keys(landscapeStashStyles).length > 0
           ? (() => {
             const merged = { ...(prevMapping?.landscape ?? null), ...styleBackfill, ...landscapeStashStyles, ...(useLandscapeBlur ? landscapeBlurPatch : {}) }
-            repairPresetPair(merged)
             return merged
           })()
           : null)
@@ -851,11 +853,12 @@ export function usePosterSave(deps: PosterSaveDeps) {
           // blur coerce a null), in landscape il flat salvato VERBATIM (mai
           // clobberato dal live dell'altro formato; staged portrait vince).
           customBadge: keepFlatKey("customBadge", customBadge),
-          // Binding Badge Lab atomico a coppia: in portrait il live (null =
-          // nessun preset, come oggi); in landscape il flat salvato VERBATIM
-          // con la stessa regola keepFlatKey (mai il live landscape).
-          badgePresetId: keepFlatKey("badgePresetId", badgePresetId ?? null),
-          badgePresetRev: keepFlatKey("badgePresetRev", badgePresetRev ?? null),
+          // Retired Badge Lab (custom badge library removed): the stored flat
+          // keys round-trip verbatim (never edited, never deleted).
+          ...(carryStored("badgePresetId") !== undefined ? { badgePresetId: carryStored("badgePresetId") } : {}),
+          ...(carryStored("badgePresetRev") !== undefined ? { badgePresetRev: carryStored("badgePresetRev") } : {}),
+          ...(carryStored("badgePresets") !== undefined ? { badgePresets: carryStored("badgePresets") } : {}),
+          ...(carryStored("badgePresetFollows") !== undefined ? { badgePresetFollows: carryStored("badgePresetFollows") } : {}),
           badgeStyle: keepFlatKey("badgeStyle", badgeStyle),
           rankingBadgeStyle: keepFlatKey("rankingBadgeStyle", rankingBadgeStyle),
           // Transport snapshot (renderer boundary escluso): stili concreti e
@@ -965,7 +968,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
       if (overrides.silent) throw error
       return false
     }
-  }, [selected, previewPoster, selectedLogo, metaInfo, logoScale, logoOffsetX, logoOffsetY, trendRank, globalBadges, rankingBadges, badgeGenre, badgeYear, badgeRating, badgeQuality, ageBadge, ageCountry, ageBadgeStyle, customRatings, ratingSources, separateRatings, separateRatingsStyle, seasonalTheme, mdblistAnimeList, loadMappings, customBadge, badgePresetId, badgePresetRev, badgeStyle, rankingBadgeStyle, extraBadgeStyle, badgeFont, qualityBadgeStyle, videoFormats, blurEnabled, blurIntensity, blurFade, blurDarkness, landscapeBlur, landscapeBlurDirty, tintStrength, topShade, topShadeHeight, gradientHeight, topBadgeScale, topBadgeOffsetX, topBadgeOffsetY, extraBadgeScale, extraBadgeOffsetX, extraBadgeOffsetY, genreBadgeScale, qualityBadgeScale, separateBadgeScale, separateBadgeOffsetX, separateBadgeOffsetY, networkLogoScale, genreBadgeOffsetX, genreBadgeOffsetY, qualityBadgeOffsetX, qualityBadgeOffsetY, networkLogoOffsetX, networkLogoOffsetY, rotationPosters, autoRotateClean, defaultAutoRotateClean, excludedPosters, rotationBackdrops, autoRotateBackdrop, defaultAutoRotateBackdrop, excludedBackdrops, backdrops, defaultBadgeStyle, defaultRankingBadgeStyle, defaultExtraBadgeStyle, defaultGlobalBadges, defaultRankingBadges, defaultBadgeGenre, defaultBadgeYear, defaultBadgeRating, defaultBadgeQuality, defaultAgeBadge, defaultAgeCountry, defaultAgeBadgeStyle, defaultCustomRatings, defaultSeparateRatings, defaultBadgeFont, defaultQualityBadgeStyle, defaultVideoFormats, defaultNetworkLogo, defaultNetworkLogoPosition, defaultRibbonEnabled, posters, mappingsMap, accentColor, autoAccentColor, backdropOffsetX, backdropOffsetY, backdropScale, selectedBackdrop, networkLogo, networkLogoPosition, networkLogoFollowTitle, ribbonEnabled, episodeGroupId, posterShape, posterLayout, posterFreshScope]) // eslint-disable-line react-hooks/exhaustive-deps -- intentionally complete to save all poster state
+  }, [selected, previewPoster, selectedLogo, metaInfo, logoScale, logoOffsetX, logoOffsetY, trendRank, globalBadges, rankingBadges, badgeGenre, badgeYear, badgeRating, badgeQuality, ageBadge, ageCountry, ageBadgeStyle, customRatings, ratingSources, separateRatings, separateRatingsStyle, seasonalTheme, mdblistAnimeList, loadMappings, customBadge, badgeStyle, rankingBadgeStyle, extraBadgeStyle, badgeFont, qualityBadgeStyle, videoFormats, blurEnabled, blurIntensity, blurFade, blurDarkness, landscapeBlur, landscapeBlurDirty, tintStrength, topShade, topShadeHeight, gradientHeight, topBadgeScale, topBadgeOffsetX, topBadgeOffsetY, extraBadgeScale, extraBadgeOffsetX, extraBadgeOffsetY, genreBadgeScale, qualityBadgeScale, separateBadgeScale, separateBadgeOffsetX, separateBadgeOffsetY, networkLogoScale, genreBadgeOffsetX, genreBadgeOffsetY, qualityBadgeOffsetX, qualityBadgeOffsetY, networkLogoOffsetX, networkLogoOffsetY, rotationPosters, autoRotateClean, defaultAutoRotateClean, excludedPosters, rotationBackdrops, autoRotateBackdrop, defaultAutoRotateBackdrop, excludedBackdrops, backdrops, defaultBadgeStyle, defaultRankingBadgeStyle, defaultExtraBadgeStyle, defaultGlobalBadges, defaultRankingBadges, defaultBadgeGenre, defaultBadgeYear, defaultBadgeRating, defaultBadgeQuality, defaultAgeBadge, defaultAgeCountry, defaultAgeBadgeStyle, defaultCustomRatings, defaultSeparateRatings, defaultBadgeFont, defaultQualityBadgeStyle, defaultVideoFormats, defaultNetworkLogo, defaultNetworkLogoPosition, defaultRibbonEnabled, posters, mappingsMap, accentColor, autoAccentColor, backdropOffsetX, backdropOffsetY, backdropScale, selectedBackdrop, networkLogo, networkLogoPosition, networkLogoFollowTitle, ribbonEnabled, episodeGroupId, posterShape, posterLayout, posterFreshScope]) // eslint-disable-line react-hooks/exhaustive-deps -- intentionally complete to save all poster state
 
   /**
    * Cover-only save ("Salva solo poster" / "Save poster only"): persists

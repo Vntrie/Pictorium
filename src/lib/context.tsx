@@ -6,7 +6,7 @@ import { effectiveMappingForShape, DEFAULT_POSTER_FRESH_SCOPE } from "./types"
 import { effectiveShapeDefaultLayout, resolveOpenPosterLayout, effectiveShapeDefaultFreshScope, resolveOpenPosterFreshScope, effectiveShapeDefaultAge } from "./poster-layout-resolve"
 import { normalizeSeasonalThemeChoice, resolveEffectiveSeasonalTheme } from "./seasonal-theme"
 import type { BadgeStyle, RankingBadgeStyle, ExtraBadgeStyle, ExtraBadgeFollowRank, QualityBadgeStyle, BadgeFont, SeparateRatingsStyle, AgeBadgeStyle } from "./badge-styles"
-import { isSeparateRatingsStyle, resolveSeparateBadgeScaleFallback, isExtraBadgeStyle, isExtraFollowRank } from "./badge-styles"
+import { isSeparateRatingsStyle, resolveSeparateBadgeScaleFallback, isExtraBadgeStyle, isExtraFollowRank, resolveUnmappedQualityBadgeOffsets } from "./badge-styles"
 import { resolveNetworkShapeView, resolveNetworkEffectiveView } from "./network-follow"
 import type { RibbonSide } from "./useDefaults"
 type LogoAlign = "left" | "center"
@@ -607,8 +607,6 @@ export function usePictorium(): PictoriumCtx {
     qualityBadgeStyle, setQualityBadgeStyle,
     videoFormats, setVideoFormats,
     customBadge, setCustomBadge,
-    badgePresetId, setBadgePresetId,
-    badgePresetRev, setBadgePresetRev,
     networkLogo, setNetworkLogo,
     networkLogoPosition, setNetworkLogoPosition,
     networkLogoFollowTitle, setNetworkLogoFollowTitle,
@@ -1656,6 +1654,8 @@ export function usePictorium(): PictoriumCtx {
     const previewAgeBadge = navigation.selected ? ageBadge : previewAgeDefaults.ageBadge
     const previewAgeCountry = navigation.selected ? ageCountry : previewAgeDefaults.ageCountry
     const previewAgeBadgeStyle = navigation.selected ? ageBadgeStyle : previewAgeDefaults.ageBadgeStyle
+    // Retired Badge Lab (custom badge library removed): no staged family
+    // bindings travel in preview URLs (the renderer ignores them anyway).
     const url = buildPreviewUrl(
       {
         selected: navigation.selected,
@@ -2059,7 +2059,7 @@ export function usePictorium(): PictoriumCtx {
   // skipDefaultsSync: rebuilding the whole editor state from storage would
   // wipe in-memory tweaks (open already synced styles beforehand, the refresh
   // must also not revert a just-changed region).
-  const applyLoadedSelection = (data: ImageLists, details: { original_language: string }, item: SearchResult, skipDefaultsSync = false) => {
+  const applyLoadedSelection = (data: ImageLists, details: { original_language: string }, item: SearchResult, skipDefaultsSync = false, openShapeOverride?: PosterShape) => {
     const itemType = item.media_type
     const itemId = item.id
     setTitleOrigLang(details.original_language ?? null)
@@ -2071,8 +2071,9 @@ export function usePictorium(): PictoriumCtx {
     // col sentinel auto (preview `scale=0`, save null) — mai 100 baked che
     // congelerebbe i fallback Standard; il rank-effect sotto riallinea i soli
     // auto al rank noto. Espliciti salvati (mapping/default, anche 75/100)
-    // vincono sempre e non vengono mai clobberati.
-    const openShape = (existing?.posterShape ?? defaultPosterShape) as "poster" | "landscape"
+    // vincono sempre e non vengono mai clobberati. L'handoff Lab viaggia con
+    // la stessa forma dell'init sync sopra (openPosterBrowser la passa).
+    const openShape = (openShapeOverride ?? existing?.posterShape ?? defaultPosterShape) as "poster" | "landscape"
     const openLayout = resolveOpenPosterLayout(existing ?? null, openShape, defaultPosterLayout, landscapeDefaults ?? null)
     // Scope aperto (mapping effettivo > default effettivo di formato):
     // guida l'auto EFFETTIVO col rank (mai 100 baked sui no-rank).
@@ -2106,7 +2107,7 @@ export function usePictorium(): PictoriumCtx {
       // A saved TVDB custom base with recorded text (non-null language)
       // counts as non-clean: never auto-logo over baked-in text (legacy-
       // ambiguous null and generic custom URLs stay clean-eligible as before).
-      } else if (!existing.logoDisabled && (customFile ? (isTvdbArtworkUrl(customFile) ? previewLang === null : true) : ((foundPoster ? foundPoster.iso_639_1 === null : previewLang === null) || (existing.posterShape ?? defaultPosterShape) === "landscape"))) {
+      } else if (!existing.logoDisabled && (customFile ? (isTvdbArtworkUrl(customFile) ? previewLang === null : true) : ((foundPoster ? foundPoster.iso_639_1 === null : previewLang === null) || openShape === "landscape"))) {
         const autoLogo = autoLogoSelection(data.logos || [], lang, details.original_language, `${itemType}/${itemId}`)
         if (autoLogo) {
           navigation.setSelectedLogo({ file_path: autoLogo.file_path, iso_639_1: autoLogo.iso_639_1, vote_average: 0, width: autoLogo.width, height: autoLogo.height })
@@ -2115,7 +2116,7 @@ export function usePictorium(): PictoriumCtx {
           // Standard = aspect — rank ancora ignoto qui, quindi ranked =
           // aspect conservativo; il rank-effect riallinea i soli auto).
           // Mai curva/100 baked come esplicito.
-          const shapeDefault = logoScaleDefaultFor(existing.posterShape ?? defaultPosterShape)
+          const shapeDefault = logoScaleDefaultFor(openShape)
           if (shapeDefault != null) setLogoScale(shapeDefault)
           else {
             setLogoScale(
@@ -2131,7 +2132,7 @@ export function usePictorium(): PictoriumCtx {
       // (correzione c1: mai 100 baked sui fallback Standard; il rank-effect
       // riallinea i soli auto al rank noto). Il ramo auto-logo sopra ha già
       // impostato l'auto con le dimensioni: non clobberarlo.
-      const savedOrDefault = effectiveMappingForShape(existing, existing.posterShape ?? defaultPosterShape)?.logoScale ?? logoScaleDefaultFor(existing.posterShape ?? defaultPosterShape)
+      const savedOrDefault = effectiveMappingForShape(existing, openShape)?.logoScale ?? logoScaleDefaultFor(openShape)
       if (savedOrDefault != null) setLogoScale(savedOrDefault)
       else if (!scaledByAutoLogo) {
         setLogoScale(
@@ -2177,7 +2178,7 @@ export function usePictorium(): PictoriumCtx {
           navigation.setSelectedLogo({ file_path: autoLogo.file_path, iso_639_1: autoLogo.iso_639_1, vote_average: 0, width: autoLogo.width, height: autoLogo.height })
           // Scala logo: default globale per formato (esplicito) > auto
           // EFFETTIVO (correzione c1 — mai 100 baked; vedi ramo mapping).
-          const cleanDefault = logoScaleDefaultFor(defaultPosterShape)
+          const cleanDefault = logoScaleDefaultFor(openShape)
           if (cleanDefault != null) setLogoScale(cleanDefault)
           else {
             setLogoScale(
@@ -2208,13 +2209,13 @@ export function usePictorium(): PictoriumCtx {
       // Solo landscape: senza poster clean (o con clean disattivati) il logo
       // si auto-seleziona comunque (la base è il backdrop, senza testo). In
       // portrait invariato: niente auto-logo senza clean.
-      if ((!clean || defaultDisableCleanPosters) && defaultPosterShape === "landscape" && (data.logos?.length ?? 0) > 0) {
+      if ((!clean || defaultDisableCleanPosters) && openShape === "landscape" && (data.logos?.length ?? 0) > 0) {
         const autoLogo = autoLogoSelection(data.logos || [], lang, details.original_language, `${itemType}/${itemId}`)
         if (autoLogo) {
           navigation.setSelectedLogo({ file_path: autoLogo.file_path, iso_639_1: autoLogo.iso_639_1, vote_average: 0, width: autoLogo.width, height: autoLogo.height })
           // Scala logo: default globale per formato (esplicito) > auto
           // EFFETTIVO (correzione c1 — mai 100 baked; vedi ramo mapping).
-          const landDefault = logoScaleDefaultFor(defaultPosterShape)
+          const landDefault = logoScaleDefaultFor(openShape)
           if (landDefault != null) setLogoScale(landDefault)
           else {
             setLogoScale(
@@ -2358,7 +2359,7 @@ export function usePictorium(): PictoriumCtx {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh on locale change or return to editor; other state is set inside
   }, [lang, editorCtx.defaultRegion, navigation.view])
 
-  const openPosterBrowser = async (item: SearchResult) => {
+  const openPosterBrowser = async (item: SearchResult, shapeOverride?: PosterShape, existingOverride?: Mapping | null) => {
     const itemId = item.id
     const itemType = item.media_type
     const fetchId = navigation.incrementFetchId()
@@ -2383,18 +2384,29 @@ export function usePictorium(): PictoriumCtx {
     // Imposta stili subito (sync) prima delle chiamate async
     // per evitare race condition: se l'utente cambia opzioni mentre
     // i dati sono in caricamento, la vecchia fetch non deve sovrascrivere
-    const existing = mappingsMap.get(`${itemType}:${itemId}`)
+    // Handoff override (authoritative per-id GET): wins over the list map so a
+    // still-pending list can never force the unmapped branch for a saved
+    // title. `undefined` = normal manual path (list map); `null` =
+    // authoritative absent; Mapping = authoritative present.
+    const existing = existingOverride !== undefined ? existingOverride : mappingsMap.get(`${itemType}:${itemId}`)
     // Fonti che saranno attive per questo titolo (per-titolo salvato o default):
     // stesse per setRatingSources e per il fetch details qui sotto — così il
     // voto in metaInfo nasce già corretto e l'effetto [ratingSources] lo
     // conferma invece di gareggiare con un fetch su fonti diverse.
     const nextSources = existing?.ratingSources ?? defaultRatingSources
+    // Shape the open initializes (handoff override wins over the saved shape,
+    // which wins over the default): every init below — mapped and unmapped —
+    // reads shape-effective values for THIS shape, never another's.
+    const openShape = (shapeOverride ?? existing?.posterShape ?? defaultPosterShape) as PosterShape
     if (existing) {
       // Profili per-formato: all'apertura gli stili/toggle mostrano il valore
       // effettivo del formato salvato (profilo landscape vince sul flat, che
       // resta il fallback chiave-per-chiave); senza override salvato si segue
       // il default effettivo di formato (profilo Orizzontale > flat).
-      const openShape = (existing.posterShape ?? defaultPosterShape) as PosterShape
+      // `shapeOverride` (handoff Lab "Use for title"): l'apertura inizializza
+      // i valori effettivi della forma di riconsegna, non quelli della forma
+      // salvata — impostare solo il canvas dopo inizializzerebbe la forma
+      // sbagliata (desync WYSIWYG/preview).
       const eff = effectiveMappingForShape(existing ?? null, openShape)
       const landDef = openShape === "landscape" ? landscapeDefaults : null
       setBadgeStyle(eff?.badgeStyle ?? landDef?.badgeStyle ?? defaultBadgeStyle)
@@ -2432,11 +2444,11 @@ export function usePictorium(): PictoriumCtx {
       // così la preview resta sincrona con Stremio (side dal default d'istanza).
       setRibbonSide(defaultRibbonSide)
       setRibbonEnabled(eff?.ribbonEnabled ?? landDef?.ribbonEnabled ?? defaultRibbonEnabled)
-      setPosterShape(existing.posterShape ?? defaultPosterShape)
+      setPosterShape(openShape)
       // Allineamento per formato (verticale sempre centro per contratto,
       // orizzontale profilo Orizzontale > default globale > sinistra):
       // nessun settaggio deve mai spostare i portrait (contratto legacy).
-      setLogoAlign((existing.posterShape ?? defaultPosterShape) === "landscape" ? (landscapeDefaults?.logoAlign ?? defaultLogoAlign ?? "left") : "center")
+      setLogoAlign(openShape === "landscape" ? (landscapeDefaults?.logoAlign ?? defaultLogoAlign ?? "left") : "center")
       // Profili per-formato: all'apertura gli slider mostrano il tuning
       // effettivo del formato salvato (landscape = profilo orizzontale).
       // I flat sfumatura sono il profilo PORTRAIT (la sezione Orizzontale ha
@@ -2487,15 +2499,15 @@ export function usePictorium(): PictoriumCtx {
           networkLogoOffsetY: defaultNetworkLogoOffsetY,
         },
         landscapeDefaults ?? null,
-        (existing?.posterShape ?? defaultPosterShape) === "landscape" ? "landscape" : "poster",
+        openShape === "landscape" ? "landscape" : "poster",
       )
       setNetworkLogoFollowTitle(netLoadView.follow)
       setNetworkLogoOffsetX(netLoadView.follow ? netLoadView.relativeX : (netLoadView.fixedX ?? defaultNetworkLogoOffsetX))
       setNetworkLogoOffsetY(netLoadView.follow ? netLoadView.relativeY : (netLoadView.fixedY ?? defaultNetworkLogoOffsetY))
       setGenreBadgeOffsetX(eff?.genreBadgeOffsetX ?? defaultGenreBadgeOffsetX)
       setGenreBadgeOffsetY(eff?.genreBadgeOffsetY ?? defaultGenreBadgeOffsetY)
-      setQualityBadgeOffsetX(eff?.qualityBadgeOffsetX ?? ((existing?.posterShape ?? defaultPosterShape) === "landscape" ? (landscapeDefaults?.qualityBadgeOffsetX ?? defaultQualityBadgeOffsetX) : defaultQualityBadgeOffsetX))
-      setQualityBadgeOffsetY(eff?.qualityBadgeOffsetY ?? ((existing?.posterShape ?? defaultPosterShape) === "landscape" ? (landscapeDefaults?.qualityBadgeOffsetY ?? defaultQualityBadgeOffsetY) : defaultQualityBadgeOffsetY))
+      setQualityBadgeOffsetX(eff?.qualityBadgeOffsetX ?? (openShape === "landscape" ? (landscapeDefaults?.qualityBadgeOffsetX ?? defaultQualityBadgeOffsetX) : defaultQualityBadgeOffsetX))
+      setQualityBadgeOffsetY(eff?.qualityBadgeOffsetY ?? (openShape === "landscape" ? (landscapeDefaults?.qualityBadgeOffsetY ?? defaultQualityBadgeOffsetY) : defaultQualityBadgeOffsetY))
       setBlurIntensity(eff?.blurIntensity ?? defaultBlurIntensity)
       setTintStrength(eff?.tintStrength ?? defaultTintStrength)
       // Ombra superiore e tinta: effettive per formato (profilo landscape
@@ -2528,12 +2540,6 @@ export function usePictorium(): PictoriumCtx {
       // save successivo dropperebbe il manuale. Null/assente = automatico in
       // attesa del ricalcolo (mai colori campionati congelati qui).
       setAccentColor(eff?.accentColor ?? null)
-      // Binding Badge Lab atomico a coppia per il formato di apertura
-      // (profilo landscape vince sul flat a coppia, mai mescolati): il live
-      // segue l'effettivo così preview/save non mescolano le forme. Legacy
-      // senza profilo = coppia flat invariata.
-      setBadgePresetId(eff?.badgePresetId ?? null)
-      setBadgePresetRev(eff?.badgePresetRev ?? null)
       setRotationPosters(existing.cleanPosters || [])
       setAutoRotateClean(existing.autoRotateClean ?? defaultAutoRotateClean)
       setExcludedPosters(existing.excludedPosters || [])
@@ -2544,16 +2550,16 @@ export function usePictorium(): PictoriumCtx {
       // Offset logo: profilo salvato (mapping.landscape in landscape) > default
       // globali (Orizzontale nel formato) > 0. La calibrazione +10/-10 vive nel
       // renderer, invisibile agli slider.
-      setLogoOffsetX(eff?.logoOffsetX ?? logoOffsetDefault(existing?.posterShape ?? defaultPosterShape, "x") ?? 0)
-      setLogoOffsetY(eff?.logoOffsetY ?? logoOffsetDefault(existing?.posterShape ?? defaultPosterShape, "y") ?? 0)
+      setLogoOffsetX(eff?.logoOffsetX ?? logoOffsetDefault(openShape, "x") ?? 0)
+      setLogoOffsetY(eff?.logoOffsetY ?? logoOffsetDefault(openShape, "y") ?? 0)
       setBackdropScale(existing.backdropScale ?? 100)
       setBackdropOffsetX(existing.backdropOffsetX ?? 0)
       setBackdropOffsetY(existing.backdropOffsetY ?? 0)
     } else {
-      const unmappedLand = defaultPosterShape === "landscape" ? landscapeDefaults : null
+      const unmappedLand = openShape === "landscape" ? landscapeDefaults : null
       setBadgeStyle(unmappedLand?.badgeStyle ?? defaultBadgeStyle)
       setRankingBadgeStyle(unmappedLand?.rankingBadgeStyle ?? defaultRankingBadgeStyle)
-      setExtraBadgeStyle(defaultPosterShape === "landscape" && landscapeDefaults != null && "extraBadgeStyle" in landscapeDefaults && (isExtraFollowRank((landscapeDefaults as { extraBadgeStyle?: unknown }).extraBadgeStyle) || isExtraBadgeStyle(typeof (landscapeDefaults as { extraBadgeStyle?: unknown }).extraBadgeStyle === "string" ? (landscapeDefaults as { extraBadgeStyle?: string }).extraBadgeStyle : null)) ? (landscapeDefaults.extraBadgeStyle as ExtraBadgeStyle | ExtraBadgeFollowRank) : defaultExtraBadgeStyle)
+      setExtraBadgeStyle(openShape === "landscape" && landscapeDefaults != null && "extraBadgeStyle" in landscapeDefaults && (isExtraFollowRank((landscapeDefaults as { extraBadgeStyle?: unknown }).extraBadgeStyle) || isExtraBadgeStyle(typeof (landscapeDefaults as { extraBadgeStyle?: unknown }).extraBadgeStyle === "string" ? (landscapeDefaults as { extraBadgeStyle?: string }).extraBadgeStyle : null)) ? (landscapeDefaults.extraBadgeStyle as ExtraBadgeStyle | ExtraBadgeFollowRank) : defaultExtraBadgeStyle)
       setBadgeFont(unmappedLand?.badgeFont ?? defaultBadgeFont)
       setGlobalBadges(unmappedLand?.globalBadges ?? defaultGlobalBadges)
       setRankingBadges(unmappedLand?.rankingBadges ?? defaultRankingBadges)
@@ -2567,12 +2573,27 @@ export function usePictorium(): PictoriumCtx {
       setAgeCountry(unmappedLand?.ageCountry ?? defaultAgeCountry)
       setAgeBadgeStyle(unmappedLand?.ageBadgeStyle ?? defaultAgeBadgeStyle)
       setQualityBadgeStyle(unmappedLand?.qualityBadgeStyle ?? defaultQualityBadgeStyle)
+      // Offset badge qualità per i titoli senza mapping (F4): installa i
+      // default effettivi di forma (profilo Orizzontale in landscape, flat
+      // altrimenti), come il ramo mapping. Senza, il live resterebbe sul
+      // valore di hydration (0/0 al primo load, -10/+15 dopo la persistenza
+      // locale) e un re-save congelerebbe i default di fabbrica sopra i
+      // valori espliciti del mapping, muovendo il portrait senza edit.
+      {
+        const unmappedQualityOffsets = resolveUnmappedQualityBadgeOffsets(
+          unmappedLand,
+          defaultQualityBadgeOffsetX,
+          defaultQualityBadgeOffsetY,
+        )
+        setQualityBadgeOffsetX(unmappedQualityOffsets.qualityBadgeOffsetX)
+        setQualityBadgeOffsetY(unmappedQualityOffsets.qualityBadgeOffsetY)
+      }
       // Fresh per-title formats stay explicit (same freeze contract as the
       // other visuals): portrait installs the flat default, landscape the
       // land profile (re-asserted by applyFreshLandscapeDefaults below).
       // Null would emit no `formats` param and leak the previous title's
       // state through the shared per-title slot.
-      setVideoFormats(defaultPosterShape === "landscape" ? (landscapeDefaults?.videoFormats ?? defaultVideoFormats) : defaultVideoFormats)
+      setVideoFormats(openShape === "landscape" ? (landscapeDefaults?.videoFormats ?? defaultVideoFormats) : defaultVideoFormats)
       setCustomRatings(unmappedLand?.customRatings ?? defaultCustomRatings)
       setRatingSources(nextSources)
       setSeparateRatings(unmappedLand?.separateRatings ?? defaultSeparateRatings)
@@ -2604,17 +2625,17 @@ export function usePictorium(): PictoriumCtx {
       // Fresh landscape init (N5, see applyFreshLandscapeDefaults above):
       // runs AFTER the last flat setters so the landscape profile wins while
       // the fetch is still in flight (immediate WYSIWYG, no portrait flash).
-      if (defaultPosterShape === "landscape") {
+      if (openShape === "landscape") {
         applyFreshLandscapeDefaults()
       } else {
         setPosterLayout(defaultPosterLayout)
         setPosterFreshScope(defaultPosterFreshScope)
       }
-      setPosterShape(defaultPosterShape)
+      setPosterShape(openShape)
       // Task 3B2: landscape follows the profile override (applyFresh above
       // already set it; this keeps the same value after the shape commit) —
       // portraits stay centered by contract.
-      setLogoAlign(defaultPosterShape === "landscape" ? (landscapeDefaults?.logoAlign ?? defaultLogoAlign ?? "left") : "center")
+      setLogoAlign(openShape === "landscape" ? (landscapeDefaults?.logoAlign ?? defaultLogoAlign ?? "left") : "center")
       setCustomBadge(null)
       // Titolo senza mapping: nessuna scelta salvata — la cornice riparte da
       // Automatico (isolamento dal titolo precedente).
@@ -2630,8 +2651,8 @@ export function usePictorium(): PictoriumCtx {
       setAutoRotateBackdrop(defaultAutoRotateBackdrop)
       setExcludedBackdrops([])
       setLogoDisabled(false)
-      setLogoOffsetX(logoOffsetDefault(defaultPosterShape, "x") ?? 0)
-      setLogoOffsetY(logoOffsetDefault(defaultPosterShape, "y") ?? 0)
+      setLogoOffsetX(logoOffsetDefault(openShape, "x") ?? 0)
+      setLogoOffsetY(logoOffsetDefault(openShape, "y") ?? 0)
       setSelectedBackdrop(null)
       setBackdropScale(100)
       setBackdropOffsetX(0)
@@ -2640,21 +2661,130 @@ export function usePictorium(): PictoriumCtx {
 
     try {
       const loaded = await loadCurrentItemData(item, fetchId, nextSources)
-      if (!loaded) return
-      if (navigation.fetchIdRef.current !== fetchId || loaded.signal.aborted) return
+      if (!loaded) return fetchId
+      if (navigation.fetchIdRef.current !== fetchId || loaded.signal.aborted) return fetchId
       const { details, data } = loaded
       // Styles were already synced before the fetch (see above): the
       // continuation only merges artwork/details/rank, so it must not rebuild
       // editor state from storage — that would wipe tweaks made mid-load.
-      applyLoadedSelection(data, details, item, true)
+      // The handoff shape override travels too: logo/auto init follows the
+      // same shape the sync init above used.
+      applyLoadedSelection(data, details, item, true, openShape)
     } finally {
       // A superseded load must not switch off the new title's spinner, and an
       // unmounted load (aborted without a fetchId bump) must not setState.
       if (navigation.fetchIdRef.current === fetchId && loadAbortRef.current?.signal.aborted !== true) setLoadingImages(false)
     }
+    return fetchId
   }
   const openPosterBrowserRef = useRef(openPosterBrowser)
   openPosterBrowserRef.current = openPosterBrowser
+
+  // Lab "Use for title" handoff consume (one-shot, staged-only, never saves):
+  // `?title=movie:123&shape=poster&fam=quality&preset=<id>&rev=<rev>` reopens
+  // Title deep-link open (`?title=<type>:<id>&shape=...`, e.g. shared links):
+  // opens the exact title and stages nothing (the custom badge library is
+  // retired: legacy Lab handoff params `fam`/`preset`/`rev` are consumed from
+  // the URL for hygiene but ignored — never fetched, never staged).
+  // Params are consumed from the URL immediately (no loops, no resurrect on
+  // reload); malformed handoffs are ignored silently. The open settles
+  // authoritatively per-id (GET /api/mappings/[id], owner-aware: 200 =
+  // mapped, 404 = unmapped; anything else never opens) so a saved mapping is
+  // honored even while the list is still pending.
+  const handoffConsumedRef = useRef(false)
+  const mappingsGenRef = useRef(0)
+  useEffect(() => { mappingsGenRef.current += 1 }, [mappingsMap])
+  useEffect(() => {
+    if (handoffConsumedRef.current || typeof window === "undefined") return
+    handoffConsumedRef.current = true
+    let sp: URLSearchParams
+    try {
+      sp = new URLSearchParams(window.location.search)
+    } catch {
+      return
+    }
+    const titleParam = sp.get("title")
+    const shapeParam = sp.get("shape")
+    if (!titleParam) return
+    try {
+      const url = new URL(window.location.href)
+      for (const k of ["title", "shape", "fam", "preset", "rev"]) url.searchParams.delete(k)
+      window.history.replaceState(window.history.state, "", url)
+    } catch {
+      /* non-fatal: the consumed-flag above still prevents loops */
+    }
+    const fail = (msg: string): void => {
+      import("sonner").then(({ toast }) => toast.error(msg))
+    }
+    const titleMatch = titleParam ? /^(movie|tv):([1-9]\d{0,9})$/.exec(titleParam) : null
+    if (!titleMatch) {
+      return
+    }
+    const mediaType = titleMatch[1] as "movie" | "tv"
+    const tmdbId = Number(titleMatch[2])
+    const handoffShape: PosterShape = shapeParam === "landscape" ? "landscape" : "poster"
+    void (async () => {
+      // Title identity first (details for a real SearchResult; the open flow
+      // refetches anyway — this only seeds title/poster for the header).
+      // No api_key: the server resolves request > namespace > instance, same
+      // as catalogs. Failure = honest error, no open, no stage.
+      let item: SearchResult
+      try {
+        const details = await http<{
+          title?: string | null; name?: string | null; poster_path?: string | null
+          release_date?: string | null; first_air_date?: string | null
+        }>(`/api/tmdb/${tmdbId}/details?type=${mediaType}&language=${encodeURIComponent(lang)}`)
+        const title = (mediaType === "movie" ? details.title : details.name) || ""
+        item = {
+          id: tmdbId,
+          media_type: mediaType,
+          title: mediaType === "movie" ? title : undefined,
+          name: mediaType === "tv" ? title : undefined,
+          poster_path: null,
+          release_date: details.release_date ?? undefined,
+          first_air_date: details.first_air_date ?? undefined,
+        }
+      } catch {
+        fail(t("ui.loadError"))
+        return
+      }
+      // Authoritative per-id settlement: the open must see the saved mapping
+      // for THIS exact title even while the list is still pending. A single
+      // owner-authed GET decides: 200 = mapped (pass the mapping straight
+      // into the open so the list race can never force the unmapped branch),
+      // 404 = authoritatively unmapped (open with an explicit null, never the
+      // stale list). Any other outcome (401/429/5xx/network/timeout) is
+      // transient or denied: honest error, no open, never treated
+      // as "no mapping" (a full-replacement save over 0/0 would follow).
+      // Exact target only, same namespace via userFetch — no new auth leaks.
+      let authoritative: Mapping | null
+      try {
+        const res = await userFetch(`/api/mappings/${mediaType}:${tmdbId}`)
+        if (res.ok) {
+          const body = (await res.json()) as Mapping
+          if (body == null || body.tmdbId !== tmdbId || body.mediaType !== mediaType) {
+            fail(t("ui.loadError"))
+            return
+          }
+          authoritative = body
+        } else if (res.status === 404) {
+          authoritative = null
+        } else {
+          fail(t("ui.loadError"))
+          return
+        }
+      } catch {
+        fail(t("ui.loadError"))
+        return
+      }
+      await openPosterBrowserRef.current(item, handoffShape, authoritative)
+      // No canvas override here: the open above already initialized the
+      // shape-effective values for the handoff shape (setting only the canvas
+      // after the init would keep the other shape's values — desync).
+    })()
+    // Mount-only consume (openPosterBrowserRef stays live; setters stable).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const copyUrl = async () => {
     if (!(await copyText(urlPattern))) return
@@ -2672,7 +2802,7 @@ export function usePictorium(): PictoriumCtx {
     mappingsMap, loadMappings, logoScale, logoOffsetX, logoOffsetY,
     selectedBackdrop, setSelectedBackdrop: setSelectedBackdrop, backdropScale, backdropOffsetX, backdropOffsetY,
     setBackdropScale, setBackdropOffsetX, setBackdropOffsetY,
-    globalBadges, rankingBadges, customBadge, badgePresetId, badgePresetRev, badgeStyle, rankingBadgeStyle, extraBadgeStyle, badgeFont, qualityBadgeStyle, videoFormats,
+    globalBadges, rankingBadges, customBadge, badgeStyle, rankingBadgeStyle, extraBadgeStyle, badgeFont, qualityBadgeStyle, videoFormats,
     badgeGenre, badgeYear, badgeRating, badgeQuality, ageBadge, ageCountry, ageBadgeStyle, customRatings, ratingSources, separateRatings, separateRatingsStyle,
     seasonalTheme,
     defaultBadgeStyle, defaultRankingBadgeStyle, defaultExtraBadgeStyle, blurEnabled, blurIntensity, blurFade, blurDarkness, landscapeBlur, landscapeBlurDirty, setLandscapeBlur, defaultLogoScale, defaultLogoOffsetX, defaultLogoOffsetY, landscapeDefaults, tintStrength, topShade, topShadeHeight, gradientHeight,
