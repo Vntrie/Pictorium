@@ -24,6 +24,8 @@ import { isExtraBadgeStyle, isExtraFollowRank } from "./badge-styles"
 import { getSeparateBadgeDefaultScale, getSeparateRatingsStyleForShape, getQualityBadgeOffsetDefault } from "./badge-styles"
 import type { LandscapeServerDefaults } from "./server-defaults"
 import { DEFAULT_SASH_ORDER, NEXT_EPISODE_BADGE_KEY, type SashBucket } from "./badge-priority"
+import { sanitizeDisabledContentTags } from "./content-tags"
+import { sanitizeDisabledNetworks } from "./network-keys"
 import type { VideoFormat } from "./av-specs"
 import type { PosterShape, NetworkLogoPosition, PosterLayout, PosterFreshScope } from "./types"
 import { isPosterLayout } from "./types"
@@ -144,6 +146,15 @@ interface BadgeParams {
   posterFreshScope?: PosterFreshScope | null
   /** Allineamento blocco logo/metadati in editing (preview WYSIWYG). */
   logoAlign?: "left" | "center"
+  /**
+   * Esclusioni automatiche space-wide (ID canonici, TMDB-fallback sentinel
+   * incluso): SEMPRE esplicite in preview (`dct=`/`dnet=` vuoti quando lo
+   * staged è vuoto), così lo staged vince sui default salvati; assenti
+   * (null/undefined) = legacy senza parametro.
+   */
+  disabledContentTags?: readonly string[] | null
+  /** Mark network disabilitati space-wide (stesso contratto di cui sopra). */
+  disabledNetworks?: readonly string[] | null
 }
 
 interface PosterState {
@@ -216,6 +227,14 @@ interface PosterState {
    * `none`/Automatico senza contesto = nessun parametro (URL invariati).
    */
   seasonalThemeChoice?: unknown
+  /**
+   * Contesto effimero rank/region di lista (decisione A): `listRank` 0..100
+   * viaggia come `rk=` (0 = unranked esplicito, invalido = assente legacy),
+   * `listRegion` come override `region=` di selezione (paese chart). Mai
+   * persistiti: all'uscita o da un'altra lista si azzerano (useNavigation).
+   */
+  listRank?: number | null
+  listRegion?: string | null
 }
 
 export function buildUrlPattern(bp: BadgeParams & {
@@ -444,7 +463,16 @@ export function buildPreviewUrl(ps: PosterState, bp: BadgeParams, configToken?: 
     params.push(`boy=${ps.backdropOffsetY}`)
   }
   if (ps.lang) params.push(`lang=${ps.lang}`)
-  if (ps.region) params.push(`region=${encodeURIComponent(ps.region)}`)
+  // Region di selezione (paese chart della lista di origine) vince sul
+  // default globale editor: la preview risolve lo stesso snapshot Stremio.
+  // Rank di lista effimero (decisione A): 0..100 int come `rk=` solo a badge
+  // di classifica abilitati (mai con ranking OFF: niente numero automatico
+  // forzato); invalido = assente (legacy, nessun fetch skip).
+  const previewRegion = (typeof ps.listRegion === "string" && ps.listRegion.trim().length > 0 ? ps.listRegion.trim() : null) ?? ps.region
+  if (previewRegion) params.push(`region=${encodeURIComponent(previewRegion)}`)
+  if (bp.rankingBadges && typeof ps.listRank === "number" && Number.isInteger(ps.listRank) && ps.listRank >= 0 && ps.listRank <= 100) {
+    params.push(`rk=${ps.listRank}`)
+  }
   // SEMPRE esplicito in preview (come badges/ranking/cr): senza, un default
   // salvato diverso scavalcerebbe la scelta editor (desync WYSIWYG).
   params.push(`df=${ps.dateFormat ?? "locale"}`)
@@ -506,6 +534,7 @@ export function buildPreviewUrl(ps: PosterState, bp: BadgeParams, configToken?: 
   if (bp.networkLogoFollowTitle !== undefined) {
     params.push(`netFollow=${bp.networkLogoFollowTitle ? "1" : "0"}`)
   }
+
   // SEMPRE esplicito in preview (come ribbon/cr/sep): senza, un default
   // salvato ON scavalcerebbe il toggle editor (desync WYSIWYG) — la preview
   // mostrerebbe il nastro Coming Soon anche a effetto spento.
@@ -522,6 +551,19 @@ export function buildPreviewUrl(ps: PosterState, bp: BadgeParams, configToken?: 
   // mapping salvato con shape diversa scavalcerebbe il toggle editor (desync
   // WYSIWYG) — vedi catena query > mapping > config > defaults.
   params.push(`shape=${bp.posterShape === "landscape" ? "landscape" : "poster"}`)
+  // Esclusioni automatiche space-wide: SEMPRE esplicite in preview
+  // (`dct=`/`dnet=` vuoti quando lo staged è vuoto, come `sash=` sopra):
+  // senza, un default salvato non-vuoto scavalcerebbe lo staged editor e la
+  // preview mostrerebbe esclusioni già cancellate (stale desync). La query
+  // presente-ma-vuota risolve [] e vince su mapping/config/defaults.
+  if (bp.disabledContentTags != null) {
+    const ids = [...new Set(sanitizeDisabledContentTags(bp.disabledContentTags))].sort()
+    params.push(`dct=${encodeURIComponent(ids.join(","))}`)
+  }
+  if (bp.disabledNetworks != null) {
+    const ids = [...new Set(sanitizeDisabledNetworks(bp.disabledNetworks))].sort()
+    params.push(`dnet=${encodeURIComponent(ids.join(","))}`)
+  }
   // Cornice stagionale (scelta per-titolo sopra il contesto lista di
   // origine, su entrambi i canvas col proprio asset — portrait 500×750,
   // landscape 768×432; senza contesto né scelta nessun parametro (URL
@@ -563,16 +605,24 @@ export function buildPreviewUrl(ps: PosterState, bp: BadgeParams, configToken?: 
   const bottomLight = computeBottomLight(hexLuminance(ps.bottomEdgeColor ?? null), bp.blurDarkness, bp.blurEnabled)
   if (bottomLight !== null) params.push(`bl=${bottomLight ? "1" : "0"}`)
   if (bp.rankingBadges) {
-    const badgeParams = computeBadgeParams(ps, bp)
+    // List-rank context (decisione A): un `rk=` valido vince sui rank live.
+    // Le emissioni automatiche `rank=`/`animerank=` da customBadge rank-key o
+    // mdblistAnimeList sono rank AUTO-derivati (non override manuali digitati):
+    // con contesto lista valido si omettono così la preview risolve lo stesso
+    // `rk=` di Stremio. `extra=` esplicito non-rank viaggia invariato.
+    const hasListRank = typeof ps.listRank === "number" && Number.isInteger(ps.listRank) && ps.listRank >= 0 && ps.listRank <= 100
+    const badgeParams = computeBadgeParams(ps, bp, hasListRank)
     params.push(...badgeParams)
     // WYSIWYG: il client conosce già il rank anime dal suo mdblistAnimeList;
     // senza questo parametro la preview non può calcolarlo (la URL non porta
     // chiavi/profilo) e il badge Anime non comparirebbe nella preview.
+    // Con contesto lista valido si omette (vince `rk=`, come Stremio che non
+    // emette mai `animerank=` per queste liste).
     const selected = ps.selected
     const animeRank = selected
       ? (ps.mdblistAnimeList.find((a) => a.id === selected.id)?.rank ?? null)
       : null
-    if (animeRank) params.push(`animerank=${animeRank}`)
+    if (animeRank && !hasListRank) params.push(`animerank=${animeRank}`)
   } else if (bp.customBadge) {
     const badgeParams = computeBadgeParams(ps, bp)
     params.push(...badgeParams)
@@ -599,7 +649,7 @@ function computeTopLight(hexColor: string | null): boolean | null {
   return luminance > TOP_LIGHT_LUMINANCE
 }
 
-function computeBadgeParams(ps: PosterState, bp: BadgeParams): string[] {
+function computeBadgeParams(ps: PosterState, bp: BadgeParams, omitAutoRank = false): string[] {
   const params: string[] = []
   if (bp.customBadge) {
     const selected = ps.selected
@@ -611,7 +661,13 @@ function computeBadgeParams(ps: PosterState, bp: BadgeParams): string[] {
     if (bp.customBadge === NEXT_EPISODE_BADGE_KEY) params.push(`extra=${encodeURIComponent(bp.customBadge)}`)
     else {
     const rankKey = isRankKey(bp.customBadge)
-    if ((rankKey === "badge.today" || rankKey === "badge.movie" || rankKey === "badge.series") && ps.trendRank) params.push(`rank=${ps.trendRank}&label=${encodeURIComponent(tFn("badge.today"))}`)
+    // Con contesto lista valido le rank-key AUTO-derivate si omettono (vince
+    // `rk=`); `extra=` esplicito resta invariato. Un `rank=` manuale genuino
+    // resta al server (precedenza invariata).
+    if (omitAutoRank && rankKey) {
+      // Niente: il badge rank arriva da `rk=` come Stremio (nessun duplicato).
+    }
+    else if ((rankKey === "badge.today" || rankKey === "badge.movie" || rankKey === "badge.series") && ps.trendRank) params.push(`rank=${ps.trendRank}&label=${encodeURIComponent(tFn("badge.today"))}`)
     else if (rankKey === "badge.anime" && animeRank) params.push(`rank=${animeRank}&label=${encodeURIComponent(tFn("badge.anime"))}`)
     else params.push(`extra=${encodeURIComponent(resolveLabel(bp.customBadge))}`)
     }
@@ -732,6 +788,14 @@ export interface DefaultsPreviewParams {
    *  category switches and priority edits are WYSIWYG in preview. Absent =
    *  the canonical default order. */
   defaultSashOrder?: readonly SashBucket[] | null
+  /**
+   * Tag badge automatici disabilitati space-wide di default (ID canonici):
+   * SEMPRE espliciti in preview (`dct=` vuoto quando lo staged è vuoto),
+   * mai assenti quando definiti; null/undefined = legacy senza parametro.
+   */
+  defaultDisabledContentTags?: readonly string[] | null
+  /** Mark network disabilitati space-wide di default (stesso contratto). */
+  defaultDisabledNetworks?: readonly string[] | null
   /** Preview-only editing family: `rank` targets the rank bucket (`sash=rank`
    *  when enabled, `sash=` empty when disabled so nothing renders); every
    *  other family keeps the effective saved priority. Never persisted. */
@@ -813,6 +877,19 @@ export function buildDefaultsPreviewUrl(bp: DefaultsPreviewParams): string {
   const previewSash: readonly SashBucket[] =
     bp.previewFamily === "rank" ? (rankSampled ? ["rank"] : []) : effPreviewSash
   params.push(`sash=${previewSash.join(",")}`)
+  // Esclusioni automatiche space-wide (flat condivisi, nessun profilo
+  // landscape): SEMPRE esplicite in preview (`dct=`/`dnet=` vuoti quando lo
+  // staged è vuoto, come `sash=` sopra) — senza, un default salvato
+  // non-vuoto scavalcerebbe lo staged. La query presente-ma-vuota risolve
+  // [] e vince su mapping/config/defaults.
+  if (bp.defaultDisabledContentTags != null) {
+    const ids = [...new Set(sanitizeDisabledContentTags(bp.defaultDisabledContentTags))].sort()
+    params.push(`dct=${encodeURIComponent(ids.join(","))}`)
+  }
+  if (bp.defaultDisabledNetworks != null) {
+    const ids = [...new Set(sanitizeDisabledNetworks(bp.defaultDisabledNetworks))].sort()
+    params.push(`dnet=${encodeURIComponent(ids.join(","))}`)
+  }
   // Preview-only info sample (Informazioni family): explicit `extra=` wins
   // over the computed badge exactly like an editor custom badge; ignored when
   // ranking is off, so a disabled master never shows a phantom sample.

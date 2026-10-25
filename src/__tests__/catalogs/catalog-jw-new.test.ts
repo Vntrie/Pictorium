@@ -4,6 +4,7 @@ import { GET } from "@/app/catalog/[type]/[id]/route"
 import { cacheClear } from "@/lib/cache"
 import { getById } from "@/lib/store"
 import { __resetJWRankingsCache } from "@/lib/justwatch"
+import { __resetChartGenerationForTest } from "@/lib/chart-generation"
 
 vi.mock("@/lib/store", () => ({
   getById: vi.fn(),
@@ -73,6 +74,10 @@ describe("New JustWatch Catalogs & Genre Filtering", () => {
     mockedGetById.mockResolvedValue(null)
     __resetJWRankingsCache()
     cacheClear()
+    // Fixed chart cycles: snapshot/lease state must not leak across tests
+    // (see catalog-imdb-identity.test.ts). The per-family refresh IS the
+    // serving fetch (no separate drive traffic), so sequences stay exact.
+    __resetChartGenerationForTest()
   })
 
   afterEach(() => {
@@ -80,10 +85,15 @@ describe("New JustWatch Catalogs & Genre Filtering", () => {
     mockedGetById.mockReset()
     __resetJWRankingsCache()
     cacheClear()
+    __resetChartGenerationForTest()
   })
 
   it("serves Crunchyroll catalog using cru package", async () => {
+    // FP-first: the renewal attempts the fp-crawler catalog first. Crunchyroll
+    // ships overall-only charts (no movies/tv split), so the doc carries no
+    // usable series chart and the request falls back to JW per media type.
     vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(Response.json({ charts: [] }))
       .mockResolvedValueOnce(justWatchStreamingChartResponse(201, "tt201"))
       .mockResolvedValueOnce(tmdbDetailsResponse(201, "One Piece"))
 

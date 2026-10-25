@@ -51,6 +51,25 @@ const eslintConfig = defineConfig([
     // Entrambe le varianti: ordinaria e con spazio finale effettivo.
     ".next-shot/**",
     ".next-shot /**",
+    // DistDir di tune-env.mjs (NEXT_DIST_DIR ".next-tune", cfr. next.config.ts
+    // `distDir: process.env.NEXT_DIST_DIR || ".next"`): stesso pattern degli
+    // altri distDir sopra — senza questo ignore, `npm run lint` fallisce dopo
+    // i tuning run (chunk generati da Next/Turbopack).
+    ".next-tune/**",
+    // DistDir ad-hoc NEXT_DIST_DIR ".next-e2e-probe" (runtime di probe):
+    // stesso pattern degli altri distDir sopra — output generato da
+    // Next/Turbopack, mai sorgente (git-ignored, untracked, layout distDir
+    // canonico con build-manifest.json/routes-manifest.json/trace).
+    ".next-e2e-probe/**",
+    // Isolated build-output distDir (NEXT_DIST_DIR ".next-verify"): same
+    // pattern as the other distDirs above — without this ignore,
+    // `npm run lint` fails with thousands of errors from the generated
+    // Next/Turbopack chunks (and the standalone copy even pulls in the
+    // e2e/* suites, which vitest would collect as repo tests).
+    // Git-ignored like the others and written by `npm run build:verify`
+    // (isolated build so the local verify batch can run while `next dev`
+    // holds `.next`).
+    ".next-verify/**",
     // Worktree Claude (.claude/worktrees/**): contengono una copia del repo con
     // il proprio .next generato, che altrimenti verrebbe lintato (868 errori
     // dai tipi generati da Next).

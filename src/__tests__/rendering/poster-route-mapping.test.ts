@@ -19,6 +19,7 @@ import { fetchAllWikidata } from "@/lib/awards"
 import { renderMultiRatings } from "@/lib/multi-rating-renderer"
 import { fetchAggregatedRating } from "@/lib/ratings"
 import { RENDER_VERSION } from "@/lib/render-version"
+import { __resetChartGenerationForTest } from "@/lib/chart-generation"
 import { posterHeaders } from "@/lib/poster-runtime-cache"
 import * as hardening from "@/lib/poster-params-hardening"
 import * as sessionCache from "@/lib/tmdb-session-cache"
@@ -156,6 +157,10 @@ async function imageBuffer(color: string, width: number, height: number): Promis
 describe("GET /api/poster/[type]/[id] with saved mappings", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
+    // Fixed chart cycles: published snapshots and leases are module state and
+    // must not leak across tests (a genuine-empty publish in one test would
+    // otherwise make the next test's pin current and skip its mocked fetch).
+    __resetChartGenerationForTest()
     // Byte-LRU is module-level and survives cacheClear: reset it so logo
     // fetches hit the network and requestedUrls stays observable.
     __resetImageBytesForTest()
@@ -258,7 +263,7 @@ describe("GET /api/poster/[type]/[id] with saved mappings", () => {
     mockedGetDetails.mockResolvedValueOnce({ id: 98765, title: "Custom test", genres: [], vote_average: 0, vote_count: 0 })
     mockedGetById.mockResolvedValue({
       tmdbId: 98765, mediaType: "movie", title: "Custom test", posterPath: "/custom-test.jpg",
-      logoPath: null, originalPosterPath: null, language: "it", showBadges: false,
+      logoPath: null, originalPosterPath: null, language: "it", showBadges: true,
       rankingBadges: false, updatedAt: "2026-09-12T00:00:00.000Z",
     })
     const poster = await imageBuffer("#101010", 500, 750)
@@ -561,7 +566,7 @@ describe("GET /api/poster/[type]/[id] with saved mappings", () => {
     mockedGetById.mockResolvedValue(kind === "saved" ? {
       tmdbId: id, mediaType: "movie", title: "Independent ratings", posterPath: `/ratings-${id}.jpg`,
       logoPath: null, originalPosterPath: null, language: "it", voteAverage: 5,
-      showBadges: false, rankingBadges: false, updatedAt: "2026-09-12T00:00:00.000Z",
+      showBadges: true, rankingBadges: false, updatedAt: "2026-09-12T00:00:00.000Z",
     } : null)
     mockedGetDetails.mockResolvedValue({ id, title: "Independent ratings", genres: [], vote_average: 6, vote_count: 100 })
     mockedGetImages.mockResolvedValue({ id, posters: [
@@ -1029,6 +1034,10 @@ describe("GET /api/poster/[type]/[id] in presets mode (public instance)", () => 
 describe("GET /api/poster/[type]/[id] error and edge cases", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
+    // Fixed chart cycles: published snapshots and leases are module state and
+    // must not leak across tests (a genuine-empty publish in one test would
+    // otherwise make the next test's pin current and skip its mocked fetch).
+    __resetChartGenerationForTest()
   })
 
   afterEach(() => {
@@ -1181,7 +1190,7 @@ describe("GET /api/poster/[type]/[id] error and edge cases", () => {
     const id = 98999
     mockedGetById.mockResolvedValue({
       tmdbId: id, mediaType: "movie", title: "Revalidation", posterPath: "/revalidate.jpg",
-      logoPath: null, originalPosterPath: null, language: "it", showBadges: false,
+      logoPath: null, originalPosterPath: null, language: "it", showBadges: true,
       rankingBadges: false, updatedAt: "2026-09-12T00:00:00.000Z",
     })
     mockedGetExternalIds.mockResolvedValue({ imdb_id: "tt98999" })
@@ -1645,6 +1654,157 @@ describe("GET /api/poster/[type]/[id] error and edge cases", () => {
     expect(body.badge.computed.badge).toMatchObject({ type: "rank", rank: 15 })
   })
 
+  it("does NOT badge an official JW rank past the Top-20 window (21 -> none, never clamped)", async () => {
+    const posterBuf = await imageBuffer("#101010", 500, 750)
+
+    mockedGetById.mockResolvedValue({
+      tmdbId: 76479,
+      mediaType: "tv",
+      title: "The Boys",
+      posterPath: "/the-boys.jpg",
+      logoPath: null,
+      originalPosterPath: null,
+      language: "it",
+      showBadges: true,
+      rankingBadges: true,
+      updatedAt: "2026-07-16T10:15:30.000Z",
+    } as never)
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(new Uint8Array(posterBuf), {
+        status: 200,
+        headers: { "content-type": "image/png", "content-length": String(posterBuf.length) },
+      }),
+    )
+
+    // 19 official rows 1..19 plus the title at official rank 21 (shifted
+    // out by overfetch filtering): the window is full but the title is
+    // outside the Top 20, so no badge.
+    const rows: Array<{ tmdbId: number; imdbId: string | null; rank: number; title: string }> =
+      Array.from({ length: 19 }, (_, i) => ({ tmdbId: 9000 + i, imdbId: null, rank: i + 1, title: `Other ${i}` }))
+    rows.push({ tmdbId: 76479, imdbId: "tt1542876", rank: 21, title: "The Boys" })
+    mockedGetJWRankings.mockResolvedValueOnce(rows)
+    const req = new NextRequest("http://localhost:3000/api/poster/tv/76479?debug=1")
+    const res = await GET(req, { params: Promise.resolve({ type: "tv", id: "76479" }) })
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.rankings.justwatch).toBeNull()
+    expect(body.rankings.finalRank).toBeNull()
+    expect(body.badge.computed.badge?.type).not.toBe("rank")
+  })
+
+  it("still badges an official JW rank 20 (window boundary)", async () => {
+    const posterBuf = await imageBuffer("#101010", 500, 750)
+
+    mockedGetById.mockResolvedValue({
+      tmdbId: 76479,
+      mediaType: "tv",
+      title: "The Boys",
+      posterPath: "/the-boys.jpg",
+      logoPath: null,
+      originalPosterPath: null,
+      language: "it",
+      showBadges: true,
+      rankingBadges: true,
+      updatedAt: "2026-07-16T10:15:30.000Z",
+    } as never)
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(new Uint8Array(posterBuf), {
+        status: 200,
+        headers: { "content-type": "image/png", "content-length": String(posterBuf.length) },
+      }),
+    )
+
+    const rows: Array<{ tmdbId: number; imdbId: string | null; rank: number; title: string }> =
+      Array.from({ length: 19 }, (_, i) => ({ tmdbId: 9000 + i, imdbId: null, rank: i + 1, title: `Other ${i}` }))
+    rows.push({ tmdbId: 76479, imdbId: "tt1542876", rank: 20, title: "The Boys" })
+    mockedGetJWRankings.mockResolvedValueOnce(rows)
+    const req = new NextRequest("http://localhost:3000/api/poster/tv/76479?debug=1")
+    const res = await GET(req, { params: Promise.resolve({ type: "tv", id: "76479" }) })
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.rankings.justwatch).toBe(20)
+    expect(body.rankings.finalRank).toBe(20)
+    expect(body.badge.computed.badge).toMatchObject({ type: "rank", rank: 20 })
+  })
+
+  it("manual rank=25 wins over everything (explicit override preserved)", async () => {
+    const posterBuf = await imageBuffer("#101010", 500, 750)
+
+    mockedGetById.mockResolvedValue({
+      tmdbId: 76479,
+      mediaType: "tv",
+      title: "The Boys",
+      posterPath: "/the-boys.jpg",
+      logoPath: null,
+      originalPosterPath: null,
+      language: "it",
+      showBadges: true,
+      rankingBadges: true,
+      updatedAt: "2026-07-16T10:15:30.000Z",
+    } as never)
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(new Uint8Array(posterBuf), {
+        status: 200,
+        headers: { "content-type": "image/png", "content-length": String(posterBuf.length) },
+      }),
+    )
+
+    // Genuine JW miss, but the explicit manual override still badges 25.
+    mockedGetJWRankings.mockResolvedValueOnce([])
+    const req = new NextRequest("http://localhost:3000/api/poster/tv/76479?debug=1&rank=25")
+    const res = await GET(req, { params: Promise.resolve({ type: "tv", id: "76479" }) })
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.rankings.justwatch).toBeNull()
+    expect(body.rankings.finalRank).toBe(25)
+    expect(body.badge.computed.badge).toMatchObject({ type: "rank", rank: 25 })
+  })
+
+  it("does NOT resurrect a saved mapping rank past the Top-20 window on cold failure (482 -> none)", async () => {
+    const posterBuf = await imageBuffer("#101010", 500, 750)
+
+    mockedGetById.mockResolvedValue({
+      tmdbId: 76479,
+      mediaType: "tv",
+      title: "The Boys",
+      posterPath: "/the-boys.jpg",
+      logoPath: null,
+      originalPosterPath: null,
+      language: "it",
+      showBadges: true,
+      rankingBadges: true,
+      badgeRank: 482,
+      badgeLabel: "Serie",
+      trendRank: 482,
+      updatedAt: "2026-07-16T10:15:30.000Z",
+    } as never)
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(new Uint8Array(posterBuf), {
+        status: 200,
+        headers: { "content-type": "image/png", "content-length": String(posterBuf.length) },
+      }),
+    )
+
+    // Failed fetch (outage): the saved-rank fallback stays capped at the
+    // automatic window — a stale platform/custom rank never resurrects.
+    mockedGetJWRankings.mockRejectedValueOnce(new Error("JW down"))
+    const req = new NextRequest("http://localhost:3000/api/poster/tv/76479?debug=1")
+    const res = await GET(req, { params: Promise.resolve({ type: "tv", id: "76479" }) })
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.rankings.justwatch).toBeNull()
+    expect(body.rankings.finalRank).toBeNull()
+    expect(body.badge.computed.badge?.type).not.toBe("rank")
+  })
+
   it("respects netLogo query param over mapping for networkLogo", async () => {
     const posterBuf = await imageBuffer("#101010", 500, 750)
 
@@ -1714,7 +1874,10 @@ describe("GET /api/poster/[type]/[id] error and edge cases", () => {
 
     // R3: la route passa anche il signal del watchdog (6° arg) — allo scatto
     // della deadline il fetch JW abortisce invece di restare zombie.
-    expect(mockedGetJWRankings).toHaveBeenCalledWith("SHOW", "FR", 20, undefined, "fr-FR", expect.any(AbortSignal))
+    // Cycle-floor (fixed chart cycles, 7° arg): in-slot freshness bound.
+    // Strict chart-cycle fetch (8° arg true): transport failure throws, so a
+    // JW outage can never publish as a genuine empty snapshot.
+    expect(mockedGetJWRankings).toHaveBeenCalledWith("SHOW", "FR", 20, undefined, "fr-FR", expect.any(AbortSignal), expect.any(Number), true)
 
     mockedGetJWRankings.mockClear()
     cacheClear()
@@ -1724,7 +1887,7 @@ describe("GET /api/poster/[type]/[id] error and edge cases", () => {
     const reqDe = new NextRequest("http://localhost:3000/api/poster/tv/76479?debug=1&lang=de")
     await GET(reqDe, { params: Promise.resolve({ type: "tv", id: "76479" }) })
 
-    expect(mockedGetJWRankings).toHaveBeenCalledWith("SHOW", "DE", 20, undefined, "de-DE", expect.any(AbortSignal))
+    expect(mockedGetJWRankings).toHaveBeenCalledWith("SHOW", "DE", 20, undefined, "de-DE", expect.any(AbortSignal), expect.any(Number), true)
   })
 
   it("serves ephemeral Cache-Control (120s, no immutable) when quality times out", async () => {

@@ -12,7 +12,9 @@ import {
 } from "@/lib/effective-accent"
 import { isBadgeStyle, isRankingBadgeStyle, isExtraBadgeStyle, isExtraFollowRank, isBadgeFont, isSeparateRatingsStyle, isAgeBadgeStyle } from "@/lib/badge-styles"
 import { isPosterLayout, isPosterFreshScope, DEFAULT_POSTER_FRESH_SCOPE } from "@/lib/types"
-import { POSTER_CACHE_ALLOWLIST } from "./poster-params-hardening"
+import { POSTER_CACHE_ALLOWLIST, parseListRankParam } from "./poster-params-hardening"
+import { sanitizeDisabledContentTags } from "./content-tags"
+import { sanitizeDisabledNetworks } from "./network-keys"
 
 const log = createLogger("poster-cache")
 
@@ -130,7 +132,16 @@ export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSe
   }
   params.delete("rv")
   params.delete("v")
-  params.delete("rk")
+  // rk: ephemeral list-rank context (position in the originating selected
+  // list). Valid 0..100 stays explicit in the key (same title rank N vs M =
+  // different keys/bytes); invalid collapses onto absent (legacy inert buster,
+  // no poisoning). Same bounds as `rank` in poster-params-hardening.
+  const rkRaw = params.get("rk")
+  if (rkRaw !== null) {
+    const rkN = parseListRankParam(rkRaw)
+    if (rkN !== null) params.set("rk", String(rkN))
+    else params.delete("rk")
+  }
   params.delete(POSTER_REFRESH_PARAM)
 
   const ac = params.get("ac")
@@ -247,6 +258,26 @@ export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSe
     const v = theme.trim().toLowerCase()
     if (v === "halloween" || v === "christmas") params.set("theme", v)
     else params.delete("theme")
+  }
+  // Space-wide automatic exclusions (`dct` content tags, `dnet` network
+  // marks): canonical sorted allowlist IDs (order-insensitive convergence —
+  // `?dct=a,b` and `?dct=b,a` share one key). Fail-closed with explicit-empty
+  // distinction (same pattern as sepstyle/layout/freshScope above): a PRESENT
+  // value that sanitizes to empty (explicit `dct=`, all-garbage `dct=bogus`)
+  // means "no exclusions" and keeps its own `dct=` key, while an ABSENT param
+  // may inherit disabled defaults from config/token — deleting the present
+  // value would collapse both keys and poison the cache (a no-exclusion
+  // render served where inherited defaults should apply, or vice versa).
+  // Sanitized again at render time (same leaf functions).
+  const dct = params.get("dct")
+  if (dct !== null) {
+    const ids = [...new Set(sanitizeDisabledContentTags(dct.split(",")))].sort()
+    params.set("dct", ids.join(","))
+  }
+  const dnet = params.get("dnet")
+  if (dnet !== null) {
+    const ids = [...new Set(sanitizeDisabledNetworks(dnet.split(",")))].sort()
+    params.set("dnet", ids.join(","))
   }
 
   // Removed Badge Lab params (`bp`/`bpf`/`bpt`): the custom badge library is

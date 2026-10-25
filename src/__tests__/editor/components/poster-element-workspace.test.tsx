@@ -1,6 +1,6 @@
 /**
- * Five-tab settings homes (Phase 2 minimalist consolidation):
- * - five primary tabs (Preset, Rankings, Information, Badge, Transform);
+ * Six-tab settings homes (Phase 2 minimalist consolidation + Tags/Networks):
+ * - six primary tabs (Preset, Rankings, Information, Badge, Tags, Transform);
  *   secondary Prefs/Data/Space via the secondary nav, never equal tabs;
  * - every primary switch lives in exactly one tab: rank bucket + master +
  *   appearance + layout/scope + priority order in Rankings; visibility
@@ -66,7 +66,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe("five-tab homes", () => {
+describe("six-tab homes", () => {
   it("preset tab: gallery only, no detailed switches, no element navigation", () => {
     renderSettingsWithProbe()
     expect(screen.getByTestId("presets-panel")).toBeInTheDocument()
@@ -90,10 +90,18 @@ describe("five-tab homes", () => {
     const primary = within(within(panel).getByTestId("ranking-presentation")).getByRole("radiogroup", { name: "ui.rankFamily" })
     expect(within(primary).getAllByRole("radio")).toHaveLength(5)
     expect(within(panel).queryByTestId("poster-layout-card")).toBeNull()
-    // Priority editing shows order only — no duplicate category toggles here.
+    // Priority editing shows order only — no duplicate category toggles in
+    // the VISIBLE rankings panel (scoped: the mounted-but-hidden Tags panel
+    // reuses the same sash names for its exclusion groups, and JSDOM loads
+    // no Tailwind CSS so a global query would false-positive on it).
     expect(screen.getByText("ui.badgePriorityOrderHint")).toBeInTheDocument()
-    expect(screen.queryByRole("switch", { name: "ui.sash_upcoming" })).toBeNull()
-    expect(screen.queryByRole("switch", { name: "ui.sash_new" })).toBeNull()
+    expect(within(panel).queryByRole("switch", { name: "ui.sash_upcoming" })).toBeNull()
+    expect(within(panel).queryByRole("switch", { name: "ui.sash_new" })).toBeNull()
+    // Evidence for the scoping above: the Tags twin exists but stays hidden.
+    const tagsPanel = screen.getByTestId("settings-tags-networks")
+    expect(tagsPanel.className).toContain("hidden")
+    expect(tagsPanel.className).not.toContain("block")
+    expect(within(tagsPanel).getByRole("switch", { name: "ui.sash_upcoming" })).toBeInTheDocument()
   })
 
   it("information tab: visibility only, category toggles live here alone", () => {
@@ -102,14 +110,25 @@ describe("five-tab homes", () => {
     for (const name of ["ui.badgeGenre", "ui.badgeYear", "ui.badgeRating", "ui.badgeQuality", "ui.ageBadge", "ui.networkLogo"]) {
       expect(screen.getByRole("switch", { name })).toBeInTheDocument()
     }
+    // Scoped to the VISIBLE information panel: the mounted-but-hidden Tags
+    // panel reuses the same sash names for its exclusion groups, and JSDOM
+    // loads no Tailwind CSS (the `hidden` class applies no display:none),
+    // so a global query would false-positive on the hidden twin.
+    const infoPanel = screen.getByRole("switch", { name: "ui.badgeGenre" }).closest('[role="tabpanel"]') as HTMLElement
     for (const name of ["ui.sash_upcoming", "ui.sash_new", "ui.sash_award", "ui.sash_extra"]) {
-      expect(screen.getByRole("switch", { name })).toBeInTheDocument()
+      expect(within(infoPanel).getByRole("switch", { name })).toBeInTheDocument()
     }
     expect(screen.getByRole("switch", { name: "ui.preRelease" })).toBeInTheDocument()
     expect(screen.getByRole("switch", { name: "ui.customRatings" })).toBeInTheDocument()
+    // Evidence for the scoping above: the Tags twin exists but stays hidden.
+    const tagsPanel = screen.getByTestId("settings-tags-networks")
+    expect(tagsPanel.className).toContain("hidden")
+    expect(tagsPanel.className).not.toContain("block")
+    expect(within(tagsPanel).getByRole("switch", { name: "ui.sash_upcoming" })).toBeInTheDocument()
     // No appearance or priority controls on the visibility tab (scoped to
     // its panel: hidden sibling tabpanels still mount theirs).
-    const infoPanel = screen.getByRole("switch", { name: "ui.badgeGenre" }).closest('[role="tabpanel"]') as HTMLElement
+    // STALE-query migration evidence below (unchanged): the appearance card
+    // stays mounted inside this same tabpanel with the `hidden` attribute.
     // STALE-query migration — source evidence BadgeDefaultsSection.tsx: the
     // appearance card stays mounted inside this same tabpanel with the
     // `hidden` attribute (state-preserving mount, like the details bodies —
@@ -159,7 +178,7 @@ describe("five-tab homes", () => {
     const { ctx } = renderSettingsWithProbe()
     const before = snapshotDefaults(ctx())
     const storedBefore = localStorage.getItem("badgeDefaults")
-    for (const name of ["ui.settingsTabRankings", "ui.settingsTabInformation", "ui.settingsTabBadge", "ui.settingsTabTransform", "ui.settingsTabPreset"]) {
+    for (const name of ["ui.settingsTabRankings", "ui.settingsTabInformation", "ui.settingsTabBadge", "Tag e Network", "ui.settingsTabTransform", "ui.settingsTabPreset"]) {
       openTab(name)
     }
     expect(snapshotDefaults(ctx())).toBe(before)
@@ -213,15 +232,21 @@ describe("five-tab homes", () => {
     if (customSwitch.getAttribute("aria-checked") !== "true") fireEvent.click(customSwitch)
     fireEvent.click(screen.getByRole("switch", { name: "ui.badgeGenre" }))
     // Dirty session disables testing with a Save-first hint (no bypass).
-    expect(screen.getByRole("button", { name: "ui.customRatingTest" })).toBeDisabled()
+    // Scoped to the visible Information tabpanel (same pattern as the tab
+    // tests above): the whole SettingsPanel mounts every tab hidden, and a
+    // document-wide accessible-name scan here costs ~0.5s locally (pure
+    // query cost, no render storm) — fatal under CI load. Same assertions,
+    // narrower scope.
+    const infoPanel = customSwitch.closest('[role="tabpanel"]') as HTMLElement
+    expect(within(infoPanel).getByRole("button", { name: "ui.customRatingTest" })).toBeDisabled()
     expect(screen.getByText("ui.customRatingSaveFirstHint")).toBeInTheDocument()
     await act(async () => {
       fireEvent.click(screen.getByTestId("settings-save"))
     })
-    const testBtn = await screen.findByRole("button", { name: "ui.customRatingTest" })
+    const testBtn = await within(infoPanel).findByRole("button", { name: "ui.customRatingTest" })
     expect(testBtn).not.toBeDisabled()
     await act(async () => { fireEvent.click(testBtn) })
-    expect(await screen.findByText(/ui\.customRatingTestOk/)).toBeInTheDocument()
+    expect(await within(infoPanel).findByText(/ui\.customRatingTestOk/)).toBeInTheDocument()
     expect(screen.getByText(/200 OK/)).toBeInTheDocument()
     expect(screen.getByText(/12 ms/)).toBeInTheDocument()
     expect(screen.getByText("MySrc")).toBeInTheDocument()
@@ -244,7 +269,10 @@ describe("five-tab homes", () => {
     // available with no Save-first hint.
     const customSwitch = screen.getByRole("switch", { name: "ui.customRatings" })
     if (customSwitch.getAttribute("aria-checked") !== "true") fireEvent.click(customSwitch)
-    const testBtn = await screen.findByRole("button", { name: "ui.customRatingTest" })
+    // Same tabpanel scoping as the success test above: document-wide
+    // accessible-name scans are the measured slow query under load.
+    const infoPanel249 = customSwitch.closest('[role="tabpanel"]') as HTMLElement
+    const testBtn = await within(infoPanel249).findByRole("button", { name: "ui.customRatingTest" })
     expect(testBtn).not.toBeDisabled()
     fireEvent.click(testBtn)
     expect(testBtn).toBeDisabled()
@@ -275,9 +303,9 @@ describe("translations parity (all 18 dictionaries)", () => {
       expect(Object.keys(dicts[l]).filter((k) => !allKeys.has(k))).toEqual([])
       expect([...allKeys].filter((k) => !(k in dicts[l])), `${l} missing keys`).toEqual([])
     }
-    // Five-tab keys exist everywhere.
+    // Six-tab keys exist everywhere.
     for (const l of langs) {
-      for (const k of ["ui.settingsTabPreset", "ui.settingsTabRankings", "ui.settingsTabInformation", "ui.settingsTabBadge", "ui.settingsTabTransform", "ui.settingsSaveChanges", "ui.settingsUnsavedTitle", "ui.settingsContinueEditing", "ui.settingsDiscardAndClose", "ui.presetGalleryHint", "ui.activateInInformationHint", "ui.activateInTabHint"]) {
+      for (const k of ["ui.settingsTabPreset", "ui.settingsTabRankings", "ui.settingsTabInformation", "ui.settingsTabBadge", "ui.settingsTabTagsNetworks", "ui.settingsTabTransform", "ui.settingsSaveChanges", "ui.settingsUnsavedTitle", "ui.settingsContinueEditing", "ui.settingsDiscardAndClose", "ui.presetGalleryHint", "ui.activateInInformationHint", "ui.activateInTabHint"]) {
         expect(dicts[l][k], `${l}:${k}`).toBeTruthy()
       }
     }

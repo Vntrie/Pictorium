@@ -8,12 +8,14 @@ import { rateLimit, rateLimitKey, rateLimitResponse } from "@/lib/rate-limit"
 import { getWarmupCatalogs } from "@/lib/catalog-definitions"
 import { createLogger } from "@/lib/logger"
 import { z } from "zod"
+import { MAX_DISABLED_NETWORKS } from "@/lib/network-keys"
 import { BADGE_STYLES, RANKING_BADGE_STYLES, QUALITY_BADGE_STYLES, AGE_BADGE_STYLES, BADGE_FONTS, SEPARATE_RATINGS_STYLES, EXTRA_BADGE_STYLES, EXTRA_BADGE_FOLLOW_RANK } from "@/lib/badge-styles"
 import { POSTER_LAYOUTS, POSTER_FRESH_SCOPES } from "@/lib/types"
 import { readJsonBody, BodyTooLargeError, DEFAULT_MAX_BODY_BYTES } from "@/lib/read-body"
 import { envWithFallback } from "@/lib/env-compat"
 import { SHAPE_FLAT_TO_LANDSCAPE, snapshotMissingLandscape } from "@/lib/visual-presets"
 import { retiredBadgeFamilyBindingsSchema } from "@/lib/validation"
+import { parseGenericVariantId } from "@/lib/streaming-catalogs"
 
 const log = createLogger("defaults")
 
@@ -41,6 +43,34 @@ const customCatalogSchema = z.object({
   enabled: z.boolean().optional(),
   datasetId: z.string().max(64).optional(),
   addon: addonSourceSchema.optional(),
+})
+
+/**
+ * Opt-in streaming selection (service + country). Bounds mirror the
+ * contract in `streaming-catalogs.ts`: allowlisted service, free-form
+ * country (sanitized fail-closed at every read — unknown never becomes
+ * Italy), sections incl. `all` (mixed overall), optional source policy
+ * (absent = `auto`) and feed variant (absent = base chart), max 200 entries
+ * per space. Stored raw, sanitized at read like `region`.
+ */
+const streamingSelectionSchema = z.object({
+  // Loose like `region` on purpose: the allowlist + fail-closed normalization
+  // happen at every read (`sanitizeStreamingSelections`) — unknown services
+  // never become another service, unknown countries never become Italy.
+  service: z.string().max(64),
+  country: z.string().max(64),
+  sections: z.array(z.enum(["movies", "series", "all"])).max(3).optional(),
+  enabled: z.boolean().optional(),
+  source: z.enum(["auto", "flixpatrol", "justwatch"]).optional(),
+  // Feed variant chart (absent/"" = base chart). Present-but-invalid values
+  // fail closed at the write boundary (400, never a silent coerce to base):
+  // the single canonical `parseGenericVariantId` leaf decides validity, so
+  // the write regex can never drift from the read gate in
+  // `sanitizeGenericStreamingSelections`.
+  variant: z.string().max(64).optional().refine(
+    (v) => v === undefined || v === "" || parseGenericVariantId(v) !== null,
+    { message: "variant must be a valid feed variant id" },
+  ),
 })
 
 const defaultsSchema = z.object({
@@ -223,6 +253,7 @@ const defaultsSchema = z.object({
     sashOrder: z.array(z.string().max(20)).optional(),
   }).optional(),
   customCatalogs: z.array(customCatalogSchema).optional(),
+  streamingSelections: z.array(streamingSelectionSchema).max(200).optional(),
   rankingSourceMovie: z.string().max(64).optional(),
   rankingSourceSeries: z.string().max(64).optional(),
   disabledCatalogIds: z.array(z.string().max(80)).optional(),
@@ -245,6 +276,12 @@ const defaultsSchema = z.object({
   // Bounded like the other catalog records; sanitized again at match time.
   seasonalHalloweenKeywords: z.array(z.string().max(40)).max(20).optional(),
   seasonalChristmasKeywords: z.array(z.string().max(40)).max(20).optional(),
+  // Space-wide automatic exclusions (shared across shapes, no per-title
+  // fields, no preset recipes): bounded allowlist IDs, sanitized again at
+  // match time. Absent/empty = historical behavior. The networks bound is
+  // 74 canonical marks + the Other-group sentinel (same list, never a key).
+  disabledContentTags: z.array(z.string().max(40)).max(64).optional(),
+  disabledNetworks: z.array(z.string().max(40)).max(MAX_DISABLED_NETWORKS).optional(),
 })
 
 function isPlainLandscapeRecord(v: unknown): v is Record<string, unknown> {
