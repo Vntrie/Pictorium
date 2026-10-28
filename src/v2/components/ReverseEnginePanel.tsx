@@ -1,9 +1,7 @@
-'use client'
-
-import { useState } from "react";
-import { motion } from "framer-motion";
 import { analyzePosterPalette } from "@/v2/lib/analysis/palette";
 import { getAestheticParams } from "@/v2/lib/analysis/aesthetic-mapper";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 export const ReverseEnginePanel = ({ onParamsChange }: { onParamsChange: (params: Record<string, string>) => void }) => {
   const [palette, setPalette] = useState<number[][]>([]);
@@ -14,6 +12,7 @@ export const ReverseEnginePanel = ({ onParamsChange }: { onParamsChange: (params
     const file = e.dataTransfer.files[0];
     if (file) {
       const url = URL.createObjectURL(file);
+      // Explicitly typing the returned value if necessary based on our new implementation
       const colors = await analyzePosterPalette(url);
       if (colors) {
         setPalette(colors);
