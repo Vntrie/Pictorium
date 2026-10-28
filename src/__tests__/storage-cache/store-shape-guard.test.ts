@@ -20,10 +20,10 @@ const SHAPES: Array<{ name: string; payload: string }> = [
   { name: "string", payload: '"oops"' },
 ]
 
-const originalPictoriumDataDir = process.env.PICTORIUM_DATA_DIR
-const originalPosteriumDataDir = process.env.POSTERIUM_DATA_DIR
-const originalPictoriumRedisUrl = process.env.PICTORIUM_REDIS_URL
-const originalPosteriumRedisUrl = process.env.POSTERIUM_REDIS_URL
+const originalFlameForgeDataDir = process.env.FLAMEFORGE_DATA_DIR
+const originalPosteriumDataDir = process.env.FLAMEFORGE_DATA_DIR
+const originalFlameForgeRedisUrl = process.env.FLAMEFORGE_REDIS_URL
+const originalPosteriumRedisUrl = process.env.FLAMEFORGE_REDIS_URL
 const originalRedisUrl = process.env.REDIS_URL
 const originalKvRestApiUrl = process.env.KV_REST_API_URL
 const originalKvRestApiToken = process.env.KV_REST_API_TOKEN
@@ -40,15 +40,15 @@ function restoreEnv(name: string, original: string | undefined) {
 
 async function freshStore(tempDir?: string) {
   await fsp.mkdir(TEMP_BASE, { recursive: true })
-  const dir = tempDir ?? (await fsp.mkdtemp(path.join(TEMP_BASE, "pictorium-shape-")))
+  const dir = tempDir ?? (await fsp.mkdtemp(path.join(TEMP_BASE, "FlameForge-shape-")))
   tempDirs.push(dir)
   // Primary data-dir var; legacy fallback cleared so it cannot interfere
-  // (PICTORIUM_* wins anyway, but isolation is explicit).
-  process.env.PICTORIUM_DATA_DIR = dir
-  delete process.env.POSTERIUM_DATA_DIR
+  // (FLAMEFORGE_* wins anyway, but isolation is explicit).
+  process.env.FLAMEFORGE_DATA_DIR = dir
+  delete process.env.FLAMEFORGE_DATA_DIR
   // Force file storage mode for these isolated tests regardless of caller env.
-  delete process.env.PICTORIUM_REDIS_URL
-  delete process.env.POSTERIUM_REDIS_URL
+  delete process.env.FLAMEFORGE_REDIS_URL
+  delete process.env.FLAMEFORGE_REDIS_URL
   delete process.env.REDIS_URL
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
@@ -58,10 +58,10 @@ async function freshStore(tempDir?: string) {
 }
 
 afterEach(async () => {
-  restoreEnv("PICTORIUM_DATA_DIR", originalPictoriumDataDir)
-  restoreEnv("POSTERIUM_DATA_DIR", originalPosteriumDataDir)
-  restoreEnv("PICTORIUM_REDIS_URL", originalPictoriumRedisUrl)
-  restoreEnv("POSTERIUM_REDIS_URL", originalPosteriumRedisUrl)
+  restoreEnv("FLAMEFORGE_DATA_DIR", originalFlameForgeDataDir)
+  restoreEnv("FLAMEFORGE_DATA_DIR", originalPosteriumDataDir)
+  restoreEnv("FLAMEFORGE_REDIS_URL", originalFlameForgeRedisUrl)
+  restoreEnv("FLAMEFORGE_REDIS_URL", originalPosteriumRedisUrl)
   restoreEnv("REDIS_URL", originalRedisUrl)
   restoreEnv("KV_REST_API_URL", originalKvRestApiUrl)
   restoreEnv("KV_REST_API_TOKEN", originalKvRestApiToken)
@@ -218,3 +218,5 @@ describe("wrong-shape corruption stays scoped", () => {
     await expect(store.getAllAliases()).resolves.toMatchObject([{ tmdbId: 101 }])
   })
 })
+
+

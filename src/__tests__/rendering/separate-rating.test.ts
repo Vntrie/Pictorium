@@ -63,3 +63,4 @@ describe("renderSeparateRatingStack (colonna uniforme: logo sopra, punteggio sot
     expect(sixRow!.png.equals(fiveRow!.png)).toBe(true)
   })
 })
+

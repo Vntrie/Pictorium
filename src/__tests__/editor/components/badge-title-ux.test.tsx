@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Per-title badge UX: rank appearance vs title-info style, coherent with the
  * global defaults (no new models). Master is the top badge (single winner,
  * never rank-only); side stays global-only so per-title preview always
@@ -538,4 +538,5 @@ describe("nastro standard/colorato per-title (U1)", () => {
     expect(ctx().extraBadgeStyle).toBe("vetro")
   })
 })
+
 

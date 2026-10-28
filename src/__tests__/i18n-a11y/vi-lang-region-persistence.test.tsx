@@ -1,18 +1,18 @@
 /**
  * Persistenza reale lingua/regione con `vi` (solo lingua UI, senza regione chart).
  *
- * Guida il VERO PictoriumRoot (mai loader mockati) con rete stubbata e il VERO
+ * Guida il VERO FlameForgeRoot (mai loader mockati) con rete stubbata e il VERO
  * localStorage di jsdom: dimostra il flusso completo salvataggio → reload
  * (unmount/remount) invece del solo `defaultRegionForLang` unitario.
  */
 import { render, act } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { useEffect } from "react"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let editorRegion: string | null = null
 
 function Probe() {
@@ -54,7 +54,7 @@ function storedRegion(): string | null {
   }
 }
 
-describe("vi lang/region persistence (real PictoriumRoot)", () => {
+describe("vi lang/region persistence (real FlameForgeRoot)", () => {
   beforeEach(() => {
     ctx = null
     editorRegion = null
@@ -77,7 +77,7 @@ describe("vi lang/region persistence (real PictoriumRoot)", () => {
       }
       return okJson({}) as Response
     })
-    render(<PictoriumRoot><Probe /></PictoriumRoot>)
+    render(<FlameForgeRoot><Probe /></FlameForgeRoot>)
     await flush()
     // Async init: the vi dict loads before the language commit.
     await vi.waitFor(() => expect(ctx!.lang).toBe("vi"))
@@ -101,9 +101,9 @@ describe("vi lang/region persistence (real PictoriumRoot)", () => {
     localStorage.setItem("badgeDefaults", JSON.stringify({ region: "US" }))
 
     const first = render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     expect(ctx, "provider context available").toBeTruthy()
@@ -130,9 +130,9 @@ describe("vi lang/region persistence (real PictoriumRoot)", () => {
     ctx = null
     editorRegion = null
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await vi.waitFor(() => expect(ctx!.lang).toBe("vi"))
@@ -141,3 +141,5 @@ describe("vi lang/region persistence (real PictoriumRoot)", () => {
     expect(localStorage.getItem("preferred_lang")).toBe("vi")
   })
 })
+
+

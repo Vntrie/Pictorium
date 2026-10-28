@@ -226,7 +226,7 @@ describe("useRankingSources save lifecycle", () => {
   })
 
   it("re-selecting the local value after a silent GET still PUTs (local is not server truth)", async () => {
-    const store = memStore({ pictorium_ranking_source_movie: "jw:popular" })
+    const store = memStore({ FLAMEFORGE_ranking_source_movie: "jw:popular" })
     mockedFetch.mockImplementation(async (_url: string, init?: RequestInit) =>
       init?.method === "PUT" ? okPut : okEmptyGet,
     )
@@ -247,7 +247,7 @@ describe("useRankingSources save lifecycle", () => {
   })
 
   it("re-selecting the local value while GET is still pending still PUTs", async () => {
-    const store = memStore({ pictorium_ranking_source_movie: "jw:popular" })
+    const store = memStore({ FLAMEFORGE_ranking_source_movie: "jw:popular" })
     mockedFetch.mockImplementation(async (_url: string, init?: RequestInit) => {
       if (init?.method === "PUT") return okPut
       return new Promise<Response>(() => {})
@@ -265,7 +265,7 @@ describe("useRankingSources save lifecycle", () => {
   })
 
   it("re-selecting the local value while the server is unreachable still attempts PUT", async () => {
-    const store = memStore({ pictorium_ranking_source_movie: "jw:popular" })
+    const store = memStore({ FLAMEFORGE_ranking_source_movie: "jw:popular" })
     mockedFetch.mockImplementation(async (_url: string, init?: RequestInit) => {
       if (init?.method === "PUT") return okPut
       throw new Error("offline")
@@ -338,3 +338,5 @@ describe("useRankingSources save lifecycle", () => {
     expect(result.current.rankSourceNonce).toBe(nonceBefore + 1)
   })
 })
+
+

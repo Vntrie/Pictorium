@@ -56,3 +56,4 @@ describe("admin-token (session-only)", () => {
     expect(applyAdminAuthHeaders("/api/warmup", headers)).toEqual(headers)
   })
 })
+

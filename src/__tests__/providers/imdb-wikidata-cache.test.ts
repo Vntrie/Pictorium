@@ -38,3 +38,4 @@ describe("resolveWikidataId", () => {
     expect(await resolveWikidataId("tv", 1406, "key")).toBeNull()
   })
 })
+

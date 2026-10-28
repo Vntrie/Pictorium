@@ -128,25 +128,7 @@ export interface UiLangMeta {
  * importa già regions.ts (l'inverso creerebbe una dipendenza circolare).
  */
 export const UI_LANG_META: readonly UiLangMeta[] = [
-  { code: "it", flag: "🇮🇹", name: "Italiano" },
-  { code: "pl", flag: "🇵🇱", name: "Polski" },
   { code: "en", flag: "🇬🇧", name: "English" },
-  { code: "fr", flag: "🇫🇷", name: "Français" },
-  { code: "de", flag: "🇩🇪", name: "Deutsch" },
-  { code: "es", flag: "🇪🇸", name: "Español" },
-  { code: "es-419", flag: "🌎", name: "Español (Latinoamérica)" },
-  { code: "ja", flag: "🇯🇵", name: "日本語" },
-  { code: "ko", flag: "🇰🇷", name: "한국어" },
-  { code: "pt", flag: "🇵🇹", name: "Português (Portugal)" },
-  { code: "pt-br", flag: "🇧🇷", name: "Português (Brasil)" },
-  { code: "he", flag: "🇮🇱", name: "עברית" },
-  { code: "cs", flag: "🇨🇿", name: "Čeština" },
-  { code: "ro", flag: "🇷🇴", name: "Română" },
-  { code: "ar", flag: "🇸🇦", name: "العربية" },
-  { code: "tr", flag: "🇹🇷", name: "Türkçe" },
-  { code: "nl", flag: "🇳🇱", name: "Nederlands" },
-  { code: "sv", flag: "🇸🇪", name: "Svenska" },
-  { code: "vi", flag: "🇻🇳", name: "Tiếng Việt" },
 ]
 
 export const SUPPORTED_UI_LANGS: readonly string[] = UI_LANG_META.map((l) => l.code)

@@ -1,13 +1,13 @@
-// Backfill una tantum: riallinea logoScale ai wordmark panoramici salvati con
+﻿// Backfill una tantum: riallinea logoScale ai wordmark panoramici salvati con
 // scala automatica satura (>= --min-scale, default 70).
 //
-// Contesto: il vecchio default automatico saturava a 75 per QUALSIASI logo più
+// Contesto: il vecchio default automatico saturava a 75 per QUALSIASI logo piÃ¹
 // largo di 2:1, quindi i mapping salvati in quell'epoca hanno logoScale: 75
 // congelato. Lo script misura l'aspect reale di ogni logo via TMDB /images e
 // propone/scrive per i wordmark larghi (aspect > --min-aspect, default 2.2)
-// la STESSA curva del default attuale (`round(37.5 * sqrt(aspect))`, cap 75 —
+// la STESSA curva del default attuale (`round(37.5 * sqrt(aspect))`, cap 75 â€”
 // sincronizzata con logoDefaultScale in logo-selection.ts): arretrato e futuro
-// convergono allo stesso valore, una sola fonte di verità. `--target N`
+// convergono allo stesso valore, una sola fonte di veritÃ . `--target N`
 // forza invece un valore piatto N per tutti i confermati.
 // I mapping con scala manuale bassa (< --min-scale) non vengono mai toccati.
 //
@@ -16,9 +16,9 @@
 //     [--tmdb-key KEY] [--min-scale 70] [--min-aspect 2.2] [--target N]
 // Dry-run di default: stampa la tabella candidati, non scrive niente.
 // Con --apply: backup data/mappings.json.bak-<ts> + scrittura (logoScale +
-// updatedAt, così la cache poster si invalida da sola).
+// updatedAt, cosÃ¬ la cache poster si invalida da sola).
 //
-// Mai RENDER_VERSION: è una migrazione dati, non un cambio del motore.
+// Mai RENDER_VERSION: Ã¨ una migrazione dati, non un cambio del motore.
 
 import { readFileSync, writeFileSync, copyFileSync } from "node:fs"
 import path from "node:path"
@@ -31,7 +31,7 @@ function arg(name, fallback) {
 }
 const APPLY = process.argv.includes("--apply")
 const DATA_DIR = arg("--data-dir", process.env.DATA_DIR || path.join(process.cwd(), "data"))
-const TMDB_KEY = arg("--tmdb-key", process.env.PICTORIUM_TMDB_KEY || process.env.TMDB_API_KEY || "")
+const TMDB_KEY = arg("--tmdb-key", process.env.FLAMEFORGE_TMDB_KEY || process.env.TMDB_API_KEY || "")
 const MIN_SCALE = Number(arg("--min-scale", "70"))
 const MIN_ASPECT = Number(arg("--min-aspect", "2.2"))
 // Curva default sincronizzata con logoDefaultScale (logo-selection.ts).
@@ -40,7 +40,7 @@ const FLAT_TARGET = arg("--target", null)
 const TARGET = FLAT_TARGET === null ? null : Number(FLAT_TARGET)
 
 if (!TMDB_KEY) {
-  console.error("Serve una chiave TMDB: --tmdb-key KEY o env PICTORIUM_TMDB_KEY / TMDB_API_KEY")
+  console.error("Serve una chiave TMDB: --tmdb-key KEY o env FLAMEFORGE_TMDB_KEY / TMDB_API_KEY")
   process.exit(1)
 }
 
@@ -49,7 +49,7 @@ let raw
 try {
   raw = readFileSync(FILE, "utf-8")
 } catch (e) {
-  console.error(`Mapping non trovati in ${FILE} (${e.message}) — niente da fare.`)
+  console.error(`Mapping non trovati in ${FILE} (${e.message}) â€” niente da fare.`)
   process.exit(1)
 }
 const mappings = JSON.parse(raw)
@@ -113,3 +113,4 @@ for (const c of confirmed) {
 }
 writeFileSync(FILE, JSON.stringify(mappings, null, 2))
 console.log(`Scritti ${confirmed.length} mapping.`)
+

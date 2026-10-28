@@ -1,11 +1,11 @@
-"use client"
+﻿"use client"
 
 import { createContext, useContext, useMemo, type ReactNode } from "react"
-import type { PictoriumCtx } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import type { BackupExportOptions, BackupImportOptions } from "@/lib/useMappingsStore"
 
 /**
- * SettingsCtx — subset di PictoriumCtx per impostazioni (chiavi API, tema, lingua, profilo).
+ * SettingsCtx â€” subset di FlameForgeCtx per impostazioni (chiavi API, tema, lingua, profilo).
  * Deriva dal padre via memo: cambia solo quando cambiano le impostazioni,
  * non quando cambiano badge/search/nav.
  */
@@ -38,7 +38,7 @@ const Ctx = createContext<SettingsCtx | null>(null)
 
 export function useSettingsCtx() {
   const v = useContext(Ctx)
-  if (!v) throw new Error("useSettingsCtx must be inside PictoriumProvider")
+  if (!v) throw new Error("useSettingsCtx must be inside FlameForgeProvider")
   return v
 }
 
@@ -46,7 +46,7 @@ export function SettingsProvider({
   value,
   children,
 }: {
-  value: PictoriumCtx
+  value: FlameForgeCtx
   children: ReactNode
 }) {
   const settingsCtx = useMemo<SettingsCtx>(

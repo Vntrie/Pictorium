@@ -50,7 +50,7 @@ function createHermeticDataDir(prefix: string): string {
     return fs.mkdtempSync(path.join(os.tmpdir(), prefix))
   }
 }
-const HERMETIC_ENV_KEYS = ["PICTORIUM_DATA_DIR", "POSTERIUM_DATA_DIR"] as const
+const HERMETIC_ENV_KEYS = ["FLAMEFORGE_DATA_DIR", "FLAMEFORGE_DATA_DIR"] as const
 let hermeticDataDir = ""
 let savedDataDirEnv: Record<string, string | undefined> = {}
 
@@ -68,10 +68,10 @@ let __clearImdbCache: typeof import("@/lib/imdb-cache").__clearImdbCache
 let __clearFlixpatrolCache: typeof import("@/lib/flixpatrol").__clearFlixpatrolCache
 
 beforeAll(async () => {
-  hermeticDataDir = createHermeticDataDir("pictorium-pipeline-")
+  hermeticDataDir = createHermeticDataDir("FlameForge-pipeline-")
   for (const k of HERMETIC_ENV_KEYS) savedDataDirEnv[k] = process.env[k]
-  process.env.PICTORIUM_DATA_DIR = hermeticDataDir
-  delete process.env.POSTERIUM_DATA_DIR
+  process.env.FLAMEFORGE_DATA_DIR = hermeticDataDir
+  delete process.env.FLAMEFORGE_DATA_DIR
   vi.resetModules()
   GET = (await import("@/app/catalog/[type]/[id]/route")).GET
   cacheClear = (await import("@/lib/cache")).cacheClear
@@ -318,8 +318,8 @@ describe("Catalog details→enrichment pipelining (no whole-batch barrier)", () 
     installPipelinedFetch(events, titlesResponse, slowGate)
 
     const getPromise = GET(
-      catalogReq("/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=0"),
-      { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) },
+      catalogReq("/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=0"),
+      { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) },
     )
     // The slow gate is always released and the owned GET always awaited, even
     // when the pipelining assertion above fails (no dangling request).
@@ -355,8 +355,8 @@ describe("Catalog details→enrichment pipelining (no whole-batch barrier)", () 
     installPipelinedFetch(events, chartsResponse, slowGate)
 
     const getPromise = GET(
-      catalogReq("/catalog/movie/pictorium-netflix-movies.json?api_key=test-key&skip=0"),
-      { params: Promise.resolve({ type: "movie", id: "pictorium-netflix-movies.json" }) },
+      catalogReq("/catalog/movie/FlameForge-netflix-movies.json?api_key=test-key&skip=0"),
+      { params: Promise.resolve({ type: "movie", id: "FlameForge-netflix-movies.json" }) },
     )
     let res: Response
     try {
@@ -389,8 +389,8 @@ describe("Catalog details→enrichment pipelining (no whole-batch barrier)", () 
     installPipelinedFetch(events, animeItemsResponse, slowGate)
 
     const getPromise = GET(
-      catalogReq("/catalog/movie/pictorium-anime-movies.json?api_key=test-key&skip=0"),
-      { params: Promise.resolve({ type: "movie", id: "pictorium-anime-movies.json" }) },
+      catalogReq("/catalog/movie/FlameForge-anime-movies.json?api_key=test-key&skip=0"),
+      { params: Promise.resolve({ type: "movie", id: "FlameForge-anime-movies.json" }) },
     )
     let res: Response
     try {
@@ -425,8 +425,8 @@ describe("Catalog details→enrichment pipelining (no whole-batch barrier)", () 
     const cid = "pipecustom"
     const token = customToken(cid)
     const getPromise = GET(
-      catalogReq(`/catalog/movie/pictorium-custom-movie-${cid}.json?api_key=test-key&config=${token}`),
-      { params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${cid}.json` }) },
+      catalogReq(`/catalog/movie/FlameForge-custom-movie-${cid}.json?api_key=test-key&config=${token}`),
+      { params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${cid}.json` }) },
     )
     let res: Response
     try {
@@ -492,8 +492,8 @@ describe("Catalog details→enrichment pipelining (no whole-batch barrier)", () 
     })
 
     const getPromise = GET(
-      catalogReq("/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=0"),
-      { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) },
+      catalogReq("/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=0"),
+      { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) },
     )
     // concurrentMap(limit 5) starts at most 5 title tasks: the 6th/7th rows
     // cannot start while the first 5 are gated. Bounded wait, always release
@@ -520,3 +520,5 @@ describe("Catalog details→enrichment pipelining (no whole-batch barrier)", () 
     expect(body.metas.map((m: { id: string }) => m.id)).toEqual(ids.map((_, i) => `tt${6000000 + i}`))
   })
 })
+
+

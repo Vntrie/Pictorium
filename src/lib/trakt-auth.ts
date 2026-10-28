@@ -1,5 +1,5 @@
-/**
- * Trakt OAuth foundation — task 1/plan: secure SERVER-ONLY deployment config
+﻿/**
+ * Trakt OAuth foundation â€” task 1/plan: secure SERVER-ONLY deployment config
  * + encrypted per-user token persistence. No auth routes, no state flow, no
  * UI, no provider wiring and no remote calls in this module (later tasks).
  *
@@ -7,30 +7,30 @@
  * `node:crypto`-backed `@/lib/profile-crypto` and the KV client, which pulls
  * `ioredis`). No `server-only` package import: the package is not a
  * dependency and a bare import would fail typecheck/build (same rule as
- * `i18n-server.ts`). The boundary is enforced by the import graph — NEVER
+ * `i18n-server.ts`). The boundary is enforced by the import graph â€” NEVER
  * import this module from client components or from shared client/server
  * leaves (`poster-config`, `poster-url`, `badge-priority`,
  * `stremio-poster-url`, ...). Only `src/app/api/**` routes and other server
  * lib modules may import it. A unit test pins this boundary.
  *
- * Config (one Trakt app per deployment, PKCE public client — no secret):
- * - `PICTORIUM_TRAKT_CLIENT_ID` (legacy `POSTERIUM_*`, raw `TRAKT_CLIENT_ID`
- *   — same resolution as the public-list client in
+ * Config (one Trakt app per deployment, PKCE public client â€” no secret):
+ * - `FLAMEFORGE_TRAKT_CLIENT_ID` (legacy `FLAMEFORGE_*`, raw `TRAKT_CLIENT_ID`
+ *   â€” same resolution as the public-list client in
  *   `custom-catalog-providers.ts`, so one app covers lists + OAuth).
- *   A `PICTORIUM_TRAKT_CLIENT_SECRET` env var, when present, is deliberately
+ *   A `FLAMEFORGE_TRAKT_CLIENT_SECRET` env var, when present, is deliberately
  *   IGNORED: per the official PKCE docs (Oct 2026) new Trakt apps receive no
  *   secret and user sign-in must never send one.
- * - `PICTORIUM_TRAKT_REDIRECT_URI` (canonical; legacy fallback): the exact
+ * - `FLAMEFORGE_TRAKT_REDIRECT_URI` (canonical; legacy fallback): the exact
  *   redirect URI registered in the Trakt app dashboard
- *   (e.g. `https://pictorium.duckdns.org/api/trakt/callback`). It is read
- *   ONLY from env — never derived from the request Host/X-Forwarded-Host,
+ *   (e.g. `https://FlameForge.duckdns.org/api/trakt/callback`). It is read
+ *   ONLY from env â€” never derived from the request Host/X-Forwarded-Host,
  *   so a poisoned Host header can never steer the code exchange. HTTPS only:
  *   PKCE redirect URIs must be `https://` (local testing goes through an
  *   HTTPS tunnel serving the whole UI origin).
  *
  * Tokens (per-user OAuth tokens protected at rest):
  * - Stored per UUID under `users/<uuid>/trakt.json` (mode 0600, atomic
- *   write) or the shared KV backend (`user:<uuid>:trakt`) — same dual-backend
+ *   write) or the shared KV backend (`user:<uuid>:trakt`) â€” same dual-backend
  *   pattern as `user-keys.ts`. `access_token`/`refresh_token` are AES-256-GCM
  *   bundles via `@/lib/profile-crypto` (`PROFILE_ENCRYPTION_KEY`); expiry,
  *   scope, token type and the redirect-URI binding stay plaintext metadata
@@ -39,12 +39,12 @@
  * - Reads distinguish `connected` (decryptable record) from `disconnected`
  *   (no record) and `unavailable` (present-but-unreadable, missing/invalid
  *   encryption, tampered or malformed record, storage error). Later flows
- *   MUST NOT delete tokens on `unavailable` — it is transient/operational,
+ *   MUST NOT delete tokens on `unavailable` â€” it is transient/operational,
  *   not a user disconnect.
  * - UUIDs are validated with the same strict pattern as `user-keys.ts`
  *   (no path traversal: `..`, `/`, `.` never pass).
  *
- * Token response shape follows the Trakt docs (`POST /oauth/token` →
+ * Token response shape follows the Trakt docs (`POST /oauth/token` â†’
  * `{ access_token, token_type, expires_in, refresh_token, scope,
  * created_at }`); the shared exchange validator lives in
  * `trakt-token-exchange.ts`, the coordinated save/refresh/disconnect below.
@@ -73,7 +73,7 @@ function isKvMode(): boolean {
   return getStorageMode() === "kv"
 }
 
-// ── Deployment config ───────────────────────────────────────────────
+// â”€â”€ Deployment config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /** Canonical OAuth callback path (both registered redirect URIs end here). */
 export const TRAKT_CALLBACK_PATH = "/api/trakt/callback"
@@ -107,7 +107,7 @@ const MAX_CLIENT_ID_LENGTH = 256
 
 function resolveClientId(): string | undefined {
   // Same resolution as the public-list client (custom-catalog-providers.ts):
-  // canonical PICTORIUM_* > legacy POSTERIUM_* > raw TRAKT_CLIENT_ID.
+  // canonical FLAMEFORGE_* > legacy FLAMEFORGE_* > raw TRAKT_CLIENT_ID.
   return envWithFallback("TRAKT_CLIENT_ID") || process.env.TRAKT_CLIENT_ID
 }
 
@@ -124,8 +124,8 @@ function checkClientId(raw: string | undefined): { value?: string; reason?: Trak
  * Canonical redirect URI check: absolute HTTPS URL, no userinfo, no
  * query/hash (Trakt matches the registered URI exactly), path exactly
  * `/api/trakt/callback`. Plain http (even loopback) is rejected: PKCE
- * redirects must be `https://` — local testing goes through an HTTPS tunnel
- * serving the whole UI origin. Never derived from the request — env only.
+ * redirects must be `https://` â€” local testing goes through an HTTPS tunnel
+ * serving the whole UI origin. Never derived from the request â€” env only.
  */
 function checkRedirectUri(raw: string | undefined): { value?: string; reason?: TraktConfigReason } {
   if (raw === undefined) return { reason: "missing_redirect_uri" }
@@ -178,7 +178,7 @@ export function getTraktOAuthStatus(): { configured: boolean; reason: TraktConfi
 
 /**
  * Secret-free public info for later Connect UI wiring: whether the instance
- * can start OAuth, and the canonical redirect URI (already public — it is
+ * can start OAuth, and the canonical redirect URI (already public â€” it is
  * registered in the Trakt dashboard and shown in the authorize URL).
  * NEVER includes tokens (there is no client secret in PKCE mode).
  */
@@ -188,13 +188,13 @@ export function getTraktOAuthPublicInfo(): { configured: boolean; redirectUri: s
   return { configured: true, redirectUri: config.redirectUri }
 }
 
-// ── Per-user token store ────────────────────────────────────────────
+// â”€â”€ Per-user token store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function assertValidUserId(userId: string): void {
   if (!/^[0-9a-f-]{36}$/i.test(userId)) throw new Error("Invalid user id")
 }
 
-/** Save refused: encryption unavailable → fail-closed, never plaintext. */
+/** Save refused: encryption unavailable â†’ fail-closed, never plaintext. */
 export class TraktTokensEncryptionUnavailableError extends Error {
   constructor() {
     super("Trakt token encryption is unavailable: set PROFILE_ENCRYPTION_KEY (openssl rand -hex 32)")
@@ -232,7 +232,7 @@ export interface TraktTokenInput {
   redirectUri?: string
 }
 
-/** Decrypted tokens — server memory only, never logged, never sent to clients. */
+/** Decrypted tokens â€” server memory only, never logged, never sent to clients. */
 export interface TraktTokens {
   accessToken: string
   refreshToken: string
@@ -270,7 +270,7 @@ interface TraktFile {
   updatedAt: string
   /**
    * Fencing snapshot (task 3): the sidecar generation (`trakt.gen` /
-   * `user:<uuid>:trakt:gen`) at write time. Optional — legacy records
+   * `user:<uuid>:trakt:gen`) at write time. Optional â€” legacy records
    * predate it and read fine without it; the sidecar (not this field) is
    * the source of truth for stale-write detection.
    */
@@ -425,12 +425,12 @@ export async function getTraktTokens(userId: string): Promise<TraktTokenRead> {
   const { raw, found } = read
   if (!found) return { status: "disconnected", tokens: null, reason: "no_record" }
   if (!isValidTraktFile(raw)) {
-    log.error("trakt tokens record malformed — treating as unavailable (never deleting)")
+    log.error("trakt tokens record malformed â€” treating as unavailable (never deleting)")
     return { status: "unavailable", tokens: null, reason: "malformed" }
   }
   const key = profileEncryptionKey()
   if (!key) {
-    log.error("trakt tokens present but PROFILE_ENCRYPTION_KEY is missing/invalid — treating as unavailable")
+    log.error("trakt tokens present but PROFILE_ENCRYPTION_KEY is missing/invalid â€” treating as unavailable")
     return { status: "unavailable", tokens: null, reason: "encryption_unavailable" }
   }
   try {
@@ -452,7 +452,7 @@ export async function getTraktTokens(userId: string): Promise<TraktTokenRead> {
     }
   } catch {
     // Tamper or env rotated/removed: unavailable, record left intact.
-    log.error("trakt tokens failed to decrypt — treating as unavailable (never deleting)")
+    log.error("trakt tokens failed to decrypt â€” treating as unavailable (never deleting)")
     return { status: "unavailable", tokens: null, reason: "decrypt_failed" }
   }
 }
@@ -492,18 +492,18 @@ export function isTraktTokenExpired(tokens: Pick<TraktTokens, "expiresAt">, skew
   return Date.now() >= tokens.expiresAt - skewMs
 }
 
-// ── Coordinated lifecycle (task 3) ────────────────────────────────────
+// â”€â”€ Coordinated lifecycle (task 3) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Single-flight refresh, fenced writes, explicit disconnect. The raw
 // `saveTraktTokens` above stays the unconditional store primitive (it must
-// keep working without a user record — unit tests provision bare UUIDs);
+// keep working without a user record â€” unit tests provision bare UUIDs);
 // the flows that race with wipe/disconnect (callback, refresh) use the
 // guarded path below, which never recreates a wiped namespace.
 
 /**
- * Guarded save aborted: `stale` (generation moved — a disconnect, wipe or
+ * Guarded save aborted: `stale` (generation moved â€” a disconnect, wipe or
  * newer write landed after the caller captured it) or `user_gone` (the
  * profile no longer exists). Both fail closed WITHOUT writing. Never thrown
- * for storage/crypto trouble — those propagate as-is (transient).
+ * for storage/crypto trouble â€” those propagate as-is (transient).
  */
 export class TraktSaveAbortedError extends Error {
   readonly reason: "stale" | "user_gone"
@@ -517,7 +517,7 @@ export class TraktSaveAbortedError extends Error {
 // Atomic check-and-set for the KV backend: user must still exist AND the
 // generation must still match the caller's snapshot AND the caller must
 // still own the refresh mutex, otherwise nothing is written. One
-// server-side step — no TOCTOU between check and write. The ownership proof
+// server-side step â€” no TOCTOU between check and write. The ownership proof
 // stops a holder whose lease expired mid-exchange from writing even when no
 // newer save moved the generation yet. EVAL failure throws (fail-closed);
 // there is deliberately no get+set fallback.
@@ -534,7 +534,7 @@ return "ok"`
 
 // Atomic conditional clear for a proven-dead refresh token: same gates as
 // the CAS (user exists, generation matches the pre-exchange snapshot,
-// mutex still owned) — a stale holder can never delete a newer reconnect.
+// mutex still owned) â€” a stale holder can never delete a newer reconnect.
 // Deletes the token record and installs a fresh generation in one step.
 const TOKEN_COND_CLEAR_SCRIPT = `-- trakt-token-cond-clear
 local auth = redis.call("GET", KEYS[3])
@@ -551,7 +551,7 @@ return "ok"`
 // the token record in one server-side step (auth-gated so a concurrent wipe
 // stays a clean no-op instead of recreating a generation tombstone). A
 // concurrent CAS either landed fully before (then deleted here) or sees the
-// new generation after (then aborts as stale) — linearizable either way,
+// new generation after (then aborts as stale) â€” linearizable either way,
 // with no lock to contend on. EVAL/storage failure throws (fail-closed:
 // the caller must NOT report disconnected).
 const TRAKT_DISCONNECT_SCRIPT = `-- trakt-disconnect
@@ -632,7 +632,7 @@ async function buildGuardedFile(
  * `TraktSaveAbortedError` on stale/gone; storage/crypto errors propagate
  * (transient, record intact). `lockOwner` is REQUIRED for the KV CAS (the
  * mutex key + owner travel in the script); the file path ignores it (the
- * held mutation lock already serializes committers — a live holder is never
+ * held mutation lock already serializes committers â€” a live holder is never
  * stolen, so one holder means one committer).
  */
 async function writeTraktRecordLocked(
@@ -663,7 +663,7 @@ async function writeTraktRecordLocked(
   }
   // File backend: the held mutation lock serializes committers on this host;  // the generation compare inside the critical section is the fence that
   // stops a disconnected/wiped/superseded save. The bump and the token write
-  // both happen under the same hold — a disconnect's fence can never land
+  // both happen under the same hold â€” a disconnect's fence can never land
   // between our check and our write (disconnect fences under this same
   // lock), so nothing later overwrites our fence, and we never overwrite
   // someone else's.
@@ -704,7 +704,7 @@ async function writeTraktRecordLocked(
   try {
     await atomicWriteFile(traktFile(userId), JSON.stringify(file), { mode: 0o600 })
   } catch {
-    /* sidecar already bumped — the write above holds the tokens */
+    /* sidecar already bumped â€” the write above holds the tokens */
   }
   log.info("Trakt tokens saved", { user: userId })
 }
@@ -712,8 +712,8 @@ async function writeTraktRecordLocked(
 /**
  * Conditional clear for a PROVEN-dead refresh token (`invalid_grant` only).
  * Aborts (returns false) when the generation moved since the caller's
- * pre-exchange snapshot — a newer reconnect's tokens are never deleted by a
- * stale holder — or when the user is gone (returns false; nothing to do).
+ * pre-exchange snapshot â€” a newer reconnect's tokens are never deleted by a
+ * stale holder â€” or when the user is gone (returns false; nothing to do).
  * KV additionally requires the caller to still own the refresh mutex
  * (lease-lost holders abort even with an unchanged generation). File
  * serializes under the mutation lock. Storage errors propagate
@@ -746,7 +746,7 @@ async function clearTraktTokensConditional(
     if (current !== expectedGeneration) return false
     if (!(await userExists(userId))) return false
     await fsp.unlink(traktFile(userId)).catch(() => {})
-    // Fence the clear (mkdir-free: ENOENT means a concurrent wipe won —
+    // Fence the clear (mkdir-free: ENOENT means a concurrent wipe won â€”
     // the record is gone either way, still a successful clear).
     await bumpTraktGeneration(userId).catch((e) => {
       if (e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ENOENT") return
@@ -794,11 +794,11 @@ export async function saveTraktTokensGuarded(
  * user's token record. KV: one atomic EVAL (fresh fence + delete,
  * auth-gated); file: fence + delete under the mutation lock. Fail-closed on
  * storage trouble (EVAL outage, lock contention, IO): the caller MUST report
- * failure, never `{ ok: true }` over an intact record — a swallowed fence
+ * failure, never `{ ok: true }` over an intact record â€” a swallowed fence
  * plus a successful clear would leave the generation unchanged and let a
  * stale in-flight callback/refresh write resurrect the connection. The ONLY
  * swallowed outcome is the already-gone profile (no record, no fence
- * needed — the desired end state already holds). Upstream revocation
+ * needed â€” the desired end state already holds). Upstream revocation
  * failure is NOT a storage failure: the local disconnect still proceeds
  * (the route revokes best-effort first, then calls here).
  */
@@ -821,7 +821,7 @@ export async function disconnectTraktProfile(userId: string): Promise<void> {
   const lock = await acquireTraktProfileLock(userId, { waitMs: 5000 })
   try {
     if (!(await userExists(userId))) {
-      // Wiped concurrently: remove leftovers (throws on real IO — fail
+      // Wiped concurrently: remove leftovers (throws on real IO â€” fail
       // closed), the desired end state already holds.
       await clearTraktTokens(userId)
       return
@@ -865,14 +865,14 @@ function mapTokenReadToValid(read: TraktTokenRead): TraktValidToken | null {
  * exposes tokens to browsers (callers keep the value in server memory;
  * status routes must keep using the secret-free `getTraktTokenStatus`).
  *
- * - Fresh token → `{ ok, refreshed: false }` with NO network call.
- * - Expired → exactly one coordinated refresh cluster-wide (in-process
+ * - Fresh token â†’ `{ ok, refreshed: false }` with NO network call.
+ * - Expired â†’ exactly one coordinated refresh cluster-wide (in-process
  *   single-flight + distributed profile lock); concurrent callers share it.
- * - Abort/network/429/5xx/malformed/store-unavailable → `{ temporary }`,
+ * - Abort/network/429/5xx/malformed/store-unavailable â†’ `{ temporary }`,
  *   stored credentials intact (never deleted, never downgraded).
- * - Proven `invalid_grant` (permanent) → record cleared, `reconnect_required`.
- * - Unproven 4xx (e.g. bad deployment client ID) → `temporary`, never deleted.
- * - Lock contention/EVAL outage → `temporary` after one fresh re-read (a
+ * - Proven `invalid_grant` (permanent) â†’ record cleared, `reconnect_required`.
+ * - Unproven 4xx (e.g. bad deployment client ID) â†’ `temporary`, never deleted.
+ * - Lock contention/EVAL outage â†’ `temporary` after one fresh re-read (a
  *   winner may have refreshed meanwhile); no get+del downgrade, no write.
  */
 export async function getValidTraktAccessToken(
@@ -914,7 +914,7 @@ async function refreshTraktAccessToken(
     if (e instanceof TraktGenerationUnavailableError) return { ok: false, reason: "temporary" }
     throw e
   }
-  // Refresh mutex across the exchange (single-flight dedup only — safety
+  // Refresh mutex across the exchange (single-flight dedup only â€” safety
   // stays with the fencing compare at commit). Short critical sections
   // (commit, disconnect, conditional clear) use the mutation lock / atomic
   // EVALs, so an explicit disconnect never blocks behind this mutex.
@@ -932,7 +932,7 @@ async function refreshTraktAccessToken(
     }
     // Re-read while holding the mutex: a previous winner may have refreshed
     // already (no network needed), and a disconnect/wipe that landed while
-    // we queued moved the generation (our snapshot is stale — stop before
+    // we queued moved the generation (our snapshot is stale â€” stop before
     // spending an exchange that the commit would abort anyway).
     const current = await getTraktTokens(userId)
     const cm = mapTokenReadToValid(current)
@@ -960,7 +960,7 @@ async function refreshTraktAccessToken(
     } catch (e) {
       if (e instanceof TraktTokenRequestError && e.failure.kind === "invalid_grant") {
         // Permanent: the refresh token is dead. Clear ONLY when the fence
-        // still matches our pre-exchange snapshot — a newer reconnect's
+        // still matches our pre-exchange snapshot â€” a newer reconnect's
         // tokens are never deleted by this stale holder. When the clear
         // aborts (stale/gone/lease-lost), decide from a fresh read: a valid
         // newer record wins over our dead refresh token.
@@ -985,7 +985,7 @@ async function refreshTraktAccessToken(
         return { ok: false, reason: "temporary" }
       }
       // Transient (abort/network/429/5xx/malformed/store trouble): the
-      // stored record stays exactly as it was — never deleted.
+      // stored record stays exactly as it was â€” never deleted.
       return { ok: false, reason: "temporary" }
     }
     try {
@@ -1000,7 +1000,7 @@ async function refreshTraktAccessToken(
     } catch (e) {
       if (e instanceof TraktSaveAbortedError) {
         // Fenced by a concurrent disconnect/wipe/newer write (or our mutex
-        // lease expired mid-exchange — the CAS ownership proof): decide from
+        // lease expired mid-exchange â€” the CAS ownership proof): decide from
         // a fresh read (disconnected when the record is gone).
         return decideFromFreshRead(userId)
       }
@@ -1026,12 +1026,12 @@ async function decideFromFreshRead(userId: string): Promise<TraktValidToken> {
   return m ?? { ok: false, reason: "temporary" }
 }
 
-// ── Coherent catalog lease (task 4 correction cycle 1) ──────────────
+// â”€â”€ Coherent catalog lease (task 4 correction cycle 1) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Stable, validated token+generation identity snapshot for owner-private
 // catalog paths. Callers (the unified catalog dispatcher, the Stremio
 // catalog handler) must establish this BEFORE any outer L1/L2 cache lookup
 // and revalidate it AFTER the private fetch, before caching or returning
-// private items — never coupling an old token to a new fence.
+// private items â€” never coupling an old token to a new fence.
 //
 // Protocol: generation-before, token (with coordinated refresh), then
 // generation-after. A mismatch means the fence moved mid-snapshot: a
@@ -1041,7 +1041,7 @@ async function decideFromFreshRead(userId: string): Promise<TraktValidToken> {
 // `temporary`. A generation outage with an otherwise verified token
 // degrades to `noCache` (serve fresh to the verified owner, never read or
 // write any cache layer under a guessed fragment). A non-ok token maps to
-// its typed reason — even when the generation is also unreadable, so a
+// its typed reason â€” even when the generation is also unreadable, so a
 // post-disconnect outage can never serve (there is no token to serve
 // with). Raw tokens stay server-internal: consumers that only gate cache
 // keys must ignore the `accessToken` field (never log, cache-key, or
@@ -1086,7 +1086,7 @@ export async function getTraktCatalogLease(userId: string): Promise<TraktCatalog
       return { ok: true, accessToken: valid.accessToken, generation: genAfter, noCache: false }
     }
     // Fence moved between the token read and the generation read (a
-    // disconnect/wipe/reconnect — or our own coordinated refresh — landed
+    // disconnect/wipe/reconnect â€” or our own coordinated refresh â€” landed
     // in between): the token just read must never be coupled to the new
     // fence. Retry once for the refresh case; persistent movement aborts.
     if (attempt === 0) continue
@@ -1094,3 +1094,4 @@ export async function getTraktCatalogLease(userId: string): Promise<TraktCatalog
   }
   return { ok: false, reason: "temporary" }
 }
+

@@ -884,7 +884,7 @@ describe("PUT /api/defaults shape independence (global + scoped user)", () => {
   })
 
   it("scoped snapshot preserves server env defaults in the freeze", async () => {
-    vi.stubEnv("PICTORIUM_GRADIENT_HEIGHT", "44")
+    vi.stubEnv("FLAMEFORGE_GRADIENT_HEIGHT", "44")
     // freshRoute() already reset modules; the stubbed env is read at import.
     const fs = await import("node:fs")
     fs.rmSync(`${process.cwd()}/test-results/data-shape-foundation-test`, {
@@ -970,3 +970,5 @@ describe("PUT /api/defaults shape independence (global + scoped user)", () => {
     expect(globalStored.landscape).toBeUndefined()
   })
 })
+
+

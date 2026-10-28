@@ -1,46 +1,46 @@
-/**
- * Trakt OAuth connect-state store — task 2/plan: opaque one-time server-side
+﻿/**
+ * Trakt OAuth connect-state store â€” task 2/plan: opaque one-time server-side
  * state binding the initiating browser to the initiating profile.
  *
- * SERVER-ONLY: imports `node:crypto`/`node:fs` (same rule as `trakt-auth.ts` —
+ * SERVER-ONLY: imports `node:crypto`/`node:fs` (same rule as `trakt-auth.ts` â€”
  * no `server-only` package import, boundary enforced by the import graph).
  * NEVER import from client components or shared client/server leaves. Only
  * `src/app/api/**` Trakt routes may import this module.
  *
  * Flow binding (login-CSRF protection + PKCE):
  * - `POST /api/users/[uuid]/trakt/authorize` creates `{state, nonce}`,
- *   generates a per-initiation PKCE `code_verifier` (43–128 unreserved
+ *   generates a per-initiation PKCE `code_verifier` (43â€“128 unreserved
  *   chars, cryptographically random), keeps `{userId, nonceHash,
  *   redirectUri, encryptedVerifier, expiry}` server-side (file or KV) and
  *   sets the `nonce` in an HttpOnly browser cookie. The `state` travels to
  *   Trakt inside the authorize URL; the `nonce` never leaves the browser;
- *   only the derived `code_challenge` (S256) travels in the authorize URL —
+ *   only the derived `code_challenge` (S256) travels in the authorize URL â€”
  *   the verifier itself never appears in URLs, cookies, logs or responses.
  * - `GET /api/trakt/callback` consumes the state ATOMICALLY (single-use:
  *   replayed/concurrent callbacks lose the race), decrypts the verifier in
  *   server memory only, and only then compares the cookie nonce against the
  *   stored hash (constant-time). A callback without the initiating browser's
- *   cookie is rejected — the endpoint is necessarily unauthenticated in
+ *   cookie is rejected â€” the endpoint is necessarily unauthenticated in
  *   `x-user-header` terms, so this binding is the auth. The transient
  *   verifier dies with the consumed record on EVERY outcome (no reuse).
  * - `GET /api/trakt/callback` consumes the state ATOMICALLY (single-use:
  *   replayed/concurrent callbacks lose the race) and only then compares the
  *   cookie nonce against the stored hash (constant-time). A callback without
- *   the initiating browser's cookie is rejected — the endpoint is necessarily
+ *   the initiating browser's cookie is rejected â€” the endpoint is necessarily
  *   unauthenticated in `x-user-header` terms, so this binding is the auth.
  *
  * Single outstanding flow per browser (deliberate): one cookie name
- * (`pictorium_trakt_oauth`). Starting a second flow overwrites the cookie, so
+ * (`FLAMEFORGE_trakt_oauth`). Starting a second flow overwrites the cookie, so
  * the older flow fails closed with a binding error and must be restarted.
  * This keeps cookies bounded (no per-state cookie accumulation) and the
  * server state single-use either way.
  *
  * Persistence: `trakt-oauth/<state>.json` files (0600, atomic write) or the
- * shared KV backend (`trakt:oauth:<state>`, 10 min TTL) — same dual-backend
+ * shared KV backend (`trakt:oauth:<state>`, 10 min TTL) â€” same dual-backend
  * pattern as `user-keys.ts`/`trakt-auth.ts`. File consume claims the record
- * via an atomic rename (loser gets ENOENT → replay) PLUS a fixed-name
+ * via an atomic rename (loser gets ENOENT â†’ replay) PLUS a fixed-name
  * O_EXCL witness (`<state>.consumed`): rename resolution alone is NOT
- * mutually exclusive — concurrent renames of the same source to different
+ * mutually exclusive â€” concurrent renames of the same source to different
  * destinations can sometimes both resolve with readable duplicates
  * (observed on Windows, rare ~1/300 races), so exactly one witness creator
  * wins and every other duplicate reader fails closed as a replay. Stale witnesses (crash between
@@ -83,7 +83,7 @@ export const TRAKT_OAUTH_STATE_TTL_MS = 10 * 60 * 1000
 export const TRAKT_OAUTH_STATE_TTL_SEC = 600
 
 /** Single-outstanding-flow binding cookie (see module doc). */
-export const TRAKT_OAUTH_COOKIE_NAME = "pictorium_trakt_oauth"
+export const TRAKT_OAUTH_COOKIE_NAME = "FLAMEFORGE_trakt_oauth"
 
 /** Cookie is only ever sent to the canonical callback path. */
 export const TRAKT_OAUTH_COOKIE_PATH = "/api/trakt/callback"
@@ -93,11 +93,11 @@ const STATE_RE = /^[A-Za-z0-9_-]{43}$/
 
 /**
  * PKCE verifier alphabet (RFC 7636 unreserved): `A-Z a-z 0-9 -._~`,
- * 43–128 chars. Trakt only supports the `S256` challenge method.
+ * 43â€“128 chars. Trakt only supports the `S256` challenge method.
  */
 const VERIFIER_RE = /^[A-Za-z0-9\-._~]{43,128}$/
 
-/** Verifier generation refused: encryption unavailable → fail-closed, never plaintext. */
+/** Verifier generation refused: encryption unavailable â†’ fail-closed, never plaintext. */
 export class TraktOAuthStateEncryptionUnavailableError extends Error {
   constructor() {
     super("Trakt OAuth state encryption is unavailable: set PROFILE_ENCRYPTION_KEY (openssl rand -hex 32)")
@@ -107,7 +107,7 @@ export class TraktOAuthStateEncryptionUnavailableError extends Error {
 
 /**
  * Fresh cryptographically-secure PKCE verifier per initiation: 64 random
- * bytes as base64url (86 chars — inside the 43–128 range, unreserved
+ * bytes as base64url (86 chars â€” inside the 43â€“128 range, unreserved
  * alphabet). Discard after the exchange; never persist plaintext.
  */
 export function generateCodeVerifier(): string {
@@ -128,7 +128,7 @@ export function deriveCodeChallengeS256(verifier: string): string {
 
 export interface TraktOAuthStateRecord {
   version: 1
-  /** Profile that started the flow — tokens are saved ONLY here. */
+  /** Profile that started the flow â€” tokens are saved ONLY here. */
   userId: string
   /** sha256 hex of the browser cookie nonce (never the nonce itself). */
   nonceHash: string
@@ -145,7 +145,7 @@ export interface TraktOAuthStateRecord {
    * Fencing generation bound AT INITIATION (task 3 correction): the
    * callback carries this initiator snapshot and the guarded save commits
    * only when the live generation still matches. A flow started, then
-   * disconnected before the callback, can never relink — the disconnect's
+   * disconnected before the callback, can never relink â€” the disconnect's
    * fence moved the generation. Null when the profile was never fenced.
    */
   traktGen: string | null
@@ -158,7 +158,7 @@ export interface TraktOAuthStateCreated {
   /** Set once in the HttpOnly cookie; never logged, never in URLs. */
   nonce: string
   /**
-   * S256 challenge for the authorize URL (public by design — it travels in
+   * S256 challenge for the authorize URL (public by design â€” it travels in
    * the URL). The verifier itself is NEVER returned here.
    */
   codeChallenge: string
@@ -198,7 +198,7 @@ function stateKvKey(state: string): string {
  * Fixed per-state single-use witness. Created with O_EXCL (`wx`) AFTER the
  * rename-claim and its verifying read, so exactly one duplicate reader wins
  * no matter how the renames resolved (rename resolution is not exclusive
- * across threads/processes on every platform). The winner keeps it — it is
+ * across threads/processes on every platform). The winner keeps it â€” it is
  * never deleted on the consume path, so a slow duplicate reader can never
  * win a recreated witness. The opportunistic sweep reaps it past one TTL
  * (the guarded record expires by then, so no late reader can ever go `ok`).
@@ -220,11 +220,11 @@ function isValidRecord(v: unknown): v is TraktOAuthStateRecord {
     typeof r.redirectUri === "string" &&
     r.redirectUri.length > 0 &&
     // Encrypted PKCE verifier: mandatory (records predating it fail closed
-    // as malformed — they can never complete an exchange).
+    // as malformed â€” they can never complete an exchange).
     isValidEncBundle(r.verifier) &&
     // Initiation-bound fence: present in all new flows; missing (pre-fix
-    // records, ≤10min TTL) is treated as null at consume time, never as a
-    // bypass — a null snapshot still fences against any later disconnect.
+    // records, â‰¤10min TTL) is treated as null at consume time, never as a
+    // bypass â€” a null snapshot still fences against any later disconnect.
     (r.traktGen === undefined || r.traktGen === null || typeof r.traktGen === "string") &&
     typeof r.createdAt === "number" &&
     Number.isFinite(r.createdAt) &&
@@ -256,7 +256,7 @@ export function buildClearTraktOAuthCookie(): string {
 }
 
 // Atomic get-and-delete: the record exists exactly once, so concurrent
-// callbacks cannot both win (the loser sees no record → replay rejected).
+// callbacks cannot both win (the loser sees no record â†’ replay rejected).
 const CONSUME_SCRIPT = `local v = redis.call("GET", KEYS[1])
 if v then
   redis.call("DEL", KEYS[1])
@@ -267,7 +267,7 @@ return nil`
 async function consumeKvRecord(key: string): Promise<unknown> {
   // Atomic-only: EVAL get-and-del is the single-use guarantee. Any EVAL
   // failure (unsupported/outage/timeout) propagates to the caller, which
-  // fails closed with NO get+del fallback — a non-atomic fallback would let
+  // fails closed with NO get+del fallback â€” a non-atomic fallback would let
   // two concurrent callbacks both read the record before either deletes it.
   const kv = getKv()
   const raw = await kv.eval<unknown>(CONSUME_SCRIPT, [key], [])
@@ -280,7 +280,7 @@ async function consumeKvRecord(key: string): Promise<unknown> {
  * (loser gets ENOENT) and the verifying read catches renames that resolved
  * without landing; the witness covers the residual case where concurrent
  * renames of the same source can sometimes both resolve with readable
- * duplicate claims (observed on Windows, rare) — exactly one witness creator wins, every other duplicate reader
+ * duplicate claims (observed on Windows, rare) â€” exactly one witness creator wins, every other duplicate reader
  * fails closed as a replay (`unknown`). Read-before-witness preserves
  * liveness: whenever at least one claim holds the bytes, exactly one
  * consumer proceeds (a witness-first order could crown an empty claim and
@@ -337,7 +337,7 @@ async function sweepExpiredFileStates(now: number): Promise<void> {
       if (/^[A-Za-z0-9_-]{43}\.consumed$/.test(entry)) {
         // Single-use witness whose state is long consumed (or a duplicate
         // claim that lost the witness race): reap past one TTL by mtime.
-        // Fresh witnesses MUST survive — a slow duplicate reader may still
+        // Fresh witnesses MUST survive â€” a slow duplicate reader may still
         // be in flight inside the race window, and reaping early would
         // reopen it. Past-TTL readers can only ever see `expired`, never
         // `ok`, so late reaping is safe.
@@ -378,11 +378,11 @@ async function sweepExpiredFileStates(now: number): Promise<void> {
 /**
  * Start a flow: generate the PKCE verifier, persist the binding record and
  * return the opaque `state` (for the Trakt authorize URL), the S256
- * `codeChallenge` (for the authorize URL — public by design) plus the
+ * `codeChallenge` (for the authorize URL â€” public by design) plus the
  * one-time browser `nonce` (for the HttpOnly cookie). `ttlMsOverride` exists
  * for tests (e.g. immediately expired states); callers pass no override in
  * production. `traktGen` is the fencing generation bound at initiation
- * (missing → null snapshot). Fails closed without valid encryption: the
+ * (missing â†’ null snapshot). Fails closed without valid encryption: the
  * verifier is a secret and is never stored plaintext.
  */
 export async function createTraktOAuthState(
@@ -431,7 +431,7 @@ export async function createTraktOAuthState(
  * (expired/malformed/binding/verifier/denied) burns the state: replays
  * always land on `unknown`. `nonceCandidate` is the raw cookie value (or
  * null when the browser sent no cookie). On success the decrypted verifier
- * travels in server memory only — for the immediate code exchange, never
+ * travels in server memory only â€” for the immediate code exchange, never
  * for cookies, URLs, responses or logs.
  */
 export async function consumeTraktOAuthState(
@@ -477,3 +477,4 @@ export async function consumeTraktOAuthState(
   // snapshot (still fences against any later disconnect).
   return { ok: true, record: { ...record, traktGen: record.traktGen ?? null }, verifier }
 }
+

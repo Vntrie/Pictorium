@@ -15,13 +15,13 @@ import { useEffect } from "react"
 import { render, act, screen, waitFor } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import EditView from "@/components/EditView"
 import { MOCK_CTX } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import { usePosterFit } from "@/lib/usePosterFit"
@@ -30,7 +30,7 @@ import type { SearchResult, TMDBImage, Mapping } from "@/lib/types"
 vi.mock("@/lib/usePosterFit", () => ({ usePosterFit: vi.fn() }))
 vi.mocked(usePosterFit).mockReturnValue({ bestFitPath: null, results: [], loading: false, error: null })
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -175,10 +175,10 @@ async function openSavedTitle() {
   ctx = null
   ed = null
   render(
-    <PictoriumRoot>
+    <FlameForgeRoot>
       <Probe />
       <EditView />
-    </PictoriumRoot>,
+    </FlameForgeRoot>,
   )
   await flush()
   expect(ctx, "provider context available").toBeTruthy()
@@ -288,10 +288,10 @@ function renderSwitchableEditor(first: Record<string, unknown>) {
     return (
       <ThemeProvider>
         <PosterEditorProvider>
-          <PictoriumProvider value={value}>
+          <FlameForgeProvider value={value}>
             <EditView />
             <SwitchProbe />
-          </PictoriumProvider>
+          </FlameForgeProvider>
         </PosterEditorProvider>
       </ThemeProvider>
     )
@@ -351,3 +351,5 @@ describe("EditView shape roundtrip keeps portrait fixed and landscape independen
     expect(editor().networkLogoOffsetY).toBe(500)
   })
 })
+
+

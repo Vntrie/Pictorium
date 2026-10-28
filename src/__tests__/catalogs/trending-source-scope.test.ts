@@ -288,3 +288,4 @@ describe("GET /api/tmdb/trending — scoped Top 20 sources", () => {
     expect(json.movies.map((m) => m.rank)).toEqual(shared.items.map((r) => r.rank))
   })
 })
+

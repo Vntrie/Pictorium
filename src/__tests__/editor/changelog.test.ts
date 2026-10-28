@@ -27,7 +27,7 @@ describe("changelog data", () => {
   })
 
   it("uses the agreed localStorage key", () => {
-    expect(CHANGELOG_SEEN_KEY).toBe("pictorium_last_seen_changelog")
+    expect(CHANGELOG_SEEN_KEY).toBe("FLAMEFORGE_last_seen_changelog")
   })
 })
 
@@ -64,3 +64,5 @@ describe("hasUnseenChangelog (dot logic)", () => {
     expect(seenValue([])).toBe(`c:${LATEST_CHANGELOG_VERSION}`)
   })
 })
+
+

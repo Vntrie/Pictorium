@@ -3,7 +3,7 @@ import { resolvePosterLayout, resolvePosterRenderConfig } from "@/lib/poster-con
 import { normalizePosterCacheParams } from "@/lib/poster-runtime-cache"
 import { POSTER_CACHE_ALLOWLIST, hardenPosterSearchParams } from "@/lib/poster-params-hardening"
 import { mappingSchema, posterQuerySchema, validatePosterQuery } from "@/lib/validation"
-import { configTokenSchema, decodeConfig, encodeConfig, type PictoriumUserConfig } from "@/lib/config-token"
+import { configTokenSchema, decodeConfig, encodeConfig, type FlameForgeUserConfig } from "@/lib/config-token"
 import { buildStremioPosterUrl } from "@/lib/stremio-poster-url"
 import { buildStremioPosterSearchParams } from "@/lib/stremio-poster-params"
 import { proxyDefaultsSignature } from "@/lib/addon-proxy"
@@ -28,7 +28,7 @@ function mapping(over: Partial<Mapping> = {}): Mapping {
 
 function resolve(
   query: string,
-  opts: { mapping?: Mapping | null; config?: PictoriumUserConfig | null; sd?: ServerDefaults; shape?: "poster" | "landscape" } = {},
+  opts: { mapping?: Mapping | null; config?: FlameForgeUserConfig | null; sd?: ServerDefaults; shape?: "poster" | "landscape" } = {},
 ) {
   return resolvePosterLayout(
     new URLSearchParams(query),
@@ -41,7 +41,7 @@ function resolve(
 
 function renderLayout(
   query: string,
-  opts: { mapping?: Mapping | null; config?: PictoriumUserConfig | null; sd?: ServerDefaults; shape?: "poster" | "landscape" } = {},
+  opts: { mapping?: Mapping | null; config?: FlameForgeUserConfig | null; sd?: ServerDefaults; shape?: "poster" | "landscape" } = {},
 ) {
   return resolvePosterRenderConfig({
     searchParams: new URLSearchParams(query),
@@ -57,7 +57,7 @@ function renderLayout(
   }).posterLayout
 }
 
-const TOKEN_BASE: PictoriumUserConfig = {
+const TOKEN_BASE: FlameForgeUserConfig = {
   globalBadges: true,
   rankingBadges: true,
   badgeStyle: "shadow",
@@ -570,3 +570,5 @@ describe("cover layout preview + defaults preview + Stremio roundtrip", () => {
     expect(proxyDefaultsSignature({ posterLayout: layout })).toBe(proxyDefaultsSignature({ posterLayout: layout }))
   })
 })
+
+

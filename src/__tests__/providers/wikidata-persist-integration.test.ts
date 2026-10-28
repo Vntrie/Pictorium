@@ -31,15 +31,15 @@ function testTmpBase(): string {
 }
 
 async function freshDir(): Promise<string> {
-  const dir = await fsp.mkdtemp(path.join(testTmpBase(), "pictorium-wdint-"))
+  const dir = await fsp.mkdtemp(path.join(testTmpBase(), "FlameForge-wdint-"))
   tmpDirs.push(dir)
   return dir
 }
 
 function stubFileMode(dir: string): void {
-  vi.stubEnv("PICTORIUM_DATA_DIR", dir)
-  vi.stubEnv("PICTORIUM_REDIS_URL", "")
-  vi.stubEnv("POSTERIUM_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
   vi.stubEnv("REDIS_URL", "")
   vi.stubEnv("KV_REST_API_URL", "")
   vi.stubEnv("KV_REST_API_TOKEN", "")
@@ -140,7 +140,7 @@ describe("fetchAllWikidata persistent integration (7d fresh / 30d stale)", () =>
   })
 
   it("aged >7d refetches upstream and refreshes the persisted record", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const file = path.join(dir, "wikidata", "wikidata-v2-movie-7102.json")
     await fsp.mkdir(path.dirname(file), { recursive: true })
     const oldAt = Date.now() - 10 * DAY_MS
@@ -178,7 +178,7 @@ describe("fetchAllWikidata persistent integration (7d fresh / 30d stale)", () =>
   })
 
   it("upstream error returns stale degraded:true without rewriting it", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const file = path.join(dir, "wikidata", "wikidata-v2-movie-7104.json")
     await fsp.mkdir(path.dirname(file), { recursive: true })
     const staleAt = Date.now() - 10 * DAY_MS
@@ -202,7 +202,7 @@ describe("fetchAllWikidata persistent integration (7d fresh / 30d stale)", () =>
   })
 
   it("expired >30d is ignored (empty degraded, no stale leak)", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const file = path.join(dir, "wikidata", "wikidata-v2-movie-7105.json")
     await fsp.mkdir(path.dirname(file), { recursive: true })
     await fsp.writeFile(
@@ -229,7 +229,7 @@ describe("fetchAllWikidata persistent integration (7d fresh / 30d stale)", () =>
       degraded: false,
     })).toBe(true)
     // Age the record into the stale window via direct file rewrite.
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const file = path.join(dir, "wikidata", "wikidata-v2-movie-7106.json")
     const raw = JSON.parse(await fsp.readFile(file, "utf-8")) as { fetchedAt: number } & Record<string, unknown>
     raw.fetchedAt = Date.now() - 10 * DAY_MS
@@ -295,7 +295,7 @@ describe("fetchAllWikidata persistent integration (7d fresh / 30d stale)", () =>
       degraded: false,
     })).toBe(true)
     // Backdate to 6d old (remaining ~1d).
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const file = path.join(dir, "wikidata", "wikidata-v2-movie-7109.json")
     const raw = JSON.parse(await fsp.readFile(file, "utf-8")) as { fetchedAt: number } & Record<string, unknown>
     raw.fetchedAt = now - 6 * DAY_MS
@@ -329,7 +329,7 @@ describe("fetchAllWikidata persistent integration (7d fresh / 30d stale)", () =>
       director: null,
       degraded: false,
     })).toBe(true)
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const file = path.join(dir, "wikidata", "wikidata-v2-movie-7110.json")
     const raw = JSON.parse(await fsp.readFile(file, "utf-8")) as { fetchedAt: number } & Record<string, unknown>
     raw.fetchedAt = Date.now() - 10 * DAY_MS
@@ -344,3 +344,5 @@ describe("fetchAllWikidata persistent integration (7d fresh / 30d stale)", () =>
     expect(spy).not.toHaveBeenCalled()
   })
 })
+
+

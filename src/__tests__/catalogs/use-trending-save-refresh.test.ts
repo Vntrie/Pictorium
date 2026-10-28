@@ -176,3 +176,4 @@ describe("useTrending manual refresh during ranking saves", () => {
     expect(mockToast).toHaveBeenCalledWith("ui.listsRefreshed")
   })
 })
+

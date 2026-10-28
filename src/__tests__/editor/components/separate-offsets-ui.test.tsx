@@ -345,3 +345,4 @@ describe("idratazione stored + dirty + preset", () => {
     expect(captureVisualPreset(result.current).defaultSeparateBadgeOffsetX).toBe(0)
   })
 })
+

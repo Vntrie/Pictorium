@@ -120,7 +120,7 @@ import { fetchCustomRatings, resolveCustomRatingConfig, type RatingItem } from "
 import { resolveAgeCertification, sanitizeAgeLabel } from "@/lib/certification"
 
 // Vercel: limite massimo di esecuzione della funzione. Il render poster ha un
-// deadline interno di 30s (PICTORIUM_RENDER_TIMEOUT_MS) → 40s copre il caso
+// deadline interno di 30s (FLAMEFORGE_RENDER_TIMEOUT_MS) → 40s copre il caso
 // peggiore. Su Hobby Vercel impone comunque 10s; su Pro vale questo valore.
 export const maxDuration = 40
 
@@ -149,7 +149,7 @@ const POSTER_TMDB_TIMEOUT_MS = 8000
 
 // Tetto massimo per l'attesa del voto medio TMDB+IMDb (MDBList) prima del
 // render: se il fetch è lento, il poster usa il voto TMDB senza bloccarsi.
-// Sovrascrivibile via env (PICTORIUM_RATING_WAIT_MS); default ridotto a 1500ms
+// Sovrascrivibile via env (FLAMEFORGE_RATING_WAIT_MS); default ridotto a 1500ms
 // per stringere il caso peggiore senza rinunciare all'upgrade del voto. Valore
 // condiviso con la route tmdb-details (stesso knob).
 const RATING_WAIT_MS = (() => {
@@ -291,7 +291,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
   // hardening bypassato. DOPO il rate-limit: il flood su UUID altrui resta
   // confinato al sotto-bucket dell'attaccante.
   if (scopedUser && !(await userExists(scopedUser))) scopedUser = null
-  // Preview blindata opt-in (v1.23.0): con PICTORIUM_PREVIEW_AUTH=1 le
+  // Preview blindata opt-in (v1.23.0): con FLAMEFORGE_PREVIEW_AUTH=1 le
   // preview anonime sulle pubbliche vengono hardenate e cachate come
   // normali (niente bypass bot). Restano live: spazi esistenti (editor del
   // proprietario) e sessioni sbloccate (cookie PIN/admin). Default OFF.
@@ -763,7 +763,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
   const configHash = configOverride ? hashKey(JSON.stringify(configOverride)) : ""
   const outputFormat = resolveImageFormat(req.headers.get("accept"), req.nextUrl.searchParams.get("fmt") || req.nextUrl.searchParams.get("format"))
   // C3: un solo render canonico per chiave (jpeg storico, webp con
-  // PICTORIUM_IMAGE_FORMAT=webp); gli altri formati sono varianti di risposta
+  // FLAMEFORGE_IMAGE_FORMAT=webp); gli altri formati sono varianti di risposta
   // convertite on-the-fly. Solo ?fmt=avif esplicito mantiene chiave+render
   // dedicati. Il marcatore di formato in chiave evita poison al flip env
   // (stessa chiave + formato diverso = buffer col Content-Type sbagliato).
@@ -792,7 +792,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
   // del JSON diagnostico. Non scrive comunque in cache (return prima).
   const wantNetGeo = req.nextUrl.searchParams.get("netgeo") === "1"
   // isPreview effettivo calcolato a inizio richiesta (può essere declassato
-  // dalla blindatura opt-in PICTORIUM_PREVIEW_AUTH) — non rileggere la query.
+  // dalla blindatura opt-in FLAMEFORGE_PREVIEW_AUTH) — non rileggere la query.
   // Poster non-mappato (composto al volo con dati dinamici): TTL ridotto (6h)
   // invece delle 24h del path mappato, così rank/IMDb Top 250 non restano
   // stantii per un giorno intero. Il flag non cambia per tutta la richiesta.
@@ -815,7 +815,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
 
   // Effective-accent metadata branch (`?accentmeta=1`, read-only, no-store).
   // DIAGNOSTIC ONLY: the editor picker does NOT use this branch — it reads
-  // the `X-Pictorium-Accent` response header of the image itself (same XHR,
+  // the `X-FlameForge-Accent` response header of the image itself (same XHR,
   // same bytes, zero extra requests; see `posterHeaders` + `usePosterPreview`).
   // Same authorized key as the image above (auth/namespace/mapping/shape/
   // ranking-preflight all ran on the identical lines): fresh sidecar HIT →
@@ -2074,7 +2074,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
         // Rank anime (media_type=tv): la lista MDBList trending anime senza
         // chiave risponde 503 "Invalid API key" → rank sempre null. Si usa la
         // chiave esplicita della richiesta (mdblist_key) o il fallback
-        // d'istanza (PICTORIUM_MDBLIST_KEY). La cache è quella interna di
+        // d'istanza (FLAMEFORGE_MDBLIST_KEY). La cache è quella interna di
         // fetchMDBList (keyed per chiave, TTL 30min), quindi niente cache
         // manuale non-keyed.
         // Precedenza: `animerank` (preview/catalogo) > fetch live >
@@ -3115,7 +3115,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
       logoSrc: logoPath,
       backdropSrc: isLandscape ? null : backdropPath,
       // C3: render sempre canonico (jpeg storico, webp con
-      // PICTORIUM_IMAGE_FORMAT=webp; avif solo ?fmt=avif legacy esplicito).
+      // FLAMEFORGE_IMAGE_FORMAT=webp; avif solo ?fmt=avif legacy esplicito).
       format: legacyAvif ? outputFormat : canonicalFormat,
     }
     if (renderAbort.signal.aborted) {

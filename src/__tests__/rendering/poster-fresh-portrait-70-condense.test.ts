@@ -218,3 +218,4 @@ describe("task12 c2 rank-aware condense (only portrait >= 10 squeezes)", () => {
     expect(freshNumeralSvg(freshGeometry(LAND_W, LAND_H, 10).numeral!).textEl).toContain(`transform="scale(0.6 1)"`)
   }, 180000)
 })
+

@@ -242,11 +242,11 @@ async function stubDurableIsolation(): Promise<void> {
   } catch {
     // platform default
   }
-  const dir = await fsp.mkdtemp(path.join(base, "pictorium-awards-"))
+  const dir = await fsp.mkdtemp(path.join(base, "FlameForge-awards-"))
   tmpDirs.push(dir)
-  vi.stubEnv("PICTORIUM_DATA_DIR", dir)
-  vi.stubEnv("PICTORIUM_REDIS_URL", "")
-  vi.stubEnv("POSTERIUM_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
   vi.stubEnv("REDIS_URL", "")
   vi.stubEnv("KV_REST_API_URL", "")
   vi.stubEnv("KV_REST_API_TOKEN", "")
@@ -376,8 +376,8 @@ describe("provider chaos (slot ↔ timeout ↔ race ↔ breaker ↔ render)", ()
   })
 
   it("S5 custom rating hang → bound 1500ms, fail-open [], slot libero", { timeout: 30000 }, async () => {
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "true")
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "true")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
     const mocked = vi.mocked(undiciRequest)
 
     // (a) refused → fail-open immediato.
@@ -430,3 +430,5 @@ describe("provider chaos (slot ↔ timeout ↔ race ↔ breaker ↔ render)", ()
     expect(calls.tvdb).toBe(before) // cooldown 60s: 0 fetch
   })
 })
+
+

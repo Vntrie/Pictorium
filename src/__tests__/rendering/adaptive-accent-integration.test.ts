@@ -259,3 +259,4 @@ describe("render proof: same extracted RGB, dark vs light local band", () => {
     }
   })
 })
+

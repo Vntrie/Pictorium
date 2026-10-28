@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test"
+﻿import { test, expect, type Page } from "@playwright/test"
 
 async function ensureManageOpen(dialog: ReturnType<Page["getByRole"]>) {
   // Personal presets live in a gallery disclosure closed by default, and the
@@ -17,9 +17,9 @@ async function ensureManageOpen(dialog: ReturnType<Page["getByRole"]>) {
 
 async function openSettings(page: Page) {
   await page.addInitScript(() => {
-    localStorage.setItem("pictorium_profile_id", "e2e-visual-presets")
-    localStorage.setItem("pictorium_profile_stateless", "1")
-    localStorage.setItem("pictorium_onboarding_done", "true")
+    localStorage.setItem("FLAMEFORGE_profile_id", "e2e-visual-presets")
+    localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+    localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
     localStorage.setItem("preferred_lang", "it")
     localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
   })
@@ -111,3 +111,4 @@ test("personal styles are saved on the server and can be applied from another de
     }
   }
 })
+

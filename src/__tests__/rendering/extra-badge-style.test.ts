@@ -8,7 +8,7 @@ import { buildStremioPosterSearchParams } from "@/lib/stremio-poster-params"
 import { buildStremioPosterUrl } from "@/lib/stremio-poster-url"
 import { buildExtraBadgeSVG } from "@/lib/svg-badge"
 import type { Mapping } from "@/lib/types"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 
 function baseInput(overrides: Partial<PosterRenderConfigInput> = {}): PosterRenderConfigInput {
   return {
@@ -32,7 +32,7 @@ const mapping = (partial: Partial<Mapping> = {}): Mapping => ({
   ...partial,
 })
 
-const config = (partial: Partial<PictoriumUserConfig> = {}): PictoriumUserConfig => ({
+const config = (partial: Partial<FlameForgeUserConfig> = {}): FlameForgeUserConfig => ({
   globalBadges: true,
   rankingBadges: true,
   badgeStyle: "shadow",
@@ -226,3 +226,5 @@ describe("extra badge bitmaps differ per style", () => {
     expect(a!.png.equals(b!.png)).toBe(false)
   })
 })
+
+

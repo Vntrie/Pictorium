@@ -151,3 +151,4 @@ describe("HomeStatusStrip TMDB attribution (Credits region)", () => {
     expect(left?.querySelector("a.status-live-badge")).not.toBeNull()
   })
 })
+

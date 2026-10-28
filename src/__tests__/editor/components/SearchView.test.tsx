@@ -29,3 +29,4 @@ describe("search results view", () => {
     expect(doSearch).not.toHaveBeenCalled()
   })
 })
+

@@ -200,3 +200,4 @@ describe("anime local-first rating resolution", () => {
     expect(tv?.sources.anilist).toBeUndefined()
   })
 })
+

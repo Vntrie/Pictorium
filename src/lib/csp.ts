@@ -1,11 +1,11 @@
-/**
+﻿/**
  * Origini extra per la Content-Security-Policy (img-src/connect-src).
  *
- * Quando POSTER_CDN_URL (o NEXT_PUBLIC_POSTER_CDN_URL) è impostato, gli URL
+ * Quando POSTER_CDN_URL (o NEXT_PUBLIC_POSTER_CDN_URL) Ã¨ impostato, gli URL
  * poster escono con quell'origin mentre la pagina gira altrove: senza
  * allowlist la CSP bloccherebbe <img> e XHR delle preview. Solo
- * scheme+host, mai path/query; env assente → lista vuota (policy invariata).
- * Lettura env iniettata per testabilità (la config passa process.env).
+ * scheme+host, mai path/query; env assente â†’ lista vuota (policy invariata).
+ * Lettura env iniettata per testabilitÃ  (la config passa process.env).
  */
 export function cspExtraOrigins(env: Record<string, string | undefined>): string[] {
   const raw = (env.NEXT_PUBLIC_POSTER_CDN_URL || env.POSTER_CDN_URL || "").trim().replace(/\/+$/, "")
@@ -28,7 +28,7 @@ export interface CspHeaderOptions {
 /**
  * Stringa `Content-Security-Policy` completa dalla stessa env di
  * cspExtraOrigins. Puro (solo URL parsing): sicuro da importare nel
- * middleware Edge. Chiamato per-request così un cambio di POSTER_CDN_URL
+ * middleware Edge. Chiamato per-request cosÃ¬ un cambio di POSTER_CDN_URL
  * richiede solo restart, mai rebuild (prima la policy era congelata a
  * build time in next.config.ts e il CDN restava bloccato fuori).
  */
@@ -37,9 +37,9 @@ export function buildCspHeader(env: Record<string, string | undefined>, opts: Cs
   const cdn = cspExtraOrigins(env).join(" ")
   const cdnSuffix = cdn ? ` ${cdn}` : ""
   // Frame embedding: default compatibile con HF Spaces (l'app gira in
-  // iframe); PICTORIUM_FRAME_ANCESTORS lo sovrascrive (es. "'self'" per
+  // iframe); FLAMEFORGE_FRAME_ANCESTORS lo sovrascrive (es. "'self'" per
   // istanze pubbliche che non vogliono essere embeddate).
-  const frameAncestors = (env.PICTORIUM_FRAME_ANCESTORS || "").trim() ||
+  const frameAncestors = (env.FLAMEFORGE_FRAME_ANCESTORS || "").trim() ||
     "'self' https://huggingface.co https://*.huggingface.co https://*.hf.space"
   return [
     "default-src 'self'",
@@ -54,3 +54,4 @@ export function buildCspHeader(env: Record<string, string | undefined>, opts: Cs
     `frame-ancestors ${frameAncestors}`,
   ].join("; ")
 }
+

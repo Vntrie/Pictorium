@@ -82,3 +82,4 @@ describe("BadgeStyle minimal (pipe separator)", () => {
     expect(config.badgeStyle).toBe("minimal")
   })
 })
+

@@ -128,8 +128,8 @@ async function importKv() {
 }
 
 function clearEnv() {
-  delete process.env.PICTORIUM_REDIS_URL
-  delete process.env.POSTERIUM_REDIS_URL
+  delete process.env.FLAMEFORGE_REDIS_URL
+  delete process.env.FLAMEFORGE_REDIS_URL
   delete process.env.REDIS_URL
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
@@ -157,18 +157,18 @@ describe("kv.ts (Step 1: selezione backend + serializzazione)", () => {
   })
 
   it("import non connette (lazy): nessuna istanza alla sola importazione", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     await importKv()
     expect(redisRegistry.instances).toHaveLength(0)
   })
 
-  it("precedenza URL: PICTORIUM > POSTERIUM > nudo", async () => {
+  it("precedenza URL: FlameForge > POSTERIUM > nudo", async () => {
     const kv = await importKv()
     process.env.REDIS_URL = "redis://bare:6379/0"
     expect(kv.resolveRedisUrl()).toBe("redis://bare:6379/0")
-    process.env.POSTERIUM_REDIS_URL = "redis://legacy:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://legacy:6379/0"
     expect(kv.resolveRedisUrl()).toBe("redis://legacy:6379/0")
-    process.env.PICTORIUM_REDIS_URL = "redis://canon:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://canon:6379/0"
     expect(kv.resolveRedisUrl()).toBe("redis://canon:6379/0")
     expect(kv.isRedisConfigured()).toBe(true)
   })
@@ -189,7 +189,7 @@ describe("kv.ts (Step 1: selezione backend + serializzazione)", () => {
   })
 
   it("entrambi configurati: vince Redis + warn esplicito una sola volta", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     process.env.KV_REST_API_URL = "https://example.upstash.io"
     process.env.KV_REST_API_TOKEN = "test-token"
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
@@ -209,7 +209,7 @@ describe("kv.ts (Step 1: selezione backend + serializzazione)", () => {
   })
 
   it("redis: set/get oggetto, stringa raw pass-through", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     const kv = await importKv()
     const client = kv.getKv()
     await client.set("obj", { a: 1, b: [1, 2] })
@@ -223,7 +223,7 @@ describe("kv.ts (Step 1: selezione backend + serializzazione)", () => {
   })
 
   it("redis: stringa JSON (caso L2) ritorna parsata — come il ramo object del caller", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     const kv = await importKv()
     const client = kv.getKv()
     const json = JSON.stringify({ metas: [] })
@@ -233,7 +233,7 @@ describe("kv.ts (Step 1: selezione backend + serializzazione)", () => {
   })
 
   it("redis: {ex} normalizzato in EX, hset/hgetall con mix, miss -> null", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     const kv = await importKv()
     const client = kv.getKv()
     await client.set("ttl", { x: 1 }, { ex: 90 })
@@ -252,7 +252,7 @@ describe("kv.ts (Step 1: selezione backend + serializzazione)", () => {
   })
 
   it("redis: incr/expire/scan normalizzati (MATCH/COUNT, cursore numerico)", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     const kv = await importKv()
     const client = kv.getKv()
     expect(await client.incr("rl:a:1")).toBe(1)
@@ -272,13 +272,13 @@ describe("kv.ts (Step 1: selezione backend + serializzazione)", () => {
   })
 
   it("redis: valore non serializzabile rifiutato invece di scrivere spazzatura", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     const kv = await importKv()
     await expect(kv.getKv().set("bad", undefined)).rejects.toThrow(/Unserializable/)
   })
 
   it("redis: eval forwards script/keys/args unchanged (native numKeys first)", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     const kv = await importKv()
     const client = kv.getKv()
     const script = "return redis.call('incr',KEYS[1])"
@@ -292,7 +292,7 @@ describe("kv.ts (Step 1: selezione backend + serializzazione)", () => {
   })
 
   it("redis: eval propagates numeric result and backend errors", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     const kv = await importKv()
     const client = kv.getKv()
     await client.set("k", "v")
@@ -320,7 +320,7 @@ describe("kv.ts (Step 1: selezione backend + serializzazione)", () => {
   })
 
   it("closeKvClient: chiude e resetta (doppia chiamata sicura, riuso ricrea)", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     const kv = await importKv()
     const client = kv.getKv()
     await client.set("k", "v")
@@ -333,3 +333,5 @@ describe("kv.ts (Step 1: selezione backend + serializzazione)", () => {
     await kv.closeKvClient()
   })
 })
+
+

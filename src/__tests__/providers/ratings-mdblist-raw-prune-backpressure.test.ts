@@ -54,12 +54,12 @@ function approvedBase(): string {
 }
 
 async function stubFileMode(): Promise<void> {
-  const dir = await fsp.mkdtemp(path.join(approvedBase(), "pictorium-mdblist-raw-bp-"))
+  const dir = await fsp.mkdtemp(path.join(approvedBase(), "FlameForge-mdblist-raw-bp-"))
   tmpDirs.push(dir)
   dataDir = dir
-  vi.stubEnv("PICTORIUM_DATA_DIR", dir)
-  vi.stubEnv("PICTORIUM_REDIS_URL", "")
-  vi.stubEnv("POSTERIUM_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
   vi.stubEnv("REDIS_URL", "")
   vi.stubEnv("KV_REST_API_URL", "")
   vi.stubEnv("KV_REST_API_TOKEN", "")
@@ -250,3 +250,5 @@ describe("MDBList raw prune backpressure (correction cycle 2)", () => {
     }
   })
 })
+
+

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { resolvePosterRenderConfig, resolvePosterShape, clamp, type PosterRenderConfigInput } from "@/lib/poster-config"
 import { buildStremioPosterSearchParams } from "@/lib/stremio-poster-params"
 import type { Mapping } from "@/lib/types"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 
 function baseInput(overrides: Partial<PosterRenderConfigInput> = {}): PosterRenderConfigInput {
   return {
@@ -26,7 +26,7 @@ const mapping = (partial: Partial<Mapping> = {}): Mapping => ({
   ...partial,
 })
 
-const config = (partial: Partial<PictoriumUserConfig> = {}): PictoriumUserConfig => ({
+const config = (partial: Partial<FlameForgeUserConfig> = {}): FlameForgeUserConfig => ({
   globalBadges: true,
   rankingBadges: true,
   badgeStyle: "shadow",
@@ -905,3 +905,5 @@ describe("resolvePosterRenderConfig", () => {
     })).blurHeight).toBe(42)
   })
 })
+
+

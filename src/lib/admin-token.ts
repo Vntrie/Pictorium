@@ -1,14 +1,14 @@
-"use client"
+﻿"use client"
 
-// Credenziale admin di sessione (istanza privata con PICTORIUM_ADMIN_TOKEN):
+// Credenziale admin di sessione (istanza privata con FLAMEFORGE_ADMIN_TOKEN):
 // il server richiede `x-admin-token`/`Authorization: Bearer` sulle route admin
-// (warmup, cache, defaults, mappings, PIN), ma il client non lo inviava mai —
+// (warmup, cache, defaults, mappings, PIN), ma il client non lo inviava mai â€”
 // con PUBLIC_INSTANCE=0 la UI restava chiusa fuori con 401. Questo modulo
 // tiene il token SOLO in sessione (sessionStorage + fallback in memoria:
 // muore col tab, mai in localStorage/disco/URL/log) e lo allega alle chiamate
 // /api/ same-origin. Header espliciti del chiamante vincono sempre.
 
-const STORAGE_KEY = "pictorium_admin_token"
+const STORAGE_KEY = "FLAMEFORGE_admin_token"
 
 let memoryToken: string | null = null
 
@@ -66,7 +66,7 @@ export function clearAdminToken(): void {
   }
 }
 
-/** True se un token admin è sbloccato in questa sessione. */
+/** True se un token admin Ã¨ sbloccato in questa sessione. */
 export function hasAdminToken(): boolean {
   return !!getAdminToken()
 }
@@ -95,7 +95,7 @@ function hasExplicitAdminAuth(headers: HeadersInit): boolean {
 
 /**
  * Allega `x-admin-token` agli header quando: path same-origin /api/, token in
- * sessione, nessun auth admin esplicita già presente. Fuori da /api/ è
+ * sessione, nessun auth admin esplicita giÃ  presente. Fuori da /api/ Ã¨
  * passthrough (mai far trapelare il segreto verso URL terze).
  */
 export function applyAdminAuthHeaders(
@@ -125,3 +125,4 @@ export function __resetAdminTokenForTests(): void {
   }
   memoryToken = null
 }
+

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Client-safe streaming-catalog helpers for the opt-in Top 10 UI.
  *
  * Pure leaf: no `node:` imports, no server modules. The backend contracts
@@ -8,8 +8,8 @@
  * - localStorage boundary (absent key = legacy, explicit value = opt-in),
  * - availability-choice lookups for the Add dialog (source-filtered, dynamic
  *   provider universe, multiselect batch),
- * - canonical Stremio-meta → tile mapping (legacy card path; the numeric
- *   tmdbId stays on the numeric tmdbId — no TMDB inference),
+ * - canonical Stremio-meta â†’ tile mapping (legacy card path; the numeric
+ *   tmdbId stays on the numeric tmdbId â€” no TMDB inference),
  * - fast ORIGINAL-TMDB browse projection (`GET /api/streaming-catalog`)
  *   for the SimklCard boxes (never `/api/poster` images in cards),
  * - per-response source-header parsing (actual source, never a guess),
@@ -35,17 +35,17 @@ import { getRegionDef, parseRegion } from "./regions"
 import { userFetch } from "./http"
 
 /** localStorage key for the device-scoped opt-in selections. Absent = legacy. */
-export const STREAMING_SELECTIONS_STORAGE_KEY = "pictorium_streaming_selections"
+export const STREAMING_SELECTIONS_STORAGE_KEY = "FLAMEFORGE_streaming_selections"
 
 /** Anime Top 20 catalog ids (service-agnostic): disabled for genuine-new spaces. */
-export const ANIME_TOP_CATALOG_IDS = ["pictorium-anime-movies", "pictorium-anime"] as const
+export const ANIME_TOP_CATALOG_IDS = ["FlameForge-anime-movies", "FlameForge-anime"] as const
 
-/** Actual per-response source from `X-Pictorium-Source` (never a guess). */
+/** Actual per-response source from `X-FlameForge-Source` (never a guess). */
 export type StreamingActualSource = "flixpatrol" | "justwatch" | "unknown"
 
 /**
  * Parse the per-response source header. Anything missing, empty or
- * unexpected reads as `unknown` — unknown must never render a source logo.
+ * unexpected reads as `unknown` â€” unknown must never render a source logo.
  */
 export function parseStreamingSourceHeader(value: string | null | undefined): StreamingActualSource {
   const v = (value ?? "").trim().toLowerCase()
@@ -63,7 +63,7 @@ export function isStreamingOptIn(
 
 /**
  * Identity of OUR poster URLs: `/api/poster/{movie|series}/<numericTmdbId>`.
- * Numeric only — never a guess, never a TMDB lookup.
+ * Numeric only â€” never a guess, never a TMDB lookup.
  */
 export interface CatalogPosterIdentity {
   readonly type: "movie" | "series"
@@ -94,7 +94,7 @@ export interface StreamingTile {
   /** Client media type (`series` catalogs render as `tv` in the editor). */
   readonly mediaType: "movie" | "tv"
   readonly title: string
-  /** Full Pictorium poster URL as served in the catalog (Stremio parity). */
+  /** Full FlameForge poster URL as served in the catalog (Stremio parity). */
   readonly poster: string
 }
 
@@ -147,7 +147,7 @@ export function streamingPairKey(service: string, country: string): string {
 
 /**
  * Chart-slug identity of a stored country value (RegionDef code/slug or raw
- * chart slug; never Italy on failure — callers sanitize first). Stored
+ * chart slug; never Italy on failure â€” callers sanitize first). Stored
  * `"IT"` and sanitized `"italy"` resolve to the same slug, so legacy codes
  * and generic slugs address one identity.
  */
@@ -293,7 +293,7 @@ export function addGenericSelectionsToList(
     // Fail-closed validation of the single entry through the backend leaf
     // (unknown slug/service/present-but-invalid source can never enter).
     // The sanitizer never merges same-identity rows, so merging is computed
-    // here against the previous state — never by diffing a combined probe.
+    // here against the previous state â€” never by diffing a combined probe.
     const check = sanitizeGenericStreamingSelections([
       {
         service: entry.service,
@@ -667,7 +667,7 @@ export interface StreamingBrowseResult {
   readonly region: string
   /**
    * Last successful publication time (ms epoch) of the pinned snapshot the
-   * rows come from (T1 backend contract) — Pictorium's publication, NOT the
+   * rows come from (T1 backend contract) â€” FlameForge's publication, NOT the
    * fp-crawler chart date, NOT the request time. Null with no genuine pin.
    * T2 formats this for the UI; this leaf only types/carries it.
    */
@@ -680,7 +680,7 @@ export interface StreamingBrowseResult {
  * are the pinned chart rows Stremio serves (same order + rank + real media
  * type); posters are ORIGINAL TMDB paths (never `/api/poster`). Secrets
  * never travel: only the caller's TMDB key (when the device owns one) plus
- * the namespace `u` scoping go out — no instance/server secrets, no config
+ * the namespace `u` scoping go out â€” no instance/server secrets, no config
  * token (the derived id already encodes the source policy).
  */
 export async function fetchStreamingBrowse(
@@ -694,7 +694,7 @@ export async function fetchStreamingBrowse(
   // per-call dynamic `await import("./http")` resolved nondeterministically
   // under concurrent card mounts in tests (one card mocked, the sibling real).
   const res = await userFetch(`/api/streaming-catalog?${params.toString()}`, { signal: opts.signal })
-  const sourceHeader = parseStreamingSourceHeader(res.headers.get("X-Pictorium-Source"))
+  const sourceHeader = parseStreamingSourceHeader(res.headers.get("X-FlameForge-Source"))
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   const body = (await res.json().catch(() => null)) as {
     catalogId?: unknown
@@ -756,3 +756,4 @@ export function browseItemToSimkl(item: StreamingBrowseItem): {
     rank: item.rank,
   }
 }
+

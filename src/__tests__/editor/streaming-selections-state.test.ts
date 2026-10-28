@@ -130,8 +130,8 @@ describe("streaming-catalog-client pure helpers", () => {
       { service: "netflix", country: "IT", sections: ["movies", "series"], enabled: true },
     ])
     expect(derivedIdsForGenericSelection(merged.selections[0])).toEqual([
-      "pictorium-stream-netflix-it-movies",
-      "pictorium-stream-netflix-it-series",
+      "FlameForge-stream-netflix-it-movies",
+      "FlameForge-stream-netflix-it-series",
     ])
     expect(genericSelectionKey({ service: "netflix", country: "IT" })).toBe(
       genericSelectionKey({ service: "netflix", chartSlug: "italy", source: "auto", variant: null }),
@@ -143,7 +143,7 @@ describe("streaming-catalog-client pure helpers", () => {
       { service: "prime", country: "US" },
       { service: "netflix", country: "IT" },
     ])!
-    const ordered = orderGenericStreamingEntries(sels, ["pictorium-stream-netflix-it-movies"])
+    const ordered = orderGenericStreamingEntries(sels, ["FlameForge-stream-netflix-it-movies"])
     expect(ordered.map((s) => s.service)).toEqual(["netflix", "prime"])
     expect(orderGenericStreamingEntries(sels, []).map((s) => s.service)).toEqual(["prime", "netflix"])
   })
@@ -171,8 +171,8 @@ describe("useCustomCatalogs streaming selections", () => {
     })
     expect(result.current.streamingSelections).toBeUndefined()
     expect(putBodies()).toHaveLength(0)
-    expect(store.get("pictorium_streaming_selections")).toBeNull()
-    expect(store.get("pictorium_disabled_catalogs")).toBeNull()
+    expect(store.get("FLAMEFORGE_streaming_selections")).toBeNull()
+    expect(store.get("FLAMEFORGE_disabled_catalogs")).toBeNull()
   })
 
   it("server failure is NOT proof of a new space: nothing initialized, no PUT", async () => {
@@ -205,7 +205,7 @@ describe("useCustomCatalogs streaming selections", () => {
 
   it("used device (onboarding dismissed) with empty catalog domain is NOT new: legacy preserved", async () => {
     const store = memStore()
-    store.set("pictorium_onboarding_done", "true")
+    store.set("FLAMEFORGE_onboarding_done", "true")
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
     await act(async () => {
       await new Promise((r) => setTimeout(r, 700))
@@ -224,13 +224,13 @@ describe("useCustomCatalogs streaming selections", () => {
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
     await waitFor(() => expect(result.current.streamingSelections).toEqual([]), { timeout: 2000 })
     expect(result.current.disabledCatalogIds).toEqual(
-      expect.arrayContaining(["pictorium-anime-movies", "pictorium-anime"]),
+      expect.arrayContaining(["FlameForge-anime-movies", "FlameForge-anime"]),
     )
     await waitFor(() => expect(putBodies()).toHaveLength(1), { timeout: 2000 })
     const body = JSON.parse(putBodies()[0])
     expect(body.streamingSelections).toEqual([])
     expect(body.disabledCatalogIds).toEqual(
-      expect.arrayContaining(["pictorium-anime-movies", "pictorium-anime"]),
+      expect.arrayContaining(["FlameForge-anime-movies", "FlameForge-anime"]),
     )
   })
 
@@ -261,7 +261,7 @@ describe("useCustomCatalogs streaming selections", () => {
     await waitFor(() => expect(result.current.streamingSelections).toEqual([]), { timeout: 2000 })
     // Unrelated pre-existing records (seeded via actions, like real usage).
     await act(async () => {
-      result.current.setCatalogOrder(["pictorium-jw-movies", "other-id"])
+      result.current.setCatalogOrder(["FlameForge-jw-movies", "other-id"])
       result.current.renameCatalog("other-id", "Mine")
     })
 
@@ -294,19 +294,19 @@ describe("useCustomCatalogs streaming selections", () => {
 
     // Rename + order + disable touch the derived ids…
     await act(async () => {
-      result.current.renameCatalog("pictorium-stream-netflix-it-movies", "MineFlix")
-      result.current.toggleBuiltinCatalog("pictorium-stream-netflix-it-series")
+      result.current.renameCatalog("FlameForge-stream-netflix-it-movies", "MineFlix")
+      result.current.toggleBuiltinCatalog("FlameForge-stream-netflix-it-series")
     })
     // …then Remove cleans ONLY those ids, nothing unrelated.
     await act(async () => {
       result.current.removeStreamingSelection("netflix", "IT")
     })
     expect(result.current.streamingSelections).toEqual([])
-    expect(result.current.catalogOrder).not.toContain("pictorium-stream-netflix-it-movies")
+    expect(result.current.catalogOrder).not.toContain("FlameForge-stream-netflix-it-movies")
     expect(result.current.catalogOrder).toContain("other-id")
-    expect(result.current.catalogRenames["pictorium-stream-netflix-it-movies"]).toBeUndefined()
+    expect(result.current.catalogRenames["FlameForge-stream-netflix-it-movies"]).toBeUndefined()
     expect(result.current.catalogRenames["other-id"]).toBe("Mine")
-    expect(result.current.disabledCatalogIds).not.toContain("pictorium-stream-netflix-it-series")
+    expect(result.current.disabledCatalogIds).not.toContain("FlameForge-stream-netflix-it-series")
   })
 
   it("section-scoped remove narrows the entry and cleans only that derived id", async () => {    mockedFetch.mockImplementation(async (url: string, init?: RequestInit) => {
@@ -316,9 +316,9 @@ describe("useCustomCatalogs streaming selections", () => {
     const store = memStore()
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
     await waitFor(() => expect(result.current.streamingSelections).toEqual([]), { timeout: 2000 })
-    const moviesId = "pictorium-stream2-paramount--italy--movies--auto"
-    const seriesId = "pictorium-stream2-paramount--italy--series--auto"
-    const allId = "pictorium-stream2-paramount--italy--all--auto"
+    const moviesId = "FlameForge-stream2-paramount--italy--movies--auto"
+    const seriesId = "FlameForge-stream2-paramount--italy--series--auto"
+    const allId = "FlameForge-stream2-paramount--italy--all--auto"
     await act(async () => {
       result.current.setCatalogOrder([moviesId, seriesId, allId, "other-id"])
       result.current.addStreamingSelections([{ service: "paramount", country: "italy", sections: ["movies", "series", "all"] }])
@@ -350,8 +350,8 @@ describe("useCustomCatalogs streaming selections", () => {
     const store = memStore()
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
     await waitFor(() => expect(result.current.streamingSelections).toEqual([]), { timeout: 2000 })
-    const mixMovie = "pictorium-custom-movie-mix"
-    const mixSeries = "pictorium-custom-series-mix"
+    const mixMovie = "FlameForge-custom-movie-mix"
+    const mixSeries = "FlameForge-custom-series-mix"
     await act(async () => {
       result.current.setCustomCatalogs([{ id: "mix", name: "Mix", type: "mixed", url: "https://mdblist.com/lists/u/mix" }])
       result.current.setCatalogOrder([mixMovie, mixSeries, "other-id"])
@@ -381,7 +381,7 @@ describe("useCustomCatalogs streaming selections", () => {
     const store = memStore()
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
     await waitFor(() => expect(result.current.streamingSelections).toEqual([]), { timeout: 2000 })
-    const addonId = "pictorium-custom-movie-a1"
+    const addonId = "FlameForge-custom-movie-a1"
     await act(async () => {
       result.current.setCustomCatalogs([{
         name: "Addon", id: "a1", type: "movie", url: "https://example.com/manifest.json",
@@ -427,9 +427,9 @@ describe("useCustomCatalogs streaming selections", () => {
     const store = memStore()
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
     await waitFor(() => expect(result.current.streamingSelections).toEqual([]), { timeout: 2000 })
-    const aMovies = "pictorium-stream-netflix-it-movies"
-    const aSeries = "pictorium-stream-netflix-it-series"
-    const bMovies = "pictorium-stream-prime-us-movies"
+    const aMovies = "FlameForge-stream-netflix-it-movies"
+    const aSeries = "FlameForge-stream-netflix-it-series"
+    const bMovies = "FlameForge-stream-prime-us-movies"
     await act(async () => {
       result.current.addStreamingSelections([
         { service: "netflix", country: "IT", sections: ["movies", "series"] },
@@ -473,3 +473,5 @@ describe("useCustomCatalogs streaming selections", () => {
     expect(body).toHaveProperty("catalogOrder")
   })
 })
+
+

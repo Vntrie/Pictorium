@@ -142,3 +142,4 @@ describe("MoodBoardTile customPosterUrl", () => {
     await waitFor(() => expect(img.getAttribute("src")).toBe(CUSTOM_NEXT))
   })
 })
+

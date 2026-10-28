@@ -244,3 +244,4 @@ describe("PinLockModal accessibility (A11Y-1)", () => {
     await vi.waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1))
   })
 })
+

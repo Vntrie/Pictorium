@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { NextRequest } from "next/server"
 
-// Override globale disabilitato: simula POSTERIUM_BEST_FIT_ENABLED=0 (hoisted,
+// Override globale disabilitato: simula FLAMEFORGE_BEST_FIT_ENABLED=0 (hoisted,
 // applicato a TUTTO il file). File dedicato per non interferire con i test che
 // si aspettano il best-fit attivo in poster-fit-api.test.ts.
 vi.mock("@/lib/best-fit-config", () => ({ BEST_FIT_GLOBAL: "off" }))
@@ -16,14 +16,14 @@ function mockNextRequest(body: unknown): NextRequest {
   })
 }
 
-describe("POST /api/poster-fit — POSTERIUM_BEST_FIT_ENABLED=off", () => {
+describe("POST /api/poster-fit — FLAMEFORGE_BEST_FIT_ENABLED=off", () => {
   afterEach(() => {
-    delete process.env.POSTERIUM_PUBLIC_INSTANCE
+    delete process.env.FLAMEFORGE_PUBLIC_INSTANCE
     vi.restoreAllMocks()
   })
 
   it("risponde with disabled=true senza calcolare lo scoring né fetchare immagini", async () => {
-    process.env.POSTERIUM_PUBLIC_INSTANCE = "1"
+    process.env.FLAMEFORGE_PUBLIC_INSTANCE = "1"
     const fetchSpy = vi.fn()
     vi.stubGlobal("fetch", fetchSpy)
 
@@ -40,3 +40,4 @@ describe("POST /api/poster-fit — POSTERIUM_BEST_FIT_ENABLED=off", () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 })
+

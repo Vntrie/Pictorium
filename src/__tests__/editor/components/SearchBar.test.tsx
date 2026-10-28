@@ -94,3 +94,4 @@ describe("SearchBar", () => {
     expect(screen.getByRole("textbox")).toHaveValue("world")
   })
 })
+

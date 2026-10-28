@@ -109,3 +109,4 @@ describe("GET /meta theme forwarding (explicit only)", () => {
     expect(new URL(xmeta.poster).searchParams.get("theme")).toBe("christmas")
   })
 })
+

@@ -524,3 +524,4 @@ describe("award-ids curated literal guards (raw source, AST)", () => {
     expect(() => readCuratedLiterals("")).toThrow(/missing or commented out/)
   })
 })
+

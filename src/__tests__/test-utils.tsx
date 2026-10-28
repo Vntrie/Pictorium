@@ -1,7 +1,7 @@
-import type { ReactNode } from "react"
+﻿import type { ReactNode } from "react"
 import { render } from "@testing-library/react"
-import { PictoriumProvider } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import { t } from "@/lib/i18n"
@@ -11,7 +11,7 @@ import type { BatchAddResult } from "@/lib/streaming-catalog-client"
 function stubFn() {}
 async function asyncStubFn() {}
 
-export const MOCK_CTX: PictoriumCtx = {
+export const MOCK_CTX: FlameForgeCtx = {
   selected: null,
   setSelected: stubFn,
   view: "search",
@@ -192,19 +192,20 @@ export const MOCK_CTX: PictoriumCtx = {
   localConfigTokenStatus: "off",
 }
 
-export function createWrapper(overrides?: Partial<PictoriumCtx>) {
+export function createWrapper(overrides?: Partial<FlameForgeCtx>) {
   const ctx = { ...MOCK_CTX, ...overrides }
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
       <ThemeProvider>
         <PosterEditorProvider>
-          <PictoriumProvider value={ctx}>{children}</PictoriumProvider>
+          <FlameForgeProvider value={ctx}>{children}</FlameForgeProvider>
         </PosterEditorProvider>
       </ThemeProvider>
     )
   }
 }
 
-export function renderWithCtx(ui: ReactNode, overrides?: Partial<PictoriumCtx>) {
+export function renderWithCtx(ui: ReactNode, overrides?: Partial<FlameForgeCtx>) {
   return render(ui, { wrapper: createWrapper(overrides) })
 }
+

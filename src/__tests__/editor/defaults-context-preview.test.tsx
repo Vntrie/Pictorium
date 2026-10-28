@@ -642,3 +642,4 @@ describe("transform Extra family (portrait + landscape)", () => {
     expect(localStorage.getItem("badgeDefaults")).toBe(storedAfterMount)
   })
 })
+

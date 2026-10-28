@@ -221,3 +221,4 @@ describe.each(CASES)("fresh defaults highlight $label", ({ label }) => {
     },
   )
 })
+

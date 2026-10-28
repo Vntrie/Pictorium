@@ -24,7 +24,7 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 beforeEach(() => {
-  process.env.PICTORIUM_FANART_KEY = "test-project-key"
+  process.env.FLAMEFORGE_FANART_KEY = "test-project-key"
   delete process.env.FANART_API_URL
   __resetFanartCache()
   __clearTMDBCache()
@@ -94,7 +94,7 @@ describe("getFanartPosters", () => {
   })
 
   it("senza chiave progetto = FanartError not_configured", async () => {
-    delete process.env.PICTORIUM_FANART_KEY
+    delete process.env.FLAMEFORGE_FANART_KEY
     const fetchSpy = vi.spyOn(globalThis, "fetch")
     await expect(getFanartPosters("movie", 123)).rejects.toMatchObject({ code: "not_configured" })
     expect(fetchSpy).not.toHaveBeenCalled()
@@ -150,7 +150,7 @@ describe("getFanartPosters", () => {
   })
 
   it("la chiave dello spazio vince sull'env d'istanza", async () => {
-    process.env.PICTORIUM_FANART_KEY = "env-key"
+    process.env.FLAMEFORGE_FANART_KEY = "env-key"
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
       const url = String(input)
       if (url.includes("api_key=space-key")) return jsonResponse(MOVIE_JSON)
@@ -161,3 +161,5 @@ describe("getFanartPosters", () => {
     expect(String(fetchSpy.mock.calls[0]?.[0])).toContain("api_key=space-key")
   })
 })
+
+

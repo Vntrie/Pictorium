@@ -1,4 +1,4 @@
-import { cacheGet, cacheSet } from "./cache"
+﻿import { cacheGet, cacheSet } from "./cache"
 import { timedFetch } from "./outbound-stats"
 import { createLogger } from "@/lib/logger"
 import { envWithFallback } from "@/lib/env-compat"
@@ -9,8 +9,8 @@ import { APP_VERSION } from "@/generated/app-version"
 const log = createLogger("simkl")
 
 const SIMKL_BASE = process.env.SIMKL_API_URL || "https://api.simkl.com"
-const APP_NAME = "Pictorium"
-const USER_AGENT = `Pictorium/${APP_VERSION}`
+const APP_NAME = "FlameForge"
+const USER_AGENT = `FlameForge/${APP_VERSION}`
 
 const SIMKL_TIMEOUT_MS = (() => {
   const raw = envWithFallback("SIMKL_TIMEOUT_MS")
@@ -18,7 +18,7 @@ const SIMKL_TIMEOUT_MS = (() => {
   return Number.isFinite(n) && n >= 300 && n <= 10000 ? n : 1500
 })()
 
-// Fail-open circuit breaker dedicato: 3 fallimenti consecutivi → 30s di cooldown.
+// Fail-open circuit breaker dedicato: 3 fallimenti consecutivi â†’ 30s di cooldown.
 const simklBreaker = createCircuitBreaker({ name: "simkl", failureThreshold: 3, backoffMs: 30_000 })
 
 export function __resetSimklBreaker(): void {
@@ -132,7 +132,7 @@ export async function resolveSimklId(
       }
     }
 
-    // Se non ha fatto redirect valido o non è stato trovato
+    // Se non ha fatto redirect valido o non Ã¨ stato trovato
     simklNullSet(cacheKey)
     return null
   } catch (e) {
@@ -144,7 +144,7 @@ export async function resolveSimklId(
 
 /**
  * Recupera il punteggio community di Simkl (scala 0-10, es. 8.6) per un titolo.
- * Rigorosamente BYOK: se clientId è vuoto o assente, ritorna null senza chiamate di rete.
+ * Rigorosamente BYOK: se clientId Ã¨ vuoto o assente, ritorna null senza chiamate di rete.
  */
 export async function fetchSimklRating(
   imdbId: string | null | undefined,
@@ -218,3 +218,4 @@ export async function fetchSimklRating(
     return null
   }
 }
+

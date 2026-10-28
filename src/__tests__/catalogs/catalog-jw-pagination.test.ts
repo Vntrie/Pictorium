@@ -128,8 +128,8 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
     })
 
     // 1. First page: skip=0
-    const req0 = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=0")
-    const res0 = await GET(req0, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req0 = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=0")
+    const res0 = await GET(req0, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body0 = await res0.json()
     expect(res0.status).toBe(200)
     expect(body0.metas).toHaveLength(20)
@@ -143,8 +143,8 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
     expect(capturedRequests[0].variables.filter.monetizationTypes).toEqual([...JW_DIGITAL_MONETIZATION_TYPES])
 
     // 2. Second page: skip=20
-    const req20 = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=20")
-    const res20 = await GET(req20, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req20 = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=20")
+    const res20 = await GET(req20, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body20 = await res20.json()
     expect(res20.status).toBe(200)
     expect(body20.metas).toHaveLength(20)
@@ -161,8 +161,8 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
     expect(ids20.some((id: string) => ids0.has(id))).toBe(false)
 
     // 3. Third page: skip=40 (end of list)
-    const req40 = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=40")
-    const res40 = await GET(req40, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req40 = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=40")
+    const res40 = await GET(req40, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body40 = await res40.json()
     expect(res40.status).toBe(200)
     expect(body40.metas).toEqual([])
@@ -179,8 +179,8 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
       return makeTmdbDetailsResponse(501, "Series 501")
     })
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=test-key&skip=0")
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=test-key&skip=0")
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
     expect(res.status).toBe(200)
     expect(body.metas).toHaveLength(1)
@@ -200,8 +200,8 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
       return makeTmdbDetailsResponse(301, "Action Movie 301")
     })
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&genre=Azione&skip=20")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&genre=Azione&skip=20")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
     expect(res.status).toBe(200)
     expect(body.metas).toHaveLength(1)
@@ -225,8 +225,8 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
       return makeJwTitlesResponse([])
     })
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&genre=Commedie%20horror")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&genre=Commedie%20horror")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
     expect(res.status).toBe(200)
     expect(body.metas).toEqual([])
@@ -240,8 +240,8 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
       return makeJwTitlesResponse([])
     })
 
-    const req = new NextRequest(`http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&region=${GLOBAL_REGION_CODE}`)
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest(`http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&region=${GLOBAL_REGION_CODE}`)
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
     expect(res.status).toBe(200)
     expect(body.metas).toEqual([])
@@ -264,8 +264,8 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
       return makeTmdbDetailsResponse(id, `Tail ${id}`)
     })
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=20")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=20")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
     expect(res.status).toBe(200)
     expect(body.metas).toHaveLength(3)
@@ -288,16 +288,16 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
       return makeTmdbDetailsResponse(id, `Detail ${id}`)
     })
 
-    const reqP1 = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=0")
-    const resP1 = await GET(reqP1, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const reqP1 = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=0")
+    const resP1 = await GET(reqP1, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const bodyP1 = await resP1.json()
 
-    const reqP2 = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=20")
-    const resP2 = await GET(reqP2, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const reqP2 = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=20")
+    const resP2 = await GET(reqP2, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const bodyP2 = await resP2.json()
 
-    const reqGenre = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=0&genre=Azione")
-    const resGenre = await GET(reqGenre, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const reqGenre = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=0&genre=Azione")
+    const resGenre = await GET(reqGenre, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const bodyGenre = await resGenre.json()
 
     // Each distinct query produced distinct cached bodies
@@ -315,8 +315,8 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
       return makeTmdbDetailsResponse(201, "Page 2 Item")
     })
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=20")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=20")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
     expect(res.status).toBe(200)
     expect(body.metas).toHaveLength(1)
@@ -327,3 +327,5 @@ describe("Stremio Popular & Trending Pagination (Task B, C, D)", () => {
     expect(posterUrl).not.toContain("rank=")
   })
 })
+
+

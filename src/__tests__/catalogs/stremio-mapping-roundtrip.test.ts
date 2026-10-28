@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import { buildStremioPosterUrl } from "@/lib/stremio-poster-url"
 import { resolvePosterRenderConfig } from "@/lib/poster-config"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 import type { Mapping } from "@/lib/types"
 
 // Il setup globale mocca `@/lib/i18n` con `isRankKey: () => null`: per questo
@@ -57,7 +57,7 @@ function styledMapping(): Mapping {
 
 // Config token che dice l'opposto del mapping: la query esplicita deve
 // vincere sul token (installazioni /c/<token>), mai il contrario.
-function opposingToken(): PictoriumUserConfig {
+function opposingToken(): FlameForgeUserConfig {
   return {
     globalBadges: true,
     rankingBadges: true,
@@ -73,7 +73,7 @@ function opposingToken(): PictoriumUserConfig {
   }
 }
 
-function resolveFromUrl(url: URL, mapping: Mapping | null, configOverride: PictoriumUserConfig | null) {
+function resolveFromUrl(url: URL, mapping: Mapping | null, configOverride: FlameForgeUserConfig | null) {
   return resolvePosterRenderConfig({
     searchParams: url.searchParams,
     mapping,
@@ -171,3 +171,5 @@ describe("stremio mapping round-trip (F2)", () => {
     expect(url.searchParams.has("extra")).toBe(false)
   })
 })
+
+

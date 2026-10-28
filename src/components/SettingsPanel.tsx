@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { toast } from "sonner"
@@ -96,7 +96,7 @@ interface Props {
 export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile, onOpenInstall }: Props) {
   const { t } = useT()
   // Single shared draft session: the ONLY owner of staged settings state.
-  // One instance per panel mount — AppShell mounts a single responsive panel,
+  // One instance per panel mount â€” AppShell mounts a single responsive panel,
   // so the session survives tab/format changes and responsive resize.
   // `mobile` is a legacy prop (kept for compat); layout is responsive.
   void mobile
@@ -195,7 +195,7 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile,
   // the modal open with the draft intact so the user can retry. The session
   // itself drops concurrent saves (busy) and the buttons stay disabled while
   // saving (double-click guard). Conflict disables save: the draft is never
-  // secretly overwritten — discard/rebase recovers explicitly.
+  // secretly overwritten â€” discard/rebase recovers explicitly.
   const handlePendingSave = async () => {
     if (session.saving || session.conflict || !pendingNav) return
     const res = await session.save()
@@ -212,11 +212,11 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile,
   }
 
   // External close requests (toolbar toggle): every close path goes through
-  // the session guard — the shell never unmounts the panel directly.
+  // the session guard â€” the shell never unmounts the panel directly.
   useEffect(() => {
     const onRequest = () => requestCloseRef.current()
-    window.addEventListener("pictorium:settings-close-request", onRequest)
-    return () => window.removeEventListener("pictorium:settings-close-request", onRequest)
+    window.addEventListener("FlameForge:settings-close-request", onRequest)
+    return () => window.removeEventListener("FlameForge:settings-close-request", onRequest)
   }, [])
 
   const settingsRef = useRef<HTMLDivElement>(null)
@@ -386,8 +386,8 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile,
     )
     setSpacePathUuid(currentPathUuid())
     const onSpaceTab = () => requestTabChangeRef.current("spazio")
-    window.addEventListener("pictorium:settings-space-tab", onSpaceTab)
-    return () => window.removeEventListener("pictorium:settings-space-tab", onSpaceTab)
+    window.addEventListener("FlameForge:settings-space-tab", onSpaceTab)
+    return () => window.removeEventListener("FlameForge:settings-space-tab", onSpaceTab)
   }, [])
 
   // Single global Save: one staged PUT, stays on the page, short toasts.
@@ -691,9 +691,9 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile,
   )
 
   // Staged controls + preview: every defaults-backed edit below writes the
-  // local session only — no PUT, no localStorage, no live outer mutation
+  // local session only â€” no PUT, no localStorage, no live outer mutation
   // until the single global Save.
-  // Mobile (user-authorized floating design): NO reserved preview section —
+  // Mobile (user-authorized floating design): NO reserved preview section â€”
   // the controls own the full body height (the only scroller) and the real
   // global preview floats as a corner-snapped mini overlay (draggable,
   // minimizable, tap-to-zoom) bounded inside this relative container, i.e.
@@ -705,7 +705,7 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile,
   // compact layout with the search directly below; controls: existing scroller).
   // DOM order is preview-then-controls with matching desktop grid placement
   // (preview col 2, controls col 1), so keyboard/AT order always matches
-  // the visual order — no flex-order swaps.
+  // the visual order â€” no flex-order swaps.
   const stagedPrimary = (
     <PosterEditorValueOverride value={session.value}>
       <div className={`relative flex-1 min-h-0 ${showPreview && mobileViewport !== true ? (previewIsLandscape ? "flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(300px,40%)] md:grid-rows-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(360px,44%)]" : "flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(220px,32%)] md:grid-rows-[minmax(0,1fr)]") : "flex flex-col"}`}>
@@ -893,3 +893,4 @@ export function SettingsPanel({ setSettingsOpen, exportData, importData, mobile,
     </div>
   )
 }
+

@@ -553,3 +553,4 @@ describe("task12 compositor: transforms once, blur follows condensed ink", () =>
     expect(s1.equals(s2)).toBe(true)
   }, 180000)
 })
+

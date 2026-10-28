@@ -3,14 +3,14 @@ import os from "node:os"
 import path from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-const originalDataDir = process.env.POSTERIUM_DATA_DIR
+const originalDataDir = process.env.FLAMEFORGE_DATA_DIR
 let tempDir: string | undefined
 
 afterEach(async () => {
   if (originalDataDir === undefined) {
-    delete process.env.POSTERIUM_DATA_DIR
+    delete process.env.FLAMEFORGE_DATA_DIR
   } else {
-    process.env.POSTERIUM_DATA_DIR = originalDataDir
+    process.env.FLAMEFORGE_DATA_DIR = originalDataDir
   }
   vi.resetModules()
   if (tempDir) await fsp.rm(tempDir, { recursive: true, force: true })
@@ -19,8 +19,8 @@ afterEach(async () => {
 
 describe("GET /api/health", () => {
   it("exposes storage state without leaking the absolute DATA_DIR path", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-health-"))
-    process.env.POSTERIUM_DATA_DIR = tempDir
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-health-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
     vi.resetModules()
     const { GET } = await import("@/app/api/health/route")
 
@@ -50,8 +50,8 @@ describe("GET /api/health", () => {
   })
 
   it("returns mappingCount as a number and lastMappingUpdatedAt as null when empty", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-health-empty-"))
-    process.env.POSTERIUM_DATA_DIR = tempDir
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-health-empty-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
     vi.resetModules()
     const { GET } = await import("@/app/api/health/route")
 
@@ -65,8 +65,8 @@ describe("GET /api/health", () => {
   })
 
   it("returns correct mappingCount and lastMappingUpdatedAt with data", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-health-data-"))
-    process.env.POSTERIUM_DATA_DIR = tempDir
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-health-data-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
     vi.resetModules()
 
     const store = await import("@/lib/store")
@@ -94,9 +94,9 @@ describe("GET /api/health", () => {
 
   it("ignores ?u= without namespace auth (anti-oracle v1.23.0), honors it with x-user-token", async () => {
     const crypto = await import("node:crypto")
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-health-ns-"))
-    process.env.PICTORIUM_DATA_DIR = tempDir
-    process.env.PICTORIUM_MULTI_USER = "1"
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-health-ns-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
+    process.env.FLAMEFORGE_MULTI_USER = "1"
     process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
     vi.resetModules()
 
@@ -126,9 +126,9 @@ describe("GET /api/health", () => {
 
   it("reports user namespace storage and mapping count when ?u= is provided", async () => {
     const crypto = await import("node:crypto")
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-health-ns-storage-"))
-    process.env.PICTORIUM_DATA_DIR = tempDir
-    process.env.PICTORIUM_MULTI_USER = "1"
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-health-ns-storage-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
+    process.env.FLAMEFORGE_MULTI_USER = "1"
     process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
     vi.resetModules()
 
@@ -176,3 +176,5 @@ describe("GET /api/health", () => {
     expect(authJson.storage.lastMappingUpdatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/)
   })
 })
+
+

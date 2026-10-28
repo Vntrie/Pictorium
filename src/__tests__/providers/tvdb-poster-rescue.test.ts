@@ -224,3 +224,4 @@ describe("B1 TVDB poster rescue (no TMDB clean + logo + key)", () => {
     expect(body.appearance.blurFade).toBe(50)
   })
 })
+

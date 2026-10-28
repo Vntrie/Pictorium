@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import { renderWithCtx, MOCK_CTX } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { JwRankBadge } from "@/components/JwRankBadge"
 import type { CustomCatalogConfig } from "@/lib/types"
 
@@ -104,13 +104,13 @@ describe("JwRankBadge with ranking sources", () => {
     const badge = <JwRankBadge tmdbId={101} type="movie" />
     const ctx = { ...MOCK_CTX, customCatalogs: [TRAKT], rankingSourceMovie: TRAKT.id,
       tmdbKey: "local tmdb&key", mdblistApiKey: "local-mdb", tvdbApiKey: "local-tvdb" }
-    const { rerender } = render(<PictoriumProvider value={ctx}>{badge}</PictoriumProvider>)
+    const { rerender } = render(<FlameForgeProvider value={ctx}>{badge}</FlameForgeProvider>)
     await waitFor(() => expect(rankCalls(fetchSpy)).toHaveLength(1))
     const params = new URL(rankCalls(fetchSpy)[0], window.location.origin).searchParams
     expect(params.get("api_key")).toBe(ctx.tmdbKey)
     expect(params.get("mdblist_key")).toBe(ctx.mdblistApiKey)
     expect(params.get("tvdb_key")).toBe(ctx.tvdbApiKey)
-    rerender(<PictoriumProvider value={{ ...ctx, tmdbKey: "new-key" }}>{badge}</PictoriumProvider>)
+    rerender(<FlameForgeProvider value={{ ...ctx, tmdbKey: "new-key" }}>{badge}</FlameForgeProvider>)
     await waitFor(() => expect(rankCalls(fetchSpy)).toHaveLength(2))
     expect(new URL(rankCalls(fetchSpy)[1], window.location.origin).searchParams.get("api_key")).toBe("new-key")
   })
@@ -156,19 +156,21 @@ describe("JwRankBadge with ranking sources", () => {
     const fetchSpy = mockRank({ rank: 3, top: 20 })
     const badge = <JwRankBadge tmdbId={101} type="movie" regionCode="IT" userId="u1" />
     const { rerender } = render(
-      <PictoriumProvider value={{ ...MOCK_CTX, rankSourceNonce: 0 }}>
+      <FlameForgeProvider value={{ ...MOCK_CTX, rankSourceNonce: 0 }}>
         {badge}
-      </PictoriumProvider>,
+      </FlameForgeProvider>,
     )
 
     await waitFor(() => expect(screen.getByText(/ui\.rankTrending/)).toBeInTheDocument())
     expect(fetchSpy).toHaveBeenCalledTimes(1)
 
     rerender(
-      <PictoriumProvider value={{ ...MOCK_CTX, rankSourceNonce: 1 }}>
+      <FlameForgeProvider value={{ ...MOCK_CTX, rankSourceNonce: 1 }}>
         {badge}
-      </PictoriumProvider>,
+      </FlameForgeProvider>,
     )
     await waitFor(() => expect(fetchSpy).toHaveBeenCalledTimes(2))
   })
 })
+
+

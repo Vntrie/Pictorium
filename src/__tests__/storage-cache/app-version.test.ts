@@ -13,3 +13,4 @@ describe("app version", () => {
     expect(commit === "unknown" || /^[0-9a-f]{4,40}$/i.test(commit)).toBe(true)
   })
 })
+

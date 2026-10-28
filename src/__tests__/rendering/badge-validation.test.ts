@@ -642,3 +642,4 @@ describe("getAllBadgeOptions (nuovi badge)", () => {
     expect(options).toContain("BAFTA")
   })
 })
+

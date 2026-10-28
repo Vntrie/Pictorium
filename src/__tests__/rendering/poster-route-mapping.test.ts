@@ -167,7 +167,7 @@ describe("GET /api/poster/[type]/[id] with saved mappings", () => {
     vi.mocked(fetchCustomRatings).mockReset().mockResolvedValue([])
     vi.mocked(fetchAggregatedRating).mockReset().mockResolvedValue(null)
     vi.mocked(renderMultiRatings).mockClear()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -255,8 +255,8 @@ describe("GET /api/poster/[type]/[id] with saved mappings", () => {
   })
 
   it("passes custom ratings to the renderer on a miss and skips the provider on a cache hit", async () => {
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "true")
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "true")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
     const rating = { id: "custom", name: "Example", value: 87, format: "percent" as const }
     vi.mocked(fetchCustomRatings).mockResolvedValue([rating])
     mockedGetExternalIds.mockResolvedValueOnce({ imdb_id: "tt1375666" })
@@ -285,8 +285,8 @@ describe("GET /api/poster/[type]/[id] with saved mappings", () => {
   })
 
   it("skips the custom provider when display is off via query cr=0 or mapping", async () => {
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "true")
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "true")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
     const rating = { id: "custom", name: "Example", value: 87, format: "percent" as const }
     vi.mocked(fetchCustomRatings).mockResolvedValue([rating])
     mockedGetExternalIds.mockResolvedValue({ imdb_id: "tt1375666" })
@@ -549,7 +549,7 @@ describe("GET /api/poster/[type]/[id] with saved mappings", () => {
     { label: "no ratings", enabled: true, imdb: false, custom: false, id: 98773 },
     { label: "provider overrides internal ID with multiple items", enabled: true, imdb: true, custom: true, id: 98774 },
   ].flatMap(test => ["non-mapped", "saved", "query"].map((kind, index) => ({ ...test, kind, id: test.id + index * 100 }))))("renders independent rating items: $kind / $label", async ({ imdb, custom, id, enabled, kind, label }) => {
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", String(enabled))
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", String(enabled))
     const { fetchAggregatedRating } = await import("@/lib/ratings")
     vi.mocked(fetchAggregatedRating).mockResolvedValue({
       sources: imdb ? { imdb: 8.8, tmdb: 6 } : { tmdb: 6 },
@@ -974,7 +974,7 @@ describe("GET /api/poster/[type]/[id] in presets mode (public instance)", () => 
     vi.restoreAllMocks()
     vi.mocked(fetchCustomRatings).mockReset().mockResolvedValue([])
     vi.mocked(fetchAggregatedRating).mockReset().mockResolvedValue(null)
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
     vi.spyOn(hardening, "isPresetsPosterMode").mockReturnValue(true)
     vi.spyOn(hardening, "isPublicPosterInstance").mockReturnValue(true)
   })
@@ -1146,7 +1146,7 @@ describe("GET /api/poster/[type]/[id] error and edge cases", () => {
 
   it.each([true, false])("uses a finite mapped HTTP cache policy with custom provider enabled=%s (audit problems 3-4)", async enabled => {
     vi.mocked(fetchCustomRatings).mockClear()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", String(enabled))
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", String(enabled))
     const id = 99001
     const updatedAt = "2026-09-12T00:00:00.000Z"
     mockedGetById.mockResolvedValue({
@@ -1186,7 +1186,7 @@ describe("GET /api/poster/[type]/[id] error and edge cases", () => {
   })
 
   it("revalidates saved custom ratings after cache eviction, including the empty state", async () => {
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "true")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "true")
     const id = 98999
     mockedGetById.mockResolvedValue({
       tmdbId: id, mediaType: "movie", title: "Revalidation", posterPath: "/revalidate.jpg",
@@ -1330,8 +1330,8 @@ describe("GET /api/poster/[type]/[id] error and edge cases", () => {
   })
 
   it("preserves the path IMDb ID for the custom provider without externalIds", async () => {
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "true")
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "true")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
     mockedGetExternalIds.mockClear()
     const { resolveImdbToTmdb } = await import("@/lib/imdb-resolver")
     vi.mocked(resolveImdbToTmdb).mockResolvedValue(98770)
@@ -1353,8 +1353,8 @@ describe("GET /api/poster/[type]/[id] error and edge cases", () => {
   })
 
   it("uses the saved mapping imdbId without externalIds fallback", async () => {
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "true")
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "true")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
     mockedGetExternalIds.mockClear()
     mockedGetById.mockResolvedValue({
       tmdbId: 98771, mediaType: "movie", title: "Mapped imdb", posterPath: "/mapped-imdb.jpg",
@@ -2083,7 +2083,7 @@ describe("GET /api/poster/[type]/[id] con alias IMDb manuale", () => {
     mockedResolveImdbToTmdb.mockReset().mockResolvedValue(null)
     vi.mocked(fetchCustomRatings).mockReset().mockResolvedValue([])
     vi.mocked(fetchAggregatedRating).mockReset().mockResolvedValue(null)
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -2256,8 +2256,8 @@ describe("GET /api/poster/[type]/[id] con alias IMDb manuale", () => {
 
 describe("invented user namespaces (v1.23.0)", () => {
   it("treats ?u= with no stored user as anonymous (global mapping, no separate key space)", async () => {
-    vi.stubEnv("PICTORIUM_MULTI_USER", "1")
-    vi.stubEnv("POSTERIUM_MULTI_USER", "1")
+    vi.stubEnv("FLAMEFORGE_MULTI_USER", "1")
+    vi.stubEnv("FLAMEFORGE_MULTI_USER", "1")
     const poster = await imageBuffer("#101010", 500, 750)
     const globalMapping = {
       tmdbId: 61091, mediaType: "movie" as const, title: "Global", posterPath: "/global.jpg",
@@ -2278,4 +2278,6 @@ describe("invented user namespaces (v1.23.0)", () => {
     expect(mockedGetById).toHaveBeenCalledWith("movie", 61091, null)
   })
 })
+
+
 

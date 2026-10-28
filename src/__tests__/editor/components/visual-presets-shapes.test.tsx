@@ -248,3 +248,4 @@ describe("VisualPresetsSection borderless styling", () => {
     expect(section.getAttribute("class") ?? "").not.toContain("border")
   })
 })
+

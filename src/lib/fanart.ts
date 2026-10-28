@@ -1,13 +1,13 @@
-/**
+﻿/**
  * Client Fanart.tv (poster verticali v1).
  *
  * Solo poster: film via ID TMDB (`/movies/{tmdbId}`), serie via ID TVDB
- * (`/tv/{tvdbId}`, risolto dagli external_ids TMDB — mai il TMDB-id della
+ * (`/tv/{tvdbId}`, risolto dagli external_ids TMDB â€” mai il TMDB-id della
  * serie passato diretto a Fanart). Niente SDK: fetch + `timedFetch`.
  *
- * Chiave progetto server-only (`PICTORIUM_FANART_KEY`, fallback
- * `POSTERIUM_FANART_KEY`): non entra mai in cache-key, mapping o URL.
- * La `client_key` personale è rinviata (richiederebbe cache per-contesto).
+ * Chiave progetto server-only (`FLAMEFORGE_FANART_KEY`, fallback
+ * `FLAMEFORGE_FANART_KEY`): non entra mai in cache-key, mapping o URL.
+ * La `client_key` personale Ã¨ rinviata (richiederebbe cache per-contesto).
  */
 
 import { z } from "zod"
@@ -29,7 +29,7 @@ const FANART_CACHE_MAX = 500
 
 export interface FanartPoster {
   readonly url: string
-  /** Codice lingua Fanart così com'è ("en", "it", "00", ...). "00"/assente
+  /** Codice lingua Fanart cosÃ¬ com'Ã¨ ("en", "it", "00", ...). "00"/assente
    *  = lingua ignota, MAI "senza scritte": la UI conserva la distinzione. */
   readonly lang: string | null
   readonly likes: number
@@ -116,7 +116,7 @@ interface FanartCacheEntry {
 const fanartCache = new Map<string, FanartCacheEntry>()
 
 function cacheKeyFor(type: FanartMediaType, id: number): string {
-  // Solo tipo+id: la chiave progetto è globale d'istanza, mai per-utente.
+  // Solo tipo+id: la chiave progetto Ã¨ globale d'istanza, mai per-utente.
   return `${type}:${id}`
 }
 
@@ -159,12 +159,12 @@ async function fetchFanartJson(path: string, apiKey: string, signal: AbortSignal
  * Poster verticali Fanart per un titolo TMDB.
  * - movie: `/movies/{tmdbId}` diretto.
  * - tv: risolve `tvdb_id` via TMDB external_ids (serve `opts.tmdbApiKey`), poi
- *   `/tv/{tvdbId}`. Senza tvdb_id → [] (titolo non interrogabile, non un
+ *   `/tv/{tvdbId}`. Senza tvdb_id â†’ [] (titolo non interrogabile, non un
  *   guasto). Il TMDB-id della serie non viene MAI passato a Fanart.
  *
  * Chiave effettiva: `opts.fanartKey` (spazio utente) > env d'istanza. La cache
  * resta globale per titolo (come il neutral-cache TMDB): i risultati non
- * contengono segreti, solo URL CDN — nessuno spazio vede la chiave altrui.
+ * contengono segreti, solo URL CDN â€” nessuno spazio vede la chiave altrui.
  *
  * Lancia FanartError su: chiave mancante, auth (401/403), timeout, guasti
  * (429/5xx/rete). Solo 404 e 200-senza-poster ritornano [] (e solo quelli
@@ -237,3 +237,4 @@ async function readPosterList(
   const raw = (parsed.data as Record<string, unknown[]>)[field]
   return normalizeFanartPosters(Array.isArray(raw) ? raw : [])
 }
+

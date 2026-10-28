@@ -494,7 +494,7 @@ describe("typed cache isolation: provider namespace + type + id + policy", () =>
       originalSet(k, v, tags ?? [], ttlMs)
     })
     try {
-      vi.stubEnv("PICTORIUM_RATING_MIN_VOTES", "0")
+      vi.stubEnv("FLAMEFORGE_RATING_MIN_VOTES", "0")
       await fetchAggregatedRating(null, "k", undefined, { tmdbId: 278, mediaType: "movie" })
       expect(seen.filter((k) => k.startsWith("mdb:raw:")).pop()).toMatch(/:mv0$/)
     } finally {
@@ -707,7 +707,7 @@ describe("route regression: poster auto/mapped without IMDb share the TMDB path"
 
   it("auto (preview) without IMDb requests /tmdb/movie/ and renders 200", async () => {
     process.env.MDBLIST_API_URL = "http://mock.test/md"
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
     __resetTMDBSessionCache()
     __resetImageBytesForTest();
     (mockedGetById as ReturnType<typeof vi.fn>).mockResolvedValue(null);
@@ -757,7 +757,7 @@ describe("route regression: poster auto/mapped without IMDb share the TMDB path"
 
   it("mapped (final) without IMDb requests /tmdb/movie/ on the same endpoint", async () => {
     process.env.MDBLIST_API_URL = "http://mock.test/md"
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
     __resetTMDBSessionCache()
     __resetImageBytesForTest();
     (mockedGetById as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -799,3 +799,5 @@ describe("route regression: poster auto/mapped without IMDb share the TMDB path"
     expect(mdbCalls.some((u) => u.includes("/imdb/"))).toBe(false)
   })
 })
+
+

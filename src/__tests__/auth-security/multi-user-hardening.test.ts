@@ -10,11 +10,11 @@ const UUID_B = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
 const UUID_GHOST = "cccccccc-cccc-4ccc-8ccc-cccccccccccc"
 
 const ENV_KEYS = [
-  "PICTORIUM_DATA_DIR",
-  "PICTORIUM_MULTI_USER",
-  "PICTORIUM_MAX_USERS",
-  "PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK",
-  "PICTORIUM_TMDB_KEY",
+  "FLAMEFORGE_DATA_DIR",
+  "FLAMEFORGE_MULTI_USER",
+  "FLAMEFORGE_MAX_USERS",
+  "FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK",
+  "FLAMEFORGE_TMDB_KEY",
   "PROFILE_ENCRYPTION_KEY",
 ] as const
 let savedEnv: Record<string, string | undefined> = {}
@@ -23,13 +23,13 @@ let tempDir: string | undefined
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-hardening-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
-  process.env.PICTORIUM_MULTI_USER = "1"
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-hardening-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
+  process.env.FLAMEFORGE_MULTI_USER = "1"
   process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
-  delete process.env.PICTORIUM_MAX_USERS
-  delete process.env.PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK
-  delete process.env.PICTORIUM_TMDB_KEY
+  delete process.env.FLAMEFORGE_MAX_USERS
+  delete process.env.FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK
+  delete process.env.FLAMEFORGE_TMDB_KEY
 })
 
 afterEach(async () => {
@@ -140,7 +140,7 @@ describe("rotate secret: revoca leak", () => {
 
 describe("env fallback: mai open-proxy sugli scoped", () => {
   it("scoped + flag ON + env → none; opt-in → env; globale → env", async () => {
-    process.env.PICTORIUM_TMDB_KEY = "env-key"
+    process.env.FLAMEFORGE_TMDB_KEY = "env-key"
     vi.resetModules()
     const tmdb = await import("@/lib/tmdb")
 
@@ -155,12 +155,12 @@ describe("env fallback: mai open-proxy sugli scoped", () => {
     expect(r).toEqual({ key: "hdr", source: "header" })
 
     // Opt-in operatore: env anche sugli scoped.
-    process.env.PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK = "1"
+    process.env.FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK = "1"
     vi.resetModules()
     const tmdb2 = await import("@/lib/tmdb")
     r = await tmdb2.resolveUserApiKey(nextReq(`http://x/?u=${UUID_A}`), UUID_A, "tmdb")
     expect(r).toEqual({ key: "env-key", source: "env" })
-    delete process.env.PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK
+    delete process.env.FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK
 
     // Globale (senza uuid): fallback storico invariato.
     vi.resetModules()
@@ -185,8 +185,8 @@ describe("resolvePathUser: path vince, mismatch → 400", () => {
     vi.resetModules()
     const catalog = await import("@/app/u/[user]/catalog/[type]/[id]/route")
     const res = await catalog.GET(
-      nextReq(`http://x/u/${UUID_A}/catalog/movie/pictorium-trending.json?u=${UUID_B}`),
-      { params: Promise.resolve({ user: UUID_A, type: "movie", id: "pictorium-trending.json" }) },
+      nextReq(`http://x/u/${UUID_A}/catalog/movie/FlameForge-trending.json?u=${UUID_B}`),
+      { params: Promise.resolve({ user: UUID_A, type: "movie", id: "FlameForge-trending.json" }) },
     )
     expect(res.status).toBe(400)
     const meta = await import("@/app/u/[user]/meta/[type]/[id]/route")
@@ -225,7 +225,7 @@ describe("keys health: status onesto", () => {
 
 describe("MAX_USERS cap anti-Sybil", () => {
   it("oltre il cap → 429", async () => {
-    process.env.PICTORIUM_MAX_USERS = "1"
+    process.env.FLAMEFORGE_MAX_USERS = "1"
     vi.resetModules()
     const route = await import("@/app/api/users/route")
     const body = (pw: string) => ({
@@ -363,8 +363,8 @@ describe("/u/ con path uuid invalido → 400 (flag ON)", () => {
     const meta = await import("@/app/u/[user]/meta/[type]/[id]/route")
     const manifest = await import("@/app/u/[user]/manifest.json/route")
     const res = await catalog.GET(
-      nextReq("http://x/u/not-a-uuid/catalog/movie/pictorium-trending.json"),
-      { params: Promise.resolve({ user: "not-a-uuid", type: "movie", id: "pictorium-trending.json" }) },
+      nextReq("http://x/u/not-a-uuid/catalog/movie/FlameForge-trending.json"),
+      { params: Promise.resolve({ user: "not-a-uuid", type: "movie", id: "FlameForge-trending.json" }) },
     )
     expect(res.status).toBe(400)
     const res2 = await meta.GET(
@@ -391,3 +391,5 @@ describe("hashUserFragment: isolamento cache a 64-bit", () => {
     expect(a).not.toContain(UUID_A.replace(/-/g, "").slice(0, 8))
   })
 })
+
+

@@ -331,3 +331,4 @@ describe("applied per-title values freeze through the unchanged save path", () =
     expect(body.genreBadgeOffsetY).toBe(-40)
   })
 })
+

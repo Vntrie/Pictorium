@@ -90,3 +90,4 @@ describe("POST /api/config-token with catalog-only payloads", () => {
     expect(res.status).toBe(400)
   })
 })
+

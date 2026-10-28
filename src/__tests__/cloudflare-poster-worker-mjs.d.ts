@@ -1,4 +1,4 @@
-// Local-only types for standalone `*.mjs` worker scripts (no tsconfig change).
+﻿// Local-only types for standalone `*.mjs` worker scripts (no tsconfig change).
 // Wildcard form: ambient declarations cannot use relative module names
 // (TS2436), and this keeps real (non-any) shapes for the worker import.
 declare module "*cloudflare-poster-worker.mjs" {
@@ -10,7 +10,7 @@ declare module "*cloudflare-poster-worker.mjs" {
     readonly reason?: string;
   }
 
-  export type WorkerEnv = { readonly ORIGIN_URL?: string; readonly PICTORIUM_TIERED_CACHE?: string } | null | undefined;
+  export type WorkerEnv = { readonly ORIGIN_URL?: string; readonly FLAMEFORGE_TIERED_CACHE?: string } | null | undefined;
   export interface TierFetchOptions {
     readonly cf?: { readonly cacheKey?: string };
   }
@@ -53,3 +53,4 @@ declare module "*cloudflare-poster-worker.mjs" {
   };
   export default worker;
 }
+

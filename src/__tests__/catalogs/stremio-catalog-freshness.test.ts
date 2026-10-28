@@ -73,10 +73,10 @@ function installFetchMock() {
 }
 
 function catalogRequest() {
-  return new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
+  return new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
 }
 
-const PARAMS = { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) }
+const PARAMS = { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) }
 
 async function catalogName(): Promise<string> {
   const res = await GET(catalogRequest(), PARAMS)
@@ -163,3 +163,5 @@ describe("catalog freshness across instances (F3)", () => {
     expect(body.metas[0].poster).toContain("badges=0")
   })
 })
+
+

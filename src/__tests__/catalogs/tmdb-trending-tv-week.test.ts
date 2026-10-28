@@ -39,3 +39,4 @@ describe("GET /api/tmdb/trending/tv/week", () => {
     expect(json.results[0].media_type).toBe("tv")
   })
 })
+

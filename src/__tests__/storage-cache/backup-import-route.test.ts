@@ -119,3 +119,4 @@ describe("POST /api/mappings/import — backup v2", () => {
     expect(JSON.stringify(vi.mocked(setServerDefaults).mock.calls[0][0])).not.toContain("SECRET")
   })
 })
+

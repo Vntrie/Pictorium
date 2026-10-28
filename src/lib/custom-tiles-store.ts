@@ -1,17 +1,17 @@
-import type { TMDBImage } from "./types"
+﻿import type { TMDBImage } from "./types"
 import { isCustomPosterUrl } from "./utils"
 
 const MAX_TILES = 20
 
-const keyFor = (tmdbId: number): string => `pictorium_custom_posters_${tmdbId}`
+const keyFor = (tmdbId: number): string => `FLAMEFORGE_custom_posters_${tmdbId}`
 
 /** Session tiles for custom logos: separate namespace from posters (same validation bar). */
-const keyForLogo = (titleKey: string): string => `pictorium_custom_logos_${titleKey}`
+const keyForLogo = (titleKey: string): string => `FLAMEFORGE_custom_logos_${titleKey}`
 
 /** Session tiles for custom landscape backdrops: separate namespace from
  *  portrait posters and logos (same validation bar). The title key includes
  *  the media type (`movie:550`): movie and tv share the numeric id space. */
-const keyForBackdrop = (titleKey: string): string => `pictorium_custom_backdrops_${titleKey}`
+const keyForBackdrop = (titleKey: string): string => `FLAMEFORGE_custom_backdrops_${titleKey}`
 
 function isStoredTile(value: unknown): value is TMDBImage {
   if (typeof value !== "object" || value === null) return false
@@ -28,7 +28,7 @@ function isStoredTile(value: unknown): value is TMDBImage {
 
 /**
  * Tile custom non ancora salvati, persistiti per-titolo in localStorage (come
- * i draft dell'editor: sopravvivono al reload, ma la verità resta il mapping
+ * i draft dell'editor: sopravvivono al reload, ma la veritÃ  resta il mapping
  * dopo Salva). Client-only: sotto SSR ritorna [].
  */
 export function loadCustomTiles(tmdbId: number | null | undefined): TMDBImage[] {
@@ -128,3 +128,4 @@ export function storeCustomLogoTiles(titleKey: string | null | undefined, tiles:
     // Full quota or blocked storage: tiles stay in session memory.
   }
 }
+

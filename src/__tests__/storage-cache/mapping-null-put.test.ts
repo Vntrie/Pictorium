@@ -5,7 +5,7 @@ import path from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import type { Mapping } from "@/lib/types"
 
-const originalDataDir = process.env.POSTERIUM_DATA_DIR
+const originalDataDir = process.env.FLAMEFORGE_DATA_DIR
 let tempDir: string | undefined
 
 function makeMapping(overrides: Partial<Mapping> = {}): Mapping {
@@ -27,9 +27,9 @@ function makeMapping(overrides: Partial<Mapping> = {}): Mapping {
 
 afterEach(async () => {
   if (originalDataDir === undefined) {
-    delete process.env.POSTERIUM_DATA_DIR
+    delete process.env.FLAMEFORGE_DATA_DIR
   } else {
-    process.env.POSTERIUM_DATA_DIR = originalDataDir
+    process.env.FLAMEFORGE_DATA_DIR = originalDataDir
   }
   vi.resetModules()
   if (tempDir) await fsp.rm(tempDir, { recursive: true, force: true })
@@ -47,8 +47,8 @@ function mockPutRequest(body: unknown, type = "movie", id = 123): Request {
 
 describe("PUT /api/mappings null fields", () => {
   it("sets logoPath, backdropPath, customBadge, badgeExtra to null when sent as null", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-null-put-"))
-    process.env.POSTERIUM_DATA_DIR = tempDir
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-null-put-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
     vi.resetModules()
     const store = await import("@/lib/store")
 
@@ -76,8 +76,8 @@ describe("PUT /api/mappings null fields", () => {
   })
 
   it("preserves fields when not sent in body", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-null-put2-"))
-    process.env.POSTERIUM_DATA_DIR = tempDir
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-null-put2-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
     vi.resetModules()
     const store = await import("@/lib/store")
 
@@ -105,3 +105,5 @@ describe("PUT /api/mappings null fields", () => {
     expect(updated!.badgeExtra).toBe("Keep extra")
   })
 })
+
+

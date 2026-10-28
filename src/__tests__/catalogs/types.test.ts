@@ -83,3 +83,4 @@ describe("toSearchResult", () => {
     expect(toSearchResult({}).imdb_id).toBeUndefined()
   })
 })
+

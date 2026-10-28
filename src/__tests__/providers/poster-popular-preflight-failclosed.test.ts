@@ -189,7 +189,7 @@ describe("GET /api/poster popular/trending preflight fail-closed", () => {
     mockedGetImages.mockReset().mockResolvedValue({ id: 0, posters: [], logos: [], backdrops: [] } as never)
     mockedGetExternalIds.mockReset().mockResolvedValue({ imdb_id: null })
     vi.mocked(fetchAggregatedRating).mockReset().mockResolvedValue(null)
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -298,3 +298,5 @@ describe("GET /api/poster popular/trending preflight fail-closed", () => {
     expect(body.rankings.qRank).toBe("4")
   })
 })
+
+

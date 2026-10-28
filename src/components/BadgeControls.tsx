@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useId, useState } from "react"
 import { ChevronDown, Star, Trophy, Tv, Sparkles, Palette, Layers, Cloud, RotateCcw } from "lucide-react"
@@ -70,17 +70,17 @@ export function BadgeControls() {
   }, [ed.posterLayout])
   // Effective-accent display sync (display/canonical split, normative): the
   // server reports the hex ACTUALLY painted per band for the exact preview
-  // URL rendered by <PosterPreview>. Transport is the `X-Pictorium-Accent`
+  // URL rendered by <PosterPreview>. Transport is the `X-FlameForge-Accent`
   // response header of the image itself, parsed by the existing XHR blob load
-  // (`usePosterPreview`, same bytes, zero extra requests) — this hook only
+  // (`usePosterPreview`, same bytes, zero extra requests) â€” this hook only
   // selects that display record (no JSON fetch in the normal flow). Display
-  // state below NEVER feeds isManualAccent/ac=/mapping/globals — canonical
+  // state below NEVER feeds isManualAccent/ac=/mapping/globals â€” canonical
   // identity stays the legacy base (accentColor/autoAccentColor). The hook
   // resolves to loading while the current preview (re)loads and to unknown
   // for legacy/striped responses; the producer keeps the last successful
   // record while its preview URL is displayed, so the native picker works
   // even when this badge tab is opened minutes after the load. A late auto
-  // record can never overwrite a manual selection — the picker keeps showing
+  // record can never overwrite a manual selection â€” the picker keeps showing
   // accentColor verbatim while isManualAccent holds.
   // NOTE: hooks stay above the early return (rules-of-hooks).
   const isCustomColorEarly = isManualAccent(accentColor, autoAccentColor)
@@ -110,13 +110,13 @@ export function BadgeControls() {
   // Bottom zone label: the picker lives in the genre card, so the bottom
   // (genre) shade is the named readout when it paints; the bottom-zone
   // gradient tint is named only when no badge paints (its own line); the top
-  // shade is never shown as text — the picker simply carries its hex when it
+  // shade is never shown as text â€” the picker simply carries its hex when it
   // is the sole painter.
   const bottomManual = effective.meta?.provGenre === "manual" && display.bottomHex != null
   // Confirmed-vs-unknown empty state (display-only): "paints nothing" holds
   // only when every side positively reports non-painting. A legacy/stripped
   // record carries an unknown gradient (fields absent, or a malformed paint
-  // claim the sanitizer coerced) — usage is UNKNOWN there, never unused.
+  // claim the sanitizer coerced) â€” usage is UNKNOWN there, never unused.
   const readyMeta = isCustomColor ? null : effective.meta
   const noPaintClaim = !display.bottomHex && !display.topHex && !display.gradientHex
   const allConfirmedOff =
@@ -143,14 +143,14 @@ export function BadgeControls() {
   const hexFieldFallback = isCustomColor
     ? (accentColor ?? autoAccentColor ?? "")
     : (autoPickerHex ?? autoAccentColor ?? "")
-  // Bottom attivo: genere+anno soppressi a render (voto incluso) — i toggle
+  // Bottom attivo: genere+anno soppressi a render (voto incluso) â€” i toggle
   // restano visibili ma disabilitati e i valori salvati intatti (tornando a
   // Colonna si ripristinano, mai distrutti).
   const bottomActive = ed.globalBadges && ed.badgeRating && ed.separateRatings && isBottomSeparateRatingsStyle(ed.separateRatingsStyle)
 
   // Single rank appearance (effective rendering, same contract as the
   // defaults panel): legacy default+ribbon reads Nastro, legacy default
-  // without ribbon reads Badge (standard variant). Pure read — never writes.
+  // without ribbon reads Badge (standard variant). Pure read â€” never writes.
   const appearance = resolveRankingAppearance({ rankingBadgeStyle: ed.rankingBadgeStyle, ribbonEnabled: ed.ribbonEnabled })
   const variant: RankBadgeVariant = resolveRankVariant(ed.rankingBadgeStyle)
   const ribbonVariant: RankRibbonVariant = resolveRibbonVariant(ed.rankingBadgeStyle)
@@ -180,7 +180,7 @@ export function BadgeControls() {
   }
 
   // Unified ranking presentation (per-title Classifica): one exclusive
-  // Nastro/Numero/Badge/Fresh/Card choice over the existing stored fields —
+  // Nastro/Numero/Badge/Fresh/Card choice over the existing stored fields â€”
   // no second layout card, no second renderer. Classic writes
   // posterLayout=standard plus the canonical rank style above (extra freeze
   // intact); Fresh writes fresh+ranked with the enter-once offset reset;
@@ -196,7 +196,7 @@ export function BadgeControls() {
     if (p === "fresh") {
       // Actual transition only: re-clicking the already-selected Fresh
       // preserves deliberate slider edits (and the stored scope) made while
-      // Fresh. One-way reset — returning to a classic never restores the old
+      // Fresh. One-way reset â€” returning to a classic never restores the old
       // offsets. Neutralizes ONLY the title-logo and genre/rating-group
       // positions in the edited shape: per-title offsets are plain numbers
       // (0 = neutral slider center; the global null/null auto contract does
@@ -233,7 +233,7 @@ export function BadgeControls() {
   }
 
   // Extra style options: the full renderer-supported subset (same order as
-  // the defaults panel — colored always offered, never gated on the current
+  // the defaults panel â€” colored always offered, never gated on the current
   // value; the renderer already handles every entry).
   const extraOptions: ExtraBadgeStyle[] = ["default", "pill", "corner", "vetro", "bordo", "colored"]
   const EXTRA_STYLE_LABELS: Record<ExtraBadgeStyle, string> = {
@@ -258,7 +258,7 @@ export function BadgeControls() {
         <p className="text-[10px] text-zinc-500 italic mt-0.5">{t("ui.badgePosterHint")}</p>
       </div>
 
-      {/* FAMILY 1: Genere/Anno/Voti — activation, style/font, rating sources */}
+      {/* FAMILY 1: Genere/Anno/Voti â€” activation, style/font, rating sources */}
       <div data-testid="badge-family-genre" className="bg-surface/50 border border-surface2/60 rounded-xl p-3 space-y-3 shadow-sm">
         {/* Master Toggle Genere / Rating */}
         <div className="space-y-2">
@@ -304,7 +304,7 @@ export function BadgeControls() {
                     ] as const).map((opt) => {
                       // Barra disattivata in landscape (il server normalizza a
                       // pills): bottone visibile ma disabilitato e mai
-                      // selezionato — il raw salvato resta intatto e in
+                      // selezionato â€” il raw salvato resta intatto e in
                       // portrait torna selezionabile. Selezione mostrata sullo
                       // stile normalizzato (bar salvata = pills attiva).
                       const barOff = opt.id === "bottom-bar" && ed.posterShape === "landscape"
@@ -376,7 +376,7 @@ export function BadgeControls() {
                           >
                             {t("ui.enableAll")}
                           </button>
-                          <span className="text-zinc-600">·</span>
+                          <span className="text-zinc-600">Â·</span>
                           <button
                             type="button"
                             onClick={() => ed.setRatingSources(["imdb"])}
@@ -466,7 +466,7 @@ export function BadgeControls() {
         </div>
       </div>
 
-      {/* FAMILY 2: Ranking — activation and Nastro/Numero/Badge/Fresh/Card
+      {/* FAMILY 2: Ranking â€” activation and Nastro/Numero/Badge/Fresh/Card
           together. Badge superiore (master top badge: rank + extra, single
           winner). No per-title sash: categories/priorities stay global in
           Settings. */}
@@ -551,7 +551,7 @@ export function BadgeControls() {
         <p className="text-[10px] text-muted italic leading-tight">{t("ui.seasonalFrameHint")}</p>
       </div>
 
-      {/* FAMILY 3: Extra badges — automatic/custom choice + their style.
+      {/* FAMILY 3: Extra badges â€” automatic/custom choice + their style.
           Ranking lives in its own family above (never mixed here). */}
       <div data-testid="badge-family-extra" className="bg-surface/50 border border-surface2/60 rounded-xl p-3 space-y-3 shadow-sm">
         <div className="flex items-center justify-between gap-2">
@@ -587,7 +587,7 @@ export function BadgeControls() {
                 if (!selected) return null
                 const twoWeeks = 14 * 24 * 60 * 60 * 1000
                 // Stesse guard del server (computeTopBadge): le date future non
-                // sono mai "novità" (bug date-future: now - futuro < twoWeeks).
+                // sono mai "novitÃ " (bug date-future: now - futuro < twoWeeks).
                 const relTime = metaInfo.release_date ? new Date(metaInfo.release_date).getTime() : NaN
                 const isNewMovie = selected.media_type === "movie" && Number.isFinite(relTime) ? relTime <= now && (now - relTime) < twoWeeks : false
                 const firstTime = metaInfo.first_air_date ? new Date(metaInfo.first_air_date).getTime() : NaN
@@ -617,7 +617,7 @@ export function BadgeControls() {
                   t,
                 })
                 const subGenre = getSubGenreLabel(metaInfo.keywords || [], lang)
-                // Come nel motore: serie appena finita ≠ nuova stagione.
+                // Come nel motore: serie appena finita â‰  nuova stagione.
                 const newSeason = selected.media_type === "tv" && !seriesEnded ? getNewSeasonLabel({
                   lastAirDate: metaInfo.last_air_date,
                   firstAirDate: metaInfo.first_air_date,
@@ -703,7 +703,7 @@ export function BadgeControls() {
         </div>
       </div>
 
-      {/* FAMILY 4: Video quality — activation, style, detected formats */}
+      {/* FAMILY 4: Video quality â€” activation, style, detected formats */}
       <div data-testid="badge-family-quality" className="bg-surface/50 border border-surface2/60 rounded-xl p-3 space-y-3 shadow-sm">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
@@ -745,7 +745,7 @@ export function BadgeControls() {
                           key={fmt}
                           className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-surface2/80 text-accent-orange border border-accent-orange/30 shadow-sm"
                         >
-                          {fmt === "dv+atmos" ? "DV · ATMOS" : fmt === "hdr10plus" ? "HDR10+" : fmt.toUpperCase()}
+                          {fmt === "dv+atmos" ? "DV Â· ATMOS" : fmt === "hdr10plus" ? "HDR10+" : fmt.toUpperCase()}
                         </span>
                       ))}
                     </div>
@@ -804,7 +804,7 @@ export function BadgeControls() {
         </div>
       </div>
 
-      {/* FAMILY 5: Common appearance — accent color, network logo and blur. */}
+      {/* FAMILY 5: Common appearance â€” accent color, network logo and blur. */}
       <div data-testid="badge-family-common" className="bg-surface/50 border border-surface2/60 rounded-xl p-3 space-y-3 shadow-sm">
         <div className="flex items-center justify-between">
           <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
@@ -814,9 +814,9 @@ export function BadgeControls() {
         </div>
 
         {/* Automatic accent actually painted (ui.accentSharedBadge names the
-            badges AND the bottom-zone gradient — every painted zone shares
+            badges AND the bottom-zone gradient â€” every painted zone shares
             this reference): the native picker and the hex field share this
-            visible label as accessible name — display only, no color logic
+            visible label as accessible name â€” display only, no color logic
             change. */}
         <span id={accentLabelId} className="text-[11px] text-muted font-medium block">{t("ui.accentSharedBadge")}</span>
         <div className="flex items-center justify-between gap-2">
@@ -869,7 +869,7 @@ export function BadgeControls() {
         {/* Effective-accent zone readout (display-only, localized): the picker
             above shows the bottom/genre shade by locality, then the
             bottom-zone gradient tint, then the top shade when it is the sole
-            painter (no text for the top-only case — the picker carries its
+            painter (no text for the top-only case â€” the picker carries its
             hex). Only painted zones are named here, each with its own actual
             hex: the gradient counts as a painted zone, so an automatic color
             used by the gradient alone is never reported as unused. Manual
@@ -883,7 +883,7 @@ export function BadgeControls() {
           </p>
         )}
         {/* Gradient zone: named whenever it paints a hex the badge readout
-            above does not already show — gradient-only (no badge paints) or a
+            above does not already show â€” gradient-only (no badge paints) or a
             genuinely different gradient tint next to a painted badge. When the
             gradient shares the badge hex, the single line above already names
             it (one concise readout, never a contradictory stack). */}
@@ -908,7 +908,7 @@ export function BadgeControls() {
         )}
         {/* Unknown gradient (display-only, localized): a legacy/stripped
             record carries no gradient entry (or a malformed paint claim), so
-            non-painting is NOT established — honest unavailable text instead
+            non-painting is NOT established â€” honest unavailable text instead
             of "unused", never a guessed color, never a write. */}
         {unknownNone && (
           <p className="text-[10px] text-zinc-500 leading-snug">
@@ -974,3 +974,4 @@ export function BadgeControls() {
     </div>
   )
 }
+

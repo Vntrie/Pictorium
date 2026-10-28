@@ -73,7 +73,7 @@ describe("correction1: flixpatrol stale rows never publish as a new generation",
   beforeEach(async () => {
     vi.restoreAllMocks()
     tmpDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "fp-c1-"))
-    vi.stubEnv("PICTORIUM_DATA_DIR", tmpDataDir)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", tmpDataDir)
     vi.resetModules()
     fp = await import("@/lib/flixpatrol")
     cg = await import("@/lib/chart-generation")
@@ -163,3 +163,5 @@ describe("correction1: flixpatrol stale rows never publish as a new generation",
     ).rejects.toThrow()
   })
 })
+
+

@@ -1,7 +1,7 @@
-import { test, expect, type Locator, type Page } from "@playwright/test"
+﻿import { test, expect, type Locator, type Page } from "@playwright/test"
 import { putDefaultsWithRetry } from "./defaults-retry"
 
-// Settings layout UX acceptance (T1-T4, runtime only — no snapshots here):
+// Settings layout UX acceptance (T1-T4, runtime only â€” no snapshots here):
 // responsive grid (portrait/landscape, no overflow), stable tab header slot,
 // mobile preview collapse, badge macro-groups, footer Fine + retry.
 // Deterministic: factory defaults per test + restore, mock server, no keys.
@@ -78,11 +78,11 @@ async function seed(page: Page, lang: string, theme: "dark" | "light" = "dark") 
     ({ l, p, th }: { l: string; p: string; th: string }) => {
       try {
         localStorage.clear()
-        localStorage.setItem("pictorium_profile_id", p)
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", p)
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", l)
-        localStorage.setItem("pictorium_ui_theme", th)
+        localStorage.setItem("FLAMEFORGE_ui_theme", th)
         localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
       } catch {}
     },
@@ -212,11 +212,11 @@ test.describe("desktop layout + header slot", () => {
       const b = await slotBox(dialog)
       shapes.push({ top: b.y, height: b.height })
     }
-    // Same slot position across visual and non-visual tabs…
+    // Same slot position across visual and non-visual tabsâ€¦
     for (const s of shapes) {
       expect(Math.abs(s.top - shapes[0].top)).toBeLessThanOrEqual(4)
     }
-    // …and comparable height (shared min-height floor, no collapse jump).
+    // â€¦and comparable height (shared min-height floor, no collapse jump).
     for (const s of shapes) {
       expect(Math.abs(s.height - shapes[0].height)).toBeLessThanOrEqual(16)
     }
@@ -315,17 +315,17 @@ test.describe("mobile collapse + groups + footer", () => {
     const formatBox = (await format.boundingBox())!
     const footerBox = (await footer.boundingBox())!
     const saveBox = (await save.boundingBox())!
-    // Mini poster fully below the format selector and above the footer…
+    // Mini poster fully below the format selector and above the footerâ€¦
     expect(mediaBox.y).toBeGreaterThanOrEqual(formatBox.y + formatBox.height - 1)
     expect(mediaBox.y + mediaBox.height).toBeLessThanOrEqual(footerBox.y + 1)
-    // …fully inside the viewport and inside its own float card…
+    // â€¦fully inside the viewport and inside its own float cardâ€¦
     expect(mediaBox.x).toBeGreaterThanOrEqual(0)
     expect(mediaBox.x + mediaBox.width).toBeLessThanOrEqual(vp.width + 1)
     expect(mediaBox.y).toBeGreaterThanOrEqual(0)
     expect(mediaBox.y + mediaBox.height).toBeLessThanOrEqual(vp.height + 1)
     expect(mediaBox.x).toBeGreaterThanOrEqual(floatBox.x - 1)
     expect(mediaBox.x + mediaBox.width).toBeLessThanOrEqual(floatBox.x + floatBox.width + 1)
-    // …and the whole float (card + toolbar) above the footer, off the Save.
+    // â€¦and the whole float (card + toolbar) above the footer, off the Save.
     expect(floatBox.y).toBeGreaterThanOrEqual(0)
     expect(floatBox.y + floatBox.height).toBeLessThanOrEqual(footerBox.y + 1)
     const overlapsSave = !(
@@ -347,7 +347,7 @@ test.describe("mobile collapse + groups + footer", () => {
     // Slot coherence mobile: Badge vs Preferenze. Mobile keeps a wider bound
     // than the desktop-canonical 16px (desktop tests unchanged): the format
     // slot carries 44px touch buttons (explicit target requirement) while
-    // the secondary slot is a text title — structurally ~18px apart. The
+    // the secondary slot is a text title â€” structurally ~18px apart. The
     // bound still guards "no jump" on tab switches.
     const badgeBox = await slotBox(panel)
     await panel.locator("#mobile-settings-category").selectOption("prefs")
@@ -384,10 +384,10 @@ test.describe("mobile collapse + groups + footer", () => {
     await expect(panel.getByTestId("defaults-preview-media")).toBeHidden()
     await expect(panel.getByTestId("floating-preview-restore")).toBeVisible()
     const floatAfter = (await float.boundingBox())!
-    // Minimized footprint is toolbar-only (much smaller)…
+    // Minimized footprint is toolbar-only (much smaller)â€¦
     expect(floatAfter.height).toBeLessThan(floatBefore.height - 40)
     const after = (await controls.boundingBox())!.height
-    // …while the controls keep their full height (overlay never owned it).
+    // â€¦while the controls keep their full height (overlay never owned it).
     expect(Math.abs(after - before)).toBeLessThanOrEqual(4)
     // Hidden preview keeps no focus: Tab from the corner button leaves the float.
     await cornerBtn.focus()
@@ -465,7 +465,7 @@ test.describe("mobile collapse + groups + footer", () => {
     await panel.getByTestId("format-target-selector").getByText("Orizzontale", { exact: true }).click()
     await panel.locator("#mobile-settings-category").selectOption("information")
     await expect(panel.getByTestId("badge-group-quality").filter({ visible: true })).toBeVisible()
-    await panel.getByRole("switch", { name: "Qualità streaming" }).click()
+    await panel.getByRole("switch", { name: "QualitÃ  streaming" }).click()
     await panel.getByTestId("settings-save").click()
     await expect
       .poll(
@@ -678,7 +678,7 @@ test.describe("mobile collapse + groups + footer", () => {
     // prove nothing about occlusion: the fault stays armed).
     await expect(page.locator('[data-sonner-toast][data-type="error"]')).toBeVisible({ timeout: 5_000 })
     // Pointer regression guard: the toast must never cover the footer Save.
-    // elementFromPoint at the Save center must resolve to Save itself — with
+    // elementFromPoint at the Save center must resolve to Save itself â€” with
     // the toast over the footer this resolves to the toast and the ordinary
     // click below is intercepted (fast RED, no click timeout burned).
     const hitSave = await save.evaluate((el) => {
@@ -687,7 +687,7 @@ test.describe("mobile collapse + groups + footer", () => {
       return !!hit && (hit === el || el.contains(hit))
     })
     expect(hitSave).toBe(true)
-    // Ordinary pointer retry: a real mouse click on Save — no focus/Enter
+    // Ordinary pointer retry: a real mouse click on Save â€” no focus/Enter
     // workaround, no force, no JS dispatch.
     await save.click()
     await expect(dialog.getByTestId("settings-save-status")).toContainText(/Sincronizzato/i, {
@@ -720,7 +720,7 @@ test.describe("mobile toast header pointer", () => {
       await page.goto("/")
       await expect(page.getByPlaceholder(/cerca/i)).toBeVisible({ timeout: 30_000 })
       // Per-title editor context (mobile header owns Back + Save): same
-      // search→select pattern as the editor button-interactions spec.
+      // searchâ†’select pattern as the editor button-interactions spec.
       const search = page.getByPlaceholder(/cerca/i)
       await search.fill("avatar")
       await search.press("Enter")
@@ -735,7 +735,7 @@ test.describe("mobile toast header pointer", () => {
       // Error case: the first per-title POST fails (500), the retry passes.
       // saveConfig posts via http(), which transparently retries 5xx twice
       // (1s + 2s backoff): the first save burns three failed attempts, so
-      // arm that many — a single failOnce would be absorbed by the retry.
+      // arm that many â€” a single failOnce would be absorbed by the retry.
       const postUrls: string[] = []
       let postCount = 0
       await page.route("**/api/mappings", async (route) => {
@@ -761,7 +761,7 @@ test.describe("mobile toast header pointer", () => {
         await page.waitForTimeout(600)
         // Pointer regression guard (mobile header): elementFromPoint at the
         // Back/Save centers must resolve to the buttons themselves while the
-        // error toast is still visible — never to the toast overlay.
+        // error toast is still visible â€” never to the toast overlay.
         const hitCenter = (el: Element) => {
           const r = el.getBoundingClientRect()
           const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)
@@ -783,7 +783,7 @@ test.describe("mobile toast header pointer", () => {
         expect(errProbe.back.hit).toBe(true)
         expect(errProbe.save.hit).toBe(true)
         // Ordinary pointer retry while the error toast is still visible: a
-        // real mouse click on Save — no force, no keyboard workaround.
+        // real mouse click on Save â€” no force, no keyboard workaround.
         await save.click()
         await expect(page.locator('[data-sonner-toast][data-type="success"]')).toBeVisible({ timeout: 15_000 })
         // Mobile/tablet success keeps the global top-center section: the
@@ -792,7 +792,7 @@ test.describe("mobile toast header pointer", () => {
         expect(await page.locator('[data-sonner-toaster][data-x-position="right"][data-y-position="bottom"] [data-sonner-toast][data-type="success"]').count()).toBe(0)
         // Settle the entry slide (see error probe above) before hit-testing.
         await page.waitForTimeout(600)
-        // Steady-state probe: let the exiting error toast detach first —
+        // Steady-state probe: let the exiting error toast detach first â€”
         // its exit slide travels over the header and would contaminate the
         // hit-test. The success toast (2.5s) stays visible throughout.
         await expect(page.locator('[data-sonner-toast][data-type="error"]')).toBeHidden({ timeout: 5_000 })
@@ -838,14 +838,14 @@ test.describe("mobile toast header pointer", () => {
     // mobile panel (innerWidth < 768) while sonner's mobile offset stops at
     // 600px, so the toast uses the 24px desktop offset over the sticky
     // mobile header. (At 768 the shell is already the desktop dialog, which
-    // has no mobile header — 700 is the representative tablet width here.)
+    // has no mobile header â€” 700 is the representative tablet width here.)
     await page.setViewportSize({ width: 700, height: 900 })
     await seed(page, "it")
     await page.goto("/")
     await expect(page.getByPlaceholder(/cerca/i)).toBeVisible({ timeout: 30_000 })
     const panel = await openMobilePanel(page)
     await waitPreview(panel)
-    // 700px shows the sm+ desktop tablist (sm:flex ≥ 640) inside the mobile
+    // 700px shows the sm+ desktop tablist (sm:flex â‰¥ 640) inside the mobile
     // panel shell: reach Classifiche via role=tab, not the <640 select.
     await panel.getByRole("tab", { name: "Classifiche", exact: true }).click()
     await panel.getByRole("switch", { name: "Classifiche" }).click()
@@ -976,3 +976,4 @@ test.describe("desktop save toast position", () => {
     await page.waitForTimeout(1000)
   })
 })
+

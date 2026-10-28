@@ -195,3 +195,4 @@ describe("genre badge vs film logo overlap", () => {
     expect(wPushed / wNormal).toBeGreaterThan(0.6)
   }, 30000)
 })
+

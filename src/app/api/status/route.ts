@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 import { rateLimit, rateLimitKey, rateLimitResponse } from "@/lib/rate-limit"
 import { isMultiUserEnabled, getMaxUsers } from "@/lib/user-auth"
 import { countActiveUsers, listUsers, type UserInfo } from "@/lib/user-activity"
@@ -11,7 +11,7 @@ import { requireAdminToken } from "@/lib/auth"
 
 /**
  * Sponsor/hosting pubblico dell'istanza (banner UI, mai segreti).
- * Whitelist rigida: solo "elfhosted" o null — il raw env non esce mai.
+ * Whitelist rigida: solo "elfhosted" o null â€” il raw env non esce mai.
  * Primario l'env esplicito, fallback best-effort sull'host della richiesta.
  */
 function resolveHostedBy(req: NextRequest): "elfhosted" | null {
@@ -24,7 +24,7 @@ function resolveHostedBy(req: NextRequest): "elfhosted" | null {
   return null
 }
 
-// PICTORIUM_PUBLIC_STATS=0: aggregate counts (users, active users, bytes,
+// FLAMEFORGE_PUBLIC_STATS=0: aggregate counts (users, active users, bytes,
 // key-missing counters) are returned only to admins (token or PIN session).
 // Public callers still get the fields the UI needs (multiUser, hostedBy).
 // Default: public, as before. Read live, like HOSTED_BY above.
@@ -52,7 +52,7 @@ async function listUsersCached(): Promise<UserInfo[]> {
  * utenti attivi ultimi 7 giorni (solo conteggio), cap spazi (0 = illimitati),
  * byte occupati, cifratura chiavi disponibile, contatori key-missing dei
  * cataloghi. Pubblico come /api/health (solo conteggi operativi), salvo
- * PICTORIUM_PUBLIC_STATS=0: allora solo multiUser/hostedBy per i non-admin.
+ * FLAMEFORGE_PUBLIC_STATS=0: allora solo multiUser/hostedBy per i non-admin.
  */
 export async function GET(req: NextRequest) {
   const rl = await rateLimit(rateLimitKey(req), "default")
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
       timestamp: new Date().toISOString(),
     }, { headers: NO_STORE })
   }
-  // Memo breve (v1.23.0): listUsers scansiona storage/Redis — i conteggi non
+  // Memo breve (v1.23.0): listUsers scansiona storage/Redis â€” i conteggi non
   // servono realtime, 60s bastano ed evitano SCAN+GET per utente a ogni hit.
   const users = multiUser ? await listUsersCached() : []
   let usersBytes = 0
@@ -81,10 +81,11 @@ export async function GET(req: NextRequest) {
     usersBytes,
     keysEncryption: isUserKeysEncryptionAvailable(),
     keyMissing: getKeyMissingStats(),
-    // Profondità inflight (TMDB dedup + store KV): se salgono e non scendono,
-    // un upstream/KV è appeso e i cataloghi stanno per svuotarsi.
+    // ProfonditÃ  inflight (TMDB dedup + store KV): se salgono e non scendono,
+    // un upstream/KV Ã¨ appeso e i cataloghi stanno per svuotarsi.
     inflight: { tmdb: getTmdbInflightSize(), store: getStoreInflightSize() },
     hostedBy: resolveHostedBy(req),
     timestamp: new Date().toISOString(),
   }, { headers: NO_STORE })
 }
+

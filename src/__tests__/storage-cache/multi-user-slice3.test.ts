@@ -30,17 +30,17 @@ vi.mock("@vercel/kv", () => ({
 }))
 
 const ENV_KEYS = [
-  "PICTORIUM_DATA_DIR",
-  "PICTORIUM_MULTI_USER",
-  "PICTORIUM_MAX_MAPPINGS_PER_USER",
-  "PICTORIUM_USER_RETENTION_DAYS",
+  "FLAMEFORGE_DATA_DIR",
+  "FLAMEFORGE_MULTI_USER",
+  "FLAMEFORGE_MAX_MAPPINGS_PER_USER",
+  "FLAMEFORGE_USER_RETENTION_DAYS",
   "PROFILE_ENCRYPTION_KEY",
-  "PICTORIUM_TMDB_KEY",
-  "PICTORIUM_HOSTED_BY",
-  "POSTERIUM_HOSTED_BY",
+  "FLAMEFORGE_TMDB_KEY",
+  "FLAMEFORGE_HOSTED_BY",
+  "FLAMEFORGE_HOSTED_BY",
   "ADMIN_TOKEN",
-  "PICTORIUM_PUBLIC_STATS",
-  "POSTERIUM_PUBLIC_STATS",
+  "FLAMEFORGE_PUBLIC_STATS",
+  "FLAMEFORGE_PUBLIC_STATS",
 ] as const
 let savedEnv: Record<string, string | undefined> = {}
 let tempDir: string | undefined
@@ -48,18 +48,18 @@ let tempDir: string | undefined
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-slice3-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
-  process.env.PICTORIUM_MULTI_USER = "1"
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-slice3-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
+  process.env.FLAMEFORGE_MULTI_USER = "1"
   process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
   process.env.ADMIN_TOKEN = "admin-secret"
-  delete process.env.PICTORIUM_MAX_MAPPINGS_PER_USER
-  delete process.env.PICTORIUM_USER_RETENTION_DAYS
-  delete process.env.PICTORIUM_TMDB_KEY
-  delete process.env.PICTORIUM_HOSTED_BY
-  delete process.env.POSTERIUM_HOSTED_BY
-  delete process.env.PICTORIUM_PUBLIC_STATS
-  delete process.env.POSTERIUM_PUBLIC_STATS
+  delete process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER
+  delete process.env.FLAMEFORGE_USER_RETENTION_DAYS
+  delete process.env.FLAMEFORGE_TMDB_KEY
+  delete process.env.FLAMEFORGE_HOSTED_BY
+  delete process.env.FLAMEFORGE_HOSTED_BY
+  delete process.env.FLAMEFORGE_PUBLIC_STATS
+  delete process.env.FLAMEFORGE_PUBLIC_STATS
 })
 
 afterEach(async () => {
@@ -126,7 +126,7 @@ describe("import/export namespaced", () => {
     expect(await store.getAll(uuid)).toHaveLength(2)
 
     // Quota per-utente sull'import.
-    process.env.PICTORIUM_MAX_MAPPINGS_PER_USER = "2"
+    process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER = "2"
     const over = await importRoute.POST(
       nextReq(url, { method: "POST", headers, body: JSON.stringify({ mappings: [makeMapping(3, "Tre")] }) }),
     )
@@ -197,7 +197,7 @@ describe("wipe account (GDPR)", () => {
 
 describe("cleanup inattivi", () => {
   it("retention 0 = disabilitato", async () => {
-    process.env.PICTORIUM_USER_RETENTION_DAYS = "0"
+    process.env.FLAMEFORGE_USER_RETENTION_DAYS = "0"
     vi.resetModules()
     const activity = await import("@/lib/user-activity")
     expect(activity.getUserRetentionDays()).toBe(0)
@@ -205,7 +205,7 @@ describe("cleanup inattivi", () => {
   })
 
   it("rimuove solo gli inattivi oltre soglia, mai senza lastAccess", async () => {
-    process.env.PICTORIUM_USER_RETENTION_DAYS = "30"
+    process.env.FLAMEFORGE_USER_RETENTION_DAYS = "30"
     const { uuid: oldUuid } = await createUser()
     const { uuid: freshUuid } = await createUser()
     const { uuid: nodataUuid } = await createUser()
@@ -300,7 +300,7 @@ describe("status PUBLIC_STATS", () => {
 
   it("PUBLIC_STATS=0: anonimo riceve solo multiUser/hostedBy e nessuna scansione storage", async () => {
     await createUser()
-    process.env.PICTORIUM_PUBLIC_STATS = "0"
+    process.env.FLAMEFORGE_PUBLIC_STATS = "0"
     const { body, scanned } = await status()
     expect(body.multiUser).toBe(true)
     expect(body).toHaveProperty("hostedBy")
@@ -308,24 +308,24 @@ describe("status PUBLIC_STATS", () => {
     expect(scanned).toBe(false)
   })
 
-  it("PUBLIC_STATS=false e legacy POSTERIUM_PUBLIC_STATS=0 nascondono i conteggi", async () => {
+  it("PUBLIC_STATS=false e legacy FLAMEFORGE_PUBLIC_STATS=0 nascondono i conteggi", async () => {
     await createUser()
-    process.env.PICTORIUM_PUBLIC_STATS = "false"
+    process.env.FLAMEFORGE_PUBLIC_STATS = "false"
     expect((await status()).body).not.toHaveProperty("users")
-    delete process.env.PICTORIUM_PUBLIC_STATS
-    process.env.POSTERIUM_PUBLIC_STATS = "0"
+    delete process.env.FLAMEFORGE_PUBLIC_STATS
+    process.env.FLAMEFORGE_PUBLIC_STATS = "0"
     expect((await status()).body).not.toHaveProperty("users")
   })
 
   it("PUBLIC_STATS=0: token errato non vede i conteggi", async () => {
     await createUser()
-    process.env.PICTORIUM_PUBLIC_STATS = "0"
+    process.env.FLAMEFORGE_PUBLIC_STATS = "0"
     expect((await status({ "x-admin-token": "nope" })).body).not.toHaveProperty("users")
   })
 
   it("PUBLIC_STATS=0: admin (x-admin-token o Bearer) vede ancora gli aggregati", async () => {
     await createUser()
-    process.env.PICTORIUM_PUBLIC_STATS = "0"
+    process.env.FLAMEFORGE_PUBLIC_STATS = "0"
     const adminHeaders: Record<string, string>[] = [{ "x-admin-token": "admin-secret" }, { authorization: "Bearer admin-secret" }]
     for (const headers of adminHeaders) {
       const { body, scanned } = await status(headers)
@@ -343,8 +343,8 @@ describe("status PUBLIC_STATS", () => {
 
 describe("status hostedBy", () => {
   async function hostedBy(env?: string, headers?: Record<string, string>): Promise<unknown> {
-    if (env === undefined) delete process.env.PICTORIUM_HOSTED_BY
-    else process.env.PICTORIUM_HOSTED_BY = env
+    if (env === undefined) delete process.env.FLAMEFORGE_HOSTED_BY
+    else process.env.FLAMEFORGE_HOSTED_BY = env
     vi.resetModules()
     const route = await import("@/app/api/status/route")
     const res = await route.GET(nextReq("http://x/api/status", { headers }))
@@ -368,15 +368,15 @@ describe("status hostedBy", () => {
   })
 
   it("fallback best-effort da host senza env", async () => {
-    expect(await hostedBy(undefined, { host: "pictorium.elfhosted.com" })).toBe("elfhosted")
+    expect(await hostedBy(undefined, { host: "FlameForge.elfhosted.com" })).toBe("elfhosted")
   })
 
   it("fallback da x-forwarded-host senza env", async () => {
-    expect(await hostedBy(undefined, { "x-forwarded-host": "pictorium.elfhosted.com" })).toBe("elfhosted")
+    expect(await hostedBy(undefined, { "x-forwarded-host": "FlameForge.elfhosted.com" })).toBe("elfhosted")
   })
 
   it("env elfhosted vince su host normale", async () => {
-    expect(await hostedBy("elfhosted", { host: "pictorium.duckdns.org" })).toBe("elfhosted")
+    expect(await hostedBy("elfhosted", { host: "FlameForge.duckdns.org" })).toBe("elfhosted")
   })
 })
 
@@ -440,3 +440,5 @@ describe("KV backend (Redis/Upstash via lib/kv)", () => {
     }
   })
 })
+
+

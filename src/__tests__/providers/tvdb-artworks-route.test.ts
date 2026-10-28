@@ -103,14 +103,14 @@ function installRouter(opts: RouterOpts = {}) {
 }
 
 beforeEach(() => {
-  process.env.PICTORIUM_TVDB_API_KEY = "env-tvdb-key"
+  process.env.FLAMEFORGE_TVDB_API_KEY = "env-tvdb-key"
   // getExternalIds (tvdb_id-first resolution) needs a TMDB key outside the
   // mock-key path (TMDB_BASE_URL unset in unit tests): the mocked fetch
   // serves it, the real contract (key never in our payload) is asserted.
-  process.env.PICTORIUM_TMDB_KEY = "test-tmdb-key"
-  delete process.env.PICTORIUM_MULTI_USER
-  delete process.env.POSTERIUM_MULTI_USER_ALLOW_ENV_FALLBACK
-  delete process.env.PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK
+  process.env.FLAMEFORGE_TMDB_KEY = "test-tmdb-key"
+  delete process.env.FLAMEFORGE_MULTI_USER
+  delete process.env.FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK
+  delete process.env.FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK
   clearTvdbCache()
   __clearTMDBCache()
   cacheClear()
@@ -126,7 +126,7 @@ describe("GET /api/tvdb/[id]/artworks", () => {
   })
 
   it("503 tvdb_not_configured without any key and without network", async () => {
-    delete process.env.PICTORIUM_TVDB_API_KEY
+    delete process.env.FLAMEFORGE_TVDB_API_KEY
     const { fetchMock } = installRouter()
     const res = await GET(makeRequest("/api/tvdb/321/artworks?type=movie"), params("321"))
     expect(res.status).toBe(503)
@@ -247,7 +247,7 @@ describe("GET /api/tvdb/[id]/artworks", () => {
   })
 
   it("scoped request without key gets no instance env fallback (503, no cross-user borrow)", async () => {
-    process.env.PICTORIUM_MULTI_USER = "1"
+    process.env.FLAMEFORGE_MULTI_USER = "1"
     installRouter()
     const res = await GET(makeRequest(`/api/tvdb/602/artworks?type=tv&u=${UUID}`), params("602"))
     expect(res.status).toBe(503)
@@ -341,3 +341,5 @@ describe("TVDB render/save gates for gallery URLs (existing secure path)", () =>
     expect(buf).toBeNull()
   })
 })
+
+

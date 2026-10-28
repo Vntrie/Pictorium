@@ -254,3 +254,4 @@ describe("service meta → wire → picker hex (identical, both shapes)", () => 
     expect(display.bottomHex).toBeNull()
   }, 60000)
 })
+

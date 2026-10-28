@@ -646,3 +646,4 @@ describe("onAccentMeta: observer parity and cost", () => {
     expect(regionCalls()).toBeLessThanOrEqual(2)
   })
 })
+

@@ -904,3 +904,4 @@ describe("resolveNetworkEffectiveView (mapping + defaults)", () => {
     )).toMatchObject({ follow: true, relativeX: 30, relativeY: -20 })
   })
 })
+

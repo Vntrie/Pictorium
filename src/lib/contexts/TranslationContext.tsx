@@ -1,12 +1,12 @@
-"use client"
+﻿"use client"
 
 import { createContext, useContext, useMemo, type ReactNode } from "react"
-import type { PictoriumCtx } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { createT } from "@/lib/i18n"
 
 /**
- * TranslationCtx — fornisce t() e lang in modo reattivo.
- * t() è legato alla lingua attiva (`createT(lang)`), così quando lang
+ * TranslationCtx â€” fornisce t() e lang in modo reattivo.
+ * t() Ã¨ legato alla lingua attiva (`createT(lang)`), cosÃ¬ quando lang
  * cambia tutti i componenti e i valori memoizzati che dipendono da t
  * o lang si aggiornano immediatamente senza richiedere un refresh.
  */
@@ -20,7 +20,7 @@ const Ctx = createContext<TranslationCtx | null>(null)
 
 export function useT() {
   const v = useContext(Ctx)
-  if (!v) throw new Error("useT must be inside PictoriumProvider")
+  if (!v) throw new Error("useT must be inside FlameForgeProvider")
   return v
 }
 
@@ -28,7 +28,7 @@ export function TranslationProvider({
   value,
   children,
 }: {
-  value: PictoriumCtx
+  value: FlameForgeCtx
   children: ReactNode
 }) {
   const t = useMemo(() => value.t ?? createT(value.lang), [value.t, value.lang])

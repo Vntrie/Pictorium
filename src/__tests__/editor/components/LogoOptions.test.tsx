@@ -110,3 +110,4 @@ describe("LogoOptions", () => {
     expect(slot!.compareDocumentPosition(firstTile!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })
+

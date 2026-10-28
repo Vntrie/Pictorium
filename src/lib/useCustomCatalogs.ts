@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback, useEffect, useRef } from "react"
 import { flushSync } from "react-dom"
 import type { CustomCatalogConfig } from "./types"
-import { PICTORIUM_CATALOGS } from "./catalog-definitions"
+import { FLAMEFORGE_CATALOGS } from "./catalog-definitions"
 import {
   CATALOG_SHAPES_STORAGE_KEY,
   normalizeCatalogShapeKeys,
@@ -33,17 +33,17 @@ import { readOnboardingProgress, ONBOARDING_DONE_KEY } from "./onboarding-progre
 import { currentPathUuid } from "./user-token"
 
 /** localStorage keys for the user-scoped seasonal keyword settings. */
-export const SEASONAL_HALLOWEEN_KEYWORDS_STORAGE_KEY = "pictorium_seasonal_halloween_keywords"
-export const SEASONAL_CHRISTMAS_KEYWORDS_STORAGE_KEY = "pictorium_seasonal_christmas_keywords"
+export const SEASONAL_HALLOWEEN_KEYWORDS_STORAGE_KEY = "FLAMEFORGE_seasonal_halloween_keywords"
+export const SEASONAL_CHRISTMAS_KEYWORDS_STORAGE_KEY = "FLAMEFORGE_seasonal_christmas_keywords"
 
 /**
  * Derived catalog ids owned by one custom/addon config (single source of
- * truth for shared-record cleanup on remove — single and bulk alike).
+ * truth for shared-record cleanup on remove â€” single and bulk alike).
  */
 export function customDerivedIds(cfg: { id: string; type: string }): string[] {
   return cfg.type === "mixed"
-    ? [`pictorium-custom-movie-${cfg.id}`, `pictorium-custom-series-${cfg.id}`]
-    : [`pictorium-custom-${cfg.type}-${cfg.id}`]
+    ? [`FlameForge-custom-movie-${cfg.id}`, `FlameForge-custom-series-${cfg.id}`]
+    : [`FlameForge-custom-${cfg.type}-${cfg.id}`]
 }
 
 export function useCustomCatalogs(
@@ -87,9 +87,9 @@ export function useCustomCatalogs(
   const putChainRef = useRef<Promise<void>>(Promise.resolve())
 
   // Refresh cataloghi dal server (namespace via userFetch su /u/<uuid>).
-  // Rilegge i flag "saved" fresh da localStorage e riempie solo ciò che è
+  // Rilegge i flag "saved" fresh da localStorage e riempie solo ciÃ² che Ã¨
   // ancora vuoto (stessa semantica del mount). Riusato post-unlock: la prima
-  // fetch può aver girato senza token (race col #key=).
+  // fetch puÃ² aver girato senza token (race col #key=).
   const refreshCatalogsFromServer = useCallback(() => {
     const hasSaved = (key: string, isRecord?: boolean): boolean => {
       const raw = safeGetItem(key)
@@ -102,13 +102,13 @@ export function useCustomCatalogs(
         return Array.isArray(parsed)
       } catch { return false }
     }
-    const savedCustomCats = hasSaved("pictorium_custom_catalogs")
-    const savedDisabledCats = hasSaved("pictorium_disabled_catalogs")
-    const savedHomeDisabledCats = hasSaved("pictorium_home_disabled_catalogs")
-    const savedOrder = hasSaved("pictorium_catalog_order")
-    const savedRenames = hasSaved("pictorium_catalog_renames", true)
+    const savedCustomCats = hasSaved("FLAMEFORGE_custom_catalogs")
+    const savedDisabledCats = hasSaved("FLAMEFORGE_disabled_catalogs")
+    const savedHomeDisabledCats = hasSaved("FLAMEFORGE_home_disabled_catalogs")
+    const savedOrder = hasSaved("FLAMEFORGE_catalog_order")
+    const savedRenames = hasSaved("FLAMEFORGE_catalog_renames", true)
     const savedShapes = hasSaved(CATALOG_SHAPES_STORAGE_KEY, true)
-    const savedEmojis = safeGetItem("pictorium_catalog_show_emojis") !== null
+    const savedEmojis = safeGetItem("FLAMEFORGE_catalog_show_emojis") !== null
     const savedSeasonalHalloween = hasSaved(SEASONAL_HALLOWEEN_KEYWORDS_STORAGE_KEY)
     const savedSeasonalChristmas = hasSaved(SEASONAL_CHRISTMAS_KEYWORDS_STORAGE_KEY)
     const savedStreaming = hasSaved(STREAMING_SELECTIONS_STORAGE_KEY)
@@ -133,7 +133,7 @@ export function useCustomCatalogs(
         if (Array.isArray(data.customCatalogs) && !savedCustomCats) {
           setCustomCatalogsState((prev) => {
             if (prev.length === 0) {
-              safeSetItem("pictorium_custom_catalogs", JSON.stringify(data.customCatalogs))
+              safeSetItem("FLAMEFORGE_custom_catalogs", JSON.stringify(data.customCatalogs))
               return data.customCatalogs
             }
             return prev
@@ -142,7 +142,7 @@ export function useCustomCatalogs(
         if (Array.isArray(data.disabledCatalogIds) && !savedDisabledCats) {
           setDisabledCatalogIdsState((prev) => {
             if (prev.length === 0) {
-              safeSetItem("pictorium_disabled_catalogs", JSON.stringify(data.disabledCatalogIds))
+              safeSetItem("FLAMEFORGE_disabled_catalogs", JSON.stringify(data.disabledCatalogIds))
               return data.disabledCatalogIds
             }
             return prev
@@ -151,7 +151,7 @@ export function useCustomCatalogs(
         if (Array.isArray(data.homeDisabledCatalogIds) && !savedHomeDisabledCats) {
           setHomeDisabledCatalogIdsState((prev) => {
             if (prev.length === 0) {
-              safeSetItem("pictorium_home_disabled_catalogs", JSON.stringify(data.homeDisabledCatalogIds))
+              safeSetItem("FLAMEFORGE_home_disabled_catalogs", JSON.stringify(data.homeDisabledCatalogIds))
               return data.homeDisabledCatalogIds
             }
             return prev
@@ -160,7 +160,7 @@ export function useCustomCatalogs(
         if (Array.isArray(data.catalogOrder) && !savedOrder) {
           setCatalogOrderState((prev) => {
             if (prev.length === 0) {
-              safeSetItem("pictorium_catalog_order", JSON.stringify(data.catalogOrder))
+              safeSetItem("FLAMEFORGE_catalog_order", JSON.stringify(data.catalogOrder))
               return data.catalogOrder
             }
             return prev
@@ -169,7 +169,7 @@ export function useCustomCatalogs(
         if (data.catalogRenames && typeof data.catalogRenames === "object" && !Array.isArray(data.catalogRenames) && !savedRenames) {
           setCatalogRenamesState((prev) => {
             if (Object.keys(prev).length === 0) {
-              safeSetItem("pictorium_catalog_renames", JSON.stringify(data.catalogRenames))
+              safeSetItem("FLAMEFORGE_catalog_renames", JSON.stringify(data.catalogRenames))
               return data.catalogRenames
             }
             return prev
@@ -188,7 +188,7 @@ export function useCustomCatalogs(
         if (typeof data.catalogShowEmojis === "boolean" && !savedEmojis) {
           const serverShow = data.catalogShowEmojis
           setCatalogShowEmojisState(serverShow)
-          safeSetItem("pictorium_catalog_show_emojis", JSON.stringify(serverShow))
+          safeSetItem("FLAMEFORGE_catalog_show_emojis", JSON.stringify(serverShow))
         }
         if (!savedSeasonalHalloween) {
           const clean = sanitizeSeasonalCustomKeywords(data.seasonalHalloweenKeywords)
@@ -207,7 +207,7 @@ export function useCustomCatalogs(
         // Explicit server selections hydrate only when nothing is saved
         // locally. An absent server field NEVER writes: absent (undefined,
         // or null from a foreign write) is legacy mode and must survive
-        // hydration byte-identical — a mere mount must not migrate it (and no
+        // hydration byte-identical â€” a mere mount must not migrate it (and no
         // auto-PUT may persist a derived value over it).
         if (data.streamingSelections != null && !savedStreaming) {
           const sanitized = sanitizeGenericStreamingSelections(data.streamingSelections) ?? []
@@ -219,7 +219,7 @@ export function useCustomCatalogs(
           })
         }
         // Genuine-new space default (task 3 owns it): ONLY general JustWatch
-        // Top 20 movies+series — no legacy platform lists, no anime. Fires
+        // Top 20 movies+series â€” no legacy platform lists, no anime. Fires
         // only on positive new-space evidence, never on mere mount of a
         // legacy space, a server failure, or an untrusted (locked) read:
         // - server fetch succeeded (data non-null, checked above) with an
@@ -262,7 +262,7 @@ export function useCustomCatalogs(
             setDisabledCatalogIdsState((prev) => {
               if (prev.length > 0) return prev
               const next = [...ANIME_TOP_CATALOG_IDS]
-              safeSetItem("pictorium_disabled_catalogs", JSON.stringify(next))
+              safeSetItem("FLAMEFORGE_disabled_catalogs", JSON.stringify(next))
               return next
             })
           } catch {
@@ -288,7 +288,7 @@ export function useCustomCatalogs(
     let localSeasonalChristmas: string[] = []
     let localStreaming: StreamingSelection[] | undefined = undefined
 
-    const savedCustomCats = safeGetItem("pictorium_custom_catalogs")
+    const savedCustomCats = safeGetItem("FLAMEFORGE_custom_catalogs")
     if (savedCustomCats) {
       try {
         const parsed = JSON.parse(savedCustomCats)
@@ -298,7 +298,7 @@ export function useCustomCatalogs(
         }
       } catch {}
     }
-    const savedDisabledCats = safeGetItem("pictorium_disabled_catalogs")
+    const savedDisabledCats = safeGetItem("FLAMEFORGE_disabled_catalogs")
     if (savedDisabledCats) {
       try {
         const parsed = JSON.parse(savedDisabledCats)
@@ -308,7 +308,7 @@ export function useCustomCatalogs(
         }
       } catch {}
     }
-    const savedHomeDisabledCats = safeGetItem("pictorium_home_disabled_catalogs")
+    const savedHomeDisabledCats = safeGetItem("FLAMEFORGE_home_disabled_catalogs")
     if (savedHomeDisabledCats) {
       try {
         const parsed = JSON.parse(savedHomeDisabledCats)
@@ -318,7 +318,7 @@ export function useCustomCatalogs(
         }
       } catch {}
     }
-    const savedOrder = safeGetItem("pictorium_catalog_order")
+    const savedOrder = safeGetItem("FLAMEFORGE_catalog_order")
     if (savedOrder) {
       try {
         const parsed = JSON.parse(savedOrder)
@@ -328,7 +328,7 @@ export function useCustomCatalogs(
         }
       } catch {}
     }
-    const savedRenames = safeGetItem("pictorium_catalog_renames")
+    const savedRenames = safeGetItem("FLAMEFORGE_catalog_renames")
     if (savedRenames) {
       try {
         const parsed = JSON.parse(savedRenames)
@@ -348,7 +348,7 @@ export function useCustomCatalogs(
         }
       } catch {}
     }
-    const savedShowEmojisRaw = safeGetItem("pictorium_catalog_show_emojis")
+    const savedShowEmojisRaw = safeGetItem("FLAMEFORGE_catalog_show_emojis")
     if (savedShowEmojisRaw !== null) {
       try {
         const parsed = JSON.parse(savedShowEmojisRaw)
@@ -374,7 +374,7 @@ export function useCustomCatalogs(
         setSeasonalChristmasKeywordsState(clean)
       } catch {}
     }
-    // Absent key = legacy mode (undefined): never default to `[]` here — an
+    // Absent key = legacy mode (undefined): never default to `[]` here â€” an
     // explicit opt-in is only ever written by user action (Add), server fill
     // of an explicit value, or the genuine-new default above.
     const savedStreamingRaw = safeGetItem(STREAMING_SELECTIONS_STORAGE_KEY)
@@ -458,14 +458,14 @@ export function useCustomCatalogs(
 
   const setCustomCatalogs = useCallback((catalogs: CustomCatalogConfig[]) => {
     setCustomCatalogsState(catalogs)
-    safeSetItem("pictorium_custom_catalogs", JSON.stringify(catalogs))
+    safeSetItem("FLAMEFORGE_custom_catalogs", JSON.stringify(catalogs))
   }, [safeSetItem])
 
   const addCustomCatalog = useCallback((catalog: Omit<CustomCatalogConfig, "id">) => {
     const id = `cat_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
     setCustomCatalogsState((prev) => {
       const next = [...prev, { ...catalog, id }]
-      safeSetItem("pictorium_custom_catalogs", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_custom_catalogs", JSON.stringify(next))
       return next
     })
   }, [safeSetItem])
@@ -474,24 +474,24 @@ export function useCustomCatalogs(
     const dropIds = (ids: string[]) => ids.filter((id) => !derived.includes(id))
     setCatalogOrderState((prev) => {
       const next = dropIds(prev)
-      if (next.length !== prev.length) safeSetItem("pictorium_catalog_order", JSON.stringify(next))
+      if (next.length !== prev.length) safeSetItem("FLAMEFORGE_catalog_order", JSON.stringify(next))
       return next
     })
     setDisabledCatalogIdsState((prev) => {
       const next = dropIds(prev)
-      if (next.length !== prev.length) safeSetItem("pictorium_disabled_catalogs", JSON.stringify(next))
+      if (next.length !== prev.length) safeSetItem("FLAMEFORGE_disabled_catalogs", JSON.stringify(next))
       return next
     })
     setHomeDisabledCatalogIdsState((prev) => {
       const next = dropIds(prev)
-      if (next.length !== prev.length) safeSetItem("pictorium_home_disabled_catalogs", JSON.stringify(next))
+      if (next.length !== prev.length) safeSetItem("FLAMEFORGE_home_disabled_catalogs", JSON.stringify(next))
       return next
     })
     setCatalogRenamesState((prev) => {
       if (!derived.some((id) => id in prev)) return prev
       const next = { ...prev }
       for (const id of derived) delete next[id]
-      safeSetItem("pictorium_catalog_renames", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_catalog_renames", JSON.stringify(next))
       return next
     })
     setCatalogShapesState((prev) => {
@@ -505,12 +505,12 @@ export function useCustomCatalogs(
 
   const removeCustomCatalog = useCallback((id: string) => {
     // Read the doomed config synchronously: the derived ids must be cleaned
-    // from the shared records (same contract as bulk remove) — removing the
+    // from the shared records (same contract as bulk remove) â€” removing the
     // config alone would orphan order/disabled/rename/home/shape entries.
     const target = customCatalogs.find((c) => c.id === id)
     setCustomCatalogsState((prev) => {
       const next = prev.filter((c) => c.id !== id)
-      safeSetItem("pictorium_custom_catalogs", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_custom_catalogs", JSON.stringify(next))
       return next
     })
     if (target) dropDerivedIds(customDerivedIds(target))
@@ -521,20 +521,20 @@ export function useCustomCatalogs(
       // `enabled` assente = attivo (come in UI/manifest): il primo toggle di
       // una config legacy deve disabilitare, non consolidare `true`.
       const next = prev.map((c) => (c.id === id ? { ...c, enabled: !(c.enabled !== false) } : c))
-      safeSetItem("pictorium_custom_catalogs", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_custom_catalogs", JSON.stringify(next))
       return next
     })
   }, [safeSetItem])
 
   const setDisabledCatalogIds = useCallback((ids: string[]) => {
     setDisabledCatalogIdsState(ids)
-    safeSetItem("pictorium_disabled_catalogs", JSON.stringify(ids))
+    safeSetItem("FLAMEFORGE_disabled_catalogs", JSON.stringify(ids))
   }, [safeSetItem])
 
   const toggleBuiltinCatalog = useCallback((id: string) => {
     setDisabledCatalogIdsState((prev) => {
       const next = prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-      safeSetItem("pictorium_disabled_catalogs", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_disabled_catalogs", JSON.stringify(next))
       return next
     })
   }, [safeSetItem])
@@ -542,7 +542,7 @@ export function useCustomCatalogs(
   /**
    * Opt-in streaming selection writers. All sanitize through the shared
    * backend leaf and persist locally + through the single canonical catalog
-   * PUT (same chain as every other catalog record — never a second system).
+   * PUT (same chain as every other catalog record â€” never a second system).
    * Writing ANY explicit value (including `[]`) switches the space to
    * curated mode; callers surface that consequence before the first Add.
    */
@@ -621,7 +621,7 @@ export function useCustomCatalogs(
         if (!target) return prev
         // Whole-entry remove (no section) drops the entry's full derived-id
         // footprint: for legacy entries BOTH static ids (an entry narrowed to
-        // one section earlier still owns the other's lingering record keys —
+        // one section earlier still owns the other's lingering record keys â€”
         // the historical static cleanup, byte-identical); for generic entries
         // the current sections' ids. Per-list remove (section given) drops ONLY
         // that derived id; siblings stay.
@@ -705,7 +705,7 @@ export function useCustomCatalogs(
    * Atomic bulk remove of whole custom/addon providers (manager multi-delete).
    * The data model owns one config per provider: only whole providers are
    * removed (the caller includes a provider only when ALL its emitted rows
-   * are selected — never one section of a mixed pair). Derived ids are
+   * are selected â€” never one section of a mixed pair). Derived ids are
    * computed by the caller from live rows and cleaned once.
    */
   const removeCustomCatalogs = useCallback((baseIds: readonly string[], derivedIds: readonly string[]) => {
@@ -713,7 +713,7 @@ export function useCustomCatalogs(
     const wanted = new Set(baseIds)
     setCustomCatalogsState((prev) => {
       const next = prev.filter((c) => !wanted.has(c.id))
-      safeSetItem("pictorium_custom_catalogs", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_custom_catalogs", JSON.stringify(next))
       return next
     })
     if (derivedIds.length > 0) dropDerivedIds([...derivedIds])
@@ -786,20 +786,20 @@ export function useCustomCatalogs(
 
   const setHomeDisabledCatalogIds = useCallback((ids: string[]) => {
     setHomeDisabledCatalogIdsState(ids)
-    safeSetItem("pictorium_home_disabled_catalogs", JSON.stringify(ids))
+    safeSetItem("FLAMEFORGE_home_disabled_catalogs", JSON.stringify(ids))
   }, [safeSetItem])
 
   const toggleCatalogHome = useCallback((id: string) => {
     setHomeDisabledCatalogIdsState((prev) => {
       const next = prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-      safeSetItem("pictorium_home_disabled_catalogs", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_home_disabled_catalogs", JSON.stringify(next))
       return next
     })
   }, [safeSetItem])
 
   const setCatalogOrder = useCallback((order: string[]) => {
     setCatalogOrderState(order)
-    safeSetItem("pictorium_catalog_order", JSON.stringify(order))
+    safeSetItem("FLAMEFORGE_catalog_order", JSON.stringify(order))
   }, [safeSetItem])
 
   const moveCatalog = useCallback((id: string, direction: "up" | "down") => {
@@ -810,7 +810,7 @@ export function useCustomCatalogs(
         allIds.push(catId)
         existing.add(catId)
       })
-      PICTORIUM_CATALOGS.forEach((c) => {
+      FLAMEFORGE_CATALOGS.forEach((c) => {
         if (!existing.has(c.id)) {
           allIds.push(c.id)
           existing.add(c.id)
@@ -818,12 +818,12 @@ export function useCustomCatalogs(
       })
       customCatalogs.forEach((c) => {
         if (c.type === "mixed") {
-          const mId = `pictorium-custom-movie-${c.id}`
-          const sId = `pictorium-custom-series-${c.id}`
+          const mId = `FlameForge-custom-movie-${c.id}`
+          const sId = `FlameForge-custom-series-${c.id}`
           if (!existing.has(mId)) { allIds.push(mId); existing.add(mId) }
           if (!existing.has(sId)) { allIds.push(sId); existing.add(sId) }
         } else {
-          const cId = `pictorium-custom-${c.type}-${c.id}`
+          const cId = `FlameForge-custom-${c.type}-${c.id}`
           if (!existing.has(cId)) { allIds.push(cId); existing.add(cId) }
         }
       })
@@ -848,38 +848,38 @@ export function useCustomCatalogs(
       const next = [...allIds]
       const [item] = next.splice(idx, 1)
       next.splice(targetIdx, 0, item)
-      safeSetItem("pictorium_catalog_order", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_catalog_order", JSON.stringify(next))
       return next
     })
   }, [customCatalogs, streamingSelections, safeSetItem])
 
   const setCatalogRenames = useCallback((renames: Record<string, string>) => {
     setCatalogRenamesState(renames)
-    safeSetItem("pictorium_catalog_renames", JSON.stringify(renames))
+    safeSetItem("FLAMEFORGE_catalog_renames", JSON.stringify(renames))
   }, [safeSetItem])
 
   const renameCatalog = useCallback((id: string, newName: string) => {
     setCatalogRenamesState((prev) => {
       const next = { ...prev, [id]: newName }
       if (!newName.trim()) delete next[id]
-      safeSetItem("pictorium_catalog_renames", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_catalog_renames", JSON.stringify(next))
       return next
     })
   }, [safeSetItem])
 
   const resetCatalogNames = useCallback(() => {
     setCatalogRenamesState({})
-    try { localStorage.removeItem("pictorium_catalog_renames") } catch {}
+    try { localStorage.removeItem("FLAMEFORGE_catalog_renames") } catch {}
   }, [])
 
   /**
    * Catalog-name emoji visibility (display only): persists the choice locally
    * and syncs it through the canonical catalog PUT. Stored renames/defaults
-   * are never rewritten — display layers strip via the shared pure helper.
+   * are never rewritten â€” display layers strip via the shared pure helper.
    */
   const setCatalogShowEmojis = useCallback((show: boolean) => {
     setCatalogShowEmojisState(show)
-    safeSetItem("pictorium_catalog_show_emojis", JSON.stringify(show))
+    safeSetItem("FLAMEFORGE_catalog_show_emojis", JSON.stringify(show))
   }, [safeSetItem])
 
   const setCatalogShapes = useCallback((shapes: CatalogShapes) => {
@@ -935,16 +935,16 @@ export function useCustomCatalogs(
 
   const resetCatalogOrder = useCallback(() => {
     setCatalogOrderState([])
-    try { localStorage.removeItem("pictorium_catalog_order") } catch {}
+    try { localStorage.removeItem("FLAMEFORGE_catalog_order") } catch {}
   }, [])
 
   /**
    * Default Top 20 lists reset (catalog slice only, task G): restores the
-   * two factory lists (`pictorium-jw-movies` / `pictorium-jw-series`) by
-   * clearing ONLY their entries from the shared records — disabled ids,
+   * two factory lists (`FlameForge-jw-movies` / `FlameForge-jw-series`) by
+   * clearing ONLY their entries from the shared records â€” disabled ids,
    * home-hidden ids, order positions, renames. Everything unrelated
-   * (custom catalogs, streaming selections — verbatim, unknown fields
-   * included — shapes/card formats, seasonal keywords, emojis) is
+   * (custom catalogs, streaming selections â€” verbatim, unknown fields
+   * included â€” shapes/card formats, seasonal keywords, emojis) is
    * preserved. The Top 20 source slots live in `useRankingSources` and are
    * reset alongside this by the composed `resetDefaultLists` context
    * action (same established split as `removeCustomCatalog`).
@@ -953,13 +953,13 @@ export function useCustomCatalogs(
     setDisabledCatalogIdsState((prev) => {
       if (!prev.some(isDefaultTop20CatalogId)) return prev
       const next = withoutDefaultTop20Ids(prev)
-      safeSetItem("pictorium_disabled_catalogs", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_disabled_catalogs", JSON.stringify(next))
       return next
     })
     setHomeDisabledCatalogIdsState((prev) => {
       if (!prev.some(isDefaultTop20CatalogId)) return prev
       const next = withoutDefaultTop20Ids(prev)
-      safeSetItem("pictorium_home_disabled_catalogs", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_home_disabled_catalogs", JSON.stringify(next))
       return next
     })
     setCatalogOrderState((prev) => {
@@ -968,13 +968,13 @@ export function useCustomCatalogs(
       // keep manifest order, where the general Top 20s come first) without
       // destroying the custom order of every other row.
       const next = withoutDefaultTop20Ids(prev)
-      safeSetItem("pictorium_catalog_order", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_catalog_order", JSON.stringify(next))
       return next
     })
     setCatalogRenamesState((prev) => {
       const next = withoutDefaultTop20Keys(prev)
       if (next === prev) return prev
-      safeSetItem("pictorium_catalog_renames", JSON.stringify(next))
+      safeSetItem("FLAMEFORGE_catalog_renames", JSON.stringify(next))
       return next
     })
   }, [safeSetItem])
@@ -1023,3 +1023,4 @@ export function useCustomCatalogs(
     removeCustomCatalogs,
   }
 }
+

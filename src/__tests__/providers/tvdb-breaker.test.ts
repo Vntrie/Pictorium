@@ -103,7 +103,7 @@ describe("TVDB breaker (fail-open, 5 fails → 60s)", () => {
   // Timer reali: le pagine lente (2s) oltre il budget da 6s interrompono il loop.
   it("episodes pagination respects the total budget on slow upstream", { timeout: 20000 }, async () => {
     vi.useRealTimers()
-    vi.stubEnv("PICTORIUM_TVDB_EPISODES_BUDGET_MS", "6000")
+    vi.stubEnv("FLAMEFORGE_TVDB_EPISODES_BUDGET_MS", "6000")
     vi.resetModules()
     const tvdb = await import("@/lib/tvdb")
     tvdb.clearTvdbCache()
@@ -132,3 +132,5 @@ describe("TVDB breaker (fail-open, 5 fails → 60s)", () => {
     expect(elapsed).toBeLessThan(15000)
   })
 })
+
+

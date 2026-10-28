@@ -72,7 +72,7 @@ describe("seasonal context parity: custom mixed series rename (client wiring)", 
     renderWithCtx(<CataloghiView />, {
       tmdbKey: "k",
       customCatalogs: [mixed],
-      catalogRenames: { "pictorium-custom-series-mix1": "Halloween Nights" },
+      catalogRenames: { "FlameForge-custom-series-mix1": "Halloween Nights" },
       navigateToPoster,
     })
     // Compact TV tile click.
@@ -94,7 +94,7 @@ describe("seasonal context parity: custom mixed series rename (client wiring)", 
     renderWithCtx(<CataloghiView />, {
       tmdbKey: "k",
       customCatalogs: [{ ...mixed, name: "Halloween Nights" }],
-      catalogRenames: { "pictorium-custom-series-mix1": "Cozy Autumn" },
+      catalogRenames: { "FlameForge-custom-series-mix1": "Cozy Autumn" },
       navigateToPoster,
     })
     fireEvent.click(await screen.findByAltText("Compact Show"))
@@ -116,7 +116,7 @@ describe("seasonal context parity: built-in expanded grid matches compact tile",
       tmdbKey: "k",
       trending: [movieItem, tvItem] as never,
       trendingStatus: "ok" as never,
-      catalogRenames: { "pictorium-jw-series": "Halloween Nights" },
+      catalogRenames: { "FlameForge-jw-series": "Halloween Nights" },
       navigateToPoster,
     })
     fireEvent.click(await screen.findByAltText("Compact Show"))
@@ -171,7 +171,7 @@ describe("seasonal context parity: built-in expanded grid matches compact tile",
       trending: [] as never,
       trendingStatus: "empty" as never,
       streamingCharts: { netflix: { movies: [movieItem], tv: [tvItem] } } as never,
-      catalogRenames: { "pictorium-netflix-series": "Halloween Nights" },
+      catalogRenames: { "FlameForge-netflix-series": "Halloween Nights" },
       navigateToPoster,
     })
     fireEvent.click(await screen.findByAltText("Compact Show"))
@@ -192,7 +192,7 @@ describe("seasonal context parity: built-in expanded grid matches compact tile",
       trendingStatus: "empty" as never,
       mdblistAnimeList: [movieItem, tvItem] as never,
       animeStatus: "ok" as never,
-      catalogRenames: { "pictorium-anime-movies": "Halloween Nights" },
+      catalogRenames: { "FlameForge-anime-movies": "Halloween Nights" },
       navigateToPoster,
     })
     fireEvent.click(await screen.findByAltText("Compact Movie"))
@@ -205,3 +205,5 @@ describe("seasonal context parity: built-in expanded grid matches compact tile",
     expect(detectSeasonalThemeFromCatalogName(listNames(navigateToPoster)[1])).toBe("halloween")
   })
 })
+
+

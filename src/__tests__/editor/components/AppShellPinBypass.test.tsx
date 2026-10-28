@@ -3,7 +3,7 @@ import { useState } from "react"
 import { fireEvent, render, screen } from "@testing-library/react"
 import { AppShell } from "@/components/AppShell"
 import { MOCK_CTX, renderWithCtx } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import {
   __resetUnlockedUsersForTests,
@@ -76,9 +76,9 @@ describe("AppShell PinLockModal bypass sui path /u/", () => {
       const [open, setOpen] = useState(false)
       return (
         <PosterEditorProvider>
-          <PictoriumProvider value={{ ...MOCK_CTX, settingsOpen: open, setSettingsOpen: setOpen }}>
+          <FlameForgeProvider value={{ ...MOCK_CTX, settingsOpen: open, setSettingsOpen: setOpen }}>
             <AppShell />
-          </PictoriumProvider>
+          </FlameForgeProvider>
         </PosterEditorProvider>
       )
     }
@@ -113,3 +113,5 @@ describe("AppShell PinLockModal bypass sui path /u/", () => {
     expect(spacePanel.className).not.toContain("hidden")
   })
 })
+
+

@@ -1,4 +1,4 @@
-// Curated, user-facing changelog. English only by design: translating release
+﻿// Curated, user-facing changelog. English only by design: translating release
 // notes into 10 languages every release is unsustainable for a single
 // maintainer (see translations-parity: body lives here, labels in json).
 //
@@ -7,7 +7,7 @@
 // refactors, tests and dep bumps do NOT touch this file.
 //
 // Below the curated releases the modal also shows RECENT_CHANGES, generated
-// from conventional commits (scripts/write-recent-changes.mjs) — freshness
+// from conventional commits (scripts/write-recent-changes.mjs) â€” freshness
 // without curation. The dot lights when the curated version changes OR when
 // a deploy carries auto content the user hasn't seen (never for empty auto:
 // no phantom dots in quiet periods).
@@ -331,7 +331,7 @@ export const CHANGELOG: ChangelogRelease[] = [
     date: "2026-09-26",
     title: "Release 1.23.3",
     items: [
-      { type: "feature", text: "PICTORIUM_KV_CACHE=0 keeps the response cache in memory only" },
+      { type: "feature", text: "FLAMEFORGE_KV_CACHE=0 keeps the response cache in memory only" },
     ],
   },
   {
@@ -343,8 +343,8 @@ export const CHANGELOG: ChangelogRelease[] = [
       { type: "fix", text: "Drop unsupported Trakt and collection types from Stremio manifest" },
       { type: "fix", text: "Mapping upsert answers JSON on unexpected storage errors" },
       { type: "fix", text: "presets mode drops derivable hints and bounds rank/animerank/rsrc" },
-      { type: "feature", text: "PICTORIUM_PUBLIC_STATS=0 keeps /api/status counts admin-only" },
-      { type: "feature", text: "PICTORIUM_CLIENT_IP_HEADER pins the trusted client-IP header" },
+      { type: "feature", text: "FLAMEFORGE_PUBLIC_STATS=0 keeps /api/status counts admin-only" },
+      { type: "feature", text: "FLAMEFORGE_CLIENT_IP_HEADER pins the trusted client-IP header" },
     ],
   },
   {
@@ -398,7 +398,7 @@ export const CHANGELOG: ChangelogRelease[] = [
     date: "2026-09-20",
     title: "Awards, support & badge polish",
     items: [
-      { type: "feature", text: "Award badges with fast Wikidata lookup (Oscar, Cannes, Venice…)" },
+      { type: "feature", text: "Award badges with fast Wikidata lookup (Oscar, Cannes, Veniceâ€¦)" },
       { type: "feature", text: "Support the project via Ko-fi links in the header and footer" },
       { type: "feature", text: "Automatic Miniseries and Returning badges" },
       { type: "fix", text: "Per-title rating sources picker, shared parser everywhere" },
@@ -408,10 +408,10 @@ export const CHANGELOG: ChangelogRelease[] = [
 
 export const LATEST_CHANGELOG_VERSION: string = CHANGELOG[0].version
 
-export const CHANGELOG_SEEN_KEY = "pictorium_last_seen_changelog"
+export const CHANGELOG_SEEN_KEY = "FLAMEFORGE_last_seen_changelog"
 
-/** Valore "visto" da persistere: sha auto più nuovo, o versione curata quando
- *  l'auto è vuoto (fallback senza git, es. build Docker). */
+/** Valore "visto" da persistere: sha auto piÃ¹ nuovo, o versione curata quando
+ *  l'auto Ã¨ vuoto (fallback senza git, es. build Docker). */
 export function seenValue(shas: readonly string[] = []): string {
   return shas.length > 0 ? `r:${shas[0]}` : `c:${LATEST_CHANGELOG_VERSION}`
 }
@@ -432,3 +432,4 @@ export function hasUnseenChangelog(seen: string | null, shas: readonly string[] 
       : seen
   return curated !== LATEST_CHANGELOG_VERSION
 }
+

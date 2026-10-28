@@ -70,7 +70,7 @@ function createHermeticDataDir(prefix: string): string {
     return fs.mkdtempSync(path.join(os.tmpdir(), prefix))
   }
 }
-const HERMETIC_ENV_KEYS = ["PICTORIUM_DATA_DIR", "POSTERIUM_DATA_DIR"] as const
+const HERMETIC_ENV_KEYS = ["FLAMEFORGE_DATA_DIR", "FLAMEFORGE_DATA_DIR"] as const
 let hermeticDataDir = ""
 let savedDataDirEnv: Record<string, string | undefined> = {}
 
@@ -78,7 +78,7 @@ let savedDataDirEnv: Record<string, string | undefined> = {}
 // DATA_DIR is set and the module registry reset, so every file backend in
 // the chain (flixpatrol disk cache, chart-generation persist) points at the
 // exclusive temp dir and can never see real ./data files.
-let pictoriumCatalog: typeof import("@/lib/catalog-handler").pictoriumCatalog
+let FlameForgeCatalog: typeof import("@/lib/catalog-handler").FlameForgeCatalog
 let CATALOG_TTL_MS: typeof import("@/lib/catalog-handler").CATALOG_TTL_MS
 let CATALOG_EMPTY_TTL_MS: typeof import("@/lib/catalog-handler").CATALOG_EMPTY_TTL_MS
 let rankGET: typeof import("@/app/api/trending/rank/route").GET
@@ -95,13 +95,13 @@ let __inMemoryChartGenerationPersist: typeof import("@/lib/chart-generation").__
 let __clearFlixpatrolCache: typeof import("@/lib/flixpatrol").__clearFlixpatrolCache
 
 beforeAll(async () => {
-  hermeticDataDir = createHermeticDataDir("pictorium-chartgen-cat-")
+  hermeticDataDir = createHermeticDataDir("FlameForge-chartgen-cat-")
   for (const k of HERMETIC_ENV_KEYS) savedDataDirEnv[k] = process.env[k]
-  process.env.PICTORIUM_DATA_DIR = hermeticDataDir
-  delete process.env.POSTERIUM_DATA_DIR
+  process.env.FLAMEFORGE_DATA_DIR = hermeticDataDir
+  delete process.env.FLAMEFORGE_DATA_DIR
   vi.resetModules()
   const catalogHandler = await import("@/lib/catalog-handler")
-  pictoriumCatalog = catalogHandler.pictoriumCatalog
+  FlameForgeCatalog = catalogHandler.FlameForgeCatalog
   CATALOG_TTL_MS = catalogHandler.CATALOG_TTL_MS
   CATALOG_EMPTY_TTL_MS = catalogHandler.CATALOG_EMPTY_TTL_MS
   rankGET = (await import("@/app/api/trending/rank/route")).GET
@@ -259,7 +259,7 @@ describe("chart-generation serving integration (entry paths only)", () => {
   })
 
   it("cold catalog request fetches once and publishes immediately; repeat is upstream-free", async () => {
-    const res1 = await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    const res1 = await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect(res1.status).toBe(200)
     const body1 = await res1.json()
     expect(body1.metas).toHaveLength(2)
@@ -269,16 +269,16 @@ describe("chart-generation serving integration (entry paths only)", () => {
     expect(pin.id).toBe("20261022-06")
     expect(cacheGets.some((k) => k.includes(":cg20261022-06"))).toBe(true)
     // In-scope nonempty ready body reuses up to the PINNED family end (6h JW).
-    const ttl = readyTtl("stremio:catalog:v4:movie:pictorium-jw-movies")
+    const ttl = readyTtl("stremio:catalog:v4:movie:FlameForge-jw-movies")
     expect(ttl).toBe(2 * 60 * 60 * 1000)
     // Repeat request: ready-body hit, zero upstream calls.
-    const res2 = await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    const res2 = await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect((await res2.json()).metas).toHaveLength(2)
     expect(jwCalls).toBe(1)
   })
 
   it("boundary crossing refreshes THAT family only, with a real upstream refetch", async () => {
-    await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect(jwCalls).toBe(1)
     // Sibling families are untouched by the JW request.
     expect((await pinChartFamily(PLATFORM_NETFLIX)).id).toBe(CHART_LIVE_PIN_ID)
@@ -287,7 +287,7 @@ describe("chart-generation serving integration (entry paths only)", () => {
     // but past the slot — the floor must force a REAL refetch, not relabel).
     now = utc(2026, 10, 22, 11, 0, 0) // Rome 13:00 -> slot 20261022-12
     jwPhase = "two"
-    const res = await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    const res = await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect(jwCalls).toBe(2)
     const body = await res.json()
     expect(body.metas.map((m: { id: string }) => m.id)).toEqual(["tt1000201", "tt1000202"])
@@ -302,23 +302,23 @@ describe("chart-generation serving integration (entry paths only)", () => {
   })
 
   it("same-slot snapshot is served even after the underlying rolling cache expires", async () => {
-    await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect(jwCalls).toBe(1)
     // Expire the rolling 6h JW cache AND drop the ready body: the re-render
     // still serves the pinned same-slot snapshot with zero upstream refetch.
     __resetJWRankingsCache()
     cacheStore.clear()
-    const res = await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    const res = await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect((await res.json()).metas).toHaveLength(2)
     expect(jwCalls).toBe(1)
   })
 
   it("catalog and rank route read the SAME rows after a cycle", async () => {
-    await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect(jwCalls).toBe(1)
     now = utc(2026, 10, 22, 11, 0, 0) // slot 20261022-12
     jwPhase = "two"
-    const catRes = await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    const catRes = await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     const catIds = (await catRes.json()).metas.map((m: { id: string }) => m.id)
     expect(catIds).toEqual(["tt1000201", "tt1000202"])
     expect(jwCalls).toBe(2)
@@ -335,17 +335,17 @@ describe("chart-generation serving integration (entry paths only)", () => {
   })
 
   it("upstream failure retains previous catalog rows with a 60s gate", async () => {
-    await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect(jwCalls).toBe(1)
     now = utc(2026, 10, 22, 11, 0, 0)
     jwPhase = "fail"
-    const res = await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    const res = await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect(jwCalls).toBe(2) // the failed refresh attempt
     const body = await res.json()
     expect(body.metas.map((m: { id: string }) => m.id)).toEqual(["tt1000101", "tt1000102"])
     expect((await pinChartFamily(JW_MOVIE)).id).toBe("20261022-06")
     // Immediate retry: gated, no upstream call, old rows kept.
-    const res2 = await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    const res2 = await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect((await res2.json()).metas.map((m: { id: string }) => m.id)).toEqual(["tt1000101", "tt1000102"])
   })
 
@@ -353,24 +353,24 @@ describe("chart-generation serving integration (entry paths only)", () => {
     vi.mocked(mdbModule.fetchMDBList).mockRejectedValue(new Error("mdblist down"))
     now = utc(2026, 10, 22, 8, 0, 0)
     // Anime family fails cold -> live, but JW publishes fine in the same slot.
-    const animeRes = await pictoriumCatalog(catalogReq("pictorium-anime-movies"), "movie", "pictorium-anime-movies", null, null)
+    const animeRes = await FlameForgeCatalog(catalogReq("FlameForge-anime-movies"), "movie", "FlameForge-anime-movies", null, null)
     expect((await animeRes.json()).metas).toEqual([])
     expect((await pinChartFamily(ANIME_MOVIE)).id).toBe(CHART_LIVE_PIN_ID)
-    const jwRes = await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    const jwRes = await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect((await jwRes.json()).metas).toHaveLength(2)
     expect((await pinChartFamily(JW_MOVIE)).id).toBe("20261022-06")
   })
 
   it("isolates keyed vs public anime snapshots", async () => {
     const keyedFetch = vi.mocked(mdbModule.fetchMDBList)
-    await pictoriumCatalog(catalogReq("pictorium-anime-movies", "api_key=test-key&mdblist_key=k1"), "movie", "pictorium-anime-movies", null, null)
+    await FlameForgeCatalog(catalogReq("FlameForge-anime-movies", "api_key=test-key&mdblist_key=k1"), "movie", "FlameForge-anime-movies", null, null)
     expect(keyedFetch).toHaveBeenCalled()
     const keyedPin = await pinChartFamily({ ...GROUP_ANIME(), mdblistKey: "k1", family: "anime:movie" })
     expect(keyedPin.id).toBe("20261022-00")
     const pubPin = await pinChartFamily(ANIME_MOVIE)
     expect(pubPin.id).toBe(CHART_LIVE_PIN_ID)
     // Public request publishes its own snapshot without touching the keyed one.
-    await pictoriumCatalog(catalogReq("pictorium-anime-movies", "api_key=test-key"), "movie", "pictorium-anime-movies", null, null)
+    await FlameForgeCatalog(catalogReq("FlameForge-anime-movies", "api_key=test-key"), "movie", "FlameForge-anime-movies", null, null)
     expect((await pinChartFamily(ANIME_MOVIE)).id).toBe("20261022-00")
     expect(pinnedFamilyRows(await pinChartFamily({ ...GROUP_ANIME(), mdblistKey: "k1", family: "anime:movie" }))?.length).toBe(2)
   })
@@ -378,24 +378,24 @@ describe("chart-generation serving integration (entry paths only)", () => {
   it("uses historical TTLs for excluded windows (variant 1h, empty 60s)", async () => {
     // Canonical default window: pinned family end (2h remaining in this
     // 06-12 fixture slot for the 6h JW family).
-    await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
-    expect(readyTtl("stremio:catalog:v4:movie:pictorium-jw-movies")).toBe(2 * 60 * 60 * 1000)
+    await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
+    expect(readyTtl("stremio:catalog:v4:movie:FlameForge-jw-movies")).toBe(2 * 60 * 60 * 1000)
     // Excluded variant window (platform genre drill-down, live content):
     // unchanged 1h.
-    await pictoriumCatalog(catalogReq("pictorium-netflix-movies", "api_key=test-key&genre=Azione"), "movie", "pictorium-netflix-movies", null, null)
-    const variantKey = cacheSets.map((s) => s.key).find((k) => k.includes("pictorium-netflix-movies") && k.includes(":g"))
+    await FlameForgeCatalog(catalogReq("FlameForge-netflix-movies", "api_key=test-key&genre=Azione"), "movie", "FlameForge-netflix-movies", null, null)
+    const variantKey = cacheSets.map((s) => s.key).find((k) => k.includes("FlameForge-netflix-movies") && k.includes(":g"))
     expect(variantKey).toBeTruthy()
     expect([...cacheSets].reverse().find((s) => s.key === variantKey)?.ttl).toBe(CATALOG_TTL_MS)
     // Empty canonical slice (past the Top 20): unchanged 60s.
-    await pictoriumCatalog(catalogReq("pictorium-jw-movies", "api_key=test-key&skip=25"), "movie", "pictorium-jw-movies", null, null)
-    const emptyKey = cacheSets.map((s) => s.key).find((k) => k.includes("pictorium-jw-movies") && k.includes(":s25"))
+    await FlameForgeCatalog(catalogReq("FlameForge-jw-movies", "api_key=test-key&skip=25"), "movie", "FlameForge-jw-movies", null, null)
+    const emptyKey = cacheSets.map((s) => s.key).find((k) => k.includes("FlameForge-jw-movies") && k.includes(":s25"))
     expect(emptyKey).toBeTruthy()
     const emptyTtl = [...cacheSets].reverse().find((s) => s.key === emptyKey)?.ttl
     expect(emptyTtl).toBe(CATALOG_EMPTY_TTL_MS)
   })
 
   it("platform default window serves pinned rows fenced by generation", async () => {
-    const res = await pictoriumCatalog(catalogReq("pictorium-netflix-movies"), "movie", "pictorium-netflix-movies", null, null)
+    const res = await FlameForgeCatalog(catalogReq("FlameForge-netflix-movies"), "movie", "FlameForge-netflix-movies", null, null)
     const body = await res.json()
     expect(body.metas).toHaveLength(2)
     expect((await pinChartFamily(PLATFORM_NETFLIX)).id).toBe("20261022-00")
@@ -403,6 +403,8 @@ describe("chart-generation serving integration (entry paths only)", () => {
     // JW charts family untouched by the platform request.
     expect((await pinChartFamily(JW_MOVIE)).id).toBe(CHART_LIVE_PIN_ID)
     // Platform ready body: pinned 12h family end (2h remaining in this fixture).
-    expect(readyTtl("stremio:catalog:v4:movie:pictorium-netflix-movies")).toBe(2 * 60 * 60 * 1000)
+    expect(readyTtl("stremio:catalog:v4:movie:FlameForge-netflix-movies")).toBe(2 * 60 * 60 * 1000)
   })
 })
+
+

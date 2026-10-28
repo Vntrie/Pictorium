@@ -48,7 +48,7 @@ let fakeInput: FakeFileInput | null = null
 let capturedBlob: Blob | null = null
 let createElementSpy: ReturnType<typeof vi.spyOn> | null = null
 
-const BACKUP_RESTORED_KEY = "pictorium:backup-restored"
+const BACKUP_RESTORED_KEY = "FlameForge:backup-restored"
 
 beforeEach(() => {
   installStorages()
@@ -232,3 +232,5 @@ describe("useMappingsStore personal keys flags", () => {
     )
   })
 })
+
+

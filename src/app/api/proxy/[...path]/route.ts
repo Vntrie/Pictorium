@@ -49,7 +49,7 @@ function corsHeaders() {
   }
 }
 
-/** Allowlist opzionale di domini proxy (PICTORIUM_PROXY_ALLOW_DOMAINS). */
+/** Allowlist opzionale di domini proxy (FLAMEFORGE_PROXY_ALLOW_DOMAINS). */
 export function isAllowedByAllowlist(url: URL): boolean {
   const raw = envWithFallback("PROXY_ALLOW_DOMAINS")
   if (!raw) return true
@@ -140,9 +140,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
       const userSuffix = userUuid ? `.${userUuid.slice(0, 8)}` : ""
       const proxiedManifest = {
         ...origManifest,
-        id: `org.pictorium.proxy.${Buffer.from(baseUrl).toString("base64url").slice(0, 12)}${userSuffix}`,
-        name: `${origManifest.name || "Addon"} (Pictorium)`,
-        description: `${origManifest.description || ""} — Poster personalizzati via Pictorium`.trim(),
+        id: `org.flameforge.proxy.${Buffer.from(baseUrl).toString("base64url").slice(0, 12)}${userSuffix}`,
+        name: `${origManifest.name || "Addon"} (FlameForge)`,
+        description: `${origManifest.description || ""} — Poster personalizzati via FlameForge`.trim(),
         logo: origManifest.logo || `${origin}/App.png`,
       }
 

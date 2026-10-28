@@ -1,4 +1,4 @@
-// Artwork Funnel Audit (Milestone D) — misura, non serve.
+﻿// Artwork Funnel Audit (Milestone D) â€” misura, non serve.
 //
 // Risponde data-first alla domanda: quanto spesso TVDB interviene davvero e,
 // quando lo fa, quanti candidati textless fornisce? Nessun candidate scoring
@@ -7,19 +7,19 @@
 // COME OSSERVA (inference pura, zero modifiche al runtime):
 //   per ogni titolo legge gli INPUT (TMDB details/images/external_ids +
 //   TVDB search/artworks) e applica la stessa precedenza della poster route:
-//   clean TMDB → TVDB rescue (logo+chiave+textless) → fallback lingua →
-//   backdrop crop → NOT_FOUND. Gli outcome sono CLASSIFICATI, non serviti.
+//   clean TMDB â†’ TVDB rescue (logo+chiave+textless) â†’ fallback lingua â†’
+//   backdrop crop â†’ NOT_FOUND. Gli outcome sono CLASSIFICATI, non serviti.
 //
 // DATASET (congelato, deterministico):
-//   scripts/fixtures/artwork-funnel-dataset.json — array di
+//   scripts/fixtures/artwork-funnel-dataset.json â€” array di
 //   { tmdbId: number, mediaType: "movie"|"tv", stratum:
 //     "popular-movies"|"popular-series"|"niche"|"anime-world" }.
-//   Curatela una tantum (150+100+100+50), poi mai più toccato: i rerun
-//   restano confrontabili. File vuoto/mancante → exit 2 con istruzioni.
+//   Curatela una tantum (150+100+100+50), poi mai piÃ¹ toccato: i rerun
+//   restano confrontabili. File vuoto/mancante â†’ exit 2 con istruzioni.
 //
 // ENV:
-//   TMDB_KEY (o PICTORIUM_TMDB_KEY) — richiesta per il live run.
-//   TVDB_KEY (o PICTORIUM_TVDB_API_KEY) — opzionale: senza, niente rescue
+//   TMDB_KEY (o FLAMEFORGE_TMDB_KEY) â€” richiesta per il live run.
+//   TVDB_KEY (o FLAMEFORGE_TVDB_API_KEY) â€” opzionale: senza, niente rescue
 //     (righe misurate comunque, metriche TVDB a zero + warning).
 //   TMDB_BASE_URL (default https://api.themoviedb.org/3),
 //   TVDB_API_URL (default https://api4.thetvdb.com/v4).
@@ -29,10 +29,10 @@
 //   Senza chiavi: righe ERROR (plumbing check, nessun dato).
 //
 // DECISION GATE (soglia secca binaria, AND):
-//   rescuePct >= 5.0 AND (titoli con >=2 textless AND (Δscore>0 OR
-//   Δresolution>=20%) tra i rescued) >= 30.0% → scoring giustificato,
-//   altrimenti No-Op (pickTvdbPoster resta com'è).
-//   Δresolution = (maxW-minW)/maxW sul set textless.
+//   rescuePct >= 5.0 AND (titoli con >=2 textless AND (Î”score>0 OR
+//   Î”resolution>=20%) tra i rescued) >= 30.0% â†’ scoring giustificato,
+//   altrimenti No-Op (pickTvdbPoster resta com'Ã¨).
+//   Î”resolution = (maxW-minW)/maxW sul set textless.
 
 import path from "node:path"
 import { fileURLToPath } from "node:url"
@@ -42,8 +42,8 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 
 const TMDB_BASE = process.env.TMDB_BASE_URL || "https://api.themoviedb.org/3"
 const TVDB_API = process.env.TVDB_API_URL || "https://api4.thetvdb.com/v4"
-const TMDB_KEY = process.env.TMDB_KEY || process.env.PICTORIUM_TMDB_KEY || ""
-const TVDB_KEY = process.env.TVDB_KEY || process.env.PICTORIUM_TVDB_API_KEY || process.env.POSTERIUM_TVDB_API_KEY || ""
+const TMDB_KEY = process.env.TMDB_KEY || process.env.FLAMEFORGE_TMDB_KEY || ""
+const TVDB_KEY = process.env.TVDB_KEY || process.env.FLAMEFORGE_TVDB_API_KEY || process.env.FLAMEFORGE_TVDB_API_KEY || ""
 
 const DEFAULT_DATASET = path.join(rootDir, "scripts", "fixtures", "artwork-funnel-dataset.json")
 
@@ -262,7 +262,7 @@ function printReport(rows, gate) {
   console.log("\nTVDB Rescue Deep-Dive:")
   console.log(`- Rescue: ${gate.rescued}/${gate.measured} (${gate.rescuePct.toFixed(1)}%)`)
   console.log(`- Con >=2 textless eterogenei: ${gate.multiTextless} (${gate.multiPct.toFixed(1)}%)`)
-  console.log(`\nDECISION GATE: ${gate.scoringJustified ? "SCORING GIUSTIFICATO (progettare integrazione)" : "NO-OP (pickTvdbPoster resta com'è)"}`)
+  console.log(`\nDECISION GATE: ${gate.scoringJustified ? "SCORING GIUSTIFICATO (progettare integrazione)" : "NO-OP (pickTvdbPoster resta com'Ã¨)"}`)
 }
 
 async function run() {
@@ -278,7 +278,7 @@ async function run() {
 
   const dataset = loadDataset(datasetPath)
   if (!TMDB_KEY) {
-    console.error("[funnel-audit] TMDB_KEY mancante: impossibile misurare (tutte le righe ERROR). Impostare TMDB_KEY o PICTORIUM_TMDB_KEY.")
+    console.error("[funnel-audit] TMDB_KEY mancante: impossibile misurare (tutte le righe ERROR). Impostare TMDB_KEY o FLAMEFORGE_TMDB_KEY.")
   }
   if (!TVDB_KEY) {
     console.log("[funnel-audit] TVDB_KEY assente: rescue impossibile, metriche TVDB a zero.")
@@ -290,7 +290,7 @@ async function run() {
   for (const entry of ids) {
     const row = await auditTitle(entry, sleepMs)
     rows.push(row)
-    process.stdout.write(`  ${row.tmdbId}/${row.mediaType} → ${row.outcome}${row.error ? ` (${row.error})` : ""}\n`)
+    process.stdout.write(`  ${row.tmdbId}/${row.mediaType} â†’ ${row.outcome}${row.error ? ` (${row.error})` : ""}\n`)
   }
   const gate = evaluateGate(rows)
   printReport(rows, gate)
@@ -307,3 +307,4 @@ if (isMain) {
     process.exit(1)
   })
 }
+

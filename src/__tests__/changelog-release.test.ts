@@ -45,3 +45,4 @@ describe("insertEntry (release notes)", () => {
     expect(insertEntry(SOURCE, "1.23", entry)).toBeNull()
   })
 })
+

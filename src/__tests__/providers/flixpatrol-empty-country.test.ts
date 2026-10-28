@@ -93,8 +93,8 @@ let fetchCalls: string[]
 
 async function freshImport(): Promise<void> {
   vi.resetModules()
-  dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "pictorium-fp-empty-country-"))
-  vi.stubEnv("PICTORIUM_DATA_DIR", dataDir)
+  dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "FlameForge-fp-empty-country-"))
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dataDir)
   fetchCalls = []
   fp = await import("@/lib/flixpatrol")
 }
@@ -435,8 +435,8 @@ describe("country-wide empty document quarantine", () => {
 describe("cold country-empty at the renewal boundary (no fake publish)", () => {
   it("fetchChartFamilyRows rejects and ensureFreshChartFamily stays live + gated", async () => {
     vi.resetModules()
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pictorium-fp-empty-cold-"))
-    vi.stubEnv("PICTORIUM_DATA_DIR", dir)
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "FlameForge-fp-empty-cold-"))
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
     const cg = await import("@/lib/chart-generation")
     const renewal = await import("@/lib/chart-renewal")
     cg.__setChartGenerationPersistForTest(cg.__inMemoryChartGenerationPersist())
@@ -465,3 +465,5 @@ describe("cold country-empty at the renewal boundary (no fake publish)", () => {
     expect(await cg.isChartFamilyGated(input)).toBe(true)
   })
 })
+
+

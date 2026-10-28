@@ -222,7 +222,7 @@ interface UnionFixtureOverrides {
 }
 
 function makeUnionFixture(overrides: UnionFixtureOverrides = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pictorium-avimport-union-"))
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "FlameForge-avimport-union-"))
   const ids = overrides.ids ?? ["tt0000007", "tt0000008"]
   const db: Record<string, { quality: string; formats: string[] }> = {}
   for (const id of ids) db[id] = { quality: "4K", formats: ["dv"] }
@@ -494,8 +494,8 @@ describe("CLI union gating (subprocess, no network)", () => {
 
   function strippedEnv() {
     const env = { ...process.env }
-    delete env.PICTORIUM_TMDB_KEY
-    delete env.POSTERIUM_TMDB_KEY
+    delete env.FLAMEFORGE_TMDB_KEY
+    delete env.FLAMEFORGE_TMDB_KEY
     delete env.TMDB_KEY
     delete env.TMDB_API_KEY
     delete env.TMDB_BASE_URL
@@ -691,3 +691,5 @@ describe("guarded merge keeps the union additive (unit)", () => {
     expect(merged.added).toEqual(["hdr"])
   })
 })
+
+

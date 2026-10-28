@@ -115,3 +115,4 @@ describe("CatalogSourceBadge iconOnly (card-footer logo beside the counter)", ()
     expect(icon.parentElement).toBe(counter.parentElement)
   })
 })
+

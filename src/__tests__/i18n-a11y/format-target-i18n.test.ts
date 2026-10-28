@@ -57,3 +57,4 @@ describe("format target i18n", () => {
     expect((itDict as Record<string, string>)["ui.formatTarget"]).toBe("Formato da modificare")
   })
 })
+

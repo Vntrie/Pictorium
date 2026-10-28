@@ -126,7 +126,7 @@ describe("GET /catalog with custom ranking source", () => {
     __resetChartGenerationForTest()
   })
 
-  it("serves the custom list order on pictorium-jw-movies without calling JustWatch", async () => {
+  it("serves the custom list order on FlameForge-jw-movies without calling JustWatch", async () => {
     mockedDefaults.mockReturnValue({
       customCatalogs: [MOVIE_CUSTOM],
       rankingSourceMovie: "trakt-movies",
@@ -143,8 +143,8 @@ describe("GET /catalog with custom ranking source", () => {
     })
 
     const res = await GET(
-      catalogReq("/catalog/movie/pictorium-jw-movies.json?api_key=k"),
-      routeParams("movie", "pictorium-jw-movies.json"),
+      catalogReq("/catalog/movie/FlameForge-jw-movies.json?api_key=k"),
+      routeParams("movie", "FlameForge-jw-movies.json"),
     )
     const body = await res.json()
 
@@ -168,8 +168,8 @@ describe("GET /catalog with custom ranking source", () => {
     installFetchRouter({ mdblist, details, find: { tt0900000: 999 } })
 
     const res = await GET(
-      catalogReq("/catalog/movie/pictorium-jw-movies.json?api_key=k"),
-      routeParams("movie", "pictorium-jw-movies.json"),
+      catalogReq("/catalog/movie/FlameForge-jw-movies.json?api_key=k"),
+      routeParams("movie", "FlameForge-jw-movies.json"),
     )
     const body = await res.json()
 
@@ -190,8 +190,8 @@ describe("GET /catalog with custom ranking source", () => {
     })
 
     const res = await GET(
-      catalogReq("/catalog/movie/pictorium-jw-movies.json?api_key=k"),
-      routeParams("movie", "pictorium-jw-movies.json"),
+      catalogReq("/catalog/movie/FlameForge-jw-movies.json?api_key=k"),
+      routeParams("movie", "FlameForge-jw-movies.json"),
     )
     const body = await res.json()
 
@@ -214,8 +214,8 @@ describe("GET /catalog with custom ranking source", () => {
     })
 
     const res = await GET(
-      catalogReq("/catalog/series/pictorium-jw-series.json?api_key=k"),
-      routeParams("series", "pictorium-jw-series.json"),
+      catalogReq("/catalog/series/FlameForge-jw-series.json?api_key=k"),
+      routeParams("series", "FlameForge-jw-series.json"),
     )
     const body = await res.json()
 
@@ -239,8 +239,8 @@ describe("GET /catalog with custom ranking source", () => {
     })
 
     const res = await GET(
-      catalogReq("/catalog/series/pictorium-jw-series.json?api_key=k"),
-      routeParams("series", "pictorium-jw-series.json"),
+      catalogReq("/catalog/series/FlameForge-jw-series.json?api_key=k"),
+      routeParams("series", "FlameForge-jw-series.json"),
     )
     const body = await res.json()
 
@@ -256,8 +256,8 @@ describe("GET /catalog with custom ranking source", () => {
     installFetchRouter({ mdblist: [], details: {}, onJw: () => { jwCalls++ } })
 
     const res = await GET(
-      catalogReq("/catalog/movie/pictorium-jw-movies.json?api_key=k"),
-      routeParams("movie", "pictorium-jw-movies.json"),
+      catalogReq("/catalog/movie/FlameForge-jw-movies.json?api_key=k"),
+      routeParams("movie", "FlameForge-jw-movies.json"),
     )
     const body = await res.json()
 
@@ -281,14 +281,14 @@ describe("GET /catalog with custom ranking source", () => {
     const fetchSpy = installFetchRouter({ mdblist: [], details: {}, onJw: () => { jwCalls++ } })
 
     const res = await GET(
-      catalogReq("/catalog/movie/pictorium-jw-movies.json?api_key=k"),
-      routeParams("movie", "pictorium-jw-movies.json"),
+      catalogReq("/catalog/movie/FlameForge-jw-movies.json?api_key=k"),
+      routeParams("movie", "FlameForge-jw-movies.json"),
     )
     const body = await res.json()
 
     expect(res.status).toBe(200)
     expect(body.metas).toHaveLength(1)
-    expect(body.metas[0].id).toContain("pictorium:notice:")
+    expect(body.metas[0].id).toContain("FlameForge:notice:")
     expect(jwCalls).toBe(0)
     expect(fetchSpy).not.toHaveBeenCalled()
   })
@@ -317,8 +317,8 @@ describe("GET /catalog with custom ranking source", () => {
     })
 
     const res = await GET(
-      catalogReq(`/catalog/movie/pictorium-jw-movies.json?api_key=k&config=${token}`),
-      routeParams("movie", "pictorium-jw-movies.json"),
+      catalogReq(`/catalog/movie/FlameForge-jw-movies.json?api_key=k&config=${token}`),
+      routeParams("movie", "FlameForge-jw-movies.json"),
     )
     const body = await res.json()
 
@@ -346,15 +346,15 @@ describe("GET /catalog with custom ranking source", () => {
     })
     const mdblistCalls = () => fetchSpy.mock.calls.filter((c) => String(c[0]).includes("mdblist")).length
 
-    const urlA = "/catalog/movie/pictorium-jw-movies.json?api_key=k&mdblist_key=mk-A"
-    await GET(catalogReq(urlA), routeParams("movie", "pictorium-jw-movies.json"))
+    const urlA = "/catalog/movie/FlameForge-jw-movies.json?api_key=k&mdblist_key=mk-A"
+    await GET(catalogReq(urlA), routeParams("movie", "FlameForge-jw-movies.json"))
     expect(mdblistCalls()).toBe(1)
-    await GET(catalogReq(urlA), routeParams("movie", "pictorium-jw-movies.json"))
+    await GET(catalogReq(urlA), routeParams("movie", "FlameForge-jw-movies.json"))
     expect(mdblistCalls()).toBe(1)
 
     await GET(
-      catalogReq("/catalog/movie/pictorium-jw-movies.json?api_key=k&mdblist_key=mk-B"),
-      routeParams("movie", "pictorium-jw-movies.json"),
+      catalogReq("/catalog/movie/FlameForge-jw-movies.json?api_key=k&mdblist_key=mk-B"),
+      routeParams("movie", "FlameForge-jw-movies.json"),
     )
     expect(mdblistCalls()).toBe(2)
 
@@ -365,7 +365,7 @@ describe("GET /catalog with custom ranking source", () => {
     })
     const res = await GET(
       catalogReq(urlA),
-      routeParams("movie", "pictorium-jw-movies.json"),
+      routeParams("movie", "FlameForge-jw-movies.json"),
     )
     expect(mdblistCalls()).toBe(3)
     const body = await res.json()
@@ -389,8 +389,8 @@ describe("GET /catalog with custom ranking source", () => {
     })
 
     const res = await GET(
-      catalogReq("/catalog/movie/pictorium-netflix-movies.json?api_key=k"),
-      routeParams("movie", "pictorium-netflix-movies.json"),
+      catalogReq("/catalog/movie/FlameForge-netflix-movies.json?api_key=k"),
+      routeParams("movie", "FlameForge-netflix-movies.json"),
     )
     const body = await res.json()
 
@@ -415,14 +415,16 @@ describe("GET /catalog with custom ranking source", () => {
       rankingSourceMovie: "trakt-movies",
     })
 
-    const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+    const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
     const res = await buildManifestResponse(req, null, token)
     const data = await res.json()
 
-    const jwMovies = data.catalogs.find((c: { id: string }) => c.id === "pictorium-jw-movies")
+    const jwMovies = data.catalogs.find((c: { id: string }) => c.id === "FlameForge-jw-movies")
     expect(jwMovies?.name).toBe("Trakt Top 20")
-    const jwSeries = data.catalogs.find((c: { id: string }) => c.id === "pictorium-jw-series")
+    const jwSeries = data.catalogs.find((c: { id: string }) => c.id === "FlameForge-jw-series")
     expect(jwSeries?.name).toContain("Top 20")
     expect(jwSeries?.name).not.toBe("Trakt Top 20")
   })
 })
+
+

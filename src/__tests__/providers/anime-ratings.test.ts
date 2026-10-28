@@ -776,3 +776,4 @@ describe("anime-ratings (AniZip + AniList + Kitsu)", () => {
     expect(spy.mock.calls.some(([u]) => String(u).includes("/anime/"))).toBe(true)
   })
 })
+

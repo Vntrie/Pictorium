@@ -76,3 +76,4 @@ describe("logoBestLogoFallbackReason", () => {
     expect(logoBestLogoFallbackReason(undefined, "he")).toBe("none")
   })
 })
+

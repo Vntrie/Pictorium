@@ -339,3 +339,4 @@ describe("per-title logo autofit follows the applied recipe", () => {
     expect(ed.logoScaleExplicit).toBe(true)
   })
 })
+

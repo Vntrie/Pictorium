@@ -3,7 +3,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest"
 import { fireEvent, screen } from "@testing-library/react"
 import { CatalogManagerModal } from "@/components/CatalogManagerModal"
 import { renderWithCtx } from "@/__tests__/test-utils"
-import { PICTORIUM_CATALOGS } from "@/lib/catalog-definitions"
+import { FLAMEFORGE_CATALOGS } from "@/lib/catalog-definitions"
 
 vi.mock("@/lib/contexts/TranslationContext", async (importOriginal) => ({
   ...await importOriginal<typeof import("@/lib/contexts/TranslationContext")>(),
@@ -37,7 +37,7 @@ describe("CatalogManagerModal per-catalog format", () => {
   it("renders one format control per row defaulting to follow-global with the live effective choice", () => {
     const { view } = openManager()
     const selects = screen.getAllByRole("combobox")
-    expect(selects).toHaveLength(PICTORIUM_CATALOGS.length)
+    expect(selects).toHaveLength(FLAMEFORGE_CATALOGS.length)
     for (const select of selects) {
       expect(select).toHaveValue("global")
       expect(select).not.toBeDisabled()
@@ -53,20 +53,20 @@ describe("CatalogManagerModal per-catalog format", () => {
     const { view } = openManager({ setCatalogShape })
     const selects = screen.getAllByRole("combobox")
     fireEvent.change(selects[0], { target: { value: "landscape" } })
-    expect(setCatalogShape).toHaveBeenCalledWith(PICTORIUM_CATALOGS[0].id, "landscape")
+    expect(setCatalogShape).toHaveBeenCalledWith(FLAMEFORGE_CATALOGS[0].id, "landscape")
     fireEvent.change(selects[1], { target: { value: "poster" } })
-    expect(setCatalogShape).toHaveBeenCalledWith(PICTORIUM_CATALOGS[1].id, "poster")
+    expect(setCatalogShape).toHaveBeenCalledWith(FLAMEFORGE_CATALOGS[1].id, "poster")
     view.unmount()
 
     // An owned override renders selected; picking global deletes it (null).
     const setCatalogShape2 = vi.fn()
     const h2 = openManager({
-      catalogShapes: { [PICTORIUM_CATALOGS[0].id]: "poster" },
+      catalogShapes: { [FLAMEFORGE_CATALOGS[0].id]: "poster" },
       setCatalogShape: setCatalogShape2,
     })
     expect(screen.getAllByRole("combobox")[0]).toHaveValue("poster")
     fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "global" } })
-    expect(setCatalogShape2).toHaveBeenCalledWith(PICTORIUM_CATALOGS[0].id, null)
+    expect(setCatalogShape2).toHaveBeenCalledWith(FLAMEFORGE_CATALOGS[0].id, null)
     h2.view.unmount()
   })
 
@@ -75,15 +75,15 @@ describe("CatalogManagerModal per-catalog format", () => {
     const mixed = { id: "mix", name: "Mix", type: "mixed" as const, url: "https://mdblist.com/lists/u/mix" }
     const { view } = openManager({
       customCatalogs: [mixed],
-      disabledCatalogIds: [PICTORIUM_CATALOGS[0].id],
+      disabledCatalogIds: [FLAMEFORGE_CATALOGS[0].id],
       setCatalogShape,
     })
     const selects = screen.getAllByRole("combobox")
-    expect(selects).toHaveLength(PICTORIUM_CATALOGS.length + 2)
+    expect(selects).toHaveLength(FLAMEFORGE_CATALOGS.length + 2)
     // Disabled catalog stays configurable (format is independent of visibility).
     expect(selects[0]).not.toBeDisabled()
-    const movieSplit = `pictorium-custom-movie-mix`
-    const seriesSplit = `pictorium-custom-series-mix`
+    const movieSplit = `FlameForge-custom-movie-mix`
+    const seriesSplit = `FlameForge-custom-series-mix`
     const idxMovie = selects.findIndex((s) => s.getAttribute("aria-label")?.startsWith("Mix — "))
     expect(idxMovie).toBeGreaterThanOrEqual(0)
     fireEvent.change(selects[idxMovie], { target: { value: "landscape" } })
@@ -104,3 +104,5 @@ describe("CatalogManagerModal per-catalog format", () => {
     view.unmount()
   })
 })
+
+

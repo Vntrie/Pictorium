@@ -40,3 +40,4 @@ describe("GET /api/flixpatrol/top10 global charts", () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 })
+

@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 // Torrentio movie-only AV enrichment for the local curated database.
 //
 // Scope (authorized task): existing src/data/av-specs.json IMDb IDs ONLY.
@@ -36,7 +36,7 @@
 // - No raw responses, playback links, infohashes, magnets, filenames,
 //   keys, tokens or debrid URLs are saved, logged or embedded in errors.
 // - The TMDB key is read from established local config (process env or
-//   .env.local key NAMES PICTORIUM_TMDB_KEY > POSTERIUM_TMDB_KEY >
+//   .env.local key NAMES FLAMEFORGE_TMDB_KEY > FLAMEFORGE_TMDB_KEY >
 //   TMDB_KEY > TMDB_API_KEY); its value never reaches logs or reports.
 //   Note: this config read happens only AFTER arg validation, so a
 //   rejected --apply never touches config, network, or disk writes.
@@ -470,7 +470,7 @@ export function sanitizeProvenanceEntry(input) {
 // Reviewed offline apply (explicit 105-id manifest, no network)
 //
 // Scope: user-accepted additive import of explicit declared labels with
-// companion provenance (source torrentio, verification "declared" — NOT
+// companion provenance (source torrentio, verification "declared" â€” NOT
 // curated/MediaInfo-verified). Static title-level AV DB semantics: formats
 // denote editions union (not all formats in the same stream); no playback
 // or language guarantee.
@@ -622,7 +622,7 @@ export const REVIEWED_APPROVED = [
 // curated-only; quality is never written on this phase (all 832 rows already
 // carry a quality, so qualityFilled never fires); series/unknown rows stay
 // verbatim; no new titles (row count unchanged). A declared candidate quality
-// may sit below the stored quality (FHD candidates enriching 4K rows) — that
+// may sit below the stored quality (FHD candidates enriching 4K rows) â€” that
 // is not a downgrade: the stored quality tuple is untouched and the source's
 // declared candidate quality is recorded separately in provenance, with no
 // same-stream/playback/language guarantee.
@@ -1948,7 +1948,7 @@ function parseDotEnvFile(filePath) {
 }
 
 function resolveTmdbKey(rootDir) {
-  const names = ["PICTORIUM_TMDB_KEY", "POSTERIUM_TMDB_KEY", "TMDB_KEY", "TMDB_API_KEY"]
+  const names = ["FLAMEFORGE_TMDB_KEY", "FLAMEFORGE_TMDB_KEY", "TMDB_KEY", "TMDB_API_KEY"]
   for (const name of names) {
     if (process.env[name]) return process.env[name]
   }
@@ -1968,7 +1968,7 @@ async function fetchJson(url, timeoutMs) {
   const timer = setTimeout(() => ctrl.abort(), timeoutMs)
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Pictorium/1.0" },
+      headers: { "User-Agent": "FlameForge/1.0" },
       signal: ctrl.signal,
     })
     return res
@@ -2027,7 +2027,7 @@ function usage() {
 
 function checkpointPathFor(rootDir, override) {
   if (override) return path.resolve(override)
-  return path.join(os.tmpdir(), "pictorium-torrentio-av-import", "checkpoint.json")
+  return path.join(os.tmpdir(), "FlameForge-torrentio-av-import", "checkpoint.json")
 }
 
 function isInsideRepo(rootDir, target) {
@@ -2148,7 +2148,7 @@ async function main() {
 
   const tmdbKey = resolveTmdbKey(rootDir)
   if (!tmdbKey) {
-    console.error(`[${TOOL}] STOP: no TMDB request key in established local config (PICTORIUM_TMDB_KEY / TMDB_KEY / TMDB_API_KEY); refusing to guess movie/type without the authoritative /find gate. No network attempted.`)
+    console.error(`[${TOOL}] STOP: no TMDB request key in established local config (FLAMEFORGE_TMDB_KEY / TMDB_KEY / TMDB_API_KEY); refusing to guess movie/type without the authoritative /find gate. No network attempted.`)
     process.exit(3)
   }
   const tmdbBase = (process.env.TMDB_BASE_URL || TMDB_DEFAULT_BASE).replace(/\/+$/, "")
@@ -2427,3 +2427,4 @@ async function main() {
 
 const isMain = process.argv[1] === fileURLToPath(import.meta.url)
 if (isMain) main()
+

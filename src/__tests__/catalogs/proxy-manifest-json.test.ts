@@ -51,7 +51,9 @@ describe("proxy manifest.json alias", () => {
     const res = await GET(req)
     expect(res.status).toBe(200)
     const body = (await res.json()) as { id: string; name: string }
-    expect(body.id.startsWith("org.pictorium.proxy.")).toBe(true)
-    expect(body.name).toContain("(Pictorium)")
+    expect(body.id.startsWith("org.FlameForge.proxy.")).toBe(true)
+    expect(body.name).toContain("(FlameForge)")
   })
 })
+
+

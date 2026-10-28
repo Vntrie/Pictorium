@@ -289,3 +289,4 @@ describe("isMappingDirty", () => {
     expect(isMappingDirty({ ...baseState, badgeFont: "inter" }, mFont, DEFAULTS, "poster")).toBe(true);
   });
 });
+

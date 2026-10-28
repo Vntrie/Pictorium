@@ -515,3 +515,4 @@ describe("Card transform applicability (fixed geometry disabled, values kept)", 
     expect(screen.queryByText("ui.posterLayoutCardHint")).toBeNull()
   })
 })
+

@@ -2,7 +2,7 @@
  * Effective-accent header transport (correction 1, client sync).
  *
  * Primary path: the poster image response itself carries the compact
- * validated `X-Pictorium-Accent` header; the existing XHR blob load in
+ * validated `X-FlameForge-Accent` header; the existing XHR blob load in
  * `usePosterPreview` parses it from the SAME response (zero extra requests,
  * zero elapsed-TTL dependence) and publishes a display record tied to the
  * EXACT preview URL + producer generation of the SAME image.
@@ -39,7 +39,7 @@ import {
   readCachedPoster,
   writeCachedPoster,
 } from "@/lib/poster-runtime-cache"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { MOCK_CTX } from "@/__tests__/test-utils"
 import { usePosterPreview } from "@/lib/usePosterPreview"
 
@@ -137,7 +137,7 @@ describe("accent header codec", () => {
   })
 
   it("uses a single shared header name", () => {
-    expect(ACCENT_META_HEADER).toBe("X-Pictorium-Accent")
+    expect(ACCENT_META_HEADER).toBe("X-FlameForge-Accent")
   })
 })
 
@@ -240,9 +240,9 @@ class MockXHR {
 }
 
 const URL_A =
-  "https://pictorium.test/api/poster/movie/1?preview=1&bs=colored&shape=poster"
+  "https://FlameForge.test/api/poster/movie/1?preview=1&bs=colored&shape=poster"
 const URL_B =
-  "https://pictorium.test/api/poster/movie/1?preview=1&bs=colored&shape=landscape"
+  "https://FlameForge.test/api/poster/movie/1?preview=1&bs=colored&shape=landscape"
 
 function installXhrEnv() {
   MockXHR.instances = []
@@ -272,9 +272,9 @@ function Probe() {
 function renderPreview(url: string, rank = 0, catalogs = 0) {
   const value = { ...MOCK_CTX, previewUrl: url, rankSourceNonce: rank, catalogsSyncNonce: catalogs }
   return render(
-    <PictoriumProvider value={value as never}>
+    <FlameForgeProvider value={value as never}>
       <Probe />
-    </PictoriumProvider>,
+    </FlameForgeProvider>,
   )
 }
 
@@ -344,9 +344,9 @@ describe("usePosterPreview XHR header producer", () => {
     expect(getEffectiveAccentDisplay().status).toBe("ready")
 
     view.rerender(
-      <PictoriumProvider value={{ ...MOCK_CTX, previewUrl: URL_B, rankSourceNonce: 0, catalogsSyncNonce: 0 } as never}>
+      <FlameForgeProvider value={{ ...MOCK_CTX, previewUrl: URL_B, rankSourceNonce: 0, catalogsSyncNonce: 0 } as never}>
         <Probe />
-      </PictoriumProvider>,
+      </FlameForgeProvider>,
     )
     expect(MockXHR.instances).toHaveLength(2)
     // New generation loading: picker must not claim the old hex as the new
@@ -369,9 +369,9 @@ describe("usePosterPreview XHR header producer", () => {
     const first = lastXhr()
     first.setSuccess(200, JSON.stringify(META))
     view.rerender(
-      <PictoriumProvider value={{ ...MOCK_CTX, previewUrl: URL_B, rankSourceNonce: 0, catalogsSyncNonce: 0 } as never}>
+      <FlameForgeProvider value={{ ...MOCK_CTX, previewUrl: URL_B, rankSourceNonce: 0, catalogsSyncNonce: 0 } as never}>
         <Probe />
-      </PictoriumProvider>,
+      </FlameForgeProvider>,
     )
     expect(first.aborted).toBe(true)
     // The aborted XHR fires onload late with a valid header: ignored.
@@ -399,9 +399,9 @@ describe("usePosterPreview XHR header producer", () => {
     // Rank-source save bumps the nonce at the IDENTICAL url (server-side
     // content changed): the producer flips back to loading first.
     view.rerender(
-      <PictoriumProvider value={{ ...MOCK_CTX, previewUrl: URL_A, rankSourceNonce: 1, catalogsSyncNonce: 0 } as never}>
+      <FlameForgeProvider value={{ ...MOCK_CTX, previewUrl: URL_A, rankSourceNonce: 1, catalogsSyncNonce: 0 } as never}>
         <Probe />
-      </PictoriumProvider>,
+      </FlameForgeProvider>,
     )
     expect(MockXHR.instances).toHaveLength(2)
     expect(getEffectiveAccentDisplay()).toMatchObject({ status: "loading", previewUrl: URL_A, meta: null })
@@ -423,3 +423,5 @@ describe("usePosterPreview XHR header producer", () => {
     expect(getEffectiveAccentDisplay()).toMatchObject({ status: "unknown", meta: null, previewUrl: URL_A })
   })
 })
+
+

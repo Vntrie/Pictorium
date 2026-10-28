@@ -553,3 +553,4 @@ describe("ranked-only scope (SettingsPanel Rankings UI)", () => {
     expect(puts).toHaveLength(0)
   })
 })
+

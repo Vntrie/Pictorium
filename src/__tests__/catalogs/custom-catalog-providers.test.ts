@@ -360,12 +360,12 @@ describe("fetchUnifiedCatalogItems via official Trakt API", () => {
 
   beforeEach(() => {
     vi.restoreAllMocks()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = clientId
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = clientId
     delete process.env.TRAKT_API_URL
   })
 
   afterEach(() => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     delete process.env.TRAKT_API_URL
   })
 
@@ -505,7 +505,7 @@ describe("fetchUnifiedCatalogItems via official Trakt API", () => {
   })
 
   it("returns [] when the client ID is missing and never hits the network", async () => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     global.fetch = vi.fn(() => Promise.reject(new Error("must not fetch"))) as unknown as typeof fetch
     expect(await fetchUnifiedCatalogItems("https://trakt.tv/users/donxy/lists/trakt-nokey-test")).toEqual([])
     expect(global.fetch).not.toHaveBeenCalled()
@@ -517,3 +517,5 @@ describe("fetchUnifiedCatalogItems via official Trakt API", () => {
     expect(global.fetch).not.toHaveBeenCalled()
   })
 })
+
+

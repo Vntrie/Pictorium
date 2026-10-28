@@ -64,3 +64,4 @@ describe("formatPublicationDate", () => {
     expect(formatPublicationDate(1761331200000, "xx-invalid-!!", t)).toBeNull()
   })
 })
+

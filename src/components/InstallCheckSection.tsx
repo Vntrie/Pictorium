@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Check, Circle, Loader2, ShieldCheck, X } from "lucide-react"
@@ -39,7 +39,7 @@ const PROBE_TMDB_ID = 550
 
 /**
  * Install context derived from the selected manifest URL
- * (`/u/<uuid>/…`, `/c/<token>/…`, `?u=`/`?config=`). Returns null for
+ * (`/u/<uuid>/â€¦`, `/c/<token>/â€¦`, `?u=`/`?config=`). Returns null for
  * non same-origin (never cross-origin fetch: no client-side SSRF) or
  * unparseable URLs. Exported for tests.
  */
@@ -228,11 +228,11 @@ export async function decodeInstallCheckImage(
   }
 }
 
-/** Media types a Pictorium Stremio catalog may declare. `movie`/`series` cover
+/** Media types a FlameForge Stremio catalog may declare. `movie`/`series` cover
  * content/search/people catalogs; `all` is Stremio's public mixed-catalog type,
  * emitted by build-manifest for generic `all` (overall) streaming selections
  * (root `types` gains `all` for the `/catalog/all/...` route while `meta`
- * keeps its explicit movie/series types — the /meta resolver has no `all`
+ * keeps its explicit movie/series types â€” the /meta resolver has no `all`
  * branch). Accepted for any entry on purpose: the checker validates manifest
  * structure, it does not re-enforce builder id policy (that would couple it to
  * `stream2-*` naming and risk false-rejecting future legitimate `all`
@@ -257,7 +257,7 @@ function isInstallCheckCatalogEntry(c: unknown): boolean {
   return true
 }
 
-/** Minimal Pictorium manifest shape (never the catalog contents).
+/** Minimal FlameForge manifest shape (never the catalog contents).
  * A manifest with zero catalogs is legitimate (user with all catalogs
  * disabled, or a mode without content): catalogs are validated entry by entry
  * only when present. Still required: id/addon, non-empty name, semver
@@ -266,7 +266,7 @@ const INSTALL_CHECK_VERSION_PATTERN = /^\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?$/
 export function isInstallCheckManifestValid(data: unknown): boolean {
   if (!data || typeof data !== "object" || Array.isArray(data)) return false
   const m = data as Record<string, unknown>
-  if (typeof m.id !== "string" || !m.id.startsWith("org.pictorium")) return false
+  if (typeof m.id !== "string" || !m.id.startsWith("org.FlameForge")) return false
   if (typeof m.name !== "string" || !m.name.trim()) return false
   if (typeof m.version !== "string" || !INSTALL_CHECK_VERSION_PATTERN.test(m.version)) return false
   if (!Array.isArray(m.catalogs)) return false
@@ -331,7 +331,7 @@ interface KeyCheckOutcome {
  * secrets), manifest structure, real poster validated beyond HTTP
  * 200 (content-type + real browser image decode: never ready on
  * magic bytes alone). Never blocks installation:
- * links stay copyable. No demo, no preview override —
+ * links stay copyable. No demo, no preview override â€”
  * and success requires ALL steps (a cached poster with a wrong key
  * is never enough).
  */
@@ -370,7 +370,7 @@ export function InstallCheckSection({ manifestUrl }: { manifestUrl: string }) {
   // secrets in URLs: session unlock + persisted-secret storage.
   // Known limit: the session password lives only in memory (never in
   // storage, no cross-tab events) and server-side global key changes
-  // (env) are not observable from the client — those cases stay covered only
+  // (env) are not observable from the client â€” those cases stay covered only
   // by a manual re-run (button always available, never blocking).
   useEffect(() => {
     const invalidate = () => {
@@ -385,7 +385,7 @@ export function InstallCheckSection({ manifestUrl }: { manifestUrl: string }) {
     const onUnlock = () => invalidate()
     const onStorage = (e: StorageEvent) => {
       try {
-        if (typeof e.key === "string" && e.key.startsWith("pictorium-user-token:")) invalidate()
+        if (typeof e.key === "string" && e.key.startsWith("FlameForge-user-token:")) invalidate()
       } catch {
         /* never break the caller */
       }
@@ -520,7 +520,7 @@ export function InstallCheckSection({ manifestUrl }: { manifestUrl: string }) {
         } catch (e) {
           if (!alive()) return
           if (runController.signal.aborted) return
-          // Timeout/network → retryable; anything else (never expected here) → manifest guide.
+          // Timeout/network â†’ retryable; anything else (never expected here) â†’ manifest guide.
           setStep(
             "manifest",
             "fail",
@@ -593,7 +593,7 @@ export function InstallCheckSection({ manifestUrl }: { manifestUrl: string }) {
         } catch (e) {
           if (!alive()) return
           if (runController.signal.aborted) return
-          // Timeout/network → retryable; non-image payload → poster guide.
+          // Timeout/network â†’ retryable; non-image payload â†’ poster guide.
           setStep(
             "poster",
             "fail",
@@ -692,3 +692,4 @@ export function InstallCheckSection({ manifestUrl }: { manifestUrl: string }) {
     </section>
   )
 }
+

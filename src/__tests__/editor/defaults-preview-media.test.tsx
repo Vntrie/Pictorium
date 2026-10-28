@@ -251,3 +251,4 @@ describe("SettingsPanel persisted preview title", () => {
     expect(readPreviewDemoMedia("user-8")).toEqual(MOVIE_AVATAR)
   })
 })
+

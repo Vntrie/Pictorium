@@ -1,4 +1,4 @@
-import crypto from "node:crypto"
+﻿import crypto from "node:crypto"
 import { cacheGet, cacheGetShared, cacheSet } from "./cache"
 import { timedFetch } from "./outbound-stats"
 import { createLogger } from "@/lib/logger"
@@ -23,9 +23,9 @@ function mdbApiBase(): string {
   return (process.env.MDBLIST_API_URL || "https://api.mdblist.com").replace(/\/+$/, "")
 }
 
-// Phase 2 (Provider Resilience): deadline interna 8000 → 1500ms. I caller
-// fanno già race con RATING_WAIT_MS, ma il fetch restava zombie fino a 8s;
-// la route tmdb-details non passa alcun signal, quindi questo è la sua unica
+// Phase 2 (Provider Resilience): deadline interna 8000 â†’ 1500ms. I caller
+// fanno giÃ  race con RATING_WAIT_MS, ma il fetch restava zombie fino a 8s;
+// la route tmdb-details non passa alcun signal, quindi questo Ã¨ la sua unica
 // guardia anti-starvation.
 const MDBLIST_TIMEOUT_MS = (() => {
   const raw = envWithFallback("MDBLIST_TIMEOUT_MS")
@@ -34,7 +34,7 @@ const MDBLIST_TIMEOUT_MS = (() => {
 })()
 
 // Fail-open breaker PER CREDENTIAL (not module-global): 3 consecutive
-// failures → 30s cooldown for that key. A throttled or failing key
+// failures â†’ 30s cooldown for that key. A throttled or failing key
 // (burst 429s, 5xx, timeouts) must not suppress the healthy keys of other
 // namespaces on public/multi-user instances: each credential has its own
 // counter and window. Outage safety stays per credential (same thresholds
@@ -90,7 +90,7 @@ export function __resetRatingsNullForTest(): void {
 
 /**
  * Read-only telemetry for the operator status surface (never admits a
- * trial): uses peekOpen, never isOpen — isOpen would admit the single
+ * trial): uses peekOpen, never isOpen â€” isOpen would admit the single
  * half-open trial to a monitoring poll that never runs it, wedging the
  * breaker (orphaned trial: every real request would then be rejected
  * forever). Without a key it reports any-open (same semantics as before);
@@ -108,8 +108,8 @@ export function isMdblistBreakerOpen(key?: string | null): boolean {
 
 // SUPPORTED_RATING_SOURCES + parseRatingSources/resolveRatingSources vivono
 // in rating-weights.ts (foglia client-safe senza import runtime): ratings.ts
-// importa cache/KV e non può stare nel bundle browser. Ri-esportati qui per
-// compatibilità (route, hardening, test esistenti importano da questo modulo).
+// importa cache/KV e non puÃ² stare nel bundle browser. Ri-esportati qui per
+// compatibilitÃ  (route, hardening, test esistenti importano da questo modulo).
 import { DEFAULT_RATING_SOURCES, UI_RATING_SOURCES, SUPPORTED_RATING_SOURCES, parseRatingSources, resolveRatingSources } from "./rating-weights"
 export { DEFAULT_RATING_SOURCES, UI_RATING_SOURCES, SUPPORTED_RATING_SOURCES, parseRatingSources, resolveRatingSources }
 export type { RatingSource } from "./rating-weights"
@@ -168,7 +168,7 @@ function avg(values: number[]): number {
 }
 
 // parseRatingSources/resolveRatingSources: definiti in rating-weights.ts
-// (foglia client-safe), ri-esportati sopra per compatibilità.
+// (foglia client-safe), ri-esportati sopra per compatibilitÃ .
 
 export function calculateAverageRating(
   ratings: AggregatedRatings | null,
@@ -199,7 +199,7 @@ export function calculateAverageRating(
 /** Cap display colonna rating separati: oltre, la colonna destra mangia il poster. */
 export const MAX_SEPARATE_RATINGS = 5
 
-/** Fonti mostrate in percentuale invece che in decimi (valore /10 → `88%`). */
+/** Fonti mostrate in percentuale invece che in decimi (valore /10 â†’ `88%`). */
 const PERCENT_SOURCES: ReadonlySet<string> = new Set(["tomatoes", "popcorntime"])
 
 export interface SeparateRating {
@@ -210,8 +210,8 @@ export interface SeparateRating {
 /**
  * Sottoinsieme ordinato delle fonti aggregate per la colonna separata:
  * ordine di selezione `requestedSources`, skip valori mancanti/0, cap
- * MAX_SEPARATE_RATINGS (=5). Ritorna [] quando niente è mostrabile (il chiamante
- * ripiega sulla media ★).
+ * MAX_SEPARATE_RATINGS (=5). Ritorna [] quando niente Ã¨ mostrabile (il chiamante
+ * ripiega sulla media â˜…).
  */
 export function pickSeparateRatings(
   ratings: AggregatedRatings | null,
@@ -249,7 +249,7 @@ export interface FetchAggregatedOptions {
   /**
    * Selezione esplicita delle fonti richieste (rsrc risolta dai caller).
    * Guida il routing dei provider: con selezione la selezione vince sui
-   * flag want* (difesa in profondità: niente upstream per fonti non
+   * flag want* (difesa in profonditÃ : niente upstream per fonti non
    * richieste). Assente = legacy all-source (tutti i provider condizionali
    * attivi secondo i flag). Normalizzata (sort/dedupe) per la cache key,
    * mai per l'ordine di display (quello resta al computeVote dei caller).
@@ -257,7 +257,7 @@ export interface FetchAggregatedOptions {
   requestedSources?: readonly string[] | null
   /**
    * Budget complessivo (ms) per primario + fallback + side provider
-   * (clamp 300–10000). Il primario ne riceve una share limitata (60%) così
+   * (clamp 300â€“10000). Il primario ne riceve una share limitata (60%) cosÃ¬
    * il fallback resta genuinamente utilizzabile; il totale non supera mai
    * la deadline del chiamante. Assente = legacy (solo timeout interni).
    */
@@ -268,9 +268,9 @@ export interface FetchAggregatedOptions {
    * sia sui risultati freschi sia sulle cache hit, e colma il valore quando
    * MDBList non lo fornisce (quota/outage). La base cachata resta sempre
    * senza diretto, l'overlay si applica su copia alla restituzione e il voto
-   * diretto non entra mai nel cache key né nella cache success (congelarlo
-   * maschererebbe il recovery del provider). Vale solo dove tmdb è
-   * richiesto (legacy) o esplicito in selezione. Solo voto TMDB genuino —
+   * diretto non entra mai nel cache key nÃ© nella cache success (congelarlo
+   * maschererebbe il recovery del provider). Vale solo dove tmdb Ã¨
+   * richiesto (legacy) o esplicito in selezione. Solo voto TMDB genuino â€”
    * mai medie congelate da mapping/query.
    */
   tmdbFallbackVote?: number | null
@@ -286,14 +286,14 @@ interface MdbListFetchResult {
    */
   rawTtlMs: number
   /**
-   * Task C — controparti osservate nel corpo risposta (solo evidenza per
+   * Task C â€” controparti osservate nel corpo risposta (solo evidenza per
    * l'alias-dedup, MAI routing): scritte solo sui 200 con JSON parsato,
-   * altrimenti undefined. Mai usate per mutare l'identità in-flight.
+   * altrimenti undefined. Mai usate per mutare l'identitÃ  in-flight.
    */
   observedImdb?: string | null
   observedTmdb?: number | null
   /**
-   * Task C correction-2 — true when this result was hydrated from a cache
+   * Task C correction-2 â€” true when this result was hydrated from a cache
    * (L1 hit, KV L2, local disk) rather than a fresh upstream fetch. A
    * hydrated `rawTtlMs` is only the policy default (24h), never the
    * remaining lifetime of the absolute expiry, so joiner alias publishes
@@ -307,22 +307,22 @@ interface MdbListFetchResult {
 // MDBList. MAL resta coperta dall'aggregatore MDBList (vedi sotto).
 const DIRECT_ONLY_SOURCES: ReadonlySet<string> = new Set(["simkl", "anilist", "kitsu"])
 
-// Fonti che MDBList può fornire (imdb anche via Cinemeta, tmdb anche diretto).
-// Partizionano la whitelist con DIRECT_ONLY_SOURCES: tutto ciò che non è
-// direct-only (inclusa MAL) può richiedere l'aggregatore MDBList.
+// Fonti che MDBList puÃ² fornire (imdb anche via Cinemeta, tmdb anche diretto).
+// Partizionano la whitelist con DIRECT_ONLY_SOURCES: tutto ciÃ² che non Ã¨
+// direct-only (inclusa MAL) puÃ² richiedere l'aggregatore MDBList.
 
 // Versione del namespace cache rating: v3 = nuova media API tipizzata
 // (api.mdblist.com) + segmentazione per tipo media e policy min-votes. Le
 // entry pre-migrazione (v2, legacy `mdblist.com/api`) non devono mai
-// influenzare la nuova normalizzazione né la nuova precedenza.
+// influenzare la nuova normalizzazione nÃ© la nuova precedenza.
 const RATINGS_CACHE_VERSION = "v3"
 
 export type MdbMediaSegment = "movie" | "show" | "any"
 
 /**
- * Caller media type → segmento path della nuova API: tv/series/show
+ * Caller media type â†’ segmento path della nuova API: tv/series/show
  * collassano su `show`, solo un movie esplicito resta `movie`; tutto il
- * resto (anime, assente, sconosciuto) usa `any` documentato — mai retry
+ * resto (anime, assente, sconosciuto) usa `any` documentato â€” mai retry
  * automatico su tipo sbagliato (il 404 resta un miss genuino).
  */
 export function mdbMediaSegment(mediaType: unknown): MdbMediaSegment {
@@ -333,12 +333,12 @@ export function mdbMediaSegment(mediaType: unknown): MdbMediaSegment {
 }
 
 /**
- * Task C — copertura voti via identificativo TMDB quando l'IMDb manca.
+ * Task C â€” copertura voti via identificativo TMDB quando l'IMDb manca.
  *
- * Precedenza invariata: l'IMDb resta l'unica identità MDBList quando presente
+ * Precedenza invariata: l'IMDb resta l'unica identitÃ  MDBList quando presente
  * (nessun cambio d'ordine, nessuna seconda chiamata sul 404). Solo senza un
- * IMDb utilizzabile — e solo con TMDB id numerico affidabile + tipo
- * esplicitamente normalizzabile (movie → movie, tv/series/show → show) — si
+ * IMDb utilizzabile â€” e solo con TMDB id numerico affidabile + tipo
+ * esplicitamente normalizzabile (movie â†’ movie, tv/series/show â†’ show) â€” si
  * tenta UNA chiamata all'endpoint tipizzato TMDB. Tutto il resto (tipo
  * mancante/ambiguo come anime/any/assente, id non intero-positivo, IMDb
  * bare-numeric) salta MDBList del tutto: fallback diretti disponibili o null,
@@ -346,11 +346,11 @@ export function mdbMediaSegment(mediaType: unknown): MdbMediaSegment {
  * passato come IMDb ai direct provider/Cinemeta.
  *
  * Verificato live 2026-10-15 (sei campioni autorizzati, valori anonimi, no
- * chiavi): /imdb/movie/tt0111161 ≡ /tmdb/movie/278 e /imdb/show/tt0944947 ≡
- * /tmdb/show/1399 (stessi corpi); tipo-sbagliato 404 ≡ ignoto (no retry).
+ * chiavi): /imdb/movie/tt0111161 â‰¡ /tmdb/movie/278 e /imdb/show/tt0944947 â‰¡
+ * /tmdb/show/1399 (stessi corpi); tipo-sbagliato 404 â‰¡ ignoto (no retry).
  */
 
-/** IMDb utilizzabile: stringa `tt…` non vuota, senza spazi né query/fragment junk. I bare-numeric ("278") sono id TMDB, mai IMDb. */
+/** IMDb utilizzabile: stringa `ttâ€¦` non vuota, senza spazi nÃ© query/fragment junk. I bare-numeric ("278") sono id TMDB, mai IMDb. */
 export function isValidImdbId(value: unknown): value is string {
   return (
     typeof value === "string" &&
@@ -376,7 +376,7 @@ export function parseTmdbId(value: unknown): number | null {
 }
 
 /**
- * Tipo caller esplicito → segmento path TMDB; anime/assente/sconosciuto →
+ * Tipo caller esplicito â†’ segmento path TMDB; anime/assente/sconosciuto â†’
  * null (ambiguo: nessuna chiamata MDBList via TMDB, solo fallback diretti).
  */
 export function mdbTmdbSegment(mediaType: unknown): "movie" | "show" | null {
@@ -412,9 +412,9 @@ export function buildMdbRatingsUrl(imdbId: string, key: string | undefined, seg:
 }
 
 /**
- * Policy per-source minimum-votes: `PICTORIUM_RATING_MIN_VOTES` (fallback
- * legacy `POSTERIUM_*` via envWithFallback), default 10, 0 = disabilitato.
- * Tutto ciò che non è un intero non-negativo sano torna al default. Lettura
+ * Policy per-source minimum-votes: `FLAMEFORGE_RATING_MIN_VOTES` (fallback
+ * legacy `FLAMEFORGE_*` via envWithFallback), default 10, 0 = disabilitato.
+ * Tutto ciÃ² che non Ã¨ un intero non-negativo sano torna al default. Lettura
  * lazy per chiamata (test stubbano la env senza reload del modulo).
  */
 export const RATING_MIN_VOTES_DEFAULT = 10
@@ -467,7 +467,7 @@ function averageFor(sources: Record<string, number>): number {
 /**
  * Overlay del voto TMDB diretto genuino (mai aggregate salvate/query):
  * vince su MDBList ANCHE sulle cache hit. Non muta mai l'oggetto cachato
- * condiviso: ritorna la base invariata quando non c'è niente da applicare,
+ * condiviso: ritorna la base invariata quando non c'Ã¨ niente da applicare,
  * una copia altrimenti.
  */
 function withDirectTmdbOverlay(base: AggregatedRatings, vote: number | null): AggregatedRatings {
@@ -546,10 +546,10 @@ async function joinSide<T>(promise: Promise<T> | null, ms: number | undefined, f
 }
 
 /**
- * Task C — controparti osservate nel corpo risposta MDBList (solo campi id
+ * Task C â€” controparti osservate nel corpo risposta MDBList (solo campi id
  * espliciti `*_id`, mai bare `imdb`/`tmdb` che possono essere altro): evidenza
- * per l'alias-dedup della cache grezza, mai per il routing né per mutare
- * l'identità in-flight.
+ * per l'alias-dedup della cache grezza, mai per il routing nÃ© per mutare
+ * l'identitÃ  in-flight.
  */
 function observeMdbCounterparts(data: unknown): { imdb: string | null; tmdb: number | null } {
   if (typeof data !== "object" || data === null) return { imdb: null, tmdb: null }
@@ -598,7 +598,7 @@ async function fetchMdbListSourcesUpstream(
       // Daily quota exhaustion (remaining 0 + trustworthy future reset) parks
       // ONLY this key until reset: no global breaker trip (healthy other-key
       // traffic must keep flowing) and no genuine-miss flag (the title exists,
-      // the key is just spent). Any other 429 is burst throttling → existing
+      // the key is just spent). Any other 429 is burst throttling â†’ existing
       // transient handling with Retry-After backoff.
       if (!quotaIsolated && key && noteMdbQuotaExhausted429(quotaHeaders, key)) {
         return { sources: null, isGenuineMiss: false, rawTtlMs: MDB_RAW_TTL_MS }
@@ -612,7 +612,7 @@ async function fetchMdbListSourcesUpstream(
     }
     if (res.status === 401 || res.status === 403) {
       // Auth failure (bad/revoked key): transient, never a title miss and
-      // never a breaker trip — the title may exist, the credential does not.
+      // never a breaker trip â€” the title may exist, the credential does not.
       return { sources: null, isGenuineMiss: false, rawTtlMs: MDB_RAW_TTL_MS }
     }
     if (!res.ok) {
@@ -649,7 +649,7 @@ async function fetchMdbListSourcesUpstream(
         // Per-source minimum votes (field `votes` only, no aliases): ONLY a
         // known finite NON-NEGATIVE INTEGER count below the threshold filters
         // the source out. Negative/fractional/NaN/Infinity/non-numeric counts
-        // are malformed → kept as unknown (never invent a count); null/missing
+        // are malformed â†’ kept as unknown (never invent a count); null/missing
         // likewise kept. RogerEbert is exempt (votes structurally null there).
         if (src !== "rogerebert" && minVotes > 0) {
           const vt: unknown = (item as { votes?: unknown })?.votes
@@ -657,10 +657,10 @@ async function fetchMdbListSourcesUpstream(
         }
 
         // New-API contract: `score` is the numeric 0-100 normalized value for
-        // EVERY source — always /10, never the legacy >10 heuristic. Only a
+        // EVERY source â€” always /10, never the legacy >10 heuristic. Only a
         // strict finite 0-100 score normalizes (Infinity/>100/junk partial
         // strings are unavailable, never rendered). When score is null/missing
-        // the source is unavailable — EXCEPT the documented/observed
+        // the source is unavailable â€” EXCEPT the documented/observed
         // RogerEbert native 0-4 scale (verified live sample value 3.5 with
         // null score): native*2.5 there only. No generic toTen/value heuristic
         // for other sources (a missing-score trakt value in 100-scale must
@@ -697,53 +697,53 @@ async function fetchMdbListSourcesUpstream(
 // ---------------------------------------------------------------------------
 // MDBList request reduction: raw provider cache + inflight dedup.
 //
-// La risposta grezza MDBList dipende SOLO da (identità, chiave API): la
-// selezione badge (rsrc) filtra a valle, mai sull'upstream. L'identità è la
-// stringa IMDb (`tt…`) oppure `tmdb{numerico}` per il path TMDB (task C): i
-// due namespace non collidono mai (`tt…` vs `tmdb…`) e il segmento tipo
-// (movie/show/any) resta parte della chiave (film278 ≠ show278). La cache
+// La risposta grezza MDBList dipende SOLO da (identitÃ , chiave API): la
+// selezione badge (rsrc) filtra a valle, mai sull'upstream. L'identitÃ  Ã¨ la
+// stringa IMDb (`ttâ€¦`) oppure `tmdb{numerico}` per il path TMDB (task C): i
+// due namespace non collidono mai (`ttâ€¦` vs `tmdbâ€¦`) e il segmento tipo
+// (movie/show/any) resta parte della chiave (film278 â‰  show278). La cache
 // grezza riusa quindi una sola risposta di successo tra selezioni diverse
 // dello stesso imdb/key; la cache aggregata per-selezione resta invariata
-// sopra (6h). La grezza vive più a lungo: 24h di default, 7d solo per film
+// sopra (6h). La grezza vive piÃ¹ a lungo: 24h di default, 7d solo per film
 // vecchi con data di uscita + tipo affidabili dalla stessa risposta (mai
 // richieste extra, mai TMDB solo per il TTL). Solo successi (sources
 // non-vuoto); errori/abort/miss genuini non entrano mai qui (i miss genuini
 // restano nella negative cache per-selezione) e quindi non raggiungono mai
 // la KV.
-// Alias-dedup (task C): quando il caller conosce GIÀ una coppia IMDb+TMDB
+// Alias-dedup (task C): quando il caller conosce GIÃ€ una coppia IMDb+TMDB
 // (stessa chiamata: imdbId + tmdbId con tipo esplicito) oppure il corpo
 // risposta osserva la controparte, il successo scrive ANCHE la entry grezza
 // della controparte (stesse sources, stesso TTL, nessuna fetch extra).
-// Coppia nota SIMULTANEA: la entry owned è pre-registrata sotto entrambe le
-// chiavi (primaria + controparte caller-known, ≤2 chiavi bounded, rimosse al
-// settle) e il join vale in entrambi gli ordini di arrivo — una sola fetch,
+// Coppia nota SIMULTANEA: la entry owned Ã¨ pre-registrata sotto entrambe le
+// chiavi (primaria + controparte caller-known, â‰¤2 chiavi bounded, rimosse al
+// settle) e il join vale in entrambi gli ordini di arrivo â€” una sola fetch,
 // trasporto del primo arrivato (IMDb-first quando il primo ha l'IMDb, TMDB
-// quando solo il primo ha TMDB), stessa identità owned immutabile, abort di
+// quando solo il primo ha TMDB), stessa identitÃ  owned immutabile, abort di
 // un subscriber non interrompe l'altro. Il joiner via controparte pubblica
 // la propria chiave dopo il successo condiviso solo a evidenza unanime E solo
 // su successo upstream fresco (correction-2: un risultato idratato dalla
-// cache — KV/disco/L1 vicino alla scadenza — serve il joiner senza nuove
+// cache â€” KV/disco/L1 vicino alla scadenza â€” serve il joiner senza nuove
 // scritture alias, mai con un TTL fresco che rinnovrebbe la scadenza
 // assoluta originale); se
-// la risposta condivisa smentisce la sua pretesa non consuma né pubblica
-// nulla e rifetcha sotto la propria identità (coppie in conflitto: due fetch,
+// la risposta condivisa smentisce la sua pretesa non consuma nÃ© pubblica
+// nulla e rifetcha sotto la propria identitÃ  (coppie in conflitto: due fetch,
 // nessun alias maligno in nessuna cache).
 // Evidenza unanime o niente: se caller e risposta osservata si contraddicono,
 // le entry restano intenzionalmente separate (mai coalescing maligno, mai
-// mutazione dell'identità in-flight sulla base della risposta, mai mappa
+// mutazione dell'identitÃ  in-flight sulla base della risposta, mai mappa
 // alias illimitata, mai richieste di risoluzione id). Coppie ignote restano
 // entry separate documentate. Riuso sequenziale (correction-2): una entry
 // TMDB-only cachata in precedenza (senza IMDb osservato, quindi senza alias)
 // serve poi una coppia caller-known IMDb+TMDB senza nuova fetch e SENZA
 // copia sulla chiave primaria (nessun rinnovo della scadenza assoluta).
-// Persistenza al restart: la cacheSet grezza scrive già in KV L2 con
+// Persistenza al restart: la cacheSet grezza scrive giÃ  in KV L2 con
 // envelope timestamp+TTL assoluti (stessa integrazione esistente degli altri
 // namespace); la lettura idrata da KV su miss L1 conservando la scadenza
 // originale (mai sliding). In file-mode (VPS senza KV) la stessa semantica
-// vive su disco via lib/mdblist-raw-cache.ts (un JSON per identità sotto
+// vive su disco via lib/mdblist-raw-cache.ts (un JSON per identitÃ  sotto
 // DATA_DIR/mdblist-raw, TTL assoluto conservato, solo successi, fail-open):
 // idratazione posseduta dentro l'operazione condivisa, write fire-and-forget.
-// Isolamento identità+hash-chiave (`tt…` o `tmdb…`), mai plaintext.
+// Isolamento identitÃ +hash-chiave (`ttâ€¦` o `tmdbâ€¦`), mai plaintext.
 // ---------------------------------------------------------------------------
 
 /** Freschezza di default della cache grezza MDBList: 24h. */
@@ -766,7 +766,7 @@ function mdbResponseYear(rec: Record<string, unknown>): number | null {
  * Strict parse of a `released` value: Date.parse normalizes impossible ISO
  * calendar dates (e.g. 2020-02-30 becomes Mar 1) instead of returning NaN,
  * which would wrongly grant the 7d TTL. When an ISO date prefix is present
- * its components must form a real calendar date, otherwise NaN (→ 24h).
+ * its components must form a real calendar date, otherwise NaN (â†’ 24h).
  * Non-ISO strings fall back to Date.parse as-is.
  */
 function parseMdbReleasedMs(value: string): number {
@@ -783,10 +783,10 @@ function parseMdbReleasedMs(value: string): number {
 }
 
 /**
- * Anno che dimostra da solo un'età oltre la finestra recente: l'uscita può
+ * Anno che dimostra da solo un'etÃ  oltre la finestra recente: l'uscita puÃ²
  * essere tarda fino al 31 dicembre dell'anno, quindi l'anno prova >14 giorni
  * solo dall'anno successivo in poi con margine (15 gennaio in UTC, stessa
- * convenzione pass-only dei badge novità ma dal lato prudente).
+ * convenzione pass-only dei badge novitÃ  ma dal lato prudente).
  */
 function isReliablyOldYear(year: number, nowMs: number): boolean {
   const nowYear = new Date(nowMs).getUTCFullYear()
@@ -799,10 +799,10 @@ function isReliablyOldYear(year: number, nowMs: number): boolean {
 }
 
 /**
- * TTL grezzo per una risposta MDBList già scaricata (shape `data`, dopo
+ * TTL grezzo per una risposta MDBList giÃ  scaricata (shape `data`, dopo
  * l'unwrap `raw?.data ?? raw` dell'upstream): 7d SOLO per film con tipo
  * affidabile "movie" e uscita affidabile oltre la finestra recente
- * (TWO_WEEKS_MS, stessa dei badge novità); 24h in ogni altro caso — serie
+ * (TWO_WEEKS_MS, stessa dei badge novitÃ ); 24h in ogni altro caso â€” serie
  * (anche concluse), tipo mancante/sconosciuto, data mancante/futura/non
  * parsabile. Pura e senza rete: i metadati temporali vengono dalla risposta
  * esistente, mai da fetch extra. Le serie restano sempre a 24h (niente 7d).
@@ -814,14 +814,14 @@ export function mdbRawTtlForData(data: unknown, nowMs: number = Date.now()): num
   if (rec.show === true) return MDB_RAW_TTL_MS
   // Conservative explicit fields only: no checked-in fixture documents
   // aliases for the detail endpoint, so only `type` (exactly "movie",
-  // case-insensitive — never film/films/movies/...) counts. Unknown type
+  // case-insensitive â€” never film/films/movies/...) counts. Unknown type
   // keys (mediatype/media_type/kind) never grant the old-movie TTL.
   const rawType = rec.type
   if (typeof rawType !== "string" || rawType.trim().toLowerCase() !== "movie") return MDB_RAW_TTL_MS
   const releasedRaw = rec.released
   const released = typeof releasedRaw === "string" && releasedRaw.trim() ? releasedRaw.trim() : null
   if (released !== null) {
-    // Data anno-solo ("1994"): tratta come anno, non come 1° gennaio.
+    // Data anno-solo ("1994"): tratta come anno, non come 1Â° gennaio.
     const yearOnly = /^\d{4}$/.test(released) ? parseInt(released, 10) : NaN
     if (Number.isFinite(yearOnly)) {
       return isReliablyOldYear(yearOnly, nowMs) ? MDB_RAW_OLD_MOVIE_TTL_MS : MDB_RAW_TTL_MS
@@ -836,9 +836,9 @@ export function mdbRawTtlForData(data: unknown, nowMs: number = Date.now()): num
 }
 
 /**
- * Chiave grezza per identità MDBList: `identity` è la stringa IMDb (`tt…`)
- * oppure `tmdb{numerico}` per il path TMDB (mai bare-numeric: `tt…` vs
- * `tmdb…` non collidono mai; il segmento tipo isola film278 da show278).
+ * Chiave grezza per identitÃ  MDBList: `identity` Ã¨ la stringa IMDb (`ttâ€¦`)
+ * oppure `tmdb{numerico}` per il path TMDB (mai bare-numeric: `ttâ€¦` vs
+ * `tmdbâ€¦` non collidono mai; il segmento tipo isola film278 da show278).
  */
 function mdbRawCacheKey(identity: string, key: string | undefined, seg: MdbMediaSegment, minVotes: number): string {
   const keyHash = key ? crypto.createHash("sha1").update(key).digest("hex").slice(0, 8) : "nomk"
@@ -851,7 +851,7 @@ interface MdbRawInflight {
   subscribers: number
   settled: boolean
   /** Chiavi che puntano a questa entry: primaria + eventuale controparte
-   * caller-known (coppia IMDb+TMDB già nota). Sempre bounded (≤2). */
+   * caller-known (coppia IMDb+TMDB giÃ  nota). Sempre bounded (â‰¤2). */
   keys: string[]
 }
 
@@ -879,14 +879,14 @@ function transientMdbResult(): MdbListFetchResult {
 }
 
 /**
- * Task C — chiavi grezze alias per una coppia IMDb+TMDB affidabile. Ritorna al
+ * Task C â€” chiavi grezze alias per una coppia IMDb+TMDB affidabile. Ritorna al
  * massimo la chiave della controparte (mai la primaria stessa). Regole:
  * - primaria IMDb: alias `tmdb{n}` sotto tmdbSeg (richiede tipo esplicito);
  *   candidati il tmdb del caller e/o quello osservato nella risposta; se
- *   entrambi presenti ma diversi → conflitto → nessun alias;
+ *   entrambi presenti ma diversi â†’ conflitto â†’ nessun alias;
  * - primaria TMDB (gira solo senza IMDb): alias IMDb sotto mdbSeg dal solo id
  *   osservato nella risposta.
- * Entrambi i lati sono già validati (mai bare-numeric, mai tt fabbricati).
+ * Entrambi i lati sono giÃ  validati (mai bare-numeric, mai tt fabbricati).
  */
 function mdbAliasRawKeys(
   primary: "imdb" | "tmdb",
@@ -915,16 +915,16 @@ function mdbAliasRawKeys(
 }
 
 /**
- * Ingresso unico all'upstream MDBList: cache grezza per identità
+ * Ingresso unico all'upstream MDBList: cache grezza per identitÃ 
  * (imdbId o `tmdb{id}`+key hash, vedi mdbRawCacheKey) + coalescing delle fetch
- * concorrenti sulla stessa identità. Task C: l'IMDb vince quando presente
+ * concorrenti sulla stessa identitÃ . Task C: l'IMDb vince quando presente
  * (stesso path/chiavi/ordine di prima); senza IMDb ma con TMDB id + tipo
- * esplicito si usa il path tipizzato TMDB; senza nessuna identità utilizzabile
+ * esplicito si usa il path tipizzato TMDB; senza nessuna identitÃ  utilizzabile
  * si ritorna transient senza toccare la rete. L'upstream gira sul signal
  * POSSEDUTO dall'inflight (mai sul signal del chiamante): l'abort/timeout di
  * un subscriber interrompe solo la sua attesa (raceWithAbort), mai il lavoro
- * altrui. L'owned controller è abortito solo quando resta senza subscriber
- * oppure alla scadenza del timeout interno (fetchMdbListSourcesUpstream ha già
+ * altrui. L'owned controller Ã¨ abortito solo quando resta senza subscriber
+ * oppure alla scadenza del timeout interno (fetchMdbListSourcesUpstream ha giÃ 
  * MDBLIST_TIMEOUT_MS), quindi niente leak oltre il timeout. Errori/abort non
  * sono mai cachati.
  */
@@ -956,7 +956,7 @@ async function fetchMdbListSources(
   if (hit) return { sources: { ...hit }, isGenuineMiss: false, rawTtlMs: MDB_RAW_TTL_MS, hydrated: true }
   if (signal?.aborted) return transientMdbResult()
 
-  // Controparte caller-known (coppia IMDb+TMDB GIÀ nota al caller, nessuna
+  // Controparte caller-known (coppia IMDb+TMDB GIÃ€ nota al caller, nessuna
   // risoluzione/alias verificato, nessuna rete): stessa key/policy/seg-tipo
   // tipizzato della controparte TMDB-only. Solo primaria IMDb con tmdb
   // affidabile + tipo esplicito; mai per lookup TMDB-only (nessuna pretesa
@@ -968,7 +968,7 @@ async function fetchMdbListSources(
   const counterpartKey =
     callerCounterpartKey !== null && callerCounterpartKey !== rawKey ? callerCounterpartKey : null
 
-  // Task C correction-2 — sequential counterpart reuse without renewal: a
+  // Task C correction-2 â€” sequential counterpart reuse without renewal: a
   // TMDB-only entry cached earlier (no observed IMDb, hence no alias) still
   // serves a later caller-known IMDb+TMDB pair with zero fresh network.
   // Served WITHOUT copying: no cacheSet on the primary key and no disk
@@ -1000,23 +1000,23 @@ async function fetchMdbListSources(
   // (coppia nota simultanea, in entrambi gli ordini di arrivo). Il trasporto
   // resta quello del PRIMO arrivato (IMDb-first quando il primo ha l'IMDb,
   // TMDB quando solo il primo ha TMDB): nessuna seconda fetch, nessuna
-  // mutazione dell'identità owned.
+  // mutazione dell'identitÃ  owned.
   const direct = mdbRawInflight.get(rawKey)
   const existing = direct ?? (counterpartKey !== null ? mdbRawInflight.get(counterpartKey) : undefined)
   if (existing) {
-    // Mai accodarsi a una entry il cui owned è già abortito: l'upstream
-    // orfano può restare pendente (es. parsing body dopo l'abort) finché non
+    // Mai accodarsi a una entry il cui owned Ã¨ giÃ  abortito: l'upstream
+    // orfano puÃ² restare pendente (es. parsing body dopo l'abort) finchÃ© non
     // si sistema, ma il retry deve partire fresco.
     if (existing.controller.signal.aborted) {
       unregisterMdbRawInflight(existing)
     } else {
-      // Join via controparte (entry owned altrui, la cui chiave primaria è
+      // Join via controparte (entry owned altrui, la cui chiave primaria Ã¨
       // diversa dalla mia: pre-registrazione alias o controparte caller-known).
       // A evidenza unanime il joiner con coppia nota pubblica la propria
       // chiave dopo il successo condiviso (vedi sotto); se la risposta
       // condivisa SMENTISCE la pretesa del joiner (osservato vs caller in
-      // conflitto) il joiner non consuma né pubblica nulla e rifetcha sotto
-      // la propria identità (mai alias maligno, mai avvelenamento
+      // conflitto) il joiner non consuma nÃ© pubblica nulla e rifetcha sotto
+      // la propria identitÃ  (mai alias maligno, mai avvelenamento
       // dell'aggregata altrui).
       const joinedViaCounterpart = existing.keys[0] !== rawKey
       existing.subscribers += 1
@@ -1026,7 +1026,7 @@ async function fetchMdbListSources(
       } catch {
         shared = null
       }
-      // Release prima di ogni eventuale create proprio (la entry condivisa è
+      // Release prima di ogni eventuale create proprio (la entry condivisa Ã¨
       // settled a questo punto: nessun abort/unregister collaterale).
       releaseSubscriber(existing, existing.controller)
       if (shared !== null) {
@@ -1045,7 +1045,7 @@ async function fetchMdbListSources(
         if (!conflicts) return shared
         // Conflitto: cade sotto alla creazione di una entry propria (stesso
         // flusso del retry post-abort: nessuna attesa sulla entry smentita,
-        // la cui unregister è già avvenuta al settle).
+        // la cui unregister Ã¨ giÃ  avvenuta al settle).
       } else {
         return transientMdbResult()
       }
@@ -1060,15 +1060,15 @@ async function fetchMdbListSources(
   const entryKeys = counterpartKey !== null ? [rawKey, counterpartKey] : [rawKey]
   const entry: MdbRawInflight = { promise: shared, controller, subscribers: 1, settled: false, keys: entryKeys }
   // Pre-registrazione della controparte caller-known sotto la STESSA entry
-  // owned (nessuna mappa alias illimitata: ≤2 chiavi, rimosse al settle):
+  // owned (nessuna mappa alias illimitata: â‰¤2 chiavi, rimosse al settle):
   // il TMDB-only simultaneo trova la fetch IMDb-first e la condivide.
   for (const k of entryKeys) mdbRawInflight.set(k, entry)
 
   void (async () => {
     try {
       // Recheck L1 dentro l'operazione posseduta: la lookup veloce
-      // pre-inflight resta, ma un'altra path può aver popolato la L1 nel
-      // frattempo — mai rifetchare ciò che è già cachato.
+      // pre-inflight resta, ma un'altra path puÃ² aver popolato la L1 nel
+      // frattempo â€” mai rifetchare ciÃ² che Ã¨ giÃ  cachato.
       const innerHit = cacheGet<Record<string, number>>(rawKey)
       if (innerHit) {
         entry.settled = true
@@ -1076,9 +1076,9 @@ async function fetchMdbListSources(
         return
       }
       // Idratazione L2 POSSEDUTA dall'operazione condivisa (mai prima della
-      // registrazione inflight): i caller concorrenti — anche sfalsati mentre
-      // la KV è pendente — condividono UNA sola lookup KV e al massimo UN solo
-      // upstream. La wait KV è limitata dal timeout interno KV; ogni
+      // registrazione inflight): i caller concorrenti â€” anche sfalsati mentre
+      // la KV Ã¨ pendente â€” condividono UNA sola lookup KV e al massimo UN solo
+      // upstream. La wait KV Ã¨ limitata dal timeout interno KV; ogni
       // subscriber lascia comunque sul proprio budget via raceWithAbort senza
       // mai abortire il lavoro altrui (l'owned cade solo a zero subscriber).
       if (controller.signal.aborted || entry.subscribers <= 0) {
@@ -1088,7 +1088,7 @@ async function fetchMdbListSources(
       }
       const l2 = await cacheGetShared<Record<string, number>>(rawKey, ["mdb"])
       // Dopo la KV: niente richiesta MDB senza subscriber attivi. Una hit L2
-      // ha già ripopolato la L1 per i caller futuri; una miss si risolve
+      // ha giÃ  ripopolato la L1 per i caller futuri; una miss si risolve
       // transient senza toccare l'upstream.
       if (controller.signal.aborted || entry.subscribers <= 0) {
         entry.settled = true
@@ -1102,20 +1102,20 @@ async function fetchMdbListSources(
         return
       }
       // Recheck L1 post-idratazione: la read KV ripopola la L1 su hit (caso
-      // già ritornato sopra); su miss un'altra operazione settled nel
-      // frattempo può aver cachato — mai duplicare una fetch riuscita.
+      // giÃ  ritornato sopra); su miss un'altra operazione settled nel
+      // frattempo puÃ² aver cachato â€” mai duplicare una fetch riuscita.
       const afterHydration = cacheGet<Record<string, number>>(rawKey)
       if (afterHydration) {
         entry.settled = true
         resolveShared({ sources: { ...afterHydration }, isGenuineMiss: false, rawTtlMs: MDB_RAW_TTL_MS, hydrated: true })
         return
       }
-      // Persistenza locale L2 (solo file-mode: in KV è un no-op immediato,
-      // senza I/O né latenza): idratazione posseduta dentro l'operazione
-      // condivisa, come la KV sopra — un solo read disco per identità
+      // Persistenza locale L2 (solo file-mode: in KV Ã¨ un no-op immediato,
+      // senza I/O nÃ© latenza): idratazione posseduta dentro l'operazione
+      // condivisa, come la KV sopra â€” un solo read disco per identitÃ 
       // concorrente, scadenza assoluta conservata (la L1 si ripopola col
       // residuo, mai sliding). Probe ASINCRONA di un singolo piccolo file
-      // (≤64KiB): dopo l'await vale la stessa guardia subscriber — senza
+      // (â‰¤64KiB): dopo l'await vale la stessa guardia subscriber â€” senza
       // subscriber attivi (o con owned abortito, es. lettura lenta e caller
       // cancellati) niente upstream MDB. Una hit legittima evita
       // correttamente l'upstream (cache hit, non fetch sprecato).
@@ -1123,8 +1123,8 @@ async function fetchMdbListSources(
       if (controller.signal.aborted || entry.subscribers <= 0) {
         entry.settled = true
         // Hit tardiva dopo la cancellazione: dato genuino della stessa
-        // identità (qualunque retry lo rileggerebbe dal disco), quindi
-        // convergenza — non poison. Il poison (risultati upstream orfani) non
+        // identitÃ  (qualunque retry lo rileggerebbe dal disco), quindi
+        // convergenza â€” non poison. Il poison (risultati upstream orfani) non
         // scrive mai: vedi guardia sotto.
         if (persisted) {
           cacheSet(rawKey, { ...persisted.sources }, ["mdb"], persisted.remainingTtlMs)
@@ -1151,9 +1151,9 @@ async function fetchMdbListSources(
       }
       const result = await fetchMdbListSourcesUpstream(upstreamUrl, key, controller.signal)
       // Mai avvelenare la cache grezza con un completamento tardivo dopo la
-      // cancellazione: se l'owned è abortito o non resta alcun subscriber, il
+      // cancellazione: se l'owned Ã¨ abortito o non resta alcun subscriber, il
       // risultato orfano si risolve solo sulla vecchia promise (nessun nuovo
-      // waiter lo riceve: il retry usa già una entry fresca) senza scrivere.
+      // waiter lo riceve: il retry usa giÃ  una entry fresca) senza scrivere.
       if (result.sources && !controller.signal.aborted && entry.subscribers > 0) {
         cacheSet(rawKey, { ...result.sources }, ["mdb"], result.rawTtlMs)
         // L2 locale fire-and-forget (solo file-mode, no-op in KV): mai attesa
@@ -1161,7 +1161,7 @@ async function fetchMdbListSources(
         // subscriber = niente scrittura), solo successi con TTL assoluto.
         void setPersistedMdbRaw(rawKey, result.sources, result.rawTtlMs).catch(() => {})
         // Alias-dedup (task C): solo successi, stessa key/policy/TTL, nessuna
-        // fetch extra. Evidenza unanime: il caller conosceva già la coppia
+        // fetch extra. Evidenza unanime: il caller conosceva giÃ  la coppia
         // (imdbId + tmdbId con tipo esplicito) e/o il corpo risposta osserva la
         // controparte; in caso di conflitto le entry restano separate.
         for (const aliasKey of mdbAliasRawKeys(useImdb ? "imdb" : "tmdb", lookup, mdbSeg, tmdbSeg, minVotes, key, result, rawKey)) {
@@ -1194,7 +1194,7 @@ export async function fetchAggregatedRating(
   signal?: AbortSignal,
   opts?: FetchAggregatedOptions
 ): Promise<AggregatedRatings | null> {
-  // Task C — identità: l'IMDb valido (`tt…`) resta l'unica via MDBList quando
+  // Task C â€” identitÃ : l'IMDb valido (`ttâ€¦`) resta l'unica via MDBList quando
   // presente; senza, TMDB id numerico + tipo esplicito abilita il path TMDB.
   // I bare-numeric non sono mai IMDb (niente tt fabbricati) e non vengono mai
   // passati come IMDb ai direct provider/Cinemeta (solo tmdbId normalizzato).
@@ -1202,7 +1202,7 @@ export async function fetchAggregatedRating(
   const tmdbNum = parseTmdbId(opts?.tmdbId)
   const tmdbMdbUsable = tmdbNum !== null && mdbTmdbSegment(opts?.mediaType ?? null) !== null
   const hasMdbIdentity = cleanImdb !== null || tmdbMdbUsable
-  // Identità cache aggregata: byte-identica a prima con IMDb (`tt…`), `tmdb{n}`
+  // IdentitÃ  cache aggregata: byte-identica a prima con IMDb (`ttâ€¦`), `tmdb{n}`
   // senza (mai bare-numeric: impossibile collidere con un IMDb).
   const mdbIdentity = cleanImdb ?? (tmdbNum !== null ? `tmdb${tmdbNum}` : "noid")
 
@@ -1212,7 +1212,7 @@ export async function fetchAggregatedRating(
   const selSet = selection ? new Set(selection) : null
 
   // Con selezione esplicita la selezione vince sui flag: niente upstream per
-  // fonti non richieste (difesa in profondità se un caller passa flag stantii).
+  // fonti non richieste (difesa in profonditÃ  se un caller passa flag stantii).
   const effWantSimkl = selSet ? selSet.has("simkl") && !!opts?.simklKey?.trim() : !!(opts?.wantSimkl && opts?.simklKey?.trim())
   const effWantAnilist = selSet ? selSet.has("anilist") : !!opts?.wantAnilist
   const effWantKitsu = selSet ? selSet.has("kitsu") : !!opts?.wantKitsu
@@ -1231,16 +1231,16 @@ export async function fetchAggregatedRating(
   const familyDirectOnly = !!selSet && needsMdblist && !hasMdblistExclusive
 
   // Solo voto TMDB genuino diretto (details.vote_average): mai medie
-  // congelate da mapping/query come "nativo". Vale solo dove tmdb è
+  // congelate da mapping/query come "nativo". Vale solo dove tmdb Ã¨
   // richiesto (legacy) o esplicito in selezione.
   const directVote = isGenuineDirectVote(opts?.tmdbFallbackVote) ? (opts?.tmdbFallbackVote as number) : null
   const allowDirectOverlay = !selSet || selSet.has("tmdb")
   const effectiveDirectVote = allowDirectOverlay ? directVote : null
 
-  // Senza identità MDBList, senza tmdbId e senza voto diretto: null senza
+  // Senza identitÃ  MDBList, senza tmdbId e senza voto diretto: null senza
   // alcun upstream. Con tmdbId ma tipo ambiguo per MDBList (o senza voto
   // diretto) si prosegue: niente MDBList, ma i direct provider capaci
-  // (Simkl/Anime via tmdbId) restano disponibili più sotto.
+  // (Simkl/Anime via tmdbId) restano disponibili piÃ¹ sotto.
   if (!hasMdbIdentity && tmdbNum === null && effectiveDirectVote === null) return null
 
   const overallMs = clampOverallBudget(opts?.ratingWaitMs)
@@ -1249,7 +1249,7 @@ export async function fetchAggregatedRating(
     overallMs === null ? undefined : Math.max(0, overallMs - (Date.now() - startedAt))
   // Il primario riceve una share limitata del budget complessivo (60%): il
   // fallback riceve il resto (40%) e resta genuinamente utilizzabile anche
-  // a budget minimo (300ms → 180 primario + 120 fallback, nessun floor).
+  // a budget minimo (300ms â†’ 180 primario + 120 fallback, nessun floor).
   const primaryShareMs = (): number | undefined => {
     if (overallMs === null) return undefined
     const rem = Math.max(0, overallMs - (Date.now() - startedAt))
@@ -1257,7 +1257,7 @@ export async function fetchAggregatedRating(
     return Math.min(rem, Math.floor(overallMs * PRIMARY_BUDGET_SHARE))
   }
 
-  // Solo la chiave esplicita della richiesta: non esiste più chiave d'istanza per MDBList.
+  // Solo la chiave esplicita della richiesta: non esiste piÃ¹ chiave d'istanza per MDBList.
   const key = apiKey
   // Segmento tipo-media + policy min-votes isolano la cache per endpoint e
   // per policy (mai riuso legacy Altro-tipo/altra-policy: v3 + movie/show/any
@@ -1266,7 +1266,7 @@ export async function fetchAggregatedRating(
   const minVotesPolicy = resolveRatingMinVotes()
   const keyHash = key ? crypto.createHash("sha1").update(key).digest("hex").slice(0, 8) : "nomk"
   const simklHash = effWantSimkl && opts?.simklKey ? crypto.createHash("sha1").update(opts.simklKey.trim()).digest("hex").slice(0, 8) : "nosk"
-  // Le fonti anime cambiano i sources → parte del cache key (flag, mai ID).
+  // Le fonti anime cambiano i sources â†’ parte del cache key (flag, mai ID).
   // Stesso per wantImdb (Cinemeta): senza, togglare rsrc in editor servirebbe
   // entry con/senza imdb a caso dentro le 6h di TTL.
   // Il lato TMDB entra nella chiave quando le fonti anime sono attive: gli id
@@ -1297,8 +1297,8 @@ export async function fetchAggregatedRating(
     ratingsNullAt.delete(cacheKey)
   }
 
-  // TMDB-only con voto diretto genuino: zero upstream di rating (né MDBList
-  // né Cinemeta né TMDB: il voto è già in mano al caller). Mai in cache
+  // TMDB-only con voto diretto genuino: zero upstream di rating (nÃ© MDBList
+  // nÃ© Cinemeta nÃ© TMDB: il voto Ã¨ giÃ  in mano al caller). Mai in cache
   // success: congelarlo maschererebbe il recovery del provider.
   if (selSet && selection!.length === 1 && selection![0] === "tmdb" && effectiveDirectVote !== null) {
     const rounded = roundVote(effectiveDirectVote)
@@ -1347,7 +1347,7 @@ export async function fetchAggregatedRating(
     // Ramo famiglia+diretti (solo imdb/tmdb + simkl/anilist/kitsu, nessuna
     // fonte MDBList-exclusive): Cinemeta primario con share limitata per
     // imdb, join dei direct provider sul residuo, MDBList solo per gli
-    // irrisolti imdb/tmdb. Mai chiamate TMDB extra: il tmdb o è diretto
+    // irrisolti imdb/tmdb. Mai chiamate TMDB extra: il tmdb o Ã¨ diretto
     // (overlay non cachato) o arriva dal fallback MDBList. La cache tiene
     // SOLO la base provider (mai il voto diretto request-specific).
     if (familyDirectOnly) {
@@ -1368,7 +1368,7 @@ export async function fetchAggregatedRating(
         }
       }
       let mdbGenuineMiss = false
-      // tmdb diretto già risolto via overlay: non richiede fallback MDBList.
+      // tmdb diretto giÃ  risolto via overlay: non richiede fallback MDBList.
       const needFallback =
         (selSet!.has("imdb") && base.imdb === undefined) ||
         (selSet!.has("tmdb") && base.tmdb === undefined && effectiveDirectVote === null)
@@ -1406,8 +1406,8 @@ export async function fetchAggregatedRating(
         if (typeof animeRatings?.kitsu === "number") base.kitsu = animeRatings.kitsu
       }
       if (Object.keys(base).length > 0) {
-        // Con voto diretto il fallback MDBList per tmdb è saltato: la base
-        // è parziale (manca il tmdb provider). Non cacharla: congelarla
+        // Con voto diretto il fallback MDBList per tmdb Ã¨ saltato: la base
+        // Ã¨ parziale (manca il tmdb provider). Non cacharla: congelarla
         // servirebbe la parziale anche alle chiamate senza nativo.
         if (effectiveDirectVote !== null && selSet!.has("tmdb")) {
           const uncached: AggregatedRatings = { sources: { ...base }, average: averageFor(base), count: Object.keys(base).length }
@@ -1428,7 +1428,7 @@ export async function fetchAggregatedRating(
     }
 
     // Ramo direct-only (solo simkl/anilist/kitsu): zero MDBList, zero
-    // Cinemeta. MAL resta MDBList e non entra mai qui (è covered).
+    // Cinemeta. MAL resta MDBList e non entra mai qui (Ã¨ covered).
     if (!needsMdblist) {
       const simklP = effWantSimkl
         ? fetchSimklRating(cleanImdb, opts!.simklKey!, { tmdbId: tmdbNum, mediaType: opts?.mediaType, signal: upstream }).catch(() => null)
@@ -1455,7 +1455,7 @@ export async function fetchAggregatedRating(
 
     // Ramo primario MDBList (legacy all-source + selezioni con fonti
     // MDBList-exclusive): side diretti lanciati subito ma joinati DOPO il
-    // fallback IMDb — il fallback sequenziale non resta mai dietro la
+    // fallback IMDb â€” il fallback sequenziale non resta mai dietro la
     // Promise.all dei side provider.
     const simklP = effWantSimkl
       ? fetchSimklRating(cleanImdb, opts!.simklKey!, { tmdbId: tmdbNum, mediaType: opts?.mediaType, signal: upstream }).catch(() => null)
@@ -1542,3 +1542,4 @@ export async function fetchAggregatedRating(
     cleanupBudget()
   }
 }
+

@@ -242,24 +242,24 @@ describe("POST /api/poster-fit", () => {
 
 describe("POST /api/poster-fit — auth (S10)", () => {
   afterEach(() => {
-    delete process.env.POSTERIUM_ADMIN_TOKEN
+    delete process.env.FLAMEFORGE_ADMIN_TOKEN
     delete process.env.ADMIN_TOKEN
-    process.env.POSTERIUM_PUBLIC_INSTANCE = "1"
+    process.env.FLAMEFORGE_PUBLIC_INSTANCE = "1"
     vi.restoreAllMocks()
   })
 
   it("returns 401 without a valid admin token when one is configured", async () => {
-    process.env.POSTERIUM_ADMIN_TOKEN = "secret"
+    process.env.FLAMEFORGE_ADMIN_TOKEN = "secret"
     const req = mockNextRequest({ posterPaths: ["/test.jpg"], logoPath: "/logo.png" })
     const res = await POST(req)
     expect(res.status).toBe(401)
   })
 
-  it("returns 401 in production without POSTERIUM_PUBLIC_INSTANCE (fail-closed, caso HF/Vercel)", async () => {
+  it("returns 401 in production without FLAMEFORGE_PUBLIC_INSTANCE (fail-closed, caso HF/Vercel)", async () => {
     // Regressione: in locale (NODE_ENV=development) le route admin sono aperte,
-    // ma in produzione senza POSTERIUM_PUBLIC_INSTANCE=1 (o ADMIN_TOKEN) il
+    // ma in produzione senza FLAMEFORGE_PUBLIC_INSTANCE=1 (o ADMIN_TOKEN) il
     // best-fit UI risponde 401 → l'editor non mostra il poster migliore.
-    delete process.env.POSTERIUM_PUBLIC_INSTANCE
+    delete process.env.FLAMEFORGE_PUBLIC_INSTANCE
     vi.stubEnv("NODE_ENV", "production")
     const req = mockNextRequest({ posterPaths: ["/test.jpg"], logoPath: "/logo.png" })
     const res = await POST(req)
@@ -267,7 +267,7 @@ describe("POST /api/poster-fit — auth (S10)", () => {
   })
 
   it("accepts the request with a valid x-admin-token", async () => {
-    process.env.POSTERIUM_ADMIN_TOKEN = "secret"
+    process.env.FLAMEFORGE_ADMIN_TOKEN = "secret"
     const posterBuf = await makePosterBuffer(20, 20, 30)
     const logoBuf = await makeLogoBuffer(255, 255, 255)
     vi.stubGlobal("fetch", vi.fn(async (url: string) => {
@@ -283,3 +283,4 @@ describe("POST /api/poster-fit — auth (S10)", () => {
     expect(res.status).toBe(200)
   })
 })
+

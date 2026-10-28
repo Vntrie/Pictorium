@@ -102,18 +102,18 @@ describe("Custom Catalogs & MDBList Parsing", () => {
             enabled: true,
           },
         ],
-        disabledCatalogIds: ["pictorium-jw-movies"],
+        disabledCatalogIds: ["FlameForge-jw-movies"],
       })
 
-      const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+      const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
       const res = await buildManifestResponse(req, null, token)
       const data = await res.json()
 
       expect(data.catalogs).toBeDefined()
-      // Should exclude disabled pictorium-jw-movies
-      expect(data.catalogs.some((c: { id: string }) => c.id === "pictorium-jw-movies")).toBe(false)
+      // Should exclude disabled FlameForge-jw-movies
+      expect(data.catalogs.some((c: { id: string }) => c.id === "FlameForge-jw-movies")).toBe(false)
       // Should include custom catalog
-      const custom = data.catalogs.find((c: { id: string }) => c.id === "pictorium-custom-movie-sky-now-1")
+      const custom = data.catalogs.find((c: { id: string }) => c.id === "FlameForge-custom-movie-sky-now-1")
       expect(custom).toBeDefined()
       expect(custom?.name).toBe("Sky & NOW — Top 10")
       expect(custom?.type).toBe("movie")
@@ -138,12 +138,12 @@ describe("Custom Catalogs & MDBList Parsing", () => {
         catalogRenames: { "posterium-anime": "Anime Legacy" },
       })
 
-      const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+      const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
       const res = await buildManifestResponse(req, null, token)
       const data = await res.json()
 
-      expect(data.catalogs.some((c: { id: string }) => c.id === "pictorium-jw-movies")).toBe(false)
-      const anime = data.catalogs.find((c: { id: string }) => c.id === "pictorium-anime")
+      expect(data.catalogs.some((c: { id: string }) => c.id === "FlameForge-jw-movies")).toBe(false)
+      const anime = data.catalogs.find((c: { id: string }) => c.id === "FlameForge-anime")
       expect(anime?.name).toBe("Anime Legacy")
     })
 
@@ -171,12 +171,12 @@ describe("Custom Catalogs & MDBList Parsing", () => {
         ],
       })
 
-      const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+      const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
       const res = await buildManifestResponse(req, null, token)
       const data = await res.json()
 
-      const movieCat = data.catalogs.find((c: { id: string }) => c.id === "pictorium-custom-movie-mixed-watchlist")
-      const seriesCat = data.catalogs.find((c: { id: string }) => c.id === "pictorium-custom-series-mixed-watchlist")
+      const movieCat = data.catalogs.find((c: { id: string }) => c.id === "FlameForge-custom-movie-mixed-watchlist")
+      const seriesCat = data.catalogs.find((c: { id: string }) => c.id === "FlameForge-custom-series-mixed-watchlist")
 
       expect(movieCat).toBeDefined()
       expect(movieCat?.name).toBe("I Miei Preferiti — Film")
@@ -201,36 +201,36 @@ describe("Custom Catalogs & MDBList Parsing", () => {
         networkLogo: true,
         autoRotateClean: true,
         catalogOrder: [
-          "pictorium-anime",
-          "pictorium-netflix-movies",
-          "pictorium-jw-movies",
+          "FlameForge-anime",
+          "FlameForge-netflix-movies",
+          "FlameForge-jw-movies",
         ],
         catalogRenames: {
-          "pictorium-netflix-movies": "🔴 Super Netflix Film",
-          "pictorium-anime": "⛩️ Anime Popolari",
+          "FlameForge-netflix-movies": "🔴 Super Netflix Film",
+          "FlameForge-anime": "⛩️ Anime Popolari",
         },
       })
 
-      const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+      const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
       const res = await buildManifestResponse(req, null, token)
       const data = await res.json()
 
       // Anime always last (stable partition superseding catalogOrder for
       // the anime group only): the renamed Netflix row leads, JW follows,
       // the renamed anime row sinks to the end (never dropped).
-      expect(data.catalogs[0].id).toBe("pictorium-netflix-movies")
+      expect(data.catalogs[0].id).toBe("FlameForge-netflix-movies")
       expect(data.catalogs[0].name).toBe("🔴 Super Netflix Film")
 
-      expect(data.catalogs[1].id).toBe("pictorium-jw-movies")
+      expect(data.catalogs[1].id).toBe("FlameForge-jw-movies")
 
       const contentIds = data.catalogs
         .map((c: { id: string }) => c.id)
-        .filter((id: string) => !id.startsWith("pictorium-search"))
+        .filter((id: string) => !id.startsWith("FlameForge-search"))
       // Anime tail preserves user order (anime before anime-movies here);
       // every non-anime chart stays ahead of both.
-      expect(contentIds.slice(-2)).toEqual(["pictorium-anime", "pictorium-anime-movies"])
+      expect(contentIds.slice(-2)).toEqual(["FlameForge-anime", "FlameForge-anime-movies"])
       expect(
-        data.catalogs.find((c: { id: string }) => c.id === "pictorium-anime")?.name,
+        data.catalogs.find((c: { id: string }) => c.id === "FlameForge-anime")?.name,
       ).toBe("⛩️ Anime Popolari")
       // Search hub section still appended after content (unchanged).
     })
@@ -248,15 +248,15 @@ describe("Custom Catalogs & MDBList Parsing", () => {
         gradientHeight: 35,
         networkLogo: true,
         autoRotateClean: true,
-        homeDisabledCatalogIds: ["pictorium-netflix-movies"],
+        homeDisabledCatalogIds: ["FlameForge-netflix-movies"],
       })
 
-      const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+      const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
       const res = await buildManifestResponse(req, null, token)
       const data = await res.json()
 
-      const netflixMovie = data.catalogs.find((c: { id: string }) => c.id === "pictorium-netflix-movies")
-      const jwMovie = data.catalogs.find((c: { id: string }) => c.id === "pictorium-jw-movies")
+      const netflixMovie = data.catalogs.find((c: { id: string }) => c.id === "FlameForge-netflix-movies")
+      const jwMovie = data.catalogs.find((c: { id: string }) => c.id === "FlameForge-jw-movies")
 
       expect(netflixMovie).toBeDefined()
       const netflixGenre = netflixMovie.extra.find((e: { name: string }) => e.name === "genre")
@@ -274,4 +274,6 @@ describe("Custom Catalogs & MDBList Parsing", () => {
     })
   })
 })
+
+
 

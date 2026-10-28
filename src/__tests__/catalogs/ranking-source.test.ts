@@ -337,7 +337,7 @@ describe("rankingSourceCatalogName", () => {
 
   it("returns the custom name for a driven Top 20 slot", () => {
     expect(
-      rankingSourceCatalogName("pictorium-jw-movies", "movie", {
+      rankingSourceCatalogName("FlameForge-jw-movies", "movie", {
         customCatalogs: customs,
         rankingSourceMovie: "cat_movies",
       }),
@@ -345,18 +345,20 @@ describe("rankingSourceCatalogName", () => {
   })
 
   it("returns null for the JustWatch default and unrelated catalogs", () => {
-    expect(rankingSourceCatalogName("pictorium-jw-movies", "movie", {})).toBeNull()
+    expect(rankingSourceCatalogName("FlameForge-jw-movies", "movie", {})).toBeNull()
     expect(
-      rankingSourceCatalogName("pictorium-netflix-movies", "movie", {
+      rankingSourceCatalogName("FlameForge-netflix-movies", "movie", {
         customCatalogs: customs,
         rankingSourceMovie: "cat_movies",
       }),
     ).toBeNull()
     expect(
-      rankingSourceCatalogName("pictorium-jw-series", "series", {
+      rankingSourceCatalogName("FlameForge-jw-series", "series", {
         customCatalogs: customs,
         rankingSourceMovie: "cat_movies",
       }),
     ).toBeNull()
   })
 })
+
+

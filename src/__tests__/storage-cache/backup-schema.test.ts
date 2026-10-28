@@ -84,3 +84,4 @@ describe("retired Badge Lab backup section", () => {
     })
   })
 })
+

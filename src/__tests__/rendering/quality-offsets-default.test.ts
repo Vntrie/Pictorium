@@ -12,7 +12,7 @@ import { buildStremioPosterUrl } from "@/lib/stremio-poster-url"
 import { buildDefaultsPreviewUrl } from "@/lib/poster-url"
 import { useDefaults, defaultsStorageKey } from "@/lib/useDefaults"
 import type { Mapping } from "@/lib/types"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 
 function baseInput(overrides: Partial<PosterRenderConfigInput> = {}): PosterRenderConfigInput {
   return {
@@ -36,7 +36,7 @@ const mapping = (partial: Partial<Mapping> = {}): Mapping => ({
   ...partial,
 })
 
-const config = (partial: Partial<PictoriumUserConfig> = {}): PictoriumUserConfig => ({
+const config = (partial: Partial<FlameForgeUserConfig> = {}): FlameForgeUserConfig => ({
   globalBadges: true,
   rankingBadges: true,
   badgeStyle: "shadow",
@@ -351,3 +351,5 @@ describe("useDefaults hydration: landscape provenance from raw stored data", () 
     expect(result.current.landscape.qualityBadgeOffsetY).toBe(0)
   })
 })
+
+

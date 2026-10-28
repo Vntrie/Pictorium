@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { NextRequest } from "next/server"
 import { POST } from "@/app/api/config-token/route"
 import { decodeConfig } from "@/lib/config-token"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 
 vi.mock("@/lib/rate-limit", () => ({
   rateLimit: vi.fn(() => ({ ok: true })),
@@ -15,7 +15,7 @@ vi.mock("@/lib/auth", () => ({
   originMismatchResponse: vi.fn(() => new Response("origin mismatch", { status: 403 })),
 }))
 
-const VALID_CONFIG: PictoriumUserConfig = {
+const VALID_CONFIG: FlameForgeUserConfig = {
   globalBadges: true,
   rankingBadges: true,
   badgeGenre: true,
@@ -78,7 +78,7 @@ describe("POST /api/config-token", () => {
   it("round-trips custom catalogs with datasetId (IMDb CSV reference)", async () => {
     const { isSameOrigin } = await import("@/lib/auth")
     vi.mocked(isSameOrigin).mockReturnValue(true)
-    const withDataset: PictoriumUserConfig = {
+    const withDataset: FlameForgeUserConfig = {
       ...VALID_CONFIG,
       customCatalogs: [
         { id: "cat1", name: "My CSV", type: "mixed", url: "imdb-csv:ds_abc123", datasetId: "ds_abc123", enabled: true },
@@ -91,3 +91,5 @@ describe("POST /api/config-token", () => {
     expect(decoded?.customCatalogs?.[0]).toMatchObject({ datasetId: "ds_abc123", url: "imdb-csv:ds_abc123" })
   })
 })
+
+

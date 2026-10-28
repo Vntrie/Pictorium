@@ -49,9 +49,9 @@ describe("resolveStreamQuality", () => {
   let jw: typeof import("@/lib/stream-quality")
   beforeAll(async () => {
     vi.resetModules()
-    vi.stubEnv("PICTORIUM_QUALITY_SOURCE", "torrentio")
+    vi.stubEnv("FLAMEFORGE_QUALITY_SOURCE", "torrentio")
     // Even with a legacy Torrentio base configured, runtime must not call it.
-    vi.stubEnv("PICTORIUM_TORRENTIO_URL", "https://torrentio.strem.fun")
+    vi.stubEnv("FLAMEFORGE_TORRENTIO_URL", "https://torrentio.strem.fun")
     vi.stubEnv("TORRENTIO_URL", "https://torrentio.strem.fun")
     jw = await import("@/lib/stream-quality")
   })
@@ -292,7 +292,7 @@ describe("QUALITY_SOURCE + regione JW (v1.23.0)", () => {
 
   it("none: nessun provider, resolved-null, zero fetch", async () => {
     vi.resetModules()
-    vi.stubEnv("PICTORIUM_QUALITY_SOURCE", "none")
+    vi.stubEnv("FLAMEFORGE_QUALITY_SOURCE", "none")
     try {
       const mod = await import("@/lib/stream-quality")
       const fetchSpy = vi.spyOn(globalThis, "fetch")
@@ -308,8 +308,8 @@ describe("QUALITY_SOURCE + regione JW (v1.23.0)", () => {
   it("default (unset): JustWatch-only, zero Torrentio calls", async () => {
     vi.resetModules()
     vi.unstubAllEnvs()
-    delete process.env.PICTORIUM_QUALITY_SOURCE
-    delete process.env.POSTERIUM_QUALITY_SOURCE
+    delete process.env.FLAMEFORGE_QUALITY_SOURCE
+    delete process.env.FLAMEFORGE_QUALITY_SOURCE
     try {
       const mod = await import("@/lib/stream-quality")
       const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (url, init) => {
@@ -335,7 +335,7 @@ describe("QUALITY_SOURCE + regione JW (v1.23.0)", () => {
 
   it("justwatch: salta Torrentio e passa la regione della richiesta", async () => {
     vi.resetModules()
-    vi.stubEnv("PICTORIUM_QUALITY_SOURCE", "justwatch")
+    vi.stubEnv("FLAMEFORGE_QUALITY_SOURCE", "justwatch")
     try {
       const mod = await import("@/lib/stream-quality")
       const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (url, init) => {
@@ -364,7 +364,7 @@ describe("QUALITY_SOURCE + regione JW (v1.23.0)", () => {
 
   it("unknown value: normalized to justwatch, zero Torrentio, one-time warning", async () => {
     vi.resetModules()
-    vi.stubEnv("PICTORIUM_QUALITY_SOURCE", "bogus-source")
+    vi.stubEnv("FLAMEFORGE_QUALITY_SOURCE", "bogus-source")
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
     try {
       const mod = await import("@/lib/stream-quality")
@@ -393,3 +393,5 @@ describe("QUALITY_SOURCE + regione JW (v1.23.0)", () => {
     }
   })
 })
+
+

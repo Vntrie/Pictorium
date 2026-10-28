@@ -17,3 +17,4 @@ describe("GET /meta unresolvable anime prefixes (P1-2)", () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 })
+

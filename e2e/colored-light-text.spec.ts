@@ -1,10 +1,10 @@
-import { test, expect, type Page } from "@playwright/test"
+﻿import { test, expect, type Page } from "@playwright/test"
 
-// C2 — deterministic mid-tone accent coverage for the colored light-text
+// C2 â€” deterministic mid-tone accent coverage for the colored light-text
 // preference (white at ~2.9:1 on #E67E22: dark text under the old 3:1 bar,
 // preferred white under the 2:1 rule). The mocked artwork derives a dark
-// accent, so the generic colored screenshots in pictorium-visual.spec.ts
-// all render white text under both rules and cannot cover this flip — the
+// accent, so the generic colored screenshots in FlameForge-visual.spec.ts
+// all render white text under both rules and cannot cover this flip â€” the
 // explicit `ac` override (same contract as the teal test over there) pins
 // it at the real endpoint, which is also what the editor preview <img>
 // loads (preview=1, same URL Stremio uses).
@@ -35,7 +35,7 @@ async function renderPoster(page: Page, posterUrl: string) {
   return page.locator("#poster")
 }
 
-test("colored mid-tone accent — genre pill and rank ribbon render light text", async ({ page }) => {
+test("colored mid-tone accent â€” genre pill and rank ribbon render light text", async ({ page }) => {
   const url = posterUrl({
     genreName: "Action",
     voteAverage: "7.8",
@@ -50,3 +50,4 @@ test("colored mid-tone accent — genre pill and rank ribbon render light text",
   const poster = await renderPoster(page, url)
   await expect(poster).toHaveScreenshot("poster-colored-midtone-light-text.png", { maxDiffPixelRatio: 0.10 })
 })
+

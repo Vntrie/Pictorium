@@ -1,4 +1,4 @@
-import * as fsp from "node:fs/promises"
+﻿import * as fsp from "node:fs/promises"
 import crypto from "node:crypto"
 import path from "node:path"
 import { DATA_DIR } from "@/lib/data-dir"
@@ -11,7 +11,7 @@ import { createLogger } from "@/lib/logger"
 const log = createLogger("mdblist-raw-cache")
 
 // ---------------------------------------------------------------------------
-// MDBList raw ratings — durable L2 for FILE storage mode (VPS/local disk).
+// MDBList raw ratings â€” durable L2 for FILE storage mode (VPS/local disk).
 //
 // The shared raw MDBList cache (keyed by imdb-id or tmdb{numeric}-id + key
 // hash, 24h default / 7d old movies) already persists across restarts via the KV L2 envelope when a KV
@@ -30,8 +30,8 @@ const log = createLogger("mdblist-raw-cache")
 // Backend exclusivity: in KV mode every function here is a no-op (the
 // existing KV L2 path in lib/cache.ts owns persistence); the disk is never
 // read, written, pruned, or even stat'ed. Disk persistence additionally
-// requires EXPLICITLY configured durable storage (PICTORIUM_DATA_DIR /
-// POSTERIUM_DATA_DIR present and non-empty): every blessed runtime path sets
+// requires EXPLICITLY configured durable storage (FLAMEFORGE_DATA_DIR /
+// FLAMEFORGE_DATA_DIR present and non-empty): every blessed runtime path sets
 // it (entrypoint.sh exports it unconditionally, defaulting to /data;
 // Playwright/scripts isolate it per run), while bare dev (`next dev`) and
 // unit tests fall back to the CWD-relative ./data default. Gating on the
@@ -45,14 +45,14 @@ const log = createLogger("mdblist-raw-cache")
 //
 // Concurrency: files are written via atomicWriteFile (atomic rename, last
 // writer wins). Writes are fire-and-forget from the hot path (never awaited
-// by the request) with a bounded number of concurrent disk writes — excess
+// by the request) with a bounded number of concurrent disk writes â€” excess
 // writes are dropped fail-open (return false) instead of queueing unbounded
 // payload memory. While a background prune is in flight admissions are
 // reservation-bounded (at most MAX_CONCURRENT_WRITES total new writes; the
 // rest are dropped fail-open): the prune snapshot (readdir) cannot account
 // for writes landing after it, so unbounded admissions would grow the
 // namespace without bound until the next cadence window. Writes already in
-// flight plus the bounded reservation (≤MAX_CONCURRENT_WRITES each) may
+// flight plus the bounded reservation (â‰¤MAX_CONCURRENT_WRITES each) may
 // still land during the prune and are tracked as dirty; the prune
 // completion schedules exactly one follow-up prune when dirty > 0 (no rerun
 // when nothing landed, so no infinite loop). Retention is enforced by a background prune triggered by the write flow itself
@@ -62,11 +62,11 @@ const log = createLogger("mdblist-raw-cache")
 // Soft-cap bound (single process): at most caps + PRUNE_EVERY_WRITES +
 // MAX_CONCURRENT_WRITES files may transiently exist (one cadence window of
 // completed writes plus the bounded owned writers). A residual batch below
-// the cadence (<32) may remain until the next prune triggers — the steady
-// state is NOT exactly ≤caps at every instant, only bounded and converging
+// the cadence (<32) may remain until the next prune triggers â€” the steady
+// state is NOT exactly â‰¤caps at every instant, only bounded and converging
 // via the cadence + dirty follow-up.
 //
-// Read path: fully asynchronous single-file probes (stat + read, ≤64KiB,
+// Read path: fully asynchronous single-file probes (stat + read, â‰¤64KiB,
 // existence-checked first) with an OWNED disk-read bound
 // (MDB_RAW_PERSIST_DISK_READ_MS via combineAbortSignals + raceWithAbort):
 // the caller race budget alone cannot protect a caller that passes no
@@ -74,7 +74,7 @@ const log = createLogger("mdblist-raw-cache")
 // underlying fs call cannot always be cancelled (stat has no signal), the
 // late outcome is simply ignored. Probes run owned by the shared inflight
 // lib/ratings.ts, which checks its subscriber count and owned abort before
-// AND after the await — a slow or cancelled read never starts an upstream
+// AND after the await â€” a slow or cancelled read never starts an upstream
 // MDBList fetch on behalf of departed callers. No synchronous filesystem
 // call exists on this module's read path (no statSync/readFileSync/
 // unlinkSync/unlink blocking the poster event loop); file size bounds the
@@ -87,7 +87,7 @@ const log = createLogger("mdblist-raw-cache")
 // exceed the caps until each process's next prune converges them back down.
 // The single-process transient overshoot is soft-bounded by caps +
 // PRUNE_EVERY_WRITES + MAX_CONCURRENT_WRITES (see Concurrency above); it is
-// NOT exactly ≤caps at every instant. The prune itself scans the whole
+// NOT exactly â‰¤caps at every instant. The prune itself scans the whole
 // owned namespace (no partial-scan blind spot: every owned file is
 // accounted, foreign files never touched).
 // ---------------------------------------------------------------------------
@@ -114,7 +114,7 @@ const MDB_RAW_PERSIST_PRUNE_EVERY_WRITES = 32
  *  dropped fail-open (false) instead of queueing unbounded work/payloads. */
 const MDB_RAW_PERSIST_MAX_CONCURRENT_WRITES = 8
 /** Owned bound for one disk probe (stat + read): a stalled disk is a miss,
- *  never a hang — even for callers that pass no explicit budget. Fail-open
+ *  never a hang â€” even for callers that pass no explicit budget. Fail-open
  *  caller-side wait only; the underlying fs call (stat has no signal) may
  *  still complete late and its outcome is ignored. Uses the shared
  *  combineAbortSignals + raceWithAbort utility, no sync I/O. */
@@ -144,7 +144,7 @@ interface MdbRawEnvelope {
 }
 
 /** Never build a path from unvalidated input: the raw key must be a
- *  well-formed `mdb:raw:…` identity without separators, so no traversal is
+ *  well-formed `mdb:raw:â€¦` identity without separators, so no traversal is
  *  possible and foreign keys are refused before any I/O. */
 function isValidRawKey(value: unknown): value is string {
   if (typeof value !== "string" || value.length === 0 || value.length > 256) return false
@@ -154,14 +154,14 @@ function isValidRawKey(value: unknown): value is string {
 }
 
 /** Filename for a raw identity: sha256 of the FULL key (namespace isolation
- *  preserved — distinct imdb/key pairs hash to distinct files), never any
+ *  preserved â€” distinct imdb/key pairs hash to distinct files), never any
  *  plaintext. Null when the identity is invalid (never build a path). */
 export function mdbRawPersistFilename(rawKey: string): string | null {
   if (!isValidRawKey(rawKey)) return null
   return `mdblist-raw-v1-${crypto.createHash("sha256").update(rawKey).digest("hex")}.json`
 }
 
-/** DATA_DIR resolved live (tests stub PICTORIUM_DATA_DIR + resetModules). */
+/** DATA_DIR resolved live (tests stub FLAMEFORGE_DATA_DIR + resetModules). */
 function mdbRawPersistDir(): string {
   const dir = envWithFallback("DATA_DIR") || DATA_DIR
   return path.join(dir, MDB_RAW_PERSIST_DIRNAME)
@@ -271,7 +271,7 @@ export function __setMdbRawPrunePauseAfterSnapshotForTests(
 
 /** Only for tests: hang the disk probe before any fs call (simulates a
  *  stalled disk deterministically without mocking node:fs). The owned
- *  disk-read bound still applies — the wait races the same owned signal,
+ *  disk-read bound still applies â€” the wait races the same owned signal,
  *  so a gate that never resolves ends as a fail-open miss. */
 export function __setMdbRawReadGateForTests(
   gate: (() => Promise<void>) | null,
@@ -341,7 +341,7 @@ export function __resetMdbRawPersistForTests(): void {
 // --- Disk backend (file mode only; KV mode is a no-op above it) -------------
 //
 // Reads are fully ASYNCHRONOUS single-file probes (stat + read of one tiny
-// file ≤64KiB, existence-checked first via the stat miss). They run owned by
+// file â‰¤64KiB, existence-checked first via the stat miss). They run owned by
 // the shared inflight operation in lib/ratings.ts, which re-checks its
 // subscriber count and owned abort after the await: a slow read with no
 // remaining subscribers never starts an upstream fetch, and a cancelled
@@ -353,7 +353,7 @@ export function __resetMdbRawPersistForTests(): void {
  * Read one raw identity's persisted record. Null = miss (KV mode,
  * cancelled, absent, oversized, corrupted, identity mismatch, future-dated,
  * or past the absolute expiry). Otherwise the sources with their REMAINING
- * lifetime — the caller repopulates L1 with exactly that (never a fresh
+ * lifetime â€” the caller repopulates L1 with exactly that (never a fresh
  * TTL). Fail-open on any I/O error: never throws. Never extends retention
  * (no mtime update, no rewrite): repeated reads never renew the TTL.
  * Corrupt/oversized/expired files are removed best-effort bounded by the
@@ -364,7 +364,7 @@ export function __resetMdbRawPersistForTests(): void {
  * Best-effort single-file cleanup raced against the probe's owned bound:
  * the read-path return can never hang on a stalled unlink (fail-open miss,
  * file left for the background prune). Scoped to the already-validated
- * owned `file` path only — foreign files are never touched. No sync I/O.
+ * owned `file` path only â€” foreign files are never touched. No sync I/O.
  */
 async function boundedCleanupUnlink(file: string, owned: AbortSignal): Promise<void> {
   if (cleanupGateForTests) {
@@ -393,7 +393,7 @@ export async function getPersistedMdbRaw(
   const file = path.join(mdbRawPersistDir(), filename)
   // Owned disk-read bound: even a caller with no explicit budget stops
   // waiting after MDB_RAW_PERSIST_DISK_READ_MS (fail-open miss). The race
-  // is caller-side only — stat/readFile cannot always be cancelled — and
+  // is caller-side only â€” stat/readFile cannot always be cancelled â€” and
   // uses the shared abort utility (no sync I/O).
   const owned = combineAbortSignals(opts?.signal, MDB_RAW_PERSIST_DISK_READ_MS)
   // Test-only stalled-disk simulation (no fs mock): races the same owned
@@ -458,14 +458,14 @@ export async function getPersistedMdbRaw(
 
 /**
  * Persist one raw identity's positive result. Only finite positive source
- * maps with a TTL inside the raw policy window (24h–7d) are stored —
+ * maps with a TTL inside the raw policy window (24hâ€“7d) are stored â€”
  * misses, errors, and out-of-policy TTLs return false without writing.
  * Overwrites atomically (last writer wins). Fail-open on I/O errors, and a
  * no-op in KV mode (the KV L2 envelope owns persistence there).
  * Fire-and-forget from the hot path: callers never await this.
  *
  * Bounded: at most MDB_RAW_PERSIST_MAX_CONCURRENT_WRITES disk writes are
- * in flight per process — excess calls are dropped fail-open (false) rather
+ * in flight per process â€” excess calls are dropped fail-open (false) rather
  * than queueing unbounded work and payload memory. While a prune is in
  * flight admissions are additionally reservation-bounded (same bound, total
  * not just concurrent): post-snapshot writes beyond the reservation are
@@ -489,7 +489,7 @@ export async function setPersistedMdbRaw(
   // backpressure with an evidence-backed bound): a prune snapshot cannot
   // account for writes landing after it, so admissions while a prune is in
   // flight are capped to at most maxConcurrent TOTAL (not just concurrent)
-  // — the already-bounded owned writers. Anything beyond is dropped
+  // â€” the already-bounded owned writers. Anything beyond is dropped
   // fail-open (false). Each admitted write that lands marks a dirty tail
   // for exactly one follow-up prune. Fast prunes overlap only a couple of
   // sequential writes (all within the reservation, so the normal flow never
@@ -557,7 +557,7 @@ export interface MdbRawPruneResult {
 
 /**
  * Remove raw rating files past their absolute expiry and trim beyond the
- * retention caps (≤2000 entries, ≤16MiB by default) oldest-first. Scoped to
+ * retention caps (â‰¤2000 entries, â‰¤16MiB by default) oldest-first. Scoped to
  * the mdblist-raw subdir and to `mdblist-raw-v1-*.json` names only: foreign
  * files are never touched. Bounded single pass over the WHOLE owned
  * namespace (no partial-scan blind spot: the subdir holds at most ~caps
@@ -566,7 +566,7 @@ export interface MdbRawPruneResult {
  * actually still present (failed deletes stay counted as kept).
  *
  * I/O is bounded: one stat per candidate, and the envelope is parsed only
- * inside the ambiguous mtime window — files provably fresh for every TTL
+ * inside the ambiguous mtime window â€” files provably fresh for every TTL
  * (mtime < 24h) are kept without parsing, files past the longest TTL
  * (mtime > 7d) are dropped without parsing.
  */
@@ -617,7 +617,7 @@ export async function pruneMdbRawPersisted(
         // Future-dated (skewed clock): keep, never delete on suspicion.
         expired = false
       } else {
-        // Ambiguous window (24h–7d): the envelope decides (TTLs vary).
+        // Ambiguous window (24hâ€“7d): the envelope decides (TTLs vary).
         try {
           const parsed: unknown = JSON.parse(await fsp.readFile(full, "utf-8"))
           if (
@@ -672,13 +672,13 @@ export async function pruneMdbRawPersisted(
   return { removed, kept: live.length }
 }
 
-/** Write-triggered background prune — never on the read path, never awaited
+/** Write-triggered background prune â€” never on the read path, never awaited
  *  (no latency on the caller), at most one in flight, never an orphan
  *  rejection. Scheduled every PRUNE_EVERY_WRITES writes even when the idle
  *  throttle interval has not elapsed, so sustained write streams converge
  *  under the caps. While a prune runs, new writes are reservation-bounded
  *  (see setPersistedMdbRaw); writes that land during the prune mark a dirty
- *  tail that schedules exactly one follow-up prune — no rerun when nothing
+ *  tail that schedules exactly one follow-up prune â€” no rerun when nothing
  *  landed, so no infinite loop. */
 function triggerPruneSoon(): void {
   try {
@@ -714,9 +714,10 @@ function startPrune(): void {
     pruneInFlight = false
     const dirty = pruneDirtyWrites
     pruneDirtyWrites = 0
-    // Dirty tail (bounded ≤MAX_CONCURRENT_WRITES owned writers): files that
+    // Dirty tail (bounded â‰¤MAX_CONCURRENT_WRITES owned writers): files that
     // landed after the snapshot need one more pass. No successful write
-    // during the prune → no rerun.
+    // during the prune â†’ no rerun.
     if (dirty > 0) startPrune()
   })
 }
+

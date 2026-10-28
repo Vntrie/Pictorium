@@ -136,3 +136,4 @@ describe("aliases API route", () => {
     expect(removeImdbAlias).not.toHaveBeenCalled()
   })
 })
+

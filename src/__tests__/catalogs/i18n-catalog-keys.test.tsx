@@ -15,7 +15,7 @@ import { describe, expect, it, beforeAll, vi } from "vitest"
 import { render, cleanup } from "@testing-library/react"
 import { createT, registerDictionary, type Dictionary } from "@/lib/i18n"
 import { TranslationProvider } from "@/lib/contexts/TranslationContext"
-import type { PictoriumCtx } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { PublicationLine } from "@/components/PublicationLine"
 
 // Use the REAL i18n module in this file: the global setup mocks createT/t
@@ -148,9 +148,9 @@ describe("real t() lookup resolves native strings (no English fallback masking)"
   })
 
   it("Italian publication strings match the user-facing contract exactly", () => {
-    expect(createT("it")("ui.publicationLabel")).toBe("Aggiornato in Pictorium:")
+    expect(createT("it")("ui.publicationLabel")).toBe("Aggiornato in FlameForge:")
     expect(createT("it")("ui.publicationUnknown")).toBe("Orario di aggiornamento non disponibile")
-    expect(createT("en")("ui.publicationLabel")).toBe("Updated in Pictorium:")
+    expect(createT("en")("ui.publicationLabel")).toBe("Updated in FlameForge:")
     expect(createT("en")("ui.publicationUnknown")).toBe("Update time unavailable")
   })
 
@@ -168,7 +168,7 @@ describe("real t() lookup resolves native strings (no English fallback masking)"
 })
 
 function renderPublicationLine(lang: string, value: number | null) {
-  const ctx = { t: createT(lang), lang, pickLang: () => {} } as unknown as PictoriumCtx
+  const ctx = { t: createT(lang), lang, pickLang: () => {} } as unknown as FlameForgeCtx
   return render(
     <TranslationProvider value={ctx}>
       <PublicationLine value={value} />
@@ -182,15 +182,15 @@ describe("PublicationLine renders localized strings through the real t()", () =>
     const { container, unmount } = renderPublicationLine("it", stamp)
     try {
       const text = container.textContent ?? ""
-      expect(text).toContain("Aggiornato in Pictorium:")
+      expect(text).toContain("Aggiornato in FlameForge:")
       expect(text).not.toContain("ui.")
       const time = container.querySelector("time")
       expect(time).not.toBeNull()
       expect(time!.getAttribute("dateTime")).toBe(new Date(stamp).toISOString())
       expect(time!.textContent ?? "").not.toContain("ui.")
       // Label, colon, whitespace, then the date (never glued, never English).
-      expect(text).toMatch(/Aggiornato in Pictorium:\s/)
-      expect(text).not.toContain("Updated in Pictorium:")
+      expect(text).toMatch(/Aggiornato in FlameForge:\s/)
+      expect(text).not.toContain("Updated in FlameForge:")
     } finally {
       unmount()
       cleanup()
@@ -210,3 +210,5 @@ describe("PublicationLine renders localized strings through the real t()", () =>
     }
   })
 })
+
+

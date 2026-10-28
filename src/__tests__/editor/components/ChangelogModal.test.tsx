@@ -84,3 +84,4 @@ describe("HomeStatusStrip changelog dot", () => {
     expect(screen.queryByTestId("changelog-dot")).toBeNull()
   })
 })
+

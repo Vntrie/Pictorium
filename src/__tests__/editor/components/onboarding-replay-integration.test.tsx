@@ -3,7 +3,7 @@ import { useCallback, useState } from "react"
 import { fireEvent, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import en from "@/lib/translations/en.json"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { DataPanel } from "@/components/settings/DataPanel"
 import { LangPicker } from "@/components/LangPicker"
 import { OnboardingTour } from "@/components/OnboardingTour"
@@ -44,7 +44,7 @@ describe("Repeat guided setup integration (DataPanel guard -> wizard -> tour)", 
       promotePendingReplay()
     }, [promotePendingReplay])
     return (
-      <PictoriumProvider
+      <FlameForgeProvider
         value={
           {
             ...MOCK_CTX,
@@ -81,7 +81,7 @@ describe("Repeat guided setup integration (DataPanel guard -> wizard -> tour)", 
             onReplayClosed={replay.clearActiveReplay}
           />
         )}
-      </PictoriumProvider>
+      </FlameForgeProvider>
     )
   }
 
@@ -148,3 +148,5 @@ describe("Repeat guided setup integration (DataPanel guard -> wizard -> tour)", 
     }
   })
 })
+
+

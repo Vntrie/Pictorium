@@ -1,12 +1,12 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback, useEffect, useRef } from "react"
 import { userFetch } from "./http"
 import { isProfilelessOnMultiUser, notifyProfilelessOnce, shouldSkipServerSync } from "./guest-guard"
 import { t } from "./i18n"
 
-export const RANKING_SOURCE_MOVIE_KEY = "pictorium_ranking_source_movie"
-export const RANKING_SOURCE_SERIES_KEY = "pictorium_ranking_source_series"
+export const RANKING_SOURCE_MOVIE_KEY = "FLAMEFORGE_ranking_source_movie"
+export const RANKING_SOURCE_SERIES_KEY = "FLAMEFORGE_ranking_source_series"
 
 /** Raw stored selection (`""` = explicit JustWatch, absent = default JW). */
 export type RankingSlotKey = "movie" | "series"
@@ -35,7 +35,7 @@ export function useRankingSources(
   const savedRef = useRef({ movie: "", series: "" })
   // Last SERVER-confirmed payload (effective defaults: an absent GET field
   // resolves to JustWatch charts on the server, i.e. ""). Equivalent re-saves
-  // skip the network only against this — localStorage is never assumed to
+  // skip the network only against this â€” localStorage is never assumed to
   // equal server truth (a device-local pick survives only while the server
   // is silent, and must still be persisted on re-select).
   const serverConfirmedRef = useRef({ movie: "", series: "" })
@@ -48,7 +48,7 @@ export function useRankingSources(
   const localWrittenRef = useRef({ movie: "", series: "" })
   // Revision tracking: every real write bumps writeRev; the nonce (rank
   // refetch signal) is bumped at most once per newly confirmed revision by
-  // the latest completion — a burst of same-intent saves ships one PUT and
+  // the latest completion â€” a burst of same-intent saves ships one PUT and
   // still refetches exactly once, while a true no-op never refetches.
   const writeRevRef = useRef(0)
   const ackedRevRef = useRef(0)
@@ -80,7 +80,7 @@ export function useRankingSources(
     latestRef.current = { movie: startMovie, series: startSeries }
     savedRef.current = { movie: startMovie, series: startSeries }
     localWrittenRef.current = { movie: startMovie, series: startSeries }
-    // NOTE: serverKnown stays false here — the device-local paint is not
+    // NOTE: serverKnown stays false here â€” the device-local paint is not
     // server truth until the GET below (or a PUT) confirms it.
     userFetch("/api/defaults")
       .then((r) => (r.ok ? r.json() : null))
@@ -90,8 +90,8 @@ export function useRankingSources(
         const serverMovie = sanitizeSelection(data.rankingSourceMovie)
         const serverSeries = sanitizeSelection(data.rankingSourceSeries)
         // Server-effective confirmation FIRST (even when silent): a reachable
-        // GET pins both slots — an absent field resolves to JustWatch charts
-        // on the server, never to the device-local fallback — without a
+        // GET pins both slots â€” an absent field resolves to JustWatch charts
+        // on the server, never to the device-local fallback â€” without a
         // revision bump, since no save happened.
         serverConfirmedRef.current = {
           movie: serverMovie ?? "",
@@ -214,7 +214,7 @@ export function useRankingSources(
       // Track the last actually persisted payload even for a stale success,
       // so a later failure rolls back to server truth (never to an
       // unpersisted intent). Only the latest completion acknowledges with
-      // ready/nonce — and the nonce fires at most once per newly confirmed
+      // ready/nonce â€” and the nonce fires at most once per newly confirmed
       // revision: a redundant job that deduped against a write from the same
       // burst still refetches exactly once, while a true no-op never does.
       if (outcome.confirmed) savedRef.current = { ...outcome.confirmed }
@@ -249,3 +249,4 @@ export function useRankingSources(
     rankSourceNonce,
   }
 }
+

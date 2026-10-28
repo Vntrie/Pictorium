@@ -1,4 +1,4 @@
-import fs from "node:fs/promises"
+﻿import fs from "node:fs/promises"
 import { existsSync, readFileSync } from "node:fs"
 import path from "node:path"
 import crypto from "node:crypto"
@@ -26,15 +26,15 @@ function isKvMode(): boolean {
   return getStorageMode() === "kv"
 }
 
-export const PIN_COOKIE_NAME = "pictorium_pin_session"
+export const PIN_COOKIE_NAME = "FLAMEFORGE_pin_session"
 const SESSION_DURATION_SECONDS = 30 * 24 * 60 * 60 // 30 giorni
 
 export interface SecurityConfig {
   pinHash?: string // format: `${salt}:${hash}`
   sessionSecret?: string
-  // Hash sha256 dell'ADMIN_TOKEN in vigore quando il PIN è stato impostato
+  // Hash sha256 dell'ADMIN_TOKEN in vigore quando il PIN Ã¨ stato impostato
   // via token (mai via PIN): se il token ruota o sparisce, il binding non
-  // combacia più e il PIN si auto-disabilita (v1.23.0, anti-persistenza).
+  // combacia piÃ¹ e il PIN si auto-disabilita (v1.23.0, anti-persistenza).
   // Assente = impostato via PIN o senza token configurato: sempre attivo.
   adminHash?: string
   updatedAt?: string
@@ -183,7 +183,7 @@ function currentAdminTokenHash(): string | null {
 }
 
 /**
- * Binding PIN↔admin token (v1.23.0): un PIN impostato via admin token muore
+ * Binding PINâ†”admin token (v1.23.0): un PIN impostato via admin token muore
  * con la rotazione. Senza binding (via PIN o senza token all'epoca) resta
  * attivo; se il token sparisce del tutto con binding presente, fail-closed
  * (recuperabile: senza PIN configurato il primo set torna libero).
@@ -229,8 +229,8 @@ export async function setPin(newPin: string, opts?: { viaAdminToken?: boolean })
     ...cfg,
     pinHash,
     sessionSecret,
-    // Binding rotazione: impostato via token → hash corrente; via PIN →
-    // resta il binding precedente; senza token → nessun binding.
+    // Binding rotazione: impostato via token â†’ hash corrente; via PIN â†’
+    // resta il binding precedente; senza token â†’ nessun binding.
     adminHash: opts?.viaAdminToken ? (currentAdminTokenHash() ?? undefined) : cfg.adminHash,
   })
   return true
@@ -302,9 +302,10 @@ export function extractSessionToken(request: Request): string | null {
 export async function verifySessionFromRequest(request: Request): Promise<boolean> {
   const hasPin = await hasPinConfigured()
   if (!hasPin) {
-    // Se nessun PIN è configurato, la sessione non è richiesta
+    // Se nessun PIN Ã¨ configurato, la sessione non Ã¨ richiesta
     return true
   }
   const token = extractSessionToken(request)
   return verifySessionToken(token)
 }
+

@@ -124,3 +124,4 @@ describe("pairCuratedLists", () => {
     expect(blocks[1]).toMatchObject({ kind: "single", lists: [lists[2]] })
   })
 })
+

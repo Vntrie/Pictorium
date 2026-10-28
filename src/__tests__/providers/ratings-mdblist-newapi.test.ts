@@ -262,7 +262,7 @@ describe("new score normalization (score always 0-100 → /10)", () => {
   })
 })
 
-describe("per-source minimum-votes filter (PICTORIUM_RATING_MIN_VOTES)", () => {
+describe("per-source minimum-votes filter (FLAMEFORGE_RATING_MIN_VOTES)", () => {
   const MIXED = {
     type: "movie",
     score: 70,
@@ -319,26 +319,26 @@ describe("per-source minimum-votes filter (PICTORIUM_RATING_MIN_VOTES)", () => {
     expect(filtered?.sources.trakt).toBeUndefined()
     expect(computeVote(filtered, ["imdb", "trakt"])).toBe(9)
     // Filter disabled: trakt back in, the same selection averages both.
-    vi.stubEnv("PICTORIUM_RATING_MIN_VOTES", "0")
+    vi.stubEnv("FLAMEFORGE_RATING_MIN_VOTES", "0")
     const unfiltered = await fetchAggregatedRating("tt_mv_vote0", "k")
     expect(unfiltered?.sources.trakt).toBe(8)
     expect(computeVote(unfiltered, ["imdb", "trakt"])).toBe((9 + 8) / 2)
   })
 
   it("0 disables the filter; malformed env falls back to default", async () => {
-    vi.stubEnv("PICTORIUM_RATING_MIN_VOTES", "0")
+    vi.stubEnv("FLAMEFORGE_RATING_MIN_VOTES", "0")
     vi.stubGlobal("fetch", vi.fn(async () => jsonOk(MIXED)))
     const off = await fetchAggregatedRating("tt_mv2", "k")
     expect(off?.sources.trakt).toBe(8)
     expect(off?.sources.rogerebert).toBe(7.5)
 
     for (const bad of ["abc", "-3", "12.5", ""]) {
-      vi.stubEnv("PICTORIUM_RATING_MIN_VOTES", bad)
+      vi.stubEnv("FLAMEFORGE_RATING_MIN_VOTES", bad)
       expect(resolveRatingMinVotes()).toBe(10)
     }
-    vi.stubEnv("PICTORIUM_RATING_MIN_VOTES", "25")
+    vi.stubEnv("FLAMEFORGE_RATING_MIN_VOTES", "25")
     expect(resolveRatingMinVotes()).toBe(25)
-    vi.stubEnv("PICTORIUM_RATING_MIN_VOTES", "0")
+    vi.stubEnv("FLAMEFORGE_RATING_MIN_VOTES", "0")
     expect(resolveRatingMinVotes()).toBe(0)
   })
 })
@@ -368,7 +368,7 @@ describe("cache identity: provider version + type + min-votes policy", () => {
       expect(aggKeys[1]).toContain(":mdb:show:mv10")
 
       // Same identity, different policy → isolated again (no cross-policy reuse).
-      vi.stubEnv("PICTORIUM_RATING_MIN_VOTES", "0")
+      vi.stubEnv("FLAMEFORGE_RATING_MIN_VOTES", "0")
       await fetchAggregatedRating("tt_iso", "k", undefined, { mediaType: "movie" })
       expect(fetchMock).toHaveBeenCalledTimes(3)
       expect(seen.filter((k) => k.startsWith("mdb:raw:")).pop()).toMatch(/:mv0$/)
@@ -404,3 +404,5 @@ describe("auth semantics: no futile keyless upstream, 401 transient", () => {
     expect(isMdblistBreakerOpen()).toBe(false)
   })
 })
+
+

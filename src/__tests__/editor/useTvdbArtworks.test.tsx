@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi, afterEach } from "vitest"
 import { renderHook, waitFor } from "@testing-library/react"
 import type { ReactNode } from "react"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import { MOCK_CTX } from "@/__tests__/test-utils"
@@ -24,7 +24,7 @@ function DynWrapper({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
       <PosterEditorProvider>
-        <PictoriumProvider value={{ ...MOCK_CTX, selected: currentSel }}>{children}</PictoriumProvider>
+        <FlameForgeProvider value={{ ...MOCK_CTX, selected: currentSel }}>{children}</FlameForgeProvider>
       </PosterEditorProvider>
     </ThemeProvider>
   )
@@ -433,3 +433,5 @@ describe("tvdb-gallery-types guard", () => {
     expect(list[0]).toMatchObject({ url: IMG("/banners/v4/poster/ok.jpg"), language: "eng", source: "tvdb", type: 2 })
   })
 })
+
+

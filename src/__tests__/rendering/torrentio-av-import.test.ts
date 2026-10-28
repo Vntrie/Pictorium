@@ -309,8 +309,8 @@ describe("CLI subprocess (blocked apply + dry-run, no network, no writes)", () =
 
   function strippedEnv() {
     const env = { ...process.env }
-    delete env.PICTORIUM_TMDB_KEY
-    delete env.POSTERIUM_TMDB_KEY
+    delete env.FLAMEFORGE_TMDB_KEY
+    delete env.FLAMEFORGE_TMDB_KEY
     delete env.TMDB_KEY
     delete env.TMDB_API_KEY
     delete env.TMDB_BASE_URL
@@ -318,7 +318,7 @@ describe("CLI subprocess (blocked apply + dry-run, no network, no writes)", () =
   }
 
   function makeFixture() {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pictorium-avimport-cli-"))
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "FlameForge-avimport-cli-"))
     const dbPath = path.join(dir, "av-specs.json")
     const provenancePath = path.join(dir, "av-specs-torrentio-provenance.json")
     const checkpointPath = path.join(dir, "checkpoint.json")
@@ -369,3 +369,5 @@ describe("CLI subprocess (blocked apply + dry-run, no network, no writes)", () =
     expect(fs.existsSync(f.checkpointPath)).toBe(false)
   })
 })
+
+

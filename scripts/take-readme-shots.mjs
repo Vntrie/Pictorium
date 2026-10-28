@@ -1,8 +1,8 @@
-// Genera gli screenshot del README (public/Screen/*).
+﻿// Genera gli screenshot del README (public/Screen/*).
 //
-// Due modalità:
+// Due modalitÃ :
 //  - SENZA TMDB_KEY: usa il mock server E2E completo (gradiente al posto
-//    dell'artwork) — deterministico, senza rete.
+//    dell'artwork) â€” deterministico, senza rete.
 //  - CON TMDB_KEY (env): TMDB reale per dati e poster (artwork vero), mock
 //    solo per JustWatch/Wikidata/IMDb/MDBList (classifiche deterministiche).
 //
@@ -29,7 +29,7 @@ const APP_URL = `http://127.0.0.1:${APP_PORT}`
 
 const TMDB_KEY = process.env.TMDB_KEY || ""
 const REAL = !!TMDB_KEY
-console.log(`[shots] modalità: ${REAL ? "TMDB REALE (poster veri)" : "MOCK (gradiente)"}`)
+console.log(`[shots] modalitÃ : ${REAL ? "TMDB REALE (poster veri)" : "MOCK (gradiente)"}`)
 
 const children = []
 function start(cmd, args, env) {
@@ -65,8 +65,8 @@ process.on("exit", cleanup)
 function initScript(key) {
   return () => {
     try {
-      localStorage.setItem("pictorium_profile_id", "e2e")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_profile_id", "e2e")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       localStorage.setItem("preferred_lang", "it")
       localStorage.setItem("tmdb_key", key || "mock-tmdb-key-0000000000")
     } catch {}
@@ -83,9 +83,9 @@ async function newPage(browser) {
 
 const APP_ENV = {
   NEXT_DIST_DIR: ".next-e2e",
-  POSTERIUM_DATA_DIR: path.join(ROOT, ".next-e2e", "data"),
-  PICTORIUM_DATA_DIR: path.join(ROOT, ".next-e2e", "data"),
-  // In modalità reale NON sovrascriviamo TMDB_* (default = API/CDN reali).
+  FLAMEFORGE_DATA_DIR: path.join(ROOT, ".next-e2e", "data"),
+  FLAMEFORGE_DATA_DIR: path.join(ROOT, ".next-e2e", "data"),
+  // In modalitÃ  reale NON sovrascriviamo TMDB_* (default = API/CDN reali).
   ...(REAL ? {} : {
     TMDB_BASE_URL: `${MOCK_URL}/3`,
     TMDB_IMG_URL: `${MOCK_URL}/t/p`,
@@ -104,7 +104,7 @@ const APP_ENV = {
 }
 
 try {
-  console.log("[shots] avvio mock server + app…")
+  console.log("[shots] avvio mock server + appâ€¦")
   start(process.execPath, ["e2e/mock-server.mjs"], { MOCK_PORT: String(MOCK_PORT) })
   await waitForUrl(`${MOCK_URL}/healthz`, 15_000)
   start(process.execPath, ["./node_modules/next/dist/bin/next", "dev", "-H", "127.0.0.1", "-p", String(APP_PORT)], APP_ENV)
@@ -208,7 +208,7 @@ try {
   // ---- 4. Poster demo (render diretti /api/poster) ----
   {
     const demos = [
-      // Real: ramo non-mappato → badge con dati reali (genere/voto/anno reali).
+      // Real: ramo non-mappato â†’ badge con dati reali (genere/voto/anno reali).
       // Mock: poster esplicito (nessun fetch TMDB) + anno fisso.
       { file: "1405.jpg", type: "movie", id: 1405, mock: "poster=/mocked/avatar.jpg&year=1924", real: "" },
       { file: "66732.jpg", type: "tv", id: 66732, mock: "poster=/mocked/avatar.jpg&year=2016", real: "ranking=1&rank=2&rs=netflix" },
@@ -235,3 +235,4 @@ try {
 } finally {
   cleanup()
 }
+

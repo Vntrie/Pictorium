@@ -67,7 +67,7 @@ function mdblistCalls(mock: ReturnType<typeof vi.fn>): number {
 function rawKvSets(): Array<{ key: string; envelope: string; ex: number }> {
   const calls = kvMock.set.mock.calls as Array<[key: unknown, value: unknown, opts?: { ex?: number }]>
   return calls
-    .filter(([key]) => String(key).startsWith("pictorium:cache:mdb:raw:"))
+    .filter(([key]) => String(key).startsWith("FlameForge:cache:mdb:raw:"))
     .map(([key, value, opts]) => ({ key: String(key), envelope: String(value), ex: opts?.ex ?? 0 }))
 }
 
@@ -206,3 +206,5 @@ describe("MDBList raw KV persistence (task 2)", () => {
     expect(kvMock.set).not.toHaveBeenCalled()
   })
 })
+
+

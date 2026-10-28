@@ -133,3 +133,4 @@ describe("moveSashItem (frecce + drag & drop)", () => {
     expect(input).toEqual([...order])
   })
 })
+

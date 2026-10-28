@@ -1,4 +1,4 @@
-# Custom Rating Provider
+﻿# Custom Rating Provider
 
 Optional backend enrichment from any external rating service, using IMDb IDs.
 The existing TMDb/MDBList `voteAverage` badge remains unchanged. Custom ratings
@@ -14,26 +14,26 @@ does the route fall back to `getExternalIds` (which needs a TMDB key).
 ## Configuration
 
 Endpoint can be set from the editor (Settings, admin) or via environment
-variables. The canonical prefix is `PICTORIUM_`; `POSTERIUM_` is supported as
+variables. The canonical prefix is `FLAMEFORGE_`; `FLAMEFORGE_` is supported as
 a legacy fallback through `envWithFallback()`. Canonical values take
 precedence. Precedence for the endpoint: **saved UI value > env** (empty UI
 value falls back to env). The API key header is env-only (`X-API-Key` default;
 previously saved UI values are still honored). The API key is env-only and
 never appears in the UI, tokens, mappings or URLs (`GET /api/defaults` is
 public).
-`PICTORIUM_CUSTOM_RATINGS` (or the editor display toggle) controls the row;
+`FLAMEFORGE_CUSTOM_RATINGS` (or the editor display toggle) controls the row;
 the endpoint needs `{imdbId}`, http(s) and no URL credentials (rejected on
 save with 400).
 
 | Environment variable | Default | Purpose |
 | --- | --- | --- |
-| `PICTORIUM_CUSTOM_RATING_ENABLED` | `false` | Enable with `true` or `1` |
-| `PICTORIUM_CUSTOM_RATING_ENDPOINT` | empty | HTTP(S) URL containing `{imdbId}` |
-| `PICTORIUM_CUSTOM_RATING_API_KEY` | unset | Optional secret sent only in a header |
-| `PICTORIUM_CUSTOM_RATING_API_KEY_HEADER` | `X-API-Key` | Header for the secret |
+| `FLAMEFORGE_CUSTOM_RATING_ENABLED` | `false` | Enable with `true` or `1` |
+| `FLAMEFORGE_CUSTOM_RATING_ENDPOINT` | empty | HTTP(S) URL containing `{imdbId}` |
+| `FLAMEFORGE_CUSTOM_RATING_API_KEY` | unset | Optional secret sent only in a header |
+| `FLAMEFORGE_CUSTOM_RATING_API_KEY_HEADER` | `X-API-Key` | Header for the secret |
 
 Example endpoint: `https://example.com/ratings/{imdbId}`.
-For IMDb ID `tt1375666`, Pictorium sends:
+For IMDb ID `tt1375666`, FlameForge sends:
 
 ```http
 GET /ratings/tt1375666 HTTP/1.1
@@ -95,11 +95,11 @@ Pill colors follow the ranking-badge convention (dark pill on light posters,
 light pill on dark ones via `topLight`); text uses per-label font selection and
 `textLength` stabilization like every other badge. Display is controlled
 per title via query `cr` > mapping `customRatings` > config token > server
-defaults (`PICTORIUM_CUSTOM_RATINGS`) > ON, ANDed with the env `enabled` above:
+defaults (`FLAMEFORGE_CUSTOM_RATINGS`) > ON, ANDed with the env `enabled` above:
 the row renders only when the provider is configured and display is on.
 The editor preview always sends an explicit `cr=0/1` so the WYSIWYG toggle
 never desyncs from a saved mapping default.
-Endpoint, API key and header stay env-only — they never travel in URLs, tokens
+Endpoint, API key and header stay env-only â€” they never travel in URLs, tokens
 or mappings. Asset uploads are left for a separate change; no public endpoint
 or token schema changes here beyond the `customRatings` display boolean.
 
@@ -112,3 +112,4 @@ probes the configured provider with the fixed sample `tt1375666` and returns
 It tests only the saved/env endpoint (never a client-supplied URL) and never
 exposes the API key. The Settings panel exposes it as a "Test provider" button
 next to the endpoint fields.
+

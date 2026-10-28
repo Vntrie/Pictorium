@@ -45,7 +45,7 @@ describe("guest guard", () => {
         "/?c=xyz",
         "/u/abc123/configure",
         "/u/abc123/manifest.json",
-        "/c/xyz/catalog/movie/pictorium-jw-movies",
+        "/c/xyz/catalog/movie/FlameForge-jw-movies",
       ]) {
         resetGuestGuardForTests()
         setUrl(url)
@@ -274,3 +274,5 @@ describe("guest guard", () => {
     })
   })
 })
+
+

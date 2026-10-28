@@ -1,16 +1,16 @@
-"use client"
+﻿"use client"
 
 /**
  * Effective-accent display sync (client, header transport).
  *
  * The poster renderer computes per-band adaptive badge fills on the fitted
  * canvas (see `poster-service.ts` + `effective-accent.ts`). The native editor
- * picker must show the hex ACTUALLY painted — never the legacy base, never an
+ * picker must show the hex ACTUALLY painted â€” never the legacy base, never an
  * OS-dialog value. Metadata arrives WITH the image bytes: every poster 200
- * carries the compact validated `X-Pictorium-Accent` header, parsed by the
+ * carries the compact validated `X-FlameForge-Accent` header, parsed by the
  * existing XHR blob load in `usePosterPreview` (same response, zero extra
  * requests) and published to the display store (`effective-accent-display`).
- * This hook is a pure `useSyncExternalStore` selector over that record —
+ * This hook is a pure `useSyncExternalStore` selector over that record â€”
  * there is no dedicated JSON fetch in the normal flow (the `?accentmeta=1`
  * route branch stays as a read-only diagnostic only, never required).
  *
@@ -34,7 +34,7 @@ export type EffectiveAccentStatus = EffectiveAccentDisplayStatus
 
 /**
  * Server snapshot (SSR/hydration): a stable unknown constant with no URL, no
- * metadata and generation zero — NEVER the mutable module `current` nor any
+ * metadata and generation zero â€” NEVER the mutable module `current` nor any
  * seeded client record (that would leak cross-request data into server HTML
  * and mismatch hydration). Client components marked `"use client"` still
  * render on the server during initial page generation, so the third
@@ -71,7 +71,7 @@ export interface EffectiveAccentState {
  * - `enabled` gates DISPLAY to when the automatic picker section is actually
  *   mounted/shown (BadgeControls badge tab) and the title is in automatic
  *   mode. Disabled (manual titles, thumbnails) resolves to honest `unknown`
- *   and the consumer keeps showing `accentColor` verbatim — a late automatic
+ *   and the consumer keeps showing `accentColor` verbatim â€” a late automatic
  *   record can never overwrite a manual selection because this hook only
  *   returns display data and never writes canonical state.
  */
@@ -85,7 +85,7 @@ export function useEffectiveAccent(previewUrl: string, enabled = true): Effectiv
     return { status: "unknown", meta: null }
   }
   // URL identity gating: the old hex disappears with the URL change itself
-  // (derived during render, no effect needed) — a stale record is never
+  // (derived during render, no effect needed) â€” a stale record is never
   // displayed as the new poster, even for a consumer mounted after the
   // producer published (e.g. badge tab opened minutes after the load).
   if (record.previewUrl !== previewUrl) {
@@ -104,7 +104,7 @@ export interface AccentPickerDisplay {
   /**
    * Picker reference: bottom by locality (the picker lives in the Genre
    * card); the bottom-zone gradient next (same zone); top only when it is
-   * the sole accent painter. Null → placeholder.
+   * the sole accent painter. Null â†’ placeholder.
    */
   readonly pickerHex: string | null
 }
@@ -112,7 +112,7 @@ export interface AccentPickerDisplay {
 /**
  * Pure picker-reference choice shared by the component and tests: bottom
  * wins by locality, then the bottom-zone gradient, then top as the fallback
- * — never a silent merged claim, never the detected-but-unused base.
+ * â€” never a silent merged claim, never the detected-but-unused base.
  */
 export function resolveAccentPickerDisplay(meta: EffectiveAccentMeta | null): AccentPickerDisplay {
   const bottomHex = meta?.genrePaints && meta.genreHex ? meta.genreHex : null
@@ -120,3 +120,4 @@ export function resolveAccentPickerDisplay(meta: EffectiveAccentMeta | null): Ac
   const gradientHex = meta?.gradientPaints && meta.gradientHex ? meta.gradientHex : null
   return { bottomHex, topHex, gradientHex, pickerHex: bottomHex ?? gradientHex ?? topHex ?? null }
 }
+

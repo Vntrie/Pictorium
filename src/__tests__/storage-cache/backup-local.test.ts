@@ -29,12 +29,12 @@ describe("collectLocalBackup", () => {
   it("raccoglie lingua, tema, ricerche e voci namespaced", () => {
     const s = memStorage({
       preferred_lang: "it",
-      pictorium_theme: "dark",
+      FLAMEFORGE_theme: "dark",
       recent_searches: JSON.stringify(["dune", "alien"]),
       [`badgeDefaults:${UUID}`]: JSON.stringify({ badgeStyle: "shadow" }),
       [`gradientPresets:${UUID}`]: JSON.stringify([{ id: "a", name: "Mio", values: { gradientHeight: 30, blurIntensity: 20, blurFade: 50, blurDarkness: 30, tintStrength: 20, blurEnabled: true } }]),
-      pictorium_custom_catalogs: JSON.stringify([{ id: "c1", name: "C", type: "movie", url: "https://x" }]),
-      pictorium_collections: JSON.stringify([{ id: "k", name: "K", posterIds: [], createdAt: 1 }]),
+      FLAMEFORGE_custom_catalogs: JSON.stringify([{ id: "c1", name: "C", type: "movie", url: "https://x" }]),
+      FLAMEFORGE_collections: JSON.stringify([{ id: "k", name: "K", posterIds: [], createdAt: 1 }]),
     })
     const out = collectLocalBackup(s, UUID)
     expect(out.lang).toBe("it")
@@ -49,10 +49,10 @@ describe("collectLocalBackup", () => {
   it("ignora valori invalidi e non tocca mai i segreti", () => {
     const s = memStorage({
       preferred_lang: "xx",
-      pictorium_theme: "rainbow",
+      FLAMEFORGE_theme: "rainbow",
       recent_searches: "nope",
       tmdb_key: "SECRET",
-      [`pictorium-user-token:${UUID}`]: "SECRET",
+      [`FlameForge-user-token:${UUID}`]: "SECRET",
     })
     const out = collectLocalBackup(s, UUID)
     expect(out.lang).toBeUndefined()
@@ -73,8 +73,8 @@ describe("collectLocalBackup", () => {
 
   it("raccoglie e ripristina le fonti ranking (stringa vuota = override JW)", () => {
     const s = memStorage({
-      pictorium_ranking_source_movie: "cat_movies",
-      pictorium_ranking_source_series: "",
+      FLAMEFORGE_ranking_source_movie: "cat_movies",
+      FLAMEFORGE_ranking_source_series: "",
     })
     expect(collectLocalBackup(s, UUID)).toMatchObject({
       rankingSources: { movie: "cat_movies", series: "" },
@@ -86,8 +86,8 @@ describe("collectLocalBackup", () => {
     })
     expect(res.applied).toContain("rankingSources.movie")
     expect(res.applied).toContain("rankingSources.series")
-    expect(target.dump()["pictorium_ranking_source_movie"]).toBe("cat_movies")
-    expect(target.dump()["pictorium_ranking_source_series"]).toBe("")
+    expect(target.dump()["FLAMEFORGE_ranking_source_movie"]).toBe("cat_movies")
+    expect(target.dump()["FLAMEFORGE_ranking_source_series"]).toBe("")
 
     const bad = applyLocalBackup(memStorage(), UUID, {
       rankingSources: { movie: "x".repeat(65), series: 42 },
@@ -113,11 +113,11 @@ describe("applyLocalBackup", () => {
     expect(res.skipped).toEqual([])
     const dump = s.dump()
     expect(dump.preferred_lang).toBe("fr")
-    expect(dump.pictorium_theme).toBe("light")
+    expect(dump.FLAMEFORGE_theme).toBe("light")
     expect(JSON.parse(dump.recent_searches)).toEqual(["dune"])
     expect(dump[`badgeDefaults:${UUID}`]).toContain("colored")
     expect(dump[`gradientPresets:${UUID}`]).toContain("Mio")
-    expect(JSON.parse(dump.pictorium_catalog_order)).toEqual(["a", "b"])
+    expect(JSON.parse(dump.FLAMEFORGE_catalog_order)).toEqual(["a", "b"])
   })
 
   it("scarta voci invalide senza lanciare", () => {
@@ -268,3 +268,5 @@ describe("stripLocalPersonalKeys", () => {
     expect(stripLocalPersonalKeys(null)).toBeNull()
   })
 })
+
+

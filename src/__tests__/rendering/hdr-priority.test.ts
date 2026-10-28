@@ -59,3 +59,4 @@ describe("hdr10plus render priority over generic hdr", () => {
     expect([...input]).toEqual(snapshot)
   })
 })
+

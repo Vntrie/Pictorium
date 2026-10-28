@@ -152,3 +152,4 @@ describe("CustomCatalogModal Trakt owner-private preview", () => {
     expect(screen.queryByRole("button", { name: "ui.customTraktConnect" })).toBeNull()
   })
 })
+

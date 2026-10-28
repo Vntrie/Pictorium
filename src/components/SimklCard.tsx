@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import { posterUrl } from "@/lib/utils"
@@ -37,7 +37,7 @@ interface SimklCardProps {
   removeLabel?: string
   /**
    * Optional discreet publication line rendered under the footer (per-card
-   * Pictorium sync time or the honest unknown text, built by the caller).
+   * FlameForge sync time or the honest unknown text, built by the caller).
    * Omitted = byte-identical legacy card (no extra DOM).
    */
   publication?: React.ReactNode
@@ -76,7 +76,7 @@ export function SimklCard({ items, title, totalCount, meta = [], onClick, onItem
       <div className="posters">
         {displayItems.length === 0 ? (
           // Honest empty state (genuine empty snapshot, never a fetch
-          // failure — those keep their own error/notice branches): a blank
+          // failure â€” those keep their own error/notice branches): a blank
           // 185px rail hides the outcome and looks broken. The rail keeps its
           // geometry (no layout shift when rows arrive); only the void gets a
           // message, reusing the platform-sections empty copy (no new i18n).
@@ -110,8 +110,8 @@ export function SimklCard({ items, title, totalCount, meta = [], onClick, onItem
             >
               <PosterDepthEdge edgeStrength={40} edgeCoverage={10} />
               {/* h-full sul wrapper: senza altezza definita, l'h-full dell'img
-                  collassa sul ratio intrinseco (115px × ratio) e i poster più
-                  "quadrati" del 2:3 (es. Sesto Senso 836×1203) lasciano una
+                  collassa sul ratio intrinseco (115px Ã— ratio) e i poster piÃ¹
+                  "quadrati" del 2:3 (es. Sesto Senso 836Ã—1203) lasciano una
                   striscia vuota in fondo alla tile 170px. Con h-full l'img
                   riempie sempre e object-cover ritaglia simmetrico. */}
               <div className="relative z-[1] h-full">
@@ -145,7 +145,7 @@ export function SimklCard({ items, title, totalCount, meta = [], onClick, onItem
       <div className="info">
         <h3>
           <span className="truncate">{title}</span>
-          <span className="grid-hint ml-2 shrink-0" title={t("ui.viewAll")}>⧉</span>
+          <span className="grid-hint ml-2 shrink-0" title={t("ui.viewAll")}>â§‰</span>
         </h3>
         <div className="meta flex items-center justify-between mt-2.5">
           {footerAdornment ? (
@@ -212,3 +212,4 @@ export function SimklCard({ items, title, totalCount, meta = [], onClick, onItem
     </div>
   )
 }
+

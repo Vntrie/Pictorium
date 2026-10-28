@@ -205,3 +205,4 @@ describe("getContentRatings (shared tmdbFetch layer)", () => {
     await expect(getContentRatings(1403, undefined)).rejects.toThrow("TMDB API key is missing")
   })
 })
+

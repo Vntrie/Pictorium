@@ -1,13 +1,13 @@
-/**
+﻿/**
  * Effective-accent display record (client, display-only).
  *
  * Primary transport: the poster image response itself carries compact
- * validated metadata in the `X-Pictorium-Accent` header. `usePosterPreview`
- * (the existing XHR blob load — no new fetch, no second render) parses that
+ * validated metadata in the `X-FlameForge-Accent` header. `usePosterPreview`
+ * (the existing XHR blob load â€” no new fetch, no second render) parses that
  * header on every successful load and publishes the record here, tied to the
  * EXACT preview URL + producer generation of the SAME image. `BadgeControls`
  * reads it via `useEffectiveAccent` (a pure `useSyncExternalStore`
- * selector — zero JSON-hook traffic in the normal flow).
+ * selector â€” zero JSON-hook traffic in the normal flow).
  *
  * - A new load (URL/shape change, rank-source/catalog/retry nonce refetch)
  *   publishes `loading` FIRST: stale values can never claim the new preview.
@@ -18,7 +18,7 @@
  *   and keeps the last successful record while its preview URL is displayed,
  *   so opening the native picker minutes later still shows the painted hex.
  * - Generation guard: a superseded XHR whose `onload` fires late (e.g. after
- *   `abort()`) must not publish — latest image + metadata pair always wins.
+ *   `abort()`) must not publish â€” latest image + metadata pair always wins.
  * - Display/canonical split (normative): this record MUST NEVER feed
  *   `isManualAccent`, `ac=` emission, mapping persistence, or globals.
  */
@@ -70,3 +70,4 @@ export function publishEffectiveAccentDisplay(next: EffectiveAccentDisplayRecord
 export function __resetEffectiveAccentDisplayForTests(): void {
   current = INITIAL
 }
+

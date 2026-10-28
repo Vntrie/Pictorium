@@ -203,3 +203,4 @@ describe("desktop compact change leaves mobile branches untouched", () => {
     expect(await screen.findByTestId("defaults-preview-zoom-open")).toBeInTheDocument()
   })
 })
+

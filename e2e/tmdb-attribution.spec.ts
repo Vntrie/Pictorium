@@ -1,10 +1,10 @@
-import { test, expect, type Page } from "@playwright/test"
+﻿import { test, expect, type Page } from "@playwright/test"
 
 /**
  * Narrow, focused browser acceptance for the TMDB attribution footer
  * (HomeStatusStrip "Credits" region).
  *
- * Scope (real browser layout — no CSS/geometry mocking, no live credentials):
+ * Scope (real browser layout â€” no CSS/geometry mocking, no live credentials):
  *  - the exact notice is always visible (320px mobile included) and the local
  *    official logo is actually served and rendered;
  *  - the rendered logo keeps the intrinsic aspect ratio at 20px height;
@@ -21,7 +21,7 @@ const NOTICE =
   "This product uses the TMDB API but is not endorsed or certified by TMDB."
 const LOGO_SRC =
   "/attribution/tmdb/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg"
-// Intrinsic viewBox of the official file is 185.04 x 133.4 — the same ratio as
+// Intrinsic viewBox of the official file is 185.04 x 133.4 â€” the same ratio as
 // the integer width/height attributes on the <img> (18504 x 13340).
 const INTRINSIC_W = 18504
 const INTRINSIC_H = 13340
@@ -36,9 +36,9 @@ async function openHome(page: Page) {
   await page.addInitScript(() => {
     try {
       localStorage.clear()
-      localStorage.setItem("pictorium_profile_id", "e2e-tmdb-attribution")
-      localStorage.setItem("pictorium_profile_stateless", "1")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_profile_id", "e2e-tmdb-attribution")
+      localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       localStorage.setItem("preferred_lang", "it")
       localStorage.setItem("tmdb_key", "")
     } catch {}
@@ -54,7 +54,7 @@ async function openHome(page: Page) {
 }
 
 for (const vp of VIEWPORTS) {
-  test(`TMDB attribution footer — visible, undistorted, non-overlapping @ ${vp.name}`, async ({ page }) => {
+  test(`TMDB attribution footer â€” visible, undistorted, non-overlapping @ ${vp.name}`, async ({ page }) => {
     await page.setViewportSize({ width: vp.width, height: vp.height })
 
     // Attach before navigation so the logo request is never missed.
@@ -100,7 +100,7 @@ for (const vp of VIEWPORTS) {
     ).toBeLessThan(0.02)
 
     // 4. No horizontal overflow. The app-shell sets overflow-x:hidden, which
-    //    can mask document scrollWidth — the element rects below are the
+    //    can mask document scrollWidth â€” the element rects below are the
     //    authoritative overflow check.
     const metrics = await page.evaluate(() => ({
       scrollW: document.documentElement.scrollWidth,
@@ -161,3 +161,4 @@ for (const vp of VIEWPORTS) {
     )
   })
 }
+

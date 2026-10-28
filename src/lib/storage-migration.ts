@@ -1,14 +1,14 @@
-"use client"
+﻿"use client"
 
 import { normalizeCatalogId } from "@/lib/catalog-definitions"
 
 /**
- * Migrazione one-time rename Posterium → Pictorium per il localStorage.
+ * Migrazione one-time rename Posterium â†’ FlameForge per il localStorage.
  *
  * Al primo mount dopo il rename copia ogni chiave legacy `posterium_*` nella
- * corrispondente `pictorium_*` (solo se la nuova è assente, per non
- * sovrascrivere scelte già fatte col nuovo brand), normalizza gli ID catalogo
- * legacy (`posterium-*` → `pictorium-*`) dentro le liste salvate e rimuove le
+ * corrispondente `FLAMEFORGE_*` (solo se la nuova Ã¨ assente, per non
+ * sovrascrivere scelte giÃ  fatte col nuovo brand), normalizza gli ID catalogo
+ * legacy (`posterium-*` â†’ `FlameForge-*`) dentro le liste salvate e rimuove le
  * vecchie chiavi. Idempotente: un flag dedicato evita di rieseguirla.
  *
  * Le chiavi neutre (`tmdb_key`, `mdblist_key`, `tvdb_key`, `preferred_lang`,
@@ -16,8 +16,8 @@ import { normalizeCatalogId } from "@/lib/catalog-definitions"
  */
 
 const LEGACY_PREFIX = "posterium_"
-const CANONICAL_PREFIX = "pictorium_"
-const MIGRATED_FLAG = "pictorium_storage_migrated_v1"
+const CANONICAL_PREFIX = "FLAMEFORGE_"
+const MIGRATED_FLAG = "FLAMEFORGE_storage_migrated_v1"
 
 /** Basi chiave soggette a migrazione (senza prefisso). */
 const MIGRATABLE_KEYS = [
@@ -38,9 +38,9 @@ const MIGRATABLE_KEYS = [
 
 /** Chiavi i cui VALORI sono liste di ID catalogo da normalizzare. */
 const CATALOG_ID_LIST_KEYS = new Set([
-  "pictorium_disabled_catalogs",
-  "pictorium_home_disabled_catalogs",
-  "pictorium_catalog_order",
+  "FLAMEFORGE_disabled_catalogs",
+  "FLAMEFORGE_home_disabled_catalogs",
+  "FLAMEFORGE_catalog_order",
 ])
 
 function normalizeIdListValue(raw: string): string {
@@ -78,13 +78,14 @@ export function migrateLegacyStorage(): void {
       if (ls.getItem(newKey) === null) {
         let value = oldValue
         if (CATALOG_ID_LIST_KEYS.has(newKey)) value = normalizeIdListValue(oldValue)
-        else if (newKey === "pictorium_catalog_renames") value = normalizeRenamesValue(oldValue)
+        else if (newKey === "FLAMEFORGE_catalog_renames") value = normalizeRenamesValue(oldValue)
         ls.setItem(newKey, value)
       }
       ls.removeItem(oldKey)
     }
     ls.setItem(MIGRATED_FLAG, "1")
   } catch {
-    // localStorage non disponibile (SSR, Safari ITP) — nessun crash
+    // localStorage non disponibile (SSR, Safari ITP) â€” nessun crash
   }
 }
+

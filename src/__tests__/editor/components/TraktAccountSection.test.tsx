@@ -351,3 +351,4 @@ describe("TraktAccountSection", () => {
     expect(await screen.findByText("ui.traktDisconnected")).toBeInTheDocument()
   })
 })
+

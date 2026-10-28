@@ -1,19 +1,19 @@
-/**
+﻿/**
  * Cache LRU dei byte immagine grezzi, keyed per URL finale (F3, I/O audit).
  *
  * Le cache image-level esistenti salvano artefatti sharp (colori, resize) ma
  * non i byte scaricati: ogni render con cache key diversa per lo stesso titolo
  * (tick di preview, rank che cambia, bump mapping/RENDER_VERSION) ripagava la
- * CDN anche a passaggi sharp già cachati. Questo strato azzera i re-download.
+ * CDN anche a passaggi sharp giÃ  cachati. Questo strato azzera i re-download.
  *
  * Limiti deliberati:
  * - Solo URL finali (path TMDB/artworks immutabili per costruzione) con TTL
- *   24h — le URL immagine non portano mai api_key, niente segreti in chiave.
- * - Budget byte DEDICATO (default 32MB, `PICTORIUM_IMG_CACHE_MB`, 0 = off),
+ *   24h â€” le URL immagine non portano mai api_key, niente segreti in chiave.
+ * - Budget byte DEDICATO (default 32MB, `FLAMEFORGE_IMG_CACHE_MB`, 0 = off),
  *   separato dal budget dei poster renderizzati: i byte non devono mai far
- *   evictare l'entry più preziosa (il poster composto).
+ *   evictare l'entry piÃ¹ preziosa (il poster composto).
  * - Mai abort/errori in cache: solo buffer completi e validati dal chiamante.
- * - Solo osservabilità aggiuntiva (stats), nessuna semantica di fetch alterata.
+ * - Solo osservabilitÃ  aggiuntiva (stats), nessuna semantica di fetch alterata.
  */
 
 import { envWithFallback } from "./env-compat"
@@ -26,7 +26,7 @@ const MAX_CACHED_URLS = 2000
 const IMG_CACHE_MB = (() => {
   const raw = envWithFallback("IMG_CACHE_MB")
   const n = raw ? parseFloat(raw) : 32
-  // Clamp 0off–512MB: 0 disabilita, oltre è heap senza senso per i byte.
+  // Clamp 0offâ€“512MB: 0 disabilita, oltre Ã¨ heap senza senso per i byte.
   return Number.isFinite(n) && n >= 0 && n <= 512 ? n : 32
 })()
 const IMG_CACHE_BUDGET_BYTES = Math.round(IMG_CACHE_MB * 1024 * 1024)
@@ -68,7 +68,7 @@ function evictFor(size: number): void {
 }
 
 /**
- * Read-through sui byte immagine: hit → buffer cachato; miss → `doFetch()`
+ * Read-through sui byte immagine: hit â†’ buffer cachato; miss â†’ `doFetch()`
  * (la logica esistente del chiamante: SSRF check, signal, validazione size)
  * e memorizzazione solo su successo. Stesso pattern di coalescing di tmdb.ts:
  * N waiter concorrenti sullo stesso URL condividono un solo download.
@@ -83,7 +83,7 @@ function evictFor(size: number): void {
  * gareggia col proprio abort (raceWithAbort, come tmdb.ts) invece di restare
  * ostaggio di un download lento oltre il proprio timeout interno (15s di
  * fetchImg) o la deadline del proprio render. Il detach non abortisce il
- * leader né gli altri waiter (solo la propria attesa); dopo il proprio abort
+ * leader nÃ© gli altri waiter (solo la propria attesa); dopo il proprio abort
  * mai retry (l'entry condivisa resta del leader). Senza `signal` il percorso
  * resta byte-identico a prima.
  */
@@ -105,7 +105,7 @@ async function cachedImageBytesOnce(
   retryAsWaiter: boolean,
   signal?: AbortSignal,
 ): Promise<Buffer> {
-  // Waiter pre-abortito: mai join/start/retry — ma una hit già disponibile
+  // Waiter pre-abortito: mai join/start/retry â€” ma una hit giÃ  disponibile
   // resta servita (stessa semantica degli altri layer: la cache non abortisce).
   if (signal?.aborted && !bytesCacheHasFresh(url)) return abortRejection(signal)
   if (IMG_CACHE_BUDGET_BYTES <= 0) {
@@ -127,15 +127,15 @@ async function cachedImageBytesOnce(
   const existing = inflightBytes.get(url)
   if (existing) {
     // Gara col proprio abort (come tmdb.ts): il waiter esce alla propria
-    // scadenza senza abortire il leader né gli altri waiter — solo la sua
+    // scadenza senza abortire il leader nÃ© gli altri waiter â€” solo la sua
     // attesa. Senza signal il percorso resta byte-identico a prima.
     if (!retryAsWaiter) return raceWithAbort(existing, signal)
     if (!signal) return existing.catch(() => cachedImageBytesOnce(url, doFetch, false))
     try {
       return await raceWithAbort(existing, signal)
     } catch {
-      // Abort proprio: mai retry dopo il proprio abort (né join all'entry
-      // fresca del retry altrui: l'attesa è finita). Fallimento del leader a
+      // Abort proprio: mai retry dopo il proprio abort (nÃ© join all'entry
+      // fresca del retry altrui: l'attesa Ã¨ finita). Fallimento del leader a
       // waiter sano: un solo retry col proprio doFetch, come prima.
       if (signal.aborted) {
         throw signalAbortReason(signal)
@@ -172,7 +172,7 @@ export function imageBytesStats(): ImageBytesStats {
 }
 
 /**
- * Lettura senza fetch (hit → buffer + promote MRU, miss/scaduto → null).
+ * Lettura senza fetch (hit â†’ buffer + promote MRU, miss/scaduto â†’ null).
  * Serve ai consumer con condivisione in-flight propria (basi custom): la hit
  * non tocca la rete, il miss passa dal loro download condiviso e rientra con
  * storeImageBytes. Stesse regole di cachedImageBytes (TTL, budget, conteggi).
@@ -194,7 +194,7 @@ export function peekImageBytes(url: string): Buffer | null {
 }
 
 /**
- * Memorizza buffer già scaricati e validati dal chiamante (mai abort/errori).
+ * Memorizza buffer giÃ  scaricati e validati dal chiamante (mai abort/errori).
  * Stesse regole di cachedImageBytes (cap entry, budget, max URL, MRU).
  */
 export function storeImageBytes(url: string, buf: Buffer): void {
@@ -227,3 +227,4 @@ export function __resetImageBytesForTest(): void {
   bytesStats.misses = 0
   bytesStats.evictions = 0
 }
+

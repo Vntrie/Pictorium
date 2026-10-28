@@ -1,5 +1,5 @@
-/**
- * Shared Trakt `/oauth/token` + `/oauth/revoke` helpers — PKCE public client
+﻿/**
+ * Shared Trakt `/oauth/token` + `/oauth/revoke` helpers â€” PKCE public client
  * (no client secret anywhere: user sign-in runs secretless per the official
  * PKCE docs, and refresh runs secretless via `POST /oauth/token` per the
  * official Authentication docs, both Oct 2026).
@@ -8,15 +8,15 @@
  * request reference found on developer.trakt.tv): the revoke shape below is
  * best-effort and operationally unverified, so the local fence+delete in
  * `trakt-auth.ts` (`disconnectTraktProfile`) is the tested source of truth
- * for disconnect — never the upstream answer. Users who need the Trakt-side
+ * for disconnect â€” never the upstream answer. Users who need the Trakt-side
  * authorization provably gone should also remove the app under Trakt
- * Settings → Applications (https://trakt.tv/settings/apps).
+ * Settings â†’ Applications (https://trakt.tv/settings/apps).
  *
  * SERVER-ONLY: no `node:` imports (fetch/AbortController only), reachable
  * only from server lib modules (`trakt-auth.ts`) and server routes
  * (`/api/trakt/callback`, `/api/users/[uuid]/trakt/disconnect`). NEVER
  * import from client components or shared client/server leaves. Carries no
- * tokens itself — callers keep them in server memory only.
+ * tokens itself â€” callers keep them in server memory only.
  *
  * Single schema validator for every token response (initial code exchange
  * AND refresh): both token materials present, finite `expires_in`/
@@ -36,8 +36,8 @@ import { APP_VERSION } from "@/generated/app-version"
 
 const log = createLogger("trakt-token-exchange")
 
-/** Outbound app identity (canonical `Pictorium/<version>` pattern, same as simkl.ts). */
-const TRAKT_OAUTH_USER_AGENT = `Pictorium/${APP_VERSION}`
+/** Outbound app identity (canonical `FlameForge/<version>` pattern, same as simkl.ts). */
+const TRAKT_OAUTH_USER_AGENT = `FlameForge/${APP_VERSION}`
 
 /** Deployment OAuth client (structural: matches `TraktOAuthConfig` without importing it). */
 export interface TraktOAuthClient {
@@ -54,7 +54,7 @@ export function traktOAuthBase(): string {
   return "https://api.trakt.tv"
 }
 
-/** Exchange cap: live-read so tests can shrink it; clamped 100ms–30s. */
+/** Exchange cap: live-read so tests can shrink it; clamped 100msâ€“30s. */
 export function traktTokenTimeoutMs(): number {
   const raw = envWithFallback("TRAKT_TIMEOUT_MS")
   const n = raw ? parseInt(raw, 10) : 8000
@@ -72,7 +72,7 @@ export interface TraktTokenResponse {
 
 /**
  * Validate the official `/oauth/token` response schema BEFORE persisting.
- * Throws on anything else — callers fail closed without overwriting.
+ * Throws on anything else â€” callers fail closed without overwriting.
  */
 export function toTraktTokenResponse(data: unknown): TraktTokenResponse {
   if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("Invalid token response")
@@ -122,7 +122,7 @@ export class TraktTokenRequestError extends Error {
 /**
  * Read a 400/401 error body for the OAuth2 `invalid_grant` marker. The body
  * is consumed as text (never logged, never returned) and only the boolean
- * travels on. Any read/parse trouble → false (fail transient, never delete).
+ * travels on. Any read/parse trouble â†’ false (fail transient, never delete).
  */
 async function isInvalidGrant(res: Response): Promise<boolean> {
   try {
@@ -148,7 +148,7 @@ async function isInvalidGrant(res: Response): Promise<boolean> {
  * required-headers guide): JSON content type, app/version User-Agent,
  * API version 2, and the caller config client ID as `trakt-api-key`
  * (the same bundle that lets the token request past the edge). The
- * client ID comes from the caller's config — never re-read from env —
+ * client ID comes from the caller's config â€” never re-read from env â€”
  * so test overrides and per-request config stay authoritative. No
  * Authorization header here: these calls are secretless by design.
  */
@@ -229,9 +229,9 @@ export async function exchangeTraktCode(
 }
 
 /**
- * Local PKCE verifier check before the exchange: 43–128 unreserved chars.
+ * Local PKCE verifier check before the exchange: 43â€“128 unreserved chars.
  * A wrong/tampered verifier fails closed here (no network spent, nothing
- * persisted) — and would fail upstream too, since Trakt compares it against
+ * persisted) â€” and would fail upstream too, since Trakt compares it against
  * the initiation challenge. Never logged, never returned.
  */
 function checkCodeVerifier(verifier: unknown): string {
@@ -266,15 +266,15 @@ export async function refreshTraktToken(
 
 /**
  * Best-effort server-side revocation attempt for explicit disconnect. The
- * request shape (`token` + `client_id`, no secret — there is none to send)
+ * request shape (`token` + `client_id`, no secret â€” there is none to send)
  * is NOT documented in the current official PKCE/Authentication docs
  * (operational verification pending), so this is best-effort only.
  * Returns true only on a 2xx from the provider; every other outcome
- * (outage, 4xx/5xx, timeout, misconfiguration) is false — the caller ALWAYS
+ * (outage, 4xx/5xx, timeout, misconfiguration) is false â€” the caller ALWAYS
  * proceeds with the local disconnect regardless (the local fence+delete is
  * the source of truth, never the upstream answer). Never throws, never logs
  * bodies/tokens. A `false` here means the Trakt-side authorization may still
- * exist: users can remove it manually under Trakt Settings → Applications
+ * exist: users can remove it manually under Trakt Settings â†’ Applications
  * (https://trakt.tv/settings/apps).
  */
 export async function revokeTraktToken(
@@ -305,3 +305,4 @@ export async function revokeTraktToken(
     clearTimeout(timer)
   }
 }
+

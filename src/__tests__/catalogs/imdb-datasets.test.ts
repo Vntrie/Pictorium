@@ -45,8 +45,8 @@ describe("POST /api/mdblist/custom-imdb", () => {
   let tempDir: string
 
   beforeEach(async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-imdb-"))
-    vi.stubEnv("PICTORIUM_DATA_DIR", tempDir)
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-imdb-"))
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", tempDir)
     vi.resetModules()
   })
 
@@ -177,3 +177,5 @@ describe("POST /api/mdblist/custom-imdb", () => {
     expect(res.status).toBe(401)
   })
 })
+
+

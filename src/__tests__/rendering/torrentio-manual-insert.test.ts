@@ -221,7 +221,7 @@ describe("buildManualProvenanceEntry (allowlist-only companion record)", () => {
 })
 
 function makeManualFixture(extraDb: Record<string, { quality: string; formats: string[] }> = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pictorium-manual-insert-"))
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "FlameForge-manual-insert-"))
   const db = { tt0000001: { quality: "4K", formats: ["dv"] }, ...extraDb }
   const dbPath = path.join(dir, "av-specs.json")
   fs.writeFileSync(dbPath, `${JSON.stringify(sortedCopy(db), null, 2)}\n`, "utf-8")
@@ -413,3 +413,5 @@ describe("Reacher local entry regression (tt9288030 / TMDB tv 108978)", () => {
     ])
   })
 })
+
+

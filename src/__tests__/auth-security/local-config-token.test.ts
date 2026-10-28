@@ -101,3 +101,4 @@ describe("useLocalConfigToken", () => {
     await waitFor(() => expect(result.current.status).not.toBe("ready"))
   })
 })
+

@@ -1,8 +1,8 @@
-import { WorkerEntrypoint } from "cloudflare:workers";
+﻿import { WorkerEntrypoint } from "cloudflare:workers";
 
 // scripts/cloudflare-poster-worker.mjs
 //
-// Optional edge cache for the Pictorium poster origin. NOT deployed by this
+// Optional edge cache for the FlameForge poster origin. NOT deployed by this
 // repo (ships wrangler.jsonc, no deploy script / no automatic deploy): paste
 // this file's content into a Cloudflare Worker manually, or deploy it with
 // wrangler for the native tiered path.
@@ -10,7 +10,7 @@ import { WorkerEntrypoint } from "cloudflare:workers";
 // Usage:
 //   1. Create a Worker with this file's content (Cloudflare dashboard).
 //   2. Set the `ORIGIN_URL` variable to the actual public poster origin
-//      (default: https://pictorium.duckdns.org). It must be the real desired
+//      (default: https://FlameForge.duckdns.org). It must be the real desired
 //      host; the worker never derives the host from the request path.
 //   3. Route poster paths to it (e.g. `posters.example.com/api/poster/*`).
 //      Anything else is proxied without caching.
@@ -61,7 +61,7 @@ import { WorkerEntrypoint } from "cloudflare:workers";
 //   edge-normalized copy upstream instead (`edgeCacheControl`: SWR/SIE
 //   stripped, `stale-if-error=0` pinned so the indefinite-error default
 //   cannot add stale serving) while smuggling the untouched original in
-//   `x-pictorium-tier-edge-cc` for gateway restore. The client always sees
+//   `x-FlameForge-tier-edge-cc` for gateway restore. The client always sees
 //   the exact origin policy (`Age` passthrough is header fidelity only,
 //   never an expiration proof); the normalized
 //   copy exists only in the upper tier. Successful tier responses are NEVER
@@ -76,7 +76,7 @@ import { WorkerEntrypoint } from "cloudflare:workers";
 //
 //   Enable with ALL of the following (anything missing = legacy local-only
 //   behavior, byte-identical to before):
-//   - `PICTORIUM_TIERED_CACHE=1` (or `true`) in the Worker variables.
+//   - `FLAMEFORGE_TIERED_CACHE=1` (or `true`) in the Worker variables.
 //   - Wrangler `cache.enabled` with a per-entrypoint split (requires
 //     Wrangler 4.107.0+, see "Per-entrypoint caching" in the official docs):
 //       { "cache": { "enabled": true },
@@ -114,7 +114,7 @@ import { WorkerEntrypoint } from "cloudflare:workers";
 //   - `Vary` is always preserved to the client. A stored copy may drop only
 //     the tracked tokens (the key already tracks them) and keeps the FULL
 //     origin `Vary` in the reserved internal header
-//     `x-pictorium-worker-origin-vary` (overwritten when spoofed); any other
+//     `x-FlameForge-worker-origin-vary` (overwritten when spoofed); any other
 //     meaningful `Vary` token (e.g. `Cookie`, `Authorization`) skips storage.
 //     `Accept-Encoding` is transport-level and ignored conservatively.
 //   - Credential headers / secret query keys are NEVER stripped: they bypass
@@ -126,11 +126,11 @@ import { WorkerEntrypoint } from "cloudflare:workers";
 //     untouched: no SWR is implemented or claimed.
 //   - Cache `match`/`put` failures (sync or async) never break the response;
 //     `waitUntil` work logs a fixed message (no URLs, no secrets).
-//   - Every response carries `x-pictorium-worker: HIT | MISS | BYPASS`
+//   - Every response carries `x-FlameForge-worker: HIT | MISS | BYPASS`
 //     (diagnostic marker only).
 
-const DEFAULT_ORIGIN_URL = "https://pictorium.duckdns.org";
-const CACHE_KEY_PREFIX = "/.pictorium-poster-cache/v2/";
+const DEFAULT_ORIGIN_URL = "https://FlameForge.duckdns.org";
+const CACHE_KEY_PREFIX = "/.FlameForge-poster-cache/v2/";
 const POSTER_PATH_PREFIX = "/api/poster/";
 
 // Worker-internal params: stripped from the upstream target AND from the key.
@@ -180,25 +180,25 @@ const TRACKED_KEY_HEADERS = [
 ];
 // Reserved internal header holding the FULL origin `Vary` on the stored copy.
 // Synthetic cache metadata: never sent to the client (stripped on HIT).
-const ORIGIN_VARY_HEADER = "x-pictorium-worker-origin-vary";
+const ORIGIN_VARY_HEADER = "x-FlameForge-worker-origin-vary";
 // Opt-in flag for the tiered upper layer (Workers Caching gateway pattern).
-const TIERED_FLAG_NAME = "PICTORIUM_TIERED_CACHE";
+const TIERED_FLAG_NAME = "FLAMEFORGE_TIERED_CACHE";
 // Reserved internal header smuggling the original `Cache-Control` when the
 // inner entrypoint neutralizes a response for the upper tier. Gateway-only
 // metadata: never sent to the client (restored/stripped in finalize).
-const TIER_ORIG_CC_HEADER = "x-pictorium-tier-orig-cc";
+const TIER_ORIG_CC_HEADER = "x-FlameForge-tier-orig-cc";
 // Reserved internal header smuggling the ORIGINAL `Cache-Control` when the
 // inner entrypoint stores an edge-normalized copy upstream (SWR/SIE
 // stripped, `stale-if-error=0` pinned; see `edgeCacheControl`).
 // Gateway-only metadata: the gateway restores the exact original for the
 // client, so the freshness contract never changes. Spoofed values are stripped
 // in the inner entrypoint before either header is ever set.
-const TIER_EDGE_CC_HEADER = "x-pictorium-tier-edge-cc";
+const TIER_EDGE_CC_HEADER = "x-FlameForge-tier-edge-cc";
 // Prefix for the documented `cf.cacheKey` override on the `ctx.exports`
 // loopback: the suffix is the opaque canonical digest (origin + path +
 // sorted query + raw Accept/RSC classes), so the upper-tier key partitions
 // every raw class the lower-tier synthetic key tracks.
-const TIER_CACHE_KEY_PREFIX = "pictorium-poster-tier:";
+const TIER_CACHE_KEY_PREFIX = "FlameForge-poster-tier:";
 
 export { DEFAULT_ORIGIN_URL };
 
@@ -221,7 +221,7 @@ export function resolveOrigin(env) {
 }
 
 /**
- * Tiered opt-in: explicit `PICTORIUM_TIERED_CACHE=1|true` (trimmed,
+ * Tiered opt-in: explicit `FLAMEFORGE_TIERED_CACHE=1|true` (trimmed,
  * case-insensitive) AND `ctx.exports.PosterCacheTier.fetch` available at
  * request time. Anything else keeps the legacy local-only path. Fail-closed:
  * unknown values ("yes", "on", ...) stay OFF.
@@ -453,7 +453,7 @@ export function varyAllowsStorage(response) {
 /**
  * Headers for the STORED copy: drops only the tracked `Vary` tokens (the key
  * already tracks their raw values) and preserves the FULL original `Vary`
- * in the reserved internal header `x-pictorium-worker-origin-vary`
+ * in the reserved internal header `x-FlameForge-worker-origin-vary`
  * (overwriting any origin-spoofed value). Called only after the key captured
  * the tracked values.
  */
@@ -620,7 +620,7 @@ function finalizeTierResponse(innerRes) {
   }
   // Same marker convention as the legacy path: manual redirects are BYPASS,
   // origin/upper-tier serves are MISS (marker reports the lower-tier miss).
-  headers.set("x-pictorium-worker", REDIRECT_STATUSES.has(innerRes.status) ? "BYPASS" : "MISS");
+  headers.set("x-FlameForge-worker", REDIRECT_STATUSES.has(innerRes.status) ? "BYPASS" : "MISS");
   const response = new Response(innerRes.body, {
     status: innerRes.status,
     statusText: innerRes.statusText,
@@ -655,7 +655,7 @@ function hitResponse(stored) {
   const originalVary = stored.headers.get(ORIGIN_VARY_HEADER);
   if (originalVary !== null) headers.set("vary", originalVary);
   headers.delete(ORIGIN_VARY_HEADER);
-  headers.set("x-pictorium-worker", "HIT");
+  headers.set("x-FlameForge-worker", "HIT");
   return new Response(stored.body, {
     status: stored.status,
     statusText: stored.statusText,
@@ -665,7 +665,7 @@ function hitResponse(stored) {
 
 function withMarker(response, marker) {
   const headers = new Headers(response.headers);
-  headers.set("x-pictorium-worker", marker);
+  headers.set("x-FlameForge-worker", marker);
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
@@ -694,7 +694,7 @@ function proxyOnce(target, request) {
   return fetch(target.toString(), init);
 }
 
-const pictoriumPosterWorker = {
+const FlameForgePosterWorker = {
   async fetch(request, env, ctx) {
     const resolved = resolveOrigin(env);
     if (!resolved.ok) return new Response("Bad origin configuration", { status: 500 });
@@ -715,7 +715,7 @@ const pictoriumPosterWorker = {
         const hit = await cache.match(key);
         if (hit) return hitResponse(hit);
       } catch {
-        console.warn("[pictorium-worker] cache lookup failed");
+        console.warn("[FlameForge-worker] cache lookup failed");
       }
     }
 
@@ -742,7 +742,7 @@ const pictoriumPosterWorker = {
           cf: { cacheKey: `${TIER_CACHE_KEY_PREFIX}${digest}` },
         });
       } catch {
-        console.warn("[pictorium-worker] tier fetch failed");
+        console.warn("[FlameForge-worker] tier fetch failed");
         innerRes = null;
       }
       if (innerRes instanceof Response) {
@@ -782,13 +782,13 @@ const pictoriumPosterWorker = {
       const put = Promise.resolve()
         .then(() => cache.put(key, storable))
         .catch(() => {
-          console.warn("[pictorium-worker] cache put failed");
+          console.warn("[FlameForge-worker] cache put failed");
         });
       if (ctx?.waitUntil) {
         try {
           ctx.waitUntil(put);
         } catch {
-          console.warn("[pictorium-worker] cache put failed");
+          console.warn("[FlameForge-worker] cache put failed");
         }
       } else {
         await put;
@@ -799,4 +799,5 @@ const pictoriumPosterWorker = {
   },
 };
 
-export default pictoriumPosterWorker;
+export default FlameForgePosterWorker;
+

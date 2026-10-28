@@ -15,7 +15,7 @@ import {
   withoutDefaultTop20Keys,
 } from "@/lib/default-lists-reset"
 import type { SearchResult } from "@/lib/types"
-import { PICTORIUM_CATALOGS } from "@/lib/catalog-definitions"
+import { FLAMEFORGE_CATALOGS } from "@/lib/catalog-definitions"
 
 vi.mock("@/lib/http", () => ({ userFetch: vi.fn() }))
 vi.mock("@/lib/guest-guard", () => ({
@@ -56,20 +56,20 @@ function putBodies(): string[] {
 
 describe("default-lists-reset pure helpers", () => {
   it("factory ids match the manifest catalog definitions", () => {
-    const ids = new Set(PICTORIUM_CATALOGS.map((c) => c.id))
+    const ids = new Set(FLAMEFORGE_CATALOGS.map((c) => c.id))
     expect(ids.has(DEFAULT_TOP20_MOVIE_CATALOG_ID)).toBe(true)
     expect(ids.has(DEFAULT_TOP20_SERIES_CATALOG_ID)).toBe(true)
-    expect(PICTORIUM_CATALOGS.find((c) => c.id === DEFAULT_TOP20_MOVIE_CATALOG_ID)?.type).toBe("movie")
-    expect(PICTORIUM_CATALOGS.find((c) => c.id === DEFAULT_TOP20_SERIES_CATALOG_ID)?.type).toBe("series")
+    expect(FLAMEFORGE_CATALOGS.find((c) => c.id === DEFAULT_TOP20_MOVIE_CATALOG_ID)?.type).toBe("movie")
+    expect(FLAMEFORGE_CATALOGS.find((c) => c.id === DEFAULT_TOP20_SERIES_CATALOG_ID)?.type).toBe("series")
   })
 
   it("isDefaultTop20CatalogId only matches the two factory lists", () => {
     expect(isDefaultTop20CatalogId(DEFAULT_TOP20_MOVIE_CATALOG_ID)).toBe(true)
     expect(isDefaultTop20CatalogId(DEFAULT_TOP20_SERIES_CATALOG_ID)).toBe(true)
-    expect(isDefaultTop20CatalogId("pictorium-netflix-movies")).toBe(false)
-    expect(isDefaultTop20CatalogId("pictorium-anime-movies")).toBe(false)
-    expect(isDefaultTop20CatalogId("pictorium-custom-movie-abc")).toBe(false)
-    expect(isDefaultTop20CatalogId("pictorium-stream-netflix-IT-movies")).toBe(false)
+    expect(isDefaultTop20CatalogId("FlameForge-netflix-movies")).toBe(false)
+    expect(isDefaultTop20CatalogId("FlameForge-anime-movies")).toBe(false)
+    expect(isDefaultTop20CatalogId("FlameForge-custom-movie-abc")).toBe(false)
+    expect(isDefaultTop20CatalogId("FlameForge-stream-netflix-IT-movies")).toBe(false)
     expect(isDefaultTop20CatalogId("")).toBe(false)
   })
 
@@ -113,8 +113,8 @@ describe("default-lists-reset pure helpers", () => {
     expect(
       areDefaultListsDirty({
         ...clean,
-        disabledCatalogIds: ["pictorium-anime-movies", "pictorium-custom-movie-x"],
-        catalogRenames: { "pictorium-stream-netflix-IT-movies": "Y" },
+        disabledCatalogIds: ["FlameForge-anime-movies", "FlameForge-custom-movie-x"],
+        catalogRenames: { "FlameForge-stream-netflix-IT-movies": "Y" },
       }),
     ).toBe(false)
   })
@@ -129,7 +129,7 @@ describe("default-lists-reset pure helpers", () => {
       resolveDefaultTop20Visibility([DEFAULT_TOP20_MOVIE_CATALOG_ID, DEFAULT_TOP20_SERIES_CATALOG_ID]),
     ).toEqual({ showMovies: false, showSeries: false })
     // Unrelated disables never hide the defaults.
-    expect(resolveDefaultTop20Visibility(["pictorium-anime-movies"])).toEqual({
+    expect(resolveDefaultTop20Visibility(["FlameForge-anime-movies"])).toEqual({
       showMovies: true,
       showSeries: true,
     })
@@ -150,26 +150,26 @@ describe("useCustomCatalogs resetDefaultCatalogs", () => {
     return memStore({
       // Non-blank device: skips the genuine-new-space default (C-owned).
       tmdb_key: "k",
-      pictorium_disabled_catalogs: JSON.stringify([DEFAULT_TOP20_MOVIE_CATALOG_ID, "pictorium-anime-movies"]),
-      pictorium_home_disabled_catalogs: JSON.stringify([DEFAULT_TOP20_SERIES_CATALOG_ID]),
-      pictorium_catalog_order: JSON.stringify([
+      FLAMEFORGE_disabled_catalogs: JSON.stringify([DEFAULT_TOP20_MOVIE_CATALOG_ID, "FlameForge-anime-movies"]),
+      FLAMEFORGE_home_disabled_catalogs: JSON.stringify([DEFAULT_TOP20_SERIES_CATALOG_ID]),
+      FLAMEFORGE_catalog_order: JSON.stringify([
         DEFAULT_TOP20_MOVIE_CATALOG_ID,
-        "pictorium-anime-movies",
+        "FlameForge-anime-movies",
         DEFAULT_TOP20_SERIES_CATALOG_ID,
       ]),
-      pictorium_catalog_renames: JSON.stringify({
+      FLAMEFORGE_catalog_renames: JSON.stringify({
         [DEFAULT_TOP20_MOVIE_CATALOG_ID]: "Mine",
-        "pictorium-custom-movie-x": "Keep",
+        "FlameForge-custom-movie-x": "Keep",
       }),
-      pictorium_custom_catalogs: JSON.stringify([
+      FLAMEFORGE_custom_catalogs: JSON.stringify([
         { id: "x", name: "Imported", type: "movie", url: "https://example.com/l" },
       ]),
-      pictorium_catalog_shapes: JSON.stringify({ [DEFAULT_TOP20_MOVIE_CATALOG_ID]: "landscape" }),
-      pictorium_catalog_show_emojis: JSON.stringify(false),
-      pictorium_seasonal_halloween_keywords: JSON.stringify(["spooky"]),
-      pictorium_seasonal_christmas_keywords: JSON.stringify([]),
+      FLAMEFORGE_catalog_shapes: JSON.stringify({ [DEFAULT_TOP20_MOVIE_CATALOG_ID]: "landscape" }),
+      FLAMEFORGE_catalog_show_emojis: JSON.stringify(false),
+      FLAMEFORGE_seasonal_halloween_keywords: JSON.stringify(["spooky"]),
+      FLAMEFORGE_seasonal_christmas_keywords: JSON.stringify([]),
       // Unknown future field on the selection: reset must not rebuild it.
-      pictorium_streaming_selections: JSON.stringify([
+      FLAMEFORGE_streaming_selections: JSON.stringify([
         { service: "netflix", country: "IT", sections: ["movies", "series"], futureField: "keep-me" },
       ]),
     })
@@ -177,17 +177,17 @@ describe("useCustomCatalogs resetDefaultCatalogs", () => {
 
   it("restores the default slice and preserves everything else byte-identical", async () => {
     const store = seededStore()
-    const rawStreamingBefore = store.raw()["pictorium_streaming_selections"]
+    const rawStreamingBefore = store.raw()["FLAMEFORGE_streaming_selections"]
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
 
     await act(async () => {
       result.current.resetDefaultCatalogs()
     })
 
-    expect(result.current.disabledCatalogIds).toEqual(["pictorium-anime-movies"])
+    expect(result.current.disabledCatalogIds).toEqual(["FlameForge-anime-movies"])
     expect(result.current.homeDisabledCatalogIds).toEqual([])
-    expect(result.current.catalogOrder).toEqual(["pictorium-anime-movies"])
-    expect(result.current.catalogRenames).toEqual({ "pictorium-custom-movie-x": "Keep" })
+    expect(result.current.catalogOrder).toEqual(["FlameForge-anime-movies"])
+    expect(result.current.catalogRenames).toEqual({ "FlameForge-custom-movie-x": "Keep" })
     // Card format is graphic preserve: shapes untouched.
     expect(result.current.catalogShapes).toEqual({ [DEFAULT_TOP20_MOVIE_CATALOG_ID]: "landscape" })
     // Added/custom state untouched.
@@ -195,13 +195,13 @@ describe("useCustomCatalogs resetDefaultCatalogs", () => {
     expect(result.current.catalogShowEmojis).toBe(false)
     expect(result.current.seasonalHalloweenKeywords).toEqual(["spooky"])
     // Streaming selections pass through verbatim (unknown fields kept in storage).
-    expect(store.raw()["pictorium_streaming_selections"]).toBe(rawStreamingBefore)
+    expect(store.raw()["FLAMEFORGE_streaming_selections"]).toBe(rawStreamingBefore)
 
     await waitFor(() => expect(putBodies()).toHaveLength(1), { timeout: 3000 })
     const body = JSON.parse(putBodies().at(-1)!)
-    expect(body.disabledCatalogIds).toEqual(["pictorium-anime-movies"])
+    expect(body.disabledCatalogIds).toEqual(["FlameForge-anime-movies"])
     expect(body.homeDisabledCatalogIds).toEqual([])
-    expect(body.catalogRenames).toEqual({ "pictorium-custom-movie-x": "Keep" })
+    expect(body.catalogRenames).toEqual({ "FlameForge-custom-movie-x": "Keep" })
     expect(body.customCatalogs).toHaveLength(1)
     expect(body.catalogShapes).toEqual({ [DEFAULT_TOP20_MOVIE_CATALOG_ID]: "landscape" })
   })
@@ -224,7 +224,7 @@ describe("useCustomCatalogs resetDefaultCatalogs", () => {
       await new Promise((r) => setTimeout(r, 600))
     })
     expect(putBodies()).toHaveLength(0)
-    expect(result.current.disabledCatalogIds).toEqual(["pictorium-anime-movies"])
+    expect(result.current.disabledCatalogIds).toEqual(["FlameForge-anime-movies"])
   })
 
   it("is a no-op on factory-fresh state and keeps selections absent", async () => {
@@ -236,7 +236,7 @@ describe("useCustomCatalogs resetDefaultCatalogs", () => {
     })
     expect(result.current.disabledCatalogIds).toEqual([])
     expect(result.current.streamingSelections).toBeUndefined()
-    expect(store.get("pictorium_streaming_selections")).toBeNull()
+    expect(store.get("FLAMEFORGE_streaming_selections")).toBeNull()
   })
 })
 
@@ -380,22 +380,22 @@ describe("H curated per-list integration (generic identities)", () => {
     // Non-blank device: no genuine-new init interferes with the seeded state.
     return memStore({
       tmdb_key: "k",
-      pictorium_streaming_selections: JSON.stringify([
+      FLAMEFORGE_streaming_selections: JSON.stringify([
         { service: "netflix", country: "IT", sections: ["movies", "series"] },
         { service: "hulu", country: "united-states", sections: ["series"] },
       ]),
-      pictorium_catalog_renames: JSON.stringify({
-        "pictorium-stream-netflix-it-movies": "MineFlix",
-        "pictorium-stream-netflix-it-series": "MineSerie",
-        "pictorium-stream2-hulu--united-states--series--auto": "MineHulu",
+      FLAMEFORGE_catalog_renames: JSON.stringify({
+        "FlameForge-stream-netflix-it-movies": "MineFlix",
+        "FlameForge-stream-netflix-it-series": "MineSerie",
+        "FlameForge-stream2-hulu--united-states--series--auto": "MineHulu",
       }),
-      pictorium_catalog_order: JSON.stringify([
-        "pictorium-stream-netflix-it-movies",
-        "pictorium-stream-netflix-it-series",
-        "pictorium-stream2-hulu--united-states--series--auto",
+      FLAMEFORGE_catalog_order: JSON.stringify([
+        "FlameForge-stream-netflix-it-movies",
+        "FlameForge-stream-netflix-it-series",
+        "FlameForge-stream2-hulu--united-states--series--auto",
         "other-id",
       ]),
-      pictorium_disabled_catalogs: JSON.stringify(["pictorium-stream-netflix-it-series"]),
+      FLAMEFORGE_disabled_catalogs: JSON.stringify(["FlameForge-stream-netflix-it-series"]),
     })
   }
 
@@ -413,12 +413,12 @@ describe("H curated per-list integration (generic identities)", () => {
     expect(result.current.streamingSelections?.[0]).toMatchObject({ service: "netflix", sections: ["series"] })
     expect(result.current.streamingSelections?.[1]).toMatchObject({ service: "hulu", sections: ["series"] })
     // ONLY the dropped derived id leaves the shared records.
-    expect(result.current.catalogRenames["pictorium-stream-netflix-it-movies"]).toBeUndefined()
-    expect(result.current.catalogRenames["pictorium-stream-netflix-it-series"]).toBe("MineSerie")
-    expect(result.current.catalogRenames["pictorium-stream2-hulu--united-states--series--auto"]).toBe("MineHulu")
-    expect(result.current.catalogOrder).not.toContain("pictorium-stream-netflix-it-movies")
-    expect(result.current.catalogOrder).toContain("pictorium-stream-netflix-it-series")
-    expect(result.current.catalogOrder).toContain("pictorium-stream2-hulu--united-states--series--auto")
+    expect(result.current.catalogRenames["FlameForge-stream-netflix-it-movies"]).toBeUndefined()
+    expect(result.current.catalogRenames["FlameForge-stream-netflix-it-series"]).toBe("MineSerie")
+    expect(result.current.catalogRenames["FlameForge-stream2-hulu--united-states--series--auto"]).toBe("MineHulu")
+    expect(result.current.catalogOrder).not.toContain("FlameForge-stream-netflix-it-movies")
+    expect(result.current.catalogOrder).toContain("FlameForge-stream-netflix-it-series")
+    expect(result.current.catalogOrder).toContain("FlameForge-stream2-hulu--united-states--series--auto")
     expect(result.current.catalogOrder).toContain("other-id")
   })
 
@@ -449,3 +449,5 @@ describe("H curated per-list integration (generic identities)", () => {
     expect(result.current.streamingSelections).toHaveLength(2)
   })
 })
+
+

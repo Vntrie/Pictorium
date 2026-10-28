@@ -227,7 +227,7 @@ describe("pt-br language feature", () => {
 
   it("search language boundary: only pt-br resolves pt-BR, legacy region locale otherwise (helper + hook forwarding)", async () => {
     // Honest scope: helper + hook-forwarding regression, NOT a full context
-    // integration (driving usePictorium end-to-end would need the async
+    // integration (driving useFlameForge end-to-end would need the async
     // lang/dictionary + defaults stores). The source-wiring guard at the end
     // pins the actual context.tsx expression, so this test fails if the
     // context wiring is re-broadened.
@@ -287,3 +287,5 @@ describe("pt-br language feature", () => {
     expect(legacy.get("lang")).toBe("pt")
   })
 })
+
+

@@ -34,14 +34,14 @@ describe("custom list source cache 12h (Task 4)", () => {
   beforeEach(() => {
     now = 1_750_000_000_000
     vi.spyOn(Date, "now").mockImplementation(() => now)
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = "ttl-client-id"
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = "ttl-client-id"
     cacheInvalidate("custom_catalogs")
     cacheInvalidate("mdblist")
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     cacheInvalidate("custom_catalogs")
     cacheInvalidate("mdblist")
   })
@@ -170,3 +170,5 @@ describe("custom list source cache 12h (Task 4)", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(2)
   })
 })
+
+

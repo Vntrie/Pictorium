@@ -220,21 +220,21 @@ describe("local-only import list + source via config token", () => {
 
     // What Stremio installs: the manifest generated from the token URL.
     const manifestRes = await buildManifestResponse(
-      new NextRequest(`https://pictorium.test/manifest.json?config=${token}`),
+      new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`),
       null,
       token,
     )
     const manifest = (await manifestRes.json()) as {
       catalogs: Array<{ id: string; name: string; type: string }>
     }
-    const jwMovies = manifest.catalogs.find((c) => c.id === "pictorium-jw-movies")
+    const jwMovies = manifest.catalogs.find((c) => c.id === "FlameForge-jw-movies")
     expect(jwMovies?.name).toBe("Local")
-    expect(manifest.catalogs.some((c) => c.id === "pictorium-custom-movie-local_m")).toBe(true)
+    expect(manifest.catalogs.some((c) => c.id === "FlameForge-custom-movie-local_m")).toBe(true)
 
     // What Stremio home calls: the Top 20 catalog under the token path.
     const catalogRes = await configCatalogGET(
-      new NextRequest(`http://localhost:3000/c/${token}/catalog/movie/pictorium-jw-movies.json?api_key=test`),
-      { params: Promise.resolve({ config: token, type: "movie", id: "pictorium-jw-movies.json" }) },
+      new NextRequest(`http://localhost:3000/c/${token}/catalog/movie/FlameForge-jw-movies.json?api_key=test`),
+      { params: Promise.resolve({ config: token, type: "movie", id: "FlameForge-jw-movies.json" }) },
     )
     const catalog = (await catalogRes.json()) as {
       metas: Array<{ id: string; name: string; poster: string }>
@@ -249,7 +249,7 @@ describe("local-only import list + source via config token", () => {
     const firstPoster = new NextRequest(catalog.metas[0].poster)
     expect(firstPoster.nextUrl.searchParams.get("config")).toBe(token)
     expect(firstPoster.nextUrl.searchParams.has("api_key")).toBe(false)
-    process.env.PICTORIUM_TMDB_KEY = "test-instance-key"
+    process.env.FLAMEFORGE_TMDB_KEY = "test-instance-key"
     try {
       const posterRes = await posterGET(firstPoster, {
         params: Promise.resolve({ type: "movie", id: "811" }),
@@ -258,7 +258,9 @@ describe("local-only import list + source via config token", () => {
       expect(rankOfEtag(posterRes.headers.get("etag"))).toBe("1")
       expect(jwCalls).toBe(0)
     } finally {
-      delete process.env.PICTORIUM_TMDB_KEY
+      delete process.env.FLAMEFORGE_TMDB_KEY
     }
   })
 })
+
+

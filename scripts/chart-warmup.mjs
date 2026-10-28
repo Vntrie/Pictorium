@@ -1,4 +1,4 @@
-// Optional chart warmup runner for Pictorium (opt-in, off by default).
+﻿// Optional chart warmup runner for FlameForge (opt-in, off by default).
 //
 // What it does: after a Rome 00:00/12:00 chart slot rolls over, the first
 // request to a built-in catalog pays the upstream refresh (lazy renewal).
@@ -15,21 +15,21 @@
 //   (`api_key`, `mdblist_key`, TVDB, ...): keyed rows are resolved server-side
 //   from the installation's stored keys/defaults, exactly like a Stremio
 //   client would. On a keyless personal installation, JustWatch-backed
-//   catalogs come back empty — warm them from a configured namespace instead.
+//   catalogs come back empty â€” warm them from a configured namespace instead.
 // - No cache-busting, no forced re-render: first pages only, one request per
 //   catalog, bounded concurrency, stops on 429/redirect-off-origin/errors.
 //   A 200 response only means the installation served the page; on upstream
 //   outage the catalog intentionally serves retained rows, so "warmed" does
 //   NOT prove upstream freshness (outcomes are reported honestly).
 //
-// Usage (one-shot, e.g. from cron — see docs/chart-warmup.md):
+// Usage (one-shot, e.g. from cron â€” see docs/chart-warmup.md):
 //   node scripts/chart-warmup.mjs --base-url https://my-host.example [--user <uuid>] [--config <token>]
 // Usage (watch mode: stay resident, warm once per Rome slot):
 //   node scripts/chart-warmup.mjs --base-url https://my-host.example --watch
 //
 // The watch process must stay running to do anything: run it on an always-on
 // Node host you control. Serverless/sleeping platforms cannot keep a resident
-// watcher alive — use one-shot there, triggered by a scheduler you control.
+// watcher alive â€” use one-shot there, triggered by a scheduler you control.
 //
 // Importing this module has NO side effects: the CLI only runs when the file
 // is executed directly. Pure helpers are exported for unit tests.
@@ -54,7 +54,7 @@ export const MANIFEST_MAX_BYTES = 512 * 1024
  * Catalog IDs ride the URL path and are echoed in logs: strict allowlist so
  * control characters, query/traversal metacharacters and foreign shapes are
  * rejected before any fetch or log line. Covers every canonical built-in ID
- * (`pictorium-*` families); custom/search/external IDs are excluded anyway.
+ * (`FlameForge-*` families); custom/search/external IDs are excluded anyway.
  */
 export const SAFE_CATALOG_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/
 
@@ -158,10 +158,10 @@ export function nextRomeSlotStartMs(nowMs = Date.now()) {
  */
 export function isWarmupCatalogId(catalogId) {
   if (typeof catalogId !== "string" || catalogId.length === 0) return false
-  if (catalogId.startsWith("pictorium-custom-")) return false
-  if (catalogId.startsWith("pictorium-search-")) return false
-  if (catalogId.startsWith("pictorium-jw") || catalogId.startsWith("pictorium-anime")) return true
-  return /^pictorium-.+-(movies|series)$/.test(catalogId)
+  if (catalogId.startsWith("FlameForge-custom-")) return false
+  if (catalogId.startsWith("FlameForge-search-")) return false
+  if (catalogId.startsWith("FlameForge-jw") || catalogId.startsWith("FlameForge-anime")) return true
+  return /^FlameForge-.+-(movies|series)$/.test(catalogId)
 }
 
 function isValidCatalogEntry(entry) {
@@ -200,11 +200,11 @@ export function selectWarmupCatalogs(catalogs, limit = DEFAULT_CATALOG_LIMIT) {
 /**
  * Validate the operator-provided base URL. Must be http(s) with no embedded
  * credentials (avoids credential leaks on redirect). Returns the origin.
- * Throws on missing/invalid input — callers must not fetch in that case.
+ * Throws on missing/invalid input â€” callers must not fetch in that case.
  */
 export function parseBaseUrl(raw) {
   const value = (raw ?? "").toString().trim()
-  if (!value) throw new Error("missing base URL (--base-url or PICTORIUM_BASE_URL)")
+  if (!value) throw new Error("missing base URL (--base-url or FLAMEFORGE_BASE_URL)")
   let url
   try {
     url = new URL(value)
@@ -239,7 +239,7 @@ export function buildManifestUrl(origin, { user, config } = {}) {
 
 /**
  * First page of a built-in catalog for the chosen namespace context.
- * IDs ride the path (encoded); only `u`/`config` ride the query — API keys
+ * IDs ride the path (encoded); only `u`/`config` ride the query â€” API keys
  * never enter runner URLs (server resolves stored keys like for Stremio).
  */
 export function buildCatalogUrl(origin, type, id, { user, config } = {}) {
@@ -253,12 +253,12 @@ export function buildCatalogUrl(origin, type, id, { user, config } = {}) {
 /**
  * Runner errors are operator-safe by construction: only these known static
  * categories (own bounded messages + HTTP status/numbers) ever reach
- * outcomes/logs. Anything else — fetch rejections, JSON syntax excerpts,
- * remote bodies — collapses to the caller-supplied generic fallback so a
+ * outcomes/logs. Anything else â€” fetch rejections, JSON syntax excerpts,
+ * remote bodies â€” collapses to the caller-supplied generic fallback so a
  * `config=SECRET` without a URL or a parser echo can never leak.
  */
 const SAFE_ERROR_MESSAGES = new Set([
-  "missing base URL (--base-url or PICTORIUM_BASE_URL)",
+  "missing base URL (--base-url or FLAMEFORGE_BASE_URL)",
   "invalid base URL (expected absolute http(s) URL)",
   "base URL must be http(s)",
   "base URL must not embed credentials",
@@ -404,7 +404,7 @@ async function readJsonBody(res, capBytes = MANIFEST_MAX_BYTES, opts = {}) {
   if (stream && typeof stream.getReader === "function") {
     const reader = stream.getReader()
     // Quiet cancel: reader.cancel() rejects when the reader is already
-    // released — that rejection must never surface (the cap/timeout/abort
+    // released â€” that rejection must never surface (the cap/timeout/abort
     // error below is what matters).
     const cancelQuiet = (reason) => {
       try {
@@ -421,7 +421,7 @@ async function readJsonBody(res, capBytes = MANIFEST_MAX_BYTES, opts = {}) {
         const { done, value } = await reader.read()
         if (done) break
         // ArrayBuffer.isView works across realms (jsdom/test doubles) where
-        // instanceof does not — and a view must never be String()ified.
+        // instanceof does not â€” and a view must never be String()ified.
         const len = ArrayBuffer.isView(value)
           ? value.byteLength
           : (value && typeof value.length === "number" ? value.length : 0)
@@ -515,7 +515,7 @@ async function drainBody(res) {
  *
  * Honest outcomes: `ok` with per-catalog 200s means the installation served
  * the pages (lazy slot refresh triggered where stale); it does NOT prove
- * upstream sources are fresh — on outage the catalog intentionally serves
+ * upstream sources are fresh â€” on outage the catalog intentionally serves
  * retained rows. Transport failures keep `ok: false` with per-catalog detail.
  */
 export async function runOnce(options, deps = {}) {
@@ -670,7 +670,7 @@ export async function runOnce(options, deps = {}) {
   const failCount = results.filter((r) => r.status === "fail").length
   const skippedCount = results.filter((r) => r.status === "skipped").length
   // Longest server-imposed wait across 429s: the watch honors it (never
-  // retries earlier than the server's deadline). No success is cached here —
+  // retries earlier than the server's deadline). No success is cached here â€”
   // skipped runs stay `ok: false` below.
   const maxRetryAfterMs = Math.max(0, ...results.map((r) => r.retryAfterMs ?? 0))
   return {
@@ -685,7 +685,7 @@ export async function runOnce(options, deps = {}) {
     ...(maxRetryAfterMs > 0 ? { retryAfterMs: maxRetryAfterMs } : {}),
     ...(stopReason ? { stopReason } : {}),
     results,
-    note: "200 means the installation served the first page (stale slots refresh lazily); it does not prove upstream (JustWatch/FlixPatrol/MDBList) freshness — on outage retained rows are served by design.",
+    note: "200 means the installation served the first page (stale slots refresh lazily); it does not prove upstream (JustWatch/FlixPatrol/MDBList) freshness â€” on outage retained rows are served by design.",
   }
 }
 
@@ -695,7 +695,7 @@ export async function runOnce(options, deps = {}) {
  * Pure watch decision for tests and the loop below:
  * - new slot (and no recent error): warm it;
  * - new slot but failed <60s ago (or before the server's Retry-After): wait
- *   out the gate — never retry earlier than the server's deadline;
+ *   out the gate â€” never retry earlier than the server's deadline;
  * - already warmed this slot: wait until the next Rome slot starts (never
  *   re-warm). `lastSlot` is the last SUCCESSFULLY warmed slot: a failed
  *   attempt marks nothing, so the same wall slot retries after the gate.
@@ -736,7 +736,7 @@ export function decideWatchAction({ nowMs, lastSlot, lastErrorMs = 0, retryNotBe
 export async function runWatch(options, deps = {}) {
   // Exported-API style is runWatch({ baseUrl }, { signal }): normalize once
   // and pass it to EVERY owned fetch via runOnce's options (runOnce reads
-  // options.signal, not deps.signal — passing only deps would leave fetches
+  // options.signal, not deps.signal â€” passing only deps would leave fetches
   // unabortable).
   const effectiveSignal = deps.signal ?? options?.signal ?? null
   const now = deps.now ?? (() => Date.now())
@@ -779,7 +779,7 @@ export async function runWatch(options, deps = {}) {
       } else {
         // Failure marks nothing: the same wall slot retries after the gate.
         // Retry-After (seconds or HTTP-date) is honored on top of the 60s
-        // floor — never earlier than the server's deadline.
+        // floor â€” never earlier than the server's deadline.
         lastErrorMs = now()
         retryNotBeforeMs = lastErrorMs + Math.max(CHART_WARMUP_RETRY_MS, res.retryAfterMs ?? 0)
       }
@@ -801,7 +801,7 @@ export async function runWatch(options, deps = {}) {
 // --- CLI -----------------------------------------------------------------------
 
 function printHelp() {
-  console.log(`chart-warmup.mjs — optional chart first-page warmer (opt-in, off by default)
+  console.log(`chart-warmup.mjs â€” optional chart first-page warmer (opt-in, off by default)
 
 Usage (one-shot):
   node scripts/chart-warmup.mjs --base-url https://my-host.example [--user <uuid>] [--config <token>]
@@ -809,9 +809,9 @@ Usage (watch: warm once per Europe/Rome 00:00/12:00 slot, stay resident):
   node scripts/chart-warmup.mjs --base-url https://my-host.example --watch
 
 Options:
-  --base-url <url>     Installation origin (or PICTORIUM_BASE_URL env). Required.
-  --user <uuid>        User namespace context (or PICTORIUM_CHART_WARMUP_USER).
-  --config <token>     Config-token context (or PICTORIUM_CHART_WARMUP_CONFIG).
+  --base-url <url>     Installation origin (or FLAMEFORGE_BASE_URL env). Required.
+  --user <uuid>        User namespace context (or FLAMEFORGE_CHART_WARMUP_USER).
+  --config <token>     Config-token context (or FLAMEFORGE_CHART_WARMUP_CONFIG).
   --concurrency <n>    Catalog fetch concurrency, 1-${MAX_CONCURRENCY} (default ${DEFAULT_CONCURRENCY}).
   --timeout-ms <n>     Per-request timeout, ${MIN_TIMEOUT_MS}-${MAX_TIMEOUT_MS} (default ${DEFAULT_TIMEOUT_MS}).
   --limit <n>          Max catalogs to warm, 1-${MAX_CATALOG_LIMIT} (default ${DEFAULT_CATALOG_LIMIT}).
@@ -819,15 +819,15 @@ Options:
   --json               Print the machine-readable summary.
   --help               This text.
 
-Exit codes: 0 all warmed · 1 warmed with failures · 2 usage/config error.
+Exit codes: 0 all warmed Â· 1 warmed with failures Â· 2 usage/config error.
 API keys are never accepted, sent, or logged by this runner.`)
 }
 
 export function parseArgs(argv) {
   const out = {
-    baseUrl: process.env.PICTORIUM_BASE_URL || "",
-    user: process.env.PICTORIUM_CHART_WARMUP_USER || "",
-    config: process.env.PICTORIUM_CHART_WARMUP_CONFIG || "",
+    baseUrl: process.env.FLAMEFORGE_BASE_URL || "",
+    user: process.env.FLAMEFORGE_CHART_WARMUP_USER || "",
+    config: process.env.FLAMEFORGE_CHART_WARMUP_CONFIG || "",
     concurrency: DEFAULT_CONCURRENCY,
     timeoutMs: DEFAULT_TIMEOUT_MS,
     limit: DEFAULT_CATALOG_LIMIT,
@@ -872,7 +872,7 @@ function summarizeForHumans(res, originHost) {
   ]
   for (const r of res.results) {
     const detail = r.status === "ok" ? `HTTP ${r.statusCode}` : (r.error ?? `HTTP ${r.statusCode ?? "?"}`)
-    lines.push(`  ${r.status.toUpperCase()} ${r.type}/${r.id} — ${detail}`)
+    lines.push(`  ${r.status.toUpperCase()} ${r.type}/${r.id} â€” ${detail}`)
   }
   if (res.stopReason) lines.push(`stop: ${res.stopReason}`)
   if (res.error) lines.push(`error: ${res.error}`)
@@ -933,7 +933,7 @@ async function main() {
         console.log(JSON.stringify(event))
         return
       }
-      if (event.type === "slot") console.log(`slot ${event.slot}: warming…`)
+      if (event.type === "slot") console.log(`slot ${event.slot}: warmingâ€¦`)
       else if (event.type === "result") console.log(summarizeForHumans(event.result, originHost))
     },
   })
@@ -956,3 +956,4 @@ if (invokedAsCli) {
     process.exitCode = 1
   })
 }
+

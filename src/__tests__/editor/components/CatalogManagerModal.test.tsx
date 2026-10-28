@@ -3,7 +3,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest"
 import { fireEvent, screen, within } from "@testing-library/react"
 import { CatalogManagerModal } from "@/components/CatalogManagerModal"
 import { renderWithCtx } from "@/__tests__/test-utils"
-import { PICTORIUM_CATALOGS } from "@/lib/catalog-definitions"
+import { FLAMEFORGE_CATALOGS } from "@/lib/catalog-definitions"
 
 vi.mock("@/lib/contexts/TranslationContext", async (importOriginal) => ({
   ...await importOriginal<typeof import("@/lib/contexts/TranslationContext")>(),
@@ -78,9 +78,9 @@ describe("CatalogManagerModal central dialog", () => {
     const body = panel.querySelector(".overflow-y-auto.flex-1")
     expect(body).not.toBeNull()
     // Every built-in catalog row rendered with priority index.
-    expect(screen.getAllByText(/^#\d+$/)).toHaveLength(PICTORIUM_CATALOGS.length)
+    expect(screen.getAllByText(/^#\d+$/)).toHaveLength(FLAMEFORGE_CATALOGS.length)
     // Last row reachable inside the scroll body (no geometry claim in jsdom).
-    const last = screen.getByText(`#${PICTORIUM_CATALOGS.length}`)
+    const last = screen.getByText(`#${FLAMEFORGE_CATALOGS.length}`)
     expect(body!.contains(last)).toBe(true)
   })
 
@@ -161,7 +161,7 @@ describe("CatalogManagerModal preserved behaviors", () => {
     expectSeasonalKeywordFields()
     fireEvent.change(renameBox(), { target: { value: "  Top Movies  " } })
     fireEvent.click(screen.getByTitle("ui.saveName"))
-    expect(renameCatalog).toHaveBeenCalledWith(PICTORIUM_CATALOGS[0].id, "Top Movies")
+    expect(renameCatalog).toHaveBeenCalledWith(FLAMEFORGE_CATALOGS[0].id, "Top Movies")
     // Custom row rename equal to the default deletes the override ("").
     // Located by title: anime rows always sink last, so fixed indexes are
     // no longer stable across modes.
@@ -170,7 +170,7 @@ describe("CatalogManagerModal preserved behaviors", () => {
     if (!customRow) throw new Error("custom row not found")
     fireEvent.click(within(customRow as HTMLElement).getByTitle("ui.renameCatalog"))
     fireEvent.click(screen.getByTitle("ui.saveName"))
-    expect(renameCatalog).toHaveBeenCalledWith("pictorium-custom-movie-c1", "")
+    expect(renameCatalog).toHaveBeenCalledWith("FlameForge-custom-movie-c1", "")
     view.unmount()
   })
 
@@ -182,11 +182,11 @@ describe("CatalogManagerModal preserved behaviors", () => {
     const custom = { id: "c1", name: "My List", type: "series" as const, url: "https://mdblist.com/lists/u/c1" }
     const { view } = openManager({ customCatalogs: [custom], moveCatalog, toggleBuiltinCatalog, toggleCatalogHome, removeCustomCatalog })
     fireEvent.click(screen.getAllByTitle("ui.moveDown")[0])
-    expect(moveCatalog).toHaveBeenCalledWith(PICTORIUM_CATALOGS[0].id, "down")
+    expect(moveCatalog).toHaveBeenCalledWith(FLAMEFORGE_CATALOGS[0].id, "down")
     fireEvent.click(screen.getAllByTitle("ui.disableStremio")[0])
-    expect(toggleBuiltinCatalog).toHaveBeenCalledWith(PICTORIUM_CATALOGS[0].id)
+    expect(toggleBuiltinCatalog).toHaveBeenCalledWith(FLAMEFORGE_CATALOGS[0].id)
     fireEvent.click(screen.getAllByTitle("ui.homeVisible")[0])
-    expect(toggleCatalogHome).toHaveBeenCalledWith(PICTORIUM_CATALOGS[0].id)
+    expect(toggleCatalogHome).toHaveBeenCalledWith(FLAMEFORGE_CATALOGS[0].id)
     fireEvent.click(screen.getByTitle("ui.deleteCatalog"))
     expect(removeCustomCatalog).toHaveBeenCalledWith("c1")
     view.unmount()
@@ -197,8 +197,8 @@ describe("CatalogManagerModal preserved behaviors", () => {
     const resetCatalogOrder = vi.fn()
     const resetCatalogNames = vi.fn()
     const { view } = openManager({
-      catalogOrder: [PICTORIUM_CATALOGS[1].id, PICTORIUM_CATALOGS[0].id],
-      catalogRenames: { [PICTORIUM_CATALOGS[0].id]: "Custom name" },
+      catalogOrder: [FLAMEFORGE_CATALOGS[1].id, FLAMEFORGE_CATALOGS[0].id],
+      catalogRenames: { [FLAMEFORGE_CATALOGS[0].id]: "Custom name" },
       setCatalogOrder,
       resetCatalogOrder,
       resetCatalogNames,
@@ -206,7 +206,7 @@ describe("CatalogManagerModal preserved behaviors", () => {
     fireEvent.click(screen.getByRole("button", { name: "ui.selectAll" }))
     fireEvent.click(screen.getByTitle("ui.moveTop"))
     expect(setCatalogOrder).toHaveBeenCalledTimes(1)
-    expect(setCatalogOrder.mock.calls[0][0]).toHaveLength(PICTORIUM_CATALOGS.length)
+    expect(setCatalogOrder.mock.calls[0][0]).toHaveLength(FLAMEFORGE_CATALOGS.length)
     fireEvent.click(screen.getByText("ui.deselect"))
     expect(screen.getByRole("button", { name: "ui.selectAll" })).toBeInTheDocument()
     fireEvent.click(screen.getByText("ui.resetOrder"))
@@ -220,15 +220,15 @@ describe("CatalogManagerModal preserved behaviors", () => {
     const setCatalogOrder = vi.fn()
     const { view, dialog } = openManager({ setCatalogOrder })
     const rows = Array.from(dialog.querySelectorAll('[draggable="true"]'))
-    expect(rows.length).toBe(PICTORIUM_CATALOGS.length)
+    expect(rows.length).toBe(FLAMEFORGE_CATALOGS.length)
     const data = { effectAllowed: "", dropEffect: "", setData: vi.fn() }
     fireEvent.dragStart(rows[0], { dataTransfer: data } as unknown as DataTransfer)
     fireEvent.dragOver(rows[1], { dataTransfer: data } as unknown as DataTransfer)
     fireEvent.drop(rows[1])
     expect(setCatalogOrder).toHaveBeenCalledTimes(1)
     const next = setCatalogOrder.mock.calls[0][0] as string[]
-    expect(next[0]).toBe(PICTORIUM_CATALOGS[1].id)
-    expect(next[1]).toBe(PICTORIUM_CATALOGS[0].id)
+    expect(next[0]).toBe(FLAMEFORGE_CATALOGS[1].id)
+    expect(next[1]).toBe(FLAMEFORGE_CATALOGS[0].id)
     view.unmount()
   })
 
@@ -236,9 +236,9 @@ describe("CatalogManagerModal preserved behaviors", () => {
     const mixed = { id: "mix", name: "Mix", type: "mixed" as const, url: "https://mdblist.com/lists/u/mix" }
     const { view } = openManager({
       customCatalogs: [mixed],
-      catalogOrder: ["unknown-legacy-id", PICTORIUM_CATALOGS[0].id],
+      catalogOrder: ["unknown-legacy-id", FLAMEFORGE_CATALOGS[0].id],
     })
-    expect(screen.getAllByText(/^#\d+$/)).toHaveLength(PICTORIUM_CATALOGS.length + 2)
+    expect(screen.getAllByText(/^#\d+$/)).toHaveLength(FLAMEFORGE_CATALOGS.length + 2)
     expect(screen.getByText("Mix — ui.movie")).toBeInTheDocument()
     expect(screen.getByText("Mix — ui.tvSeries")).toBeInTheDocument()
     view.unmount()
@@ -268,7 +268,7 @@ describe("CatalogManagerModal ranking-source names", () => {
   it("lets an explicit rename win over the popular name", () => {
     const { view } = openManager({
       rankingSourceMovie: "jw:popular",
-      catalogRenames: { "pictorium-jw-movies": "La mia classifica" },
+      catalogRenames: { "FlameForge-jw-movies": "La mia classifica" },
     })
     expect(screen.getByText("La mia classifica")).toBeInTheDocument()
     expect(screen.queryByText(/I più popolari/)).not.toBeInTheDocument()
@@ -286,7 +286,7 @@ describe("CatalogManagerModal ranking-source names", () => {
     const { view } = openManager({
       rankingSourceMovie: "jw:popular",
       catalogShowEmojis: false,
-      catalogRenames: { "pictorium-jw-movies": "🚀 La mia classifica" },
+      catalogRenames: { "FlameForge-jw-movies": "🚀 La mia classifica" },
     })
     fireEvent.click(screen.getAllByTitle("ui.renameCatalog")[0])
     expectSeasonalKeywordFields()
@@ -313,15 +313,15 @@ describe("CatalogManagerModal ranking-source names", () => {
       rankingSourceMovie: "jw:popular",
       rankingSourceSeries: "jw:trending",
     })
-    const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+    const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
     const res = await buildManifestResponse(req, null, token)
     const data = (await res.json()) as { catalogs: Array<{ id: string; name: string }> }
     const byId = new Map(data.catalogs.map((c) => [c.id, c.name]))
-    expect(byId.get("pictorium-jw-movies")).toBe("🇮🇹 I più popolari — Film")
-    expect(byId.get("pictorium-jw-series")).toBe("🇮🇹 In tendenza — Serie TV")
+    expect(byId.get("FlameForge-jw-movies")).toBe("🇮🇹 I più popolari — Film")
+    expect(byId.get("FlameForge-jw-series")).toBe("🇮🇹 In tendenza — Serie TV")
     const { view } = openManager({ rankingSourceMovie: "jw:popular", rankingSourceSeries: "jw:trending" })
-    expect(screen.getByText(byId.get("pictorium-jw-movies")!)).toBeInTheDocument()
-    expect(screen.getByText(byId.get("pictorium-jw-series")!)).toBeInTheDocument()
+    expect(screen.getByText(byId.get("FlameForge-jw-movies")!)).toBeInTheDocument()
+    expect(screen.getByText(byId.get("FlameForge-jw-series")!)).toBeInTheDocument()
     view.unmount()
   })
 })
@@ -340,7 +340,7 @@ describe("CatalogManagerModal catalog emoji visibility", () => {
     const { view } = openManager({
       catalogShowEmojis: false,
       setCatalogShowEmojis,
-      catalogRenames: { "pictorium-jw-movies": "🚀 La mia classifica" },
+      catalogRenames: { "FlameForge-jw-movies": "🚀 La mia classifica" },
     })
     // Builtins stripped, explicit rename stripped only for display.
     // (The movie slot carries the explicit rename here, so the untouched
@@ -355,3 +355,5 @@ describe("CatalogManagerModal catalog emoji visibility", () => {
     view.unmount()
   })
 })
+
+

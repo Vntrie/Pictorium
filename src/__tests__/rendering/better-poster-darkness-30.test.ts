@@ -40,3 +40,4 @@ describe("BetterPoster portrait velatura", () => {
     expect(eff?.topShade).toBe(50)
   })
 })
+

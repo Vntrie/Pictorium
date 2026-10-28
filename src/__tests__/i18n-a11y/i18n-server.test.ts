@@ -58,3 +58,4 @@ describe("i18n-server eager registry", () => {
     expect(getLang()).toBe("it")
   })
 })
+

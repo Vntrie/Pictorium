@@ -24,7 +24,7 @@ import { useEffectiveAccent } from "@/lib/useEffectiveAccent"
 import type { EffectiveAccentMeta } from "@/lib/effective-accent"
 
 const PREVIEW =
-  "https://pictorium.test/api/poster/movie/1?preview=1&shape=poster"
+  "https://FlameForge.test/api/poster/movie/1?preview=1&shape=poster"
 
 const META: EffectiveAccentMeta = {
   genreHex: "#1f7a8c",
@@ -91,3 +91,5 @@ describe("useEffectiveAccent SSR (actual hook, renderToString)", () => {
     expect(result.current.meta).toEqual(META)
   })
 })
+
+

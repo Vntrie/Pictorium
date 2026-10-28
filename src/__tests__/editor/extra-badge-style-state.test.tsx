@@ -280,3 +280,4 @@ describe("extraBadgeStyle independence", () => {
     expect(box.ed?.defaultExtraBadgeStyle).toBe("corner")
   })
 })
+

@@ -2,9 +2,9 @@
 // Env a module level impostate PRIMA del dynamic import: RENDER_TIMEOUT_MS
 // corto (2s), un solo slot, slot-wait di 500ms — così i test sono veloci e
 // deterministici senza mockare i timer.
-process.env.POSTERIUM_RENDER_TIMEOUT_MS = "2000"
-process.env.POSTERIUM_MAX_CONCURRENT_RENDERS = "1"
-process.env.POSTERIUM_RENDER_SLOT_WAIT_MS = "500"
+process.env.FLAMEFORGE_RENDER_TIMEOUT_MS = "2000"
+process.env.FLAMEFORGE_MAX_CONCURRENT_RENDERS = "1"
+process.env.FLAMEFORGE_RENDER_SLOT_WAIT_MS = "500"
 
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { NextRequest } from "next/server"
@@ -239,3 +239,4 @@ describe("render deadline watchdog (F2)", () => {
     expect(elapsed).toBeLessThan(120)
   })
 })
+

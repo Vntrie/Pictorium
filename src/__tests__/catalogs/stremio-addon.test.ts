@@ -5,7 +5,7 @@ import {
   isSupportedAddonId,
   normalizeManifestUrl,
   parseSupportedTmdbRef,
-  pictoriumExtraForAddon,
+  FlameForgeExtraForAddon,
   rejectReasonForUrl,
   selectableAddonCatalogs,
   validateCatalogShape,
@@ -149,17 +149,17 @@ describe("stremio-addon import (MVP)", () => {
         },
       ],
     })
-    const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+    const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
     const res = await buildManifestResponse(req, null, token)
     const data = await res.json()
-    const one = data.catalogs.find((c: { id: string }) => c.id === "pictorium-custom-movie-cat_one")
-    const two = data.catalogs.find((c: { id: string }) => c.id === "pictorium-custom-movie-cat_two")
+    const one = data.catalogs.find((c: { id: string }) => c.id === "FlameForge-custom-movie-cat_one")
+    const two = data.catalogs.find((c: { id: string }) => c.id === "FlameForge-custom-movie-cat_two")
     expect(one).toBeDefined()
     expect(two).toBeDefined()
     expect(one.id).not.toBe(two.id)
     // Capacità della fonte preservate, niente generi generici aggiunti.
     expect(one.extra.map((e: { name: string }) => e.name).sort()).toEqual(["search", "skip"])
-    expect(pictoriumExtraForAddon({ manifestUrl: "https://example.com/manifest.json", catalogId: "top", catalogType: "movie", extra: [{ name: "genre", isRequired: true, options: ["A"] }] })).toEqual([
+    expect(FlameForgeExtraForAddon({ manifestUrl: "https://example.com/manifest.json", catalogId: "top", catalogType: "movie", extra: [{ name: "genre", isRequired: true, options: ["A"] }] })).toEqual([
       { name: "genre", isRequired: true, options: ["A"] },
     ])
   })
@@ -181,10 +181,10 @@ describe("stremio-addon import (MVP)", () => {
         { id: "old", name: "Old", type: "movie", url: "https://mdblist.com/lists/u/slug" },
       ],
     })
-    const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+    const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
     const res = await buildManifestResponse(req, null, token)
     const data = await res.json()
-    expect(data.catalogs.some((c: { id: string }) => c.id === "pictorium-custom-movie-old")).toBe(true)
+    expect(data.catalogs.some((c: { id: string }) => c.id === "FlameForge-custom-movie-old")).toBe(true)
   })
 
   it("rejects credentials/non-https/private hosts without claiming secret detection", () => {
@@ -200,8 +200,8 @@ describe("stremio-addon import (MVP)", () => {
   it("caps catalog validation and blocks self recursion", () => {
     const big = { metas: Array.from({ length: 101 }, (_, i) => ({ id: `tt${1000000 + i}` })) }
     expect(validateCatalogShape(big, 100)).toBeNull()
-    expect(isSelfManifest("https://pictorium.test/manifest.json", "https://pictorium.test")).toBe(true)
-    expect(isSelfManifest("https://example.com/manifest.json", "https://pictorium.test")).toBe(false)
+    expect(isSelfManifest("https://FlameForge.test/manifest.json", "https://FlameForge.test")).toBe(true)
+    expect(isSelfManifest("https://example.com/manifest.json", "https://FlameForge.test")).toBe(false)
   })
 
   it("never offers addon imports as Top 20 ranking sources", async () => {
@@ -286,8 +286,8 @@ describe("stremio-addon catalog branch", () => {
     })
     const { GET } = await import("@/app/catalog/[type]/[id]/route")
     const token = addonToken()
-    const req = new NextRequest(`http://localhost:3000/catalog/movie/pictorium-custom-movie-addon1.json?config=${token}`)
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-custom-movie-addon1.json" }) })
+    const req = new NextRequest(`http://localhost:3000/catalog/movie/FlameForge-custom-movie-addon1.json?config=${token}`)
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-custom-movie-addon1.json" }) })
     const body = await res.json()
     expect(res.status).toBe(200)
     expect(body.metas.map((m: { id: string }) => m.id)).toEqual(["tmdb:123", "tmdb:123", "kitsu:9"])
@@ -306,12 +306,12 @@ describe("stremio-addon catalog branch", () => {
     const { GET } = await import("@/app/catalog/[type]/[id]/route")
     const { GET: GET_EXTRA } = await import("@/app/catalog/[type]/[id]/[...extra]/route")
     const token = addonToken()
-    const req1 = new NextRequest(`http://localhost:3000/catalog/movie/pictorium-custom-movie-addon1.json?config=${token}`)
-    await GET(req1, { params: Promise.resolve({ type: "movie", id: "pictorium-custom-movie-addon1.json" }) })
-    const req2 = new NextRequest(`http://localhost:3000/catalog/movie/pictorium-custom-movie-addon1/skip=20.json?config=${token}`)
-    await GET_EXTRA(req2, { params: Promise.resolve({ type: "movie", id: "pictorium-custom-movie-addon1", extra: ["skip=20.json"] }) })
-    const req3 = new NextRequest(`http://localhost:3000/catalog/movie/pictorium-custom-movie-addon1/search=Avatar.json?config=${token}`)
-    const res3 = await GET_EXTRA(req3, { params: Promise.resolve({ type: "movie", id: "pictorium-custom-movie-addon1", extra: ["search=Avatar.json"] }) })
+    const req1 = new NextRequest(`http://localhost:3000/catalog/movie/FlameForge-custom-movie-addon1.json?config=${token}`)
+    await GET(req1, { params: Promise.resolve({ type: "movie", id: "FlameForge-custom-movie-addon1.json" }) })
+    const req2 = new NextRequest(`http://localhost:3000/catalog/movie/FlameForge-custom-movie-addon1/skip=20.json?config=${token}`)
+    await GET_EXTRA(req2, { params: Promise.resolve({ type: "movie", id: "FlameForge-custom-movie-addon1", extra: ["skip=20.json"] }) })
+    const req3 = new NextRequest(`http://localhost:3000/catalog/movie/FlameForge-custom-movie-addon1/search=Avatar.json?config=${token}`)
+    const res3 = await GET_EXTRA(req3, { params: Promise.resolve({ type: "movie", id: "FlameForge-custom-movie-addon1", extra: ["search=Avatar.json"] }) })
     expect((await res3.json()).metas).toHaveLength(1)
     const calls = mock.mock.calls.map((c) => c[3])
     expect(calls[0]).toMatchObject({})
@@ -319,8 +319,8 @@ describe("stremio-addon catalog branch", () => {
     expect(calls[2]).toMatchObject({ search: "Avatar" })
     // Cache handler: stessa pagina riusa il body senza rifetch.
     const before = mock.mock.calls.length
-    await GET(new NextRequest(`http://localhost:3000/catalog/movie/pictorium-custom-movie-addon1.json?config=${token}`), {
-      params: Promise.resolve({ type: "movie", id: "pictorium-custom-movie-addon1.json" }),
+    await GET(new NextRequest(`http://localhost:3000/catalog/movie/FlameForge-custom-movie-addon1.json?config=${token}`), {
+      params: Promise.resolve({ type: "movie", id: "FlameForge-custom-movie-addon1.json" }),
     })
     expect(mock.mock.calls.length).toBe(before)
   })
@@ -334,8 +334,8 @@ describe("stremio-addon catalog branch", () => {
     vi.mocked(store.getById).mockRejectedValueOnce(new Error("store down"))
     const { GET } = await import("@/app/catalog/[type]/[id]/route")
     const token = addonToken()
-    const req = new NextRequest(`http://localhost:3000/catalog/movie/pictorium-custom-movie-addon1.json?config=${token}&x=${Date.now()}`)
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-custom-movie-addon1.json" }) })
+    const req = new NextRequest(`http://localhost:3000/catalog/movie/FlameForge-custom-movie-addon1.json?config=${token}&x=${Date.now()}`)
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-custom-movie-addon1.json" }) })
     const body = await res.json()
     // Il titolo resta: o arricchito o originale, mai eliminato.
     expect(body.metas).toHaveLength(1)
@@ -355,10 +355,12 @@ describe("stremio-addon catalog branch", () => {
     })
     const { GET: GET_EXTRA } = await import("@/app/catalog/[type]/[id]/[...extra]/route")
     const token = addonToken()
-    const req = new NextRequest(`http://localhost:3000/catalog/movie/pictorium-custom-movie-addon1/genre=2024.json?config=${token}`)
-    const res = await GET_EXTRA(req, { params: Promise.resolve({ type: "movie", id: "pictorium-custom-movie-addon1", extra: ["genre=2024.json"] }) })
+    const req = new NextRequest(`http://localhost:3000/catalog/movie/FlameForge-custom-movie-addon1/genre=2024.json?config=${token}`)
+    const res = await GET_EXTRA(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-custom-movie-addon1", extra: ["genre=2024.json"] }) })
     const body = await res.json()
     expect(mock.mock.calls[0][3]).toMatchObject({ genre: "2024" })
     expect(body.metas.map((m: { id: string }) => m.id)).toEqual(["tmdb:21", "tmdb:22"])
   })
 })
+
+

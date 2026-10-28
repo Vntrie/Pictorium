@@ -312,3 +312,4 @@ describe("capped TTL is honored by storage and HTTP headers", () => {
     expect(res.headers.get("Cache-Control")).toContain("max-age=60")
   })
 })
+

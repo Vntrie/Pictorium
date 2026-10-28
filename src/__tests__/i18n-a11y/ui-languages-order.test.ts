@@ -50,3 +50,4 @@ describe("UI languages display order", () => {
     expect(codes.slice(esIdx, esIdx + variants.length)).toEqual(variants)
   })
 })
+

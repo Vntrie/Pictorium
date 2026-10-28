@@ -115,3 +115,4 @@ describe("textColorForBg light-preference (visual, colored badges only)", () => 
     expect(textColorForBg("#ffffff", half, LIGHT)).toBe(LIGHT)
   })
 })
+

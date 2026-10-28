@@ -239,3 +239,4 @@ describe("GET /api/tmdb/[id]/details (voto medio TMDB+IMDb)", () => {
     }
   })
 })
+

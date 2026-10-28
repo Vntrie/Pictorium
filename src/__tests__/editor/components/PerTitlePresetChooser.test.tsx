@@ -14,7 +14,7 @@ import userEvent from "@testing-library/user-event"
 import { StrictMode, useEffect, useState } from "react"
 import { PerTitlePresetChooser } from "@/components/PerTitlePresetChooser"
 import EditView from "@/components/EditView"
-import { PictoriumProvider, type PictoriumCtx } from "@/lib/context"
+import { FlameForgeProvider, type FlameForgeCtx } from "@/lib/context"
 import { PosterEditorProvider, usePosterEditor, type PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import { http } from "@/lib/http"
@@ -106,7 +106,7 @@ function ShapeSync({ shape }: { shape: "portrait" | "landscape" }) {
 interface HarnessProps {
   shape?: "portrait" | "landscape"
   userId?: string | null
-  ctxOverrides?: Partial<PictoriumCtx>
+  ctxOverrides?: Partial<FlameForgeCtx>
 }
 
 function Harness({ shape = "portrait", userId = null, ctxOverrides }: HarnessProps) {
@@ -116,15 +116,15 @@ function Harness({ shape = "portrait", userId = null, ctxOverrides }: HarnessPro
     hub.setShape = setLiveShape
     hub.setUserId = setLiveUserId
   }, [])
-  const ctx: PictoriumCtx = { ...MOCK_CTX, t: chooserT, ...ctxOverrides, currentUserId: liveUserId }
+  const ctx: FlameForgeCtx = { ...MOCK_CTX, t: chooserT, ...ctxOverrides, currentUserId: liveUserId }
   return (
     <ThemeProvider>
       <PosterEditorProvider>
-        <PictoriumProvider value={ctx}>
+        <FlameForgeProvider value={ctx}>
           <Probe />
           <ShapeSync shape={liveShape} />
           <PerTitlePresetChooser shape={liveShape} />
-        </PictoriumProvider>
+        </FlameForgeProvider>
       </PosterEditorProvider>
     </ThemeProvider>
   )
@@ -576,7 +576,7 @@ describe("PerTitlePresetChooser EditView mount", () => {
     function SwitchHarness() {
       const [selected, setSelected] = useState<SearchResult | null>(MOVIE)
       useEffect(() => { switchTo = setSelected }, [])
-      const ctx: PictoriumCtx = {
+      const ctx: FlameForgeCtx = {
         ...MOCK_CTX,
         selected,
         posters: [{ file_path: "/clean.jpg", iso_639_1: null, vote_average: 0, width: 1000, height: 1500 }],
@@ -585,9 +585,9 @@ describe("PerTitlePresetChooser EditView mount", () => {
       return (
         <ThemeProvider>
           <PosterEditorProvider>
-            <PictoriumProvider value={ctx}>
+            <FlameForgeProvider value={ctx}>
               <EditView />
-            </PictoriumProvider>
+            </FlameForgeProvider>
           </PosterEditorProvider>
         </ThemeProvider>
       )
@@ -712,3 +712,5 @@ describe("PerTitlePresetChooser ready localization", () => {
     expect(screen.getByRole("button", { name: "Completo" })).toBeInTheDocument()
   })
 })
+
+

@@ -191,10 +191,10 @@ describe("FlixPatrol disk+memory validity 12h", () => {
   function createScratchDir(): string {
     try {
       fs.mkdirSync(SCRATCH_BASE, { recursive: true })
-      return fs.mkdtempSync(path.join(SCRATCH_BASE, "pictorium-fp-ttl-"))
+      return fs.mkdtempSync(path.join(SCRATCH_BASE, "FlameForge-fp-ttl-"))
     } catch {
       // Fallback when the approved scratch root is unavailable (other OS/CI).
-      return fs.mkdtempSync(path.join(os.tmpdir(), "pictorium-fp-ttl-"))
+      return fs.mkdtempSync(path.join(os.tmpdir(), "FlameForge-fp-ttl-"))
     }
   }
 
@@ -279,7 +279,7 @@ describe("FlixPatrol disk+memory validity 12h", () => {
   beforeEach(() => {
     now = 1_750_000_000_000
     vi.spyOn(Date, "now").mockImplementation(() => now)
-    vi.stubEnv("POSTERIUM_DATA_DIR", tmpDir)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", tmpDir)
   })
 
   afterEach(() => {
@@ -333,3 +333,5 @@ describe("FlixPatrol disk+memory validity 12h", () => {
     await waitForDiskCache(cacheFile, now)
   })
 })
+
+

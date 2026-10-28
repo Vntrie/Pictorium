@@ -83,8 +83,8 @@ describe("catalog IMDb-first identity (catalogMetaId)", () => {
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(detailsResponse(94997))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -99,8 +99,8 @@ describe("catalog IMDb-first identity (catalogMetaId)", () => {
       .mockResolvedValueOnce(justWatchResponse(123456))
       .mockResolvedValueOnce(detailsResponse(123456, "tt9999999"))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -120,8 +120,8 @@ describe("catalog IMDb-first identity (catalogMetaId)", () => {
       .mockResolvedValueOnce(detailsResponse(123456))
       .mockResolvedValueOnce(Response.json({ id: 123456, imdb_id: null }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -135,8 +135,8 @@ describe("catalog IMDb-first identity (catalogMetaId)", () => {
       .mockResolvedValueOnce(justWatchResponse(424242, "TT4242420"))
       .mockResolvedValueOnce(detailsResponse(424242))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -150,8 +150,8 @@ describe("catalog IMDb-first identity (catalogMetaId)", () => {
       .mockResolvedValueOnce(detailsResponse(67890))
       .mockResolvedValueOnce(Response.json({ id: 67890, imdb_id: null }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=settings-key")
-    const res = await catalogGET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=settings-key")
+    const res = await catalogGET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -176,11 +176,11 @@ describe("catalog IMDb-first identity (catalogMetaId)", () => {
       }))
       .mockResolvedValueOnce(Response.json({ genres: [{ id: 28, name: "Azione" }] }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-movies/search=tt0137523.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-movies/search=tt0137523.json?api_key=settings-key")
     const res = await catalogExtraGET(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-search-movies",
+        id: "FlameForge-search-movies",
         extra: ["search=tt0137523.json"],
       }),
     })
@@ -232,3 +232,5 @@ describe("catalog IMDb-first identity (catalogMetaId)", () => {
     expect(body.meta.poster).toContain("/api/poster/movie/550")
   })
 })
+
+

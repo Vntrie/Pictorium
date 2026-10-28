@@ -1,9 +1,9 @@
-/**
+﻿/**
  * Opt-in streaming catalogs selected by service + country (backend slice).
  *
  * Client-safe leaf (no `node:` imports): shared by the server (manifest,
- * catalog serving, availability endpoint, validation) and — in the UI
- * follow-up — by the selector. Do NOT import server-only modules here.
+ * catalog serving, availability endpoint, validation) and â€” in the UI
+ * follow-up â€” by the selector. Do NOT import server-only modules here.
  *
  * Design (see `.agents/catalog.md`):
  * - One stored entry per service + country covers both media sections
@@ -11,7 +11,7 @@
  *   all part of the catalog identity and cache keys.
  * - Stored entries are sanitized at every read (`sanitizeStreamingSelections`):
  *   bounded, allowlisted, canonical country codes. Unknown countries NEVER
- *   fall back to Italy — the entry is dropped.
+ *   fall back to Italy â€” the entry is dropped.
  * - `streamingSelections === undefined` (absent) = legacy behavior: the
  *   historical built-in platform catalogs keep serving exactly as before, so
  *   existing spaces' explicit catalog selections are preserved. An explicit
@@ -20,20 +20,20 @@
  *   plus the enabled selections are exposed. Task 3 owns the new-space
  *   default initialization; this module only defines the state boundary.
  * - Catalog ids are derived deterministically, never stored:
- *   `pictorium-stream-<service>-<cc>-<movies|series>` (`cc` lowercase).
+ *   `FlameForge-stream-<service>-<cc>-<movies|series>` (`cc` lowercase).
  * - Public labels are source-neutral by design (`Top 10`, never
  *   "FlixPatrol"/"JustWatch"): the manifest performs zero chart I/O, so it
  *   cannot know which source currently backs a list. The actual source is
- *   exposed per catalog response via the `X-Pictorium-Source` header (from
- *   the already-pinned family snapshot — no extra I/O; a response diagnostic
+ *   exposed per catalog response via the `X-FlameForge-Source` header (from
+ *   the already-pinned family snapshot â€” no extra I/O; a response diagnostic
  *   for clients that inspect headers, not visible inside Stremio itself) and
  *   in advance via the read-only availability endpoint (potential sources +
- *   honest display labels "Top 10 · FlixPatrol" vs "Top 10 · JustWatch" —
+ *   honest display labels "Top 10 Â· FlixPatrol" vs "Top 10 Â· JustWatch" â€”
  *   both daily Top 10 charts, never a generic `Popolari` claim). No
  *   public-label completeness is claimed until the UI exists (follow-up).
  * - Anime Top 20 are not service-based and stay in both modes (absent and
  *   explicit): task 3 owns new-space defaults and will explicitly disable
- *   anime for NEW spaces — this correction changes nothing for anime/legacy.
+ *   anime for NEW spaces â€” this correction changes nothing for anime/legacy.
  * - Chart families are isolated by policy: new selections pin
  *   `stream:<service>:<movie|series>` (strict own-brand JW packages, no
  *   sibling aliases), legacy platform catalogs pin
@@ -41,13 +41,13 @@
  *   old JW pin is never trusted where the policy differs.
  * - Rank/poster coherence: streaming catalog rows carry their list rank as
  *   the poster `rank=` override (same mechanism as the JW branch), resolved
- *   against the SELECTION country — never the global JW region — and the
+ *   against the SELECTION country â€” never the global JW region â€” and the
  *   poster `region` follows the selection country too.
  */
 
 import { getRegionDef, parseRegion, REGIONS, GLOBAL_REGION, type RegionDef } from "./regions"
 
-export const STREAMING_CATALOG_ID_PREFIX = "pictorium-stream-"
+export const STREAMING_CATALOG_ID_PREFIX = "FlameForge-stream-"
 
 /** Services with a safe backend mapping (JW packages + FlixPatrol slug). */
 export const STREAMING_SERVICES = [
@@ -134,33 +134,33 @@ const SERVICE_SHORT_NAMES: Record<StreamingService, string> = {
  * built-in catalog names in `catalog-definitions.ts` (no invented mapping).
  * A small intentional well-known generic map covers user-named providers by
  * ACTUAL feed service id (`rai`, `discovery-plus`); EVERYTHING else falls
- * back to 📺 (decorative only, never an official brand mark, never a
+ * back to ðŸ“º (decorative only, never an official brand mark, never a
  * guessed brand). `catalogShowEmojis` OFF strips all of these via
  * `stripCatalogEmojis` (property-based); explicit user renames always win
  * verbatim and are never persisted with a generated emoji.
  */
 const STREAMING_SERVICE_EMOJI: Record<string, string> = {
-  netflix: "🔴",
-  prime: "📦",
-  disney: "🏰",
-  now: "☁️",
-  apple: "🍎",
-  hbo: "🟣",
-  paramount: "🏔️",
-  crunchyroll: "🍥",
+  netflix: "ðŸ”´",
+  prime: "ðŸ“¦",
+  disney: "ðŸ°",
+  now: "â˜ï¸",
+  apple: "ðŸŽ",
+  hbo: "ðŸŸ£",
+  paramount: "ðŸ”ï¸",
+  crunchyroll: "ðŸ¥",
 }
 
 /** Well-known generic feed service ids (actual upstream ids, decorative only). */
 const GENERIC_SERVICE_EMOJI: Record<string, string> = {
-  rai: "📡",
-  discovery: "🌍",
-  "discovery-plus": "🌍",
+  rai: "ðŸ“¡",
+  discovery: "ðŸŒ",
+  "discovery-plus": "ðŸŒ",
 }
 
 /** Fallback emoji for every other (unknown/unmapped) provider. Decorative only. */
-const UNKNOWN_SERVICE_EMOJI = "📺"
+const UNKNOWN_SERVICE_EMOJI = "ðŸ“º"
 
-/** Prefix a provider emoji (curated, well-known generic, or 📺 fallback). Display names stay emoji-free. */
+/** Prefix a provider emoji (curated, well-known generic, or ðŸ“º fallback). Display names stay emoji-free. */
 function withProviderEmoji(serviceId: string, displayName: string): string {
   const direct = STREAMING_SERVICE_EMOJI[serviceId]
   if (direct) return `${direct} ${displayName}`
@@ -205,7 +205,7 @@ export function streamingFlixSlug(service: StreamingService): string {
  * Distinct from the rendering slug above: the upstream index keys Paramount
  * as `paramount` (verified against the live
  * `availability.json`: netflix, amazon-prime, disney, now, apple-tv,
- * hbo-max, paramount, crunchyroll — only paramount differs from the
+ * hbo-max, paramount, crunchyroll â€” only paramount differs from the
  * country-catalog slug `paramount-plus`). Keep this map explicit so a future
  * upstream rename is a one-line fix, never a silent miss.
  */
@@ -244,7 +244,7 @@ export const STREAMING_JW_PACKAGES: Record<StreamingService, readonly string[]> 
 
 /** Sky/NOW presence for NEW selections: NOW TV operates under the NOW brand
  * in IT/GB only. Germany returns JustWatch rows for `ntv`/`skg` but the DE
- * market brand is WOW/Sky (no NOW consumer brand) — serving those rows under
+ * market brand is WOW/Sky (no NOW consumer brand) â€” serving those rows under
  * the NOW name would mislabel Sky content, so DE stays unavailable for NOW
  * selections. Probe-backed (2026-10-23, see `JW_FALLBACK_COUNTRIES`). */
 const NOW_JW_COUNTRIES: ReadonlySet<string> = new Set(["IT", "GB"])
@@ -266,16 +266,16 @@ const PARAMOUNT_JW_COUNTRIES: ReadonlySet<string> = new Set([
  * `first: 3` with the strict own-brand package filter per service; nonsense
  * package codes error out, so a `rows=0` probe with a non-empty unfiltered
  * control for the same country reads as unsupported). A listed pair means
- * "a JW chart query for this pair returned rows on the probe date" — NOT a
+ * "a JW chart query for this pair returned rows on the probe date" â€” NOT a
  * commercial-availability guarantee and NOT a chart-freshness promise
  * (per-side chart-date freshness still applies at serving time). Unlisted
  * pairs are unavailable (fail-closed): no attempt, no guessed `justwatch`
  * potential. The UI/task3 follow-up owns probe refresh and wider discovery
- * (e.g. Hulu USA / Peacock USA as NEW services — never as an alias).
+ * (e.g. Hulu USA / Peacock USA as NEW services â€” never as an alias).
  */
 const JW_FALLBACK_COUNTRIES: Record<StreamingService, ReadonlySet<string>> = {
   // Probe rows for every supported country except IL (JustWatch publishes
-  // no IL charts at all — the unfiltered IL control is also empty).
+  // no IL charts at all â€” the unfiltered IL control is also empty).
   netflix: new Set(["AU", "BR", "CA", "CZ", "DE", "ES", "FR", "GB", "IN", "IT", "JP", "KR", "MX", "NL", "PL", "PT", "RO", "SA", "SE", "TR", "US"]),
   prime: new Set(["AU", "BR", "CA", "CZ", "DE", "ES", "FR", "GB", "IN", "IT", "JP", "KR", "MX", "NL", "PL", "PT", "RO", "SA", "SE", "TR", "US"]),
   // Probe rows everywhere except IL/IN/SA.
@@ -302,7 +302,7 @@ export function jwFallbackSupported(service: StreamingService, countryCode: stri
  * byte-identical, including the NOW+US Peacock `pct`/`pcp` and Paramount-ES
  * SkyShowtime `sst` group-package unions). Task2 must not drift legacy
  * catalogs when no opt-in selection exists: the strict no-alias policy above
- * applies ONLY to new `pictorium-stream-*` selections (separate `stream:`
+ * applies ONLY to new `FlameForge-stream-*` selections (separate `stream:`
  * chart families + strict JW packages in serving/renewal). Unknown keys stay
  * fail-open as before.
  */
@@ -324,7 +324,7 @@ function sanitizeSections(raw: unknown): readonly StreamingSection[] {
 
 /**
  * Sanitize stored selections. `undefined` input passes through as
- * `undefined` (absent = legacy behavior — NOT the same as explicit `[]`,
+ * `undefined` (absent = legacy behavior â€” NOT the same as explicit `[]`,
  * which is opt-in mode with zero selections). Invalid entries are dropped:
  * unknown services, unknown/unresolvable countries (never Italy fallback),
  * prototype pollution, over-long strings. Bounded to
@@ -343,7 +343,7 @@ export function sanitizeStreamingSelections(
     if (service.length > 32 || country.length > 32) continue
     if (!STREAMING_SERVICE_SET.has(service)) continue
     // Fail-closed: an unknown country code/slug drops the entry. This must
-    // NEVER resolve to the default region (Italy) — a selection for a
+    // NEVER resolve to the default region (Italy) â€” a selection for a
     // country the backend cannot resolve is unavailable, not Italian.
     // parseRegion covers exactly the supported RegionDefs (+ GLOBAL, which
     // is excluded: no global streaming selections); anything else is null.
@@ -384,7 +384,7 @@ export interface ParsedStreamingCatalogId {
 /**
  * Parse a derived streaming catalog id. Returns null for anything that is
  * not a well-formed, allowlisted selection id (unknown service/country,
- * GLOBAL, malformed) — callers answer 404.
+ * GLOBAL, malformed) â€” callers answer 404.
  */
 export function parseStreamingCatalogId(catalogId: string): ParsedStreamingCatalogId | null {
   if (!catalogId.startsWith(STREAMING_CATALOG_ID_PREFIX)) return null
@@ -406,7 +406,7 @@ export function isStreamingCatalogId(catalogId: string): boolean {
  * Neutral stable manifest name (source-neutral by contract: the manifest
  * performs zero chart I/O, so it must not claim "FlixPatrol" or
  * "JustWatch"). Actual source disclosure travels per-response
- * (`X-Pictorium-Source`) and via the availability endpoint.
+ * (`X-FlameForge-Source`) and via the availability endpoint.
  */
 export function streamingCatalogName(
   service: StreamingService,
@@ -416,31 +416,31 @@ export function streamingCatalogName(
   const region = getRegionDef(countryCode)
   // Brief default visible name ONLY (user requirement): provider emoji +
   // service + localized country + " - Top 10". No country flag, no section
-  // suffix, no bullets — type travels as the separate Film/Serie/Mista
+  // suffix, no bullets â€” type travels as the separate Film/Serie/Mista
   // badge/descriptor (never dropped from identity/IDs).
   return `${withProviderEmoji(service, SERVICE_SHORT_NAMES[service])} ${region.label} - Top 10`
 }
 
 /**
  * Honest per-source display labels (potential, not proof: consumed by the UI
- * follow-up, no UI is wired here). Both backends serve the same shape — a
- * daily Top 10 chart — so the JW fallback is NOT labeled `Popolari` (that
+ * follow-up, no UI is wired here). Both backends serve the same shape â€” a
+ * daily Top 10 chart â€” so the JW fallback is NOT labeled `Popolari` (that
  * would imply the generic popular-titles feed while the canonical JW path is
  * the daily chart `DAILY_POPULARITY_SAME_CONTENT_TYPE`). FP = real
  * fp-crawler chart coverage from the availability index; JW = daily-chart
  * fallback for verified own-brand pairs only. The manifest stays neutral
  * (`Top 10` with no source claim: zero chart I/O); the per-response
- * `X-Pictorium-Source` header is a diagnostic for clients that inspect
+ * `X-FlameForge-Source` header is a diagnostic for clients that inspect
  * responses (not visible inside Stremio itself) and `unknown` means the live
- * window was not pinned — never a guess. No claim of public-label
+ * window was not pinned â€” never a guess. No claim of public-label
  * completeness is made until the UI exists.
  */
-export const STREAMING_SOURCE_LABEL_FP = "Top 10 · FlixPatrol"
-export const STREAMING_SOURCE_LABEL_JW = "Top 10 · JustWatch"
+export const STREAMING_SOURCE_LABEL_FP = "Top 10 Â· FlixPatrol"
+export const STREAMING_SOURCE_LABEL_JW = "Top 10 Â· JustWatch"
 
 /**
  * Minimal safe extension seam for wider service lists (task3/backend
- * follow-up owns Hulu USA / Peacock USA — never as an alias of another
+ * follow-up owns Hulu USA / Peacock USA â€” never as an alias of another
  * service). To add a service: append to STREAMING_SERVICES, add its
  * country-catalog slug (SERVICE_FLIX_SLUGS), its availability-index id
  * (SERVICE_AVAILABILITY_IDS, verified against the live index), its strict
@@ -452,17 +452,17 @@ export const STREAMING_SOURCE_LABEL_JW = "Top 10 · JustWatch"
  * fail-closed (never Italy).
  */
 
-/** Value of the per-response `X-Pictorium-Source` header. */
+/** Value of the per-response `X-FlameForge-Source` header. */
 export type StreamingActualSource = "flixpatrol" | "justwatch" | "unknown"
 
-export const STREAMING_SOURCE_HEADER = "X-Pictorium-Source"
+export const STREAMING_SOURCE_HEADER = "X-FlameForge-Source"
 
 // ---------------------------------------------------------------------------
 // Generic opt-in universe (Task F): ALL fp-crawler Top 10 pairs, not just the
 // 8 curated services x 22 RegionDef countries above.
 //
 // Additive by design: every export above stays byte-identical in behavior
-// (legacy `pictorium-stream-<service>-<cc>-<section>` ids, strict 8-service
+// (legacy `FlameForge-stream-<service>-<cc>-<section>` ids, strict 8-service
 // matrix, MAX bump aside). The generic descriptor below covers the dynamic
 // availability-index universe (82 service ids x 118 fp-crawler slugs +
 // global = 119 total, base + variant charts, `all`/mixed overall) with:
@@ -487,8 +487,8 @@ export function parseStreamingSourceMode(raw: unknown): StreamingSourceMode | nu
 /** Generic sections: base movies/series plus `all` (mixed overall charts). */
 export type GenericStreamingSection = "movies" | "series" | "all"
 
-/** New derived-id prefix (legacy `pictorium-stream-` ids stay reserved). */
-export const GENERIC_STREAMING_CATALOG_ID_PREFIX = "pictorium-stream2-"
+/** New derived-id prefix (legacy `FlameForge-stream-` ids stay reserved). */
+export const GENERIC_STREAMING_CATALOG_ID_PREFIX = "FlameForge-stream2-"
 
 /**
  * Chart-country slug allowlist for generic selections (mirror of
@@ -533,7 +533,7 @@ function normalizeSlugToken(raw: unknown, maxLen = 64): string | null {
   return t
 }
 
-/** Fail-closed chart-slug validation (never Italy fallback — null = drop). */
+/** Fail-closed chart-slug validation (never Italy fallback â€” null = drop). */
 export function parseChartCountrySlug(raw: unknown): string | null {
   const t = normalizeSlugToken(raw)
   if (!t || !GENERIC_CHART_SLUG_SET.has(t)) return null
@@ -673,7 +673,7 @@ export function genericVariantLabel(variant: string): string {
 
 export function chartCountryInfo(slug: string): ChartCountryInfo {
   if (slug === "global") {
-    return { slug, code: "GLOBAL", lang: "en-US", label: "Global", flag: "🌐", knownRegion: false }
+    return { slug, code: "GLOBAL", lang: "en-US", label: "Global", flag: "ðŸŒ", knownRegion: false }
   }
   const bySlug = new Map(REGIONS.map((r) => [r.flixSlug, r]))
   const known = bySlug.get(slug)
@@ -707,7 +707,7 @@ export interface SanitizedGenericStreamingSelection {
   /**
    * True when this selection is legacy-identical (curated 8-service,
    * RegionDef slug, movies/series only, auto source, no variant): the
-   * manifest keeps emitting the legacy `pictorium-stream-*` ids for it.
+   * manifest keeps emitting the legacy `FlameForge-stream-*` ids for it.
    */
   readonly legacy: boolean
 }
@@ -775,7 +775,7 @@ export function sanitizeGenericStreamingSelections(
     // Present-but-invalid `variant` fails closed (drop the entry, never a
     // silent switch to base): a stored/parsed intent the backend does not
     // understand must not become a different chart. Absent/null/"" stays
-    // base (compatibility, never migrated) — the same boundary as `source`
+    // base (compatibility, never migrated) â€” the same boundary as `source`
     // above. Validation reuses the canonical `parseGenericVariantId` leaf
     // (single regex, no drifted duplicate).
     let variant: string | null
@@ -816,7 +816,7 @@ export function sanitizeGenericStreamingSelections(
 /**
  * Derived generic catalog id (never stored): unambiguous `--`-delimited
  * encoding of service + chart-country + section + source + optional variant.
- * Tokens never contain `--`, sections/sources are enums — parsing is strict.
+ * Tokens never contain `--`, sections/sources are enums â€” parsing is strict.
  */
 export function genericStreamingCatalogId(
   service: string,
@@ -838,9 +838,9 @@ export interface ParsedGenericStreamingCatalogId {
 }
 
 const GENERIC_CATALOG_ID_RE =
-  /^pictorium-stream2-([a-z0-9]+(?:-[a-z0-9]+)*)--([a-z0-9]+(?:-[a-z0-9]+)*)--(movies|series|all)--(auto|flixpatrol|justwatch)(?:--([a-z0-9]+(?:-[a-z0-9]+)*))?$/
+  /^FlameForge-stream2-([a-z0-9]+(?:-[a-z0-9]+)*)--([a-z0-9]+(?:-[a-z0-9]+)*)--(movies|series|all)--(auto|flixpatrol|justwatch)(?:--([a-z0-9]+(?:-[a-z0-9]+)*))?$/
 
-/** Parse a generic `pictorium-stream2-*` id; null for anything else/malformed. */
+/** Parse a generic `FlameForge-stream2-*` id; null for anything else/malformed. */
 export function parseGenericStreamingCatalogId(catalogId: string): ParsedGenericStreamingCatalogId | null {
   if (catalogId.length > 160 || !catalogId.startsWith(GENERIC_STREAMING_CATALOG_ID_PREFIX)) return null
   const m = GENERIC_CATALOG_ID_RE.exec(catalogId)
@@ -933,7 +933,7 @@ export function genericSelectionRegionDef(desc: ParsedGenericStreamingCatalogId)
 /**
  * Neutral stable manifest name for a generic catalog (source-neutral by
  * contract: the manifest performs zero chart I/O, so it never claims
- * "FlixPatrol"/"JustWatch" — actual-source disclosure travels per-response
+ * "FlixPatrol"/"JustWatch" â€” actual-source disclosure travels per-response
  * and via the availability endpoint + the browse UI badge).
  */
 export function genericStreamingCatalogName(
@@ -949,3 +949,4 @@ export function genericStreamingCatalogName(
   // variant label travels in the separate choice/display badges).
   return `${withProviderEmoji(service, genericServiceShortName(service))} ${info.label} - Top 10`
 }
+

@@ -8,11 +8,11 @@ describe("buildManifestResponse with hubMode options", () => {
     const res = await buildManifestResponse(req)
     const json = await res.json()
 
-    expect(json.id).toBe("org.pictorium")
-    expect(json.name).toBe("Pictorium")
+    expect(json.id).toBe("org.FlameForge")
+    expect(json.name).toBe("FlameForge")
     const catalogIds = json.catalogs.map((c: { id: string }) => c.id)
-    expect(catalogIds).toContain("pictorium-search-movies")
-    expect(catalogIds).toContain("pictorium-search-series")
+    expect(catalogIds).toContain("FlameForge-search-movies")
+    expect(catalogIds).toContain("FlameForge-search-series")
     expect(catalogIds.length).toBeGreaterThan(2)
   })
 
@@ -21,11 +21,11 @@ describe("buildManifestResponse with hubMode options", () => {
     const res = await buildManifestResponse(req)
     const json = await res.json()
 
-    expect(json.id).toBe("org.pictorium.catalogs")
+    expect(json.id).toBe("org.FlameForge.catalogs")
     expect(json.name).toContain("(Cataloghi)")
     const catalogIds = json.catalogs.map((c: { id: string }) => c.id)
-    expect(catalogIds).not.toContain("pictorium-search-movies")
-    expect(catalogIds).not.toContain("pictorium-search-series")
+    expect(catalogIds).not.toContain("FlameForge-search-movies")
+    expect(catalogIds).not.toContain("FlameForge-search-series")
     expect(catalogIds.length).toBeGreaterThan(0)
   })
 
@@ -34,13 +34,13 @@ describe("buildManifestResponse with hubMode options", () => {
     const res = await buildManifestResponse(req)
     const json = await res.json()
 
-    expect(json.id).toBe("org.pictorium.search")
+    expect(json.id).toBe("org.FlameForge.search")
     expect(json.name).toContain("(Ricerca)")
     const catalogIds = json.catalogs.map((c: { id: string }) => c.id)
-    expect(catalogIds).toContain("pictorium-search-movies")
-    expect(catalogIds).toContain("pictorium-search-series")
-    expect(catalogIds).toContain("pictorium-search-people-movies")
-    expect(catalogIds).toContain("pictorium-search-people-series")
+    expect(catalogIds).toContain("FlameForge-search-movies")
+    expect(catalogIds).toContain("FlameForge-search-series")
+    expect(catalogIds).toContain("FlameForge-search-people-movies")
+    expect(catalogIds).toContain("FlameForge-search-people-series")
     expect(catalogIds.length).toBe(4)
   })
 
@@ -56,8 +56,10 @@ describe("buildManifestResponse with hubMode options", () => {
     const resB = await buildManifestResponse(reqB, null, configB)
     const jsonB = await resB.json()
 
-    expect(jsonA.id).toMatch(/^org\.pictorium\.[A-Za-z0-9_-]{8}$/)
-    expect(jsonB.id).toMatch(/^org\.pictorium\.[A-Za-z0-9_-]{8}$/)
+    expect(jsonA.id).toMatch(/^org\.FlameForge\.[A-Za-z0-9_-]{8}$/)
+    expect(jsonB.id).toMatch(/^org\.FlameForge\.[A-Za-z0-9_-]{8}$/)
     expect(jsonA.id).not.toBe(jsonB.id)
   })
 })
+
+

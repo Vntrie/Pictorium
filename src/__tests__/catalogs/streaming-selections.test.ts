@@ -165,7 +165,7 @@ describe("streaming-catalogs contracts", () => {
     const id = streamingCatalogId("netflix", "IT", "series")
     expect(id).toBe(`${STREAMING_CATALOG_ID_PREFIX}netflix-it-series`)
     expect(parseStreamingCatalogId(id)).toEqual({ service: "netflix", country: "IT", section: "series" })
-    expect(parseStreamingCatalogId("pictorium-netflix-series")).toBeNull()
+    expect(parseStreamingCatalogId("FlameForge-netflix-series")).toBeNull()
     expect(parseStreamingCatalogId(`${STREAMING_CATALOG_ID_PREFIX}hulu-us-movies`)).toBeNull()
     expect(parseStreamingCatalogId(`${STREAMING_CATALOG_ID_PREFIX}netflix-xx-movies`)).toBeNull()
     expect(parseStreamingCatalogId(`${STREAMING_CATALOG_ID_PREFIX}netflix-it-shows`)).toBeNull()
@@ -261,9 +261,9 @@ describe("manifest exposure (absent = legacy, explicit = opt-in)", () => {
     const res = await buildManifestResponse(new NextRequest("http://localhost:3000/manifest.json"))
     const json = await res.json()
     const ids = json.catalogs.map((c: { id: string }) => c.id)
-    expect(ids).toContain("pictorium-netflix-movies")
-    expect(ids).toContain("pictorium-jw-movies")
-    expect(ids).toContain("pictorium-anime")
+    expect(ids).toContain("FlameForge-netflix-movies")
+    expect(ids).toContain("FlameForge-jw-movies")
+    expect(ids).toContain("FlameForge-anime")
   })
 
   it("hides legacy platforms on explicit [] and keeps general JW + anime", async () => {
@@ -273,12 +273,12 @@ describe("manifest exposure (absent = legacy, explicit = opt-in)", () => {
     const res = await buildManifestResponse(new NextRequest("http://localhost:3000/manifest.json"))
     const json = await res.json()
     const ids = json.catalogs.map((c: { id: string }) => c.id)
-    expect(ids).not.toContain("pictorium-netflix-movies")
-    expect(ids).not.toContain("pictorium-prime-series")
-    expect(ids).toContain("pictorium-jw-movies")
-    expect(ids).toContain("pictorium-jw-series")
-    expect(ids).toContain("pictorium-anime-movies")
-    expect(ids).toContain("pictorium-anime")
+    expect(ids).not.toContain("FlameForge-netflix-movies")
+    expect(ids).not.toContain("FlameForge-prime-series")
+    expect(ids).toContain("FlameForge-jw-movies")
+    expect(ids).toContain("FlameForge-jw-series")
+    expect(ids).toContain("FlameForge-anime-movies")
+    expect(ids).toContain("FlameForge-anime")
   })
 
   it("exposes only enabled selections with stable neutral ids; honors disabled/renames", async () => {
@@ -489,10 +489,10 @@ describe("streaming availability index", () => {
     const { chartFamilyForCatalogRequest } = await import("@/lib/catalog-handler")
     type ResolveFn = typeof import("@/lib/ranking-source")["resolveRankingSource"]
     const justwatch = { kind: "justwatch", mode: "charts" } as ReturnType<ResolveFn>
-    expect(chartFamilyForCatalogRequest("pictorium-stream-netflix-it-series", "series", justwatch, "IT")).toBe(
+    expect(chartFamilyForCatalogRequest("FlameForge-stream-netflix-it-series", "series", justwatch, "IT")).toBe(
       "stream:netflix:series",
     )
-    expect(chartFamilyForCatalogRequest("pictorium-netflix-series", "series", justwatch, "IT")).toBe(
+    expect(chartFamilyForCatalogRequest("FlameForge-netflix-series", "series", justwatch, "IT")).toBe(
       "platform:netflix:series",
     )
   })
@@ -654,8 +654,8 @@ describe("catalog serving per selection", () => {
   it("keeps legacy platform serving byte-identical (no header, no rank param, global region)", async () => {
     mockTmdbFetch()
     mockedEnsureFresh.mockResolvedValue(pinWith([{ tmdbId: 11, imdbId: "tt1000001", rank: 1, title: "Test Show" }], "flixpatrol") as never)
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-netflix-series.json?api_key=k")
-    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "pictorium-netflix-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-netflix-series.json?api_key=k")
+    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-netflix-series.json" }) })
     expect(res.status).toBe(200)
     expect(res.headers.get(STREAMING_SOURCE_HEADER)).toBeNull()
     const body = await res.json()
@@ -755,8 +755,8 @@ describe("catalog serving per selection", () => {
     // rank live: a published JW snapshot (historic Peacock group packages)
     // keeps serving under the legacy name.
     mockedEnsureFresh.mockResolvedValue(pinWith([{ tmdbId: 99, imdbId: "tt9999999", rank: 1, title: "Peacock Row" }], "justwatch") as never)
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-now-series.json?api_key=k&region=US")
-    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "pictorium-now-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-now-series.json?api_key=k&region=US")
+    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-now-series.json" }) })
     expect(res.status).toBe(200)
     expect(res.headers.get(STREAMING_SOURCE_HEADER)).toBeNull()
     const body = await res.json()
@@ -764,3 +764,5 @@ describe("catalog serving per selection", () => {
     expect(body.metas[0].id).toBe("tt9999999")
   })
 })
+
+

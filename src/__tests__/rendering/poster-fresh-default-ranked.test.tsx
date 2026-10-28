@@ -37,7 +37,7 @@ import { generatePosterBuffer, type GenerationInput } from "@/lib/poster-service
 import { LAND_W, LAND_H, STD_W, STD_H } from "@/lib/image-utils"
 import type { WikidataResult } from "@/lib/awards"
 import type { ServerDefaults } from "@/lib/server-defaults"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 import { renderWithCtx } from "@/__tests__/test-utils"
 
 vi.mock("next/navigation", () => ({
@@ -58,7 +58,7 @@ function mapping(over: Partial<Mapping> = {}): Mapping {
   }
 }
 
-const TOKEN_BASE: PictoriumUserConfig = {
+const TOKEN_BASE: FlameForgeUserConfig = {
   globalBadges: true,
   rankingBadges: true,
   badgeStyle: "shadow",
@@ -80,7 +80,7 @@ describe("fresh default is ranked everywhere", () => {
   it("absent scope resolves ranked; explicit all overrides inherited ranked", () => {
     const rankedEverywhere = {
       mapping: mapping({ posterFreshScope: "ranked" }),
-      config: { ...TOKEN_BASE, posterFreshScope: "ranked" } as PictoriumUserConfig,
+      config: { ...TOKEN_BASE, posterFreshScope: "ranked" } as FlameForgeUserConfig,
       sd: { posterFreshScope: "ranked" } as ServerDefaults,
     }
     // Absent everywhere (no mapping/config/defaults at all) = ranked default.
@@ -520,3 +520,5 @@ describe("service renders under the ranked default (both shapes)", () => {
     expect({ w: meta.width, h: meta.height }).toEqual({ w: LAND_W, h: LAND_H })
   }, 180000)
 })
+
+

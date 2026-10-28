@@ -27,7 +27,7 @@ function fileText(body: unknown): string {
   return JSON.stringify(body);
 }
 
-describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () => {
+describe("preset-file codec (visual + gradient, kind FlameForge-presets v1)", () => {
   it("keeps section caps coherent with the stores", () => {
     expect(MAX_PRESET_FILE_VISUAL).toBe(MAX_VISUAL_PRESETS);
     expect(MAX_PRESET_FILE_VISUAL).toBe(20);
@@ -44,7 +44,7 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
       ],
       gradient: [{ name: "Mine", values: GRADIENT }],
     });
-    expect(file.kind).toBe("pictorium-presets");
+    expect(file.kind).toBe("FlameForge-presets");
     expect(file.formatVersion).toBe(1);
     expect(typeof file.exportedAt).toBe("string");
     const parsed = parsePresetFileText(JSON.stringify(file));
@@ -57,9 +57,9 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
   });
 
   it("accepts missing/empty sections without false success signals", () => {
-    const bare = parsePresetFileData({ kind: "pictorium-presets", formatVersion: 1 });
+    const bare = parsePresetFileData({ kind: "FlameForge-presets", formatVersion: 1 });
     expect(bare).toMatchObject({ ok: true, visual: [], gradient: [] });
-    const empty = parsePresetFileText(fileText({ kind: "pictorium-presets", formatVersion: 1, visualPresets: [], gradientPresets: [] }));
+    const empty = parsePresetFileText(fileText({ kind: "FlameForge-presets", formatVersion: 1, visualPresets: [], gradientPresets: [] }));
     expect(empty.ok).toBe(true);
   });
 
@@ -67,11 +67,11 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
     expect(parsePresetFileText("not json{")).toEqual({ ok: false, error: "invalid-json" });
     expect(parsePresetFileData(null)).toEqual({ ok: false, error: "invalid-shape" });
     expect(parsePresetFileData([])).toEqual({ ok: false, error: "invalid-shape" });
-    expect(parsePresetFileData({ kind: "pictorium-backup", formatVersion: 1 })).toEqual({ ok: false, error: "unsupported-kind" });
+    expect(parsePresetFileData({ kind: "FlameForge-backup", formatVersion: 1 })).toEqual({ ok: false, error: "unsupported-kind" });
     expect(parsePresetFileData({ formatVersion: 1 })).toEqual({ ok: false, error: "unsupported-kind" });
-    expect(parsePresetFileData({ kind: "pictorium-presets", formatVersion: 2 })).toEqual({ ok: false, error: "unsupported-version" });
+    expect(parsePresetFileData({ kind: "FlameForge-presets", formatVersion: 2 })).toEqual({ ok: false, error: "unsupported-version" });
     expect(
-      parsePresetFileData({ kind: "pictorium-presets", formatVersion: 1, visualPresets: "junk" }),
+      parsePresetFileData({ kind: "FlameForge-presets", formatVersion: 1, visualPresets: "junk" }),
     ).toEqual({ ok: false, error: "invalid-shape" });
     expect(parsePresetFileText("a".repeat(MAX_PRESET_FILE_BYTES + 1))).toEqual({ ok: false, error: "file-too-large" });
     expect(presetFileTextSizeBytes("abc")).toBe(3);
@@ -79,7 +79,7 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
 
   it("ignores unknown top-level keys and never echoes them (no leak surface)", () => {
     const parsed = parsePresetFileData({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       appVersion: "9.9.9",
       mappings: [{ tmdbId: 1 }],
@@ -96,7 +96,7 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
 
   it("ignores entry-level extras (id/owner/revision) but rejects values-level secrets", () => {
     const parsed = parsePresetFileData({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [
         {
@@ -123,7 +123,7 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
 
   it("accepts entries with harmless entry-level extras when values are clean", () => {
     const parsed = parsePresetFileData({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [{ id: "x", name: "Keep", values: VISUAL }],
       gradientPresets: [{ id: "y", name: "KeepG", values: GRADIENT }],
@@ -155,7 +155,7 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
     for (const k of ["defaultBadgeFont", "defaultSeparateBadgeScale", "defaultSeparateBadgeOffsetX", "defaultSeparateBadgeOffsetY", "defaultSeparateRatingsStyle"]) delete legacyValues[k];
     expect("defaultBadgeFont" in legacyValues).toBe(false);
     const parsed = parsePresetFileText(fileText({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [{ name: "Legacy", values: legacyValues }],
     }));
@@ -171,7 +171,7 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
 
   it("skips invalid entries with counts and never persists them", () => {
     const parsed = parsePresetFileData({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [
         null,
@@ -202,7 +202,7 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
   it("caps section arrays at store quota with over-cap counts (first-wins)", () => {
     const manyVisual = Array.from({ length: 22 }, (_, i) => ({ name: `V${i}`, values: VISUAL }));
     const manyGradient = Array.from({ length: 5 }, (_, i) => ({ name: `G${i}`, values: GRADIENT }));
-    const parsed = parsePresetFileData({ kind: "pictorium-presets", formatVersion: 1, visualPresets: manyVisual, gradientPresets: manyGradient });
+    const parsed = parsePresetFileData({ kind: "FlameForge-presets", formatVersion: 1, visualPresets: manyVisual, gradientPresets: manyGradient });
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
     expect(parsed.visual).toHaveLength(20);
@@ -263,7 +263,7 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
 
   it("keeps in-file duplicate names for the planner (parse preserves order, no silent drop)", () => {
     const parsed = parsePresetFileData({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [
         { name: "Same", values: VISUAL },
@@ -281,7 +281,7 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
 
   it("resolves visual entry shapes: legacy absent is portrait, explicit landscape kept, garbage skipped", () => {
     const parsed = parsePresetFileData({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [
         { name: "Legacy", values: VISUAL },
@@ -304,7 +304,7 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
     const portrait20 = Array.from({ length: 20 }, (_, i) => ({ name: `P${i}`, values: VISUAL }));
     const landscape20 = Array.from({ length: 20 }, (_, i) => ({ name: `L${i}`, shape: "landscape", values: VISUAL }));
     const parsed = parsePresetFileData({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [...portrait20, ...landscape20, { name: "Overflow", values: VISUAL }],
     });
@@ -348,3 +348,5 @@ describe("preset-file codec (visual + gradient, kind pictorium-presets v1)", () 
     ]);
   });
 });
+
+

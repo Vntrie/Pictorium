@@ -25,3 +25,4 @@ describe("mergeImageLists", () => {
     expect(out.posters.map((p) => p.file_path)).toEqual(["/a.jpg"])
   })
 })
+

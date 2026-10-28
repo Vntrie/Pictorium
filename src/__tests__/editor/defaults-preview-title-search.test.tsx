@@ -550,3 +550,4 @@ describe("DefaultsPosterPreview compact sizing (mobile only)", () => {
     expect(screen.getByRole("textbox")).toBeInTheDocument()
   })
 })
+

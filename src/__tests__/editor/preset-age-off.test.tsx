@@ -292,7 +292,7 @@ function storageSnapshot(): string {
   const out: Record<string, string | null> = {}
   for (let i = 0; i < localStorage.length; i += 1) {
     const k = localStorage.key(i)!
-    if (k.includes("badgeDefaults") || k.includes("pictorium")) out[k] = localStorage.getItem(k)
+    if (k.includes("badgeDefaults") || k.includes("FlameForge")) out[k] = localStorage.getItem(k)
   }
   return JSON.stringify(out)
 }
@@ -510,3 +510,5 @@ describe("actual Preset gallery personal path (SettingsPanel)", () => {
     expect((puts[0].body.landscape as Record<string, unknown>).ageBadge).toBe(true)
   })
 })
+
+

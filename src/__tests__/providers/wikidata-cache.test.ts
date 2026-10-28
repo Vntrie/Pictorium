@@ -99,23 +99,23 @@ function testTmpBase(): string {
 }
 
 async function freshDir(): Promise<string> {
-  const dir = await fsp.mkdtemp(path.join(testTmpBase(), "pictorium-wikidata-"))
+  const dir = await fsp.mkdtemp(path.join(testTmpBase(), "FlameForge-wikidata-"))
   tmpDirs.push(dir)
   return dir
 }
 
 function stubFileMode(dir: string): void {
-  vi.stubEnv("PICTORIUM_DATA_DIR", dir)
-  vi.stubEnv("PICTORIUM_REDIS_URL", "")
-  vi.stubEnv("POSTERIUM_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
   vi.stubEnv("REDIS_URL", "")
   vi.stubEnv("KV_REST_API_URL", "")
   vi.stubEnv("KV_REST_API_TOKEN", "")
 }
 
 function stubKvMode(dir: string): void {
-  vi.stubEnv("PICTORIUM_DATA_DIR", dir)
-  vi.stubEnv("PICTORIUM_REDIS_URL", "redis://localhost:6379")
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "redis://localhost:6379")
   vi.stubEnv("KV_REST_API_URL", "")
   vi.stubEnv("KV_REST_API_TOKEN", "")
   fakeKv.strings.clear()
@@ -174,14 +174,14 @@ describe("wikidata-cache (file backend)", () => {
   })
 
   it("refuses degraded payloads and writes nothing", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     expect(await setPersistedWikidata(103, "movie", { ...SAMPLE, degraded: true } as unknown as WikidataPersistInput)).toBe(false)
     expect(await getPersistedWikidata(103, "movie")).toBeNull()
     await expect(fsp.stat(wikidataFile(dir, "movie", 103))).rejects.toThrow()
   })
 
   it("requires an explicit degraded:false flag (missing flag refused)", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const { degraded: _dropped, ...bare } = SAMPLE
     void _dropped
     expect(await setPersistedWikidata(111, "movie", bare as unknown as WikidataPersistInput)).toBe(false)
@@ -201,7 +201,7 @@ describe("wikidata-cache (file backend)", () => {
   })
 
   it("treats corrupted files as a miss and removes them", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const file = wikidataFile(dir, "movie", 105)
     await fsp.mkdir(path.dirname(file), { recursive: true })
     await fsp.writeFile(file, "{not json")
@@ -210,13 +210,13 @@ describe("wikidata-cache (file backend)", () => {
   })
 
   it("treats future-dated envelopes as a miss", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     await plantFile(dir, "movie", 106, Date.now() + 60 * 60 * 1000)
     expect(await getPersistedWikidata(106, "movie")).toBeNull()
   })
 
   it("serves 10-day records as stale and drops 31-day records", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const now = Date.now()
     expect(WIKIDATA_PERSIST_FRESH_MS).toBe(7 * DAY_MS)
     expect(WIKIDATA_PERSIST_STALE_MS).toBe(30 * DAY_MS)
@@ -231,7 +231,7 @@ describe("wikidata-cache (file backend)", () => {
   })
 
   it("never touches the file on read (no retention reset)", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     await setPersistedWikidata(109, "tv", SAMPLE)
     const file = wikidataFile(dir, "tv", 109)
     const before = await fsp.stat(file)
@@ -242,17 +242,17 @@ describe("wikidata-cache (file backend)", () => {
   })
 
   it("fail-opens when DATA_DIR is not writable", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const blocker = path.join(dir, "blocker")
     await fsp.writeFile(blocker, "x")
-    vi.stubEnv("PICTORIUM_DATA_DIR", blocker)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", blocker)
     expect(await setPersistedWikidata(110, "movie", SAMPLE)).toBe(false)
     expect(await getPersistedWikidata(110, "movie")).toBeNull()
   })
 
   it("returns null for an aborted read without touching the record", async () => {
     expect(await setPersistedWikidata(112, "movie", SAMPLE)).toBe(true)
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     const file = wikidataFile(dir, "movie", 112)
     const before = await fsp.stat(file)
     const ctrl = new AbortController()
@@ -266,7 +266,7 @@ describe("wikidata-cache (file backend)", () => {
   })
 
   it("prunes expired + oldest-beyond-cap files only, never foreign files", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     expect(WIKIDATA_PERSIST_MAX_FILES).toBe(2000)
     await setPersistedWikidata(201, "movie", SAMPLE)
     await setPersistedWikidata(202, "movie", SAMPLE)
@@ -313,10 +313,10 @@ describe("wikidata-cache (KV backend)", () => {
   })
 
   it("round-trips via KV with a bounded 30-day EX and never touches disk", async () => {
-    const dir = process.env.PICTORIUM_DATA_DIR as string
+    const dir = process.env.FLAMEFORGE_DATA_DIR as string
     expect(WIKIDATA_PERSIST_KV_EX_SECONDS).toBe(30 * 24 * 60 * 60)
     expect(await setPersistedWikidata(901, "movie", SAMPLE)).toBe(true)
-    expect(fakeKv.lastKey).toBe("pictorium:wikidata:v2:movie:901")
+    expect(fakeKv.lastKey).toBe("FlameForge:wikidata:v2:movie:901")
     expect(fakeKv.lastEx).toBe(WIKIDATA_PERSIST_KV_EX_SECONDS)
     const got = await getPersistedWikidata(901, "movie")
     expect(got?.status).toBe("fresh")
@@ -371,14 +371,14 @@ describe("wikidata-cache (KV backend)", () => {
   })
 
   it("treats corrupted KV envelopes as a miss", async () => {
-    fakeKv.strings.set("pictorium:wikidata:v2:movie:905", { value: "not-json{{{", expiresAt: null })
+    fakeKv.strings.set("FlameForge:wikidata:v2:movie:905", { value: "not-json{{{", expiresAt: null })
     expect(await getPersistedWikidata(905, "movie")).toBeNull()
   })
 
   it("enforces absolute 7d/30d age on KV records", async () => {
     const now = Date.now()
     fakeKv.strings.set(
-      "pictorium:wikidata:v2:movie:906",
+      "FlameForge:wikidata:v2:movie:906",
       {
         value: JSON.stringify({ v: 2, tmdbId: 906, mediaType: "movie", fetchedAt: now - 10 * DAY_MS, payload: { ...SAMPLE_PAYLOAD } }),
         expiresAt: now + DAY_MS,
@@ -386,7 +386,7 @@ describe("wikidata-cache (KV backend)", () => {
     )
     expect((await getPersistedWikidata(906, "movie"))?.status).toBe("stale")
     fakeKv.strings.set(
-      "pictorium:wikidata:v2:tv:907",
+      "FlameForge:wikidata:v2:tv:907",
       {
         value: JSON.stringify({ v: 2, tmdbId: 907, mediaType: "tv", fetchedAt: now - 31 * DAY_MS, payload: { ...SAMPLE_PAYLOAD } }),
         expiresAt: now + DAY_MS,
@@ -395,3 +395,5 @@ describe("wikidata-cache (KV backend)", () => {
     expect(await getPersistedWikidata(907, "tv")).toBeNull()
   })
 })
+
+

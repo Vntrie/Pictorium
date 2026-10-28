@@ -23,3 +23,4 @@ describe("manifest TYPES contract (P1-1)", () => {
     expect(metaResource.types).not.toContain("collection")
   })
 })
+

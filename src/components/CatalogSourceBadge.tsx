@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useT } from "@/lib/contexts/TranslationContext"
 import type { StreamingActualSource } from "@/lib/streaming-catalog-client"
@@ -9,7 +9,7 @@ import type { StreamingActualSource } from "@/lib/streaming-catalog-client"
  *
  * - `flixpatrol` / `justwatch`: provider-supplied logo + text label. The
  *   logos are user-provided assets (`public/catalogs/*`, verified to carry
- *   no scripts or external references); no partnership is claimed — they
+ *   no scripts or external references); no partnership is claimed â€” they
  *   only name the chart source behind an already-loaded list.
  * - `unknown`: NO logo, honest pending text. An index potential is never
  *   painted as an actual source.
@@ -23,7 +23,7 @@ export function CatalogSourceBadge({
   className,
   iconOnly = false,
 }: {
-  /** Actual per-response source (`X-Pictorium-Source`); unknown = pending. */
+  /** Actual per-response source (`X-FlameForge-Source`); unknown = pending. */
   actual: StreamingActualSource
   /** Optional display text (availability `displayFp`/`displayJw`); defaults to the neutral chart labels. */
   label?: string
@@ -81,3 +81,4 @@ export function CatalogSourceBadge({
     </span>
   )
 }
+

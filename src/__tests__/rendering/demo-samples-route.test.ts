@@ -199,7 +199,7 @@ describe("GET /api/poster demo samples (Settings preview only)", () => {
     // Spy the real renderer: tests below inspect the production input.
     vi.spyOn(posterService, "generatePosterBuffer")
     vi.mocked(fetchCustomRatings).mockReset().mockResolvedValue([])
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
     armEmptyUpstream()
     const posterBuf = await imageBuffer("#101010", 500, 750)
     vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response(new Uint8Array(posterBuf), {
@@ -447,7 +447,7 @@ describe("GET /api/poster demo samples (Settings preview only)", () => {
   it("downgraded previews drop the flag and serve genuine canonical renders", async () => {
     // Locked session on a public instance: anonymous previews downgrade to
     // normal renders (opt-in chain complete).
-    vi.stubEnv("PICTORIUM_ADMIN_TOKEN", "locked-test-token")
+    vi.stubEnv("FLAMEFORGE_ADMIN_TOKEN", "locked-test-token")
     vi.stubEnv("ADMIN_TOKEN", "locked-test-token")
     mockedGetById.mockResolvedValue({
       tmdbId: 44,
@@ -486,3 +486,5 @@ describe("GET /api/poster demo samples (Settings preview only)", () => {
     expect(body.genre.name).toBeNull()
   })
 })
+
+

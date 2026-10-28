@@ -37,7 +37,7 @@ function choice(
   return {
     service, serviceName, country: code, countryFlag: flag, countryLabel: label,
     countryFlixSlug: slug, chartSlug: slug, section, source, variant, variants: [],
-    catalogId: `pictorium-stream2-${service}--${slug}--${section}--${source}${suffix}`,
+    catalogId: `FlameForge-stream2-${service}--${slug}--${section}--${source}${suffix}`,
     fpChart: true, jwFallback: false, potential: "flixpatrol",
     displayFp: `Top 10 · FlixPatrol — ${kind}`,
     displayJw: `Top 10 · JustWatch — ${kind}`,
@@ -59,7 +59,7 @@ const availabilityChoices = [
   // Overall-only pair: only the mixed list is offered (never a split).
   choice("crave", "Crave", "CA", "canada", "🇨🇦", "Canada", "all", { fpChart: true, potential: "flixpatrol", jwFallback: false, overallOnly: true, variants: ["amazon-channels"] }),
   // Variant-only section: no fake base, only the variant choice.
-  choice("rai", "Rai", "IT", "italy", "🇮🇹", "Italia", "series", { fpChart: true, potential: "flixpatrol", jwFallback: false, variant: "it", variants: ["it"], catalogId: "pictorium-stream2-rai--italy--series--auto--it" }),
+  choice("rai", "Rai", "IT", "italy", "🇮🇹", "Italia", "series", { fpChart: true, potential: "flixpatrol", jwFallback: false, variant: "it", variants: ["it"], catalogId: "FlameForge-stream2-rai--italy--series--auto--it" }),
 ]
 
 const availabilityBody = { indexStatus: "ok", generatedAt: "2026-10-23T00:00:00Z", choices: availabilityChoices }
@@ -75,7 +75,7 @@ function browseResponse(
 ) {
   return new Response(JSON.stringify({ catalogId, service, chartSlug, section, source, region: "IT", items, updatedAt: updatedAt ?? null }), {
     status: 200,
-    headers: { "X-Pictorium-Source": source, "Content-Type": "application/json" },
+    headers: { "X-FlameForge-Source": source, "Content-Type": "application/json" },
   })
 }
 
@@ -321,7 +321,7 @@ describe("StreamingCatalogDialog", () => {
 
 describe("StreamingCatalogCard", () => {
   const cardProps = {
-    catalogId: "pictorium-stream2-netflix--italy--movies--auto",
+    catalogId: "FlameForge-stream2-netflix--italy--movies--auto",
     title: "Netflix Movies",
     section: "movies" as const,
     apiKey: "k",
@@ -339,7 +339,7 @@ describe("StreamingCatalogCard", () => {
       const s = String(url)
       if (s.includes("/api/streaming-catalog?")) {
         return browseResponse(
-          "pictorium-stream2-netflix--italy--movies--auto",
+          "FlameForge-stream2-netflix--italy--movies--auto",
           "netflix",
           "italy",
           "movies",
@@ -359,7 +359,7 @@ describe("StreamingCatalogCard", () => {
     const onRemove = vi.fn()
     const navigateToPoster = vi.fn()
     renderWithCtx(<StreamingCatalogCard {...cardProps} navigateToPoster={navigateToPoster} onRemove={onRemove} />)
-    // Original TMDB miniatures, never rendered Pictorium posters.
+    // Original TMDB miniatures, never rendered FlameForge posters.
     const thumb = await screen.findByAltText("Film Uno")
     expect((thumb as HTMLImageElement).src).toContain("https://image.tmdb.org/t/p/w185/a.jpg")
     for (const img of Array.from(document.querySelectorAll("img"))) {
@@ -396,7 +396,7 @@ describe("StreamingCatalogCard", () => {
   it("mixed lists wear the Mista badge with the variant pill kept distinct", async () => {
     mockedUserFetch.mockImplementation(async (url: unknown) => {
       if (String(url).includes("/api/streaming-catalog?")) {
-        return browseResponse("pictorium-stream2-rai--italy--all--auto", "rai", "italy", "all", "flixpatrol", [
+        return browseResponse("FlameForge-stream2-rai--italy--all--auto", "rai", "italy", "all", "flixpatrol", [
           { tmdbId: 31, mediaType: "movie", title: "Misto Film", rank: 1, posterPath: "/c.jpg", year: 2024 },
         ])
       }
@@ -412,7 +412,7 @@ describe("StreamingCatalogCard", () => {
   it("unknown source renders honestly without a logo; errors retry", async () => {
     mockedUserFetch.mockImplementation(async (url: unknown) => {
       if (String(url).includes("/api/streaming-catalog?")) {
-        return browseResponse("pictorium-stream2-x--italy--movies--auto", "x", "italy", "movies", "unknown", [])
+        return browseResponse("FlameForge-stream2-x--italy--movies--auto", "x", "italy", "movies", "unknown", [])
       }
       return new Response(JSON.stringify({}))
     })
@@ -434,7 +434,7 @@ describe("StreamingCatalogCard", () => {
     mockedUserFetch.mockImplementation(async (url: unknown) => {
       if (String(url).includes("/api/streaming-catalog?")) {
         return browseResponse(
-          "pictorium-stream2-paramount--italy--all--auto",
+          "FlameForge-stream2-paramount--italy--all--auto",
           "paramount",
           "italy",
           "all",
@@ -457,11 +457,11 @@ describe("StreamingCatalogCard", () => {
     expect(document.querySelector('img[src*="image.tmdb.org"]')).toBeNull()
   })
 
-  it("renders the Pictorium publication line from the browse stamp (no extra fetch)", async () => {
+  it("renders the FlameForge publication line from the browse stamp (no extra fetch)", async () => {
     mockedUserFetch.mockImplementation(async (url: unknown) => {
       if (String(url).includes("/api/streaming-catalog?")) {
         return browseResponse(
-          "pictorium-stream2-netflix--italy--movies--auto",
+          "FlameForge-stream2-netflix--italy--movies--auto",
           "netflix",
           "italy",
           "movies",
@@ -498,13 +498,13 @@ describe("CataloghiView streaming integration", () => {
   function mockBrowse() {
     mockedUserFetch.mockImplementation(async (url: unknown) => {
       const s = String(url)
-      if (s.includes("catalog=pictorium-stream-netflix-it-movies")) {
-        return browseResponse("pictorium-stream-netflix-it-movies", "netflix", "italy", "movies", "flixpatrol", [
+      if (s.includes("catalog=FlameForge-stream-netflix-it-movies")) {
+        return browseResponse("FlameForge-stream-netflix-it-movies", "netflix", "italy", "movies", "flixpatrol", [
           { tmdbId: 11, mediaType: "movie", title: "Film Uno", rank: 1, posterPath: "/a.jpg", year: 2024 },
         ])
       }
-      if (s.includes("catalog=pictorium-stream-netflix-it-series")) {
-        return browseResponse("pictorium-stream-netflix-it-series", "netflix", "italy", "series", "justwatch", [
+      if (s.includes("catalog=FlameForge-stream-netflix-it-series")) {
+        return browseResponse("FlameForge-stream-netflix-it-series", "netflix", "italy", "series", "justwatch", [
           { tmdbId: 22, mediaType: "tv", title: "Serie Uno", rank: 2, posterPath: "/b.jpg", year: 2023 },
         ])
       }
@@ -548,7 +548,7 @@ describe("CataloghiView streaming integration", () => {
     const { unmount } = renderWithCtx(<CataloghiView />, {
       tmdbKey: "k",
       streamingSelections: [],
-      disabledCatalogIds: ["pictorium-anime-movies", "pictorium-anime"],
+      disabledCatalogIds: ["FlameForge-anime-movies", "FlameForge-anime"],
       mdblistAnimeList: [animeItem],
     })
     expect(screen.queryByText("ui.trendingAnime")).toBeNull()
@@ -679,7 +679,7 @@ describe("StreamingCatalogDialog country picker (localized, global first)", () =
       service: "netflix", serviceName: "Netflix", country: "GLOBAL", countryFlag: "🌐", countryLabel: "Global",
       countryFlixSlug: "global", chartSlug: "global", section: "movies",
       source: "justwatch", variant: null, variants: [],
-      catalogId: "pictorium-stream2-netflix--global--movies--justwatch",
+      catalogId: "FlameForge-stream2-netflix--global--movies--justwatch",
       fpChart: false, jwFallback: true, potential: "justwatch",
       displayFp: "Top 10 · FlixPatrol — Film", displayJw: "Top 10 · JustWatch — Film",
       overallOnly: false, note: null,
@@ -722,13 +722,13 @@ describe("CataloghiView curated pairing (Film LEFT + Serie RIGHT, mixed fullwidt
   function mockPairBrowse() {
     mockedUserFetch.mockImplementation(async (url: unknown) => {
       const s = String(url)
-      if (s.includes("catalog=pictorium-stream-netflix-it-movies")) {
-        return browseResponse("pictorium-stream-netflix-it-movies", "netflix", "italy", "movies", "flixpatrol", [
+      if (s.includes("catalog=FlameForge-stream-netflix-it-movies")) {
+        return browseResponse("FlameForge-stream-netflix-it-movies", "netflix", "italy", "movies", "flixpatrol", [
           { tmdbId: 11, mediaType: "movie", title: "Film Uno", rank: 1, posterPath: "/a.jpg", year: 2024 },
         ])
       }
-      if (s.includes("catalog=pictorium-stream-netflix-it-series")) {
-        return browseResponse("pictorium-stream-netflix-it-series", "netflix", "italy", "series", "justwatch", [
+      if (s.includes("catalog=FlameForge-stream-netflix-it-series")) {
+        return browseResponse("FlameForge-stream-netflix-it-series", "netflix", "italy", "series", "justwatch", [
           { tmdbId: 22, mediaType: "tv", title: "Serie Uno", rank: 2, posterPath: "/b.jpg", year: 2023 },
         ])
       }
@@ -805,13 +805,13 @@ describe("CataloghiView curated pairing (Film LEFT + Serie RIGHT, mixed fullwidt
       tmdbId: 100 + i, mediaType: "movie" as const, title: `Film ${i + 1}`, rank: i + 1, posterPath: `/p${i + 1}.jpg`, year: 2024,
     }))
     mockedUserFetch.mockImplementation(async () => browseResponse(
-      "pictorium-stream2-netflix--italy--movies--auto", "netflix", "italy", "movies", "flixpatrol", ten,
+      "FlameForge-stream2-netflix--italy--movies--auto", "netflix", "italy", "movies", "flixpatrol", ten,
     ))
     const onOpenList = vi.fn()
     const navigateToPoster = vi.fn()
     renderWithCtx(
       <StreamingCatalogCard
-        catalogId="pictorium-stream2-netflix--italy--movies--auto"
+        catalogId="FlameForge-stream2-netflix--italy--movies--auto"
         title="Netflix Film"
         section="movies"
         apiKey="k"
@@ -863,7 +863,7 @@ describe("CataloghiView curated pairing (Film LEFT + Serie RIGHT, mixed fullwidt
   it("same descriptor with movies+series+all renders all three (mixed never drops siblings)", async () => {
     mockedUserFetch.mockImplementation(async (url: unknown) => {
       const s = String(url)
-      const id = (section: string) => `pictorium-stream2-paramount--italy--${section}--auto`
+      const id = (section: string) => `FlameForge-stream2-paramount--italy--${section}--auto`
       if (s.includes(`catalog=${id("movies")}`)) {
         return browseResponse(id("movies"), "paramount", "italy", "movies", "flixpatrol", [
           { tmdbId: 41, mediaType: "movie", title: "P Film", rank: 1, posterPath: "/e.jpg", year: 2024 },
@@ -911,18 +911,18 @@ describe("CataloghiView curated pairing (Film LEFT + Serie RIGHT, mixed fullwidt
     // Film + single unmatched Serie of the same service+country+source.
     mockedUserFetch.mockImplementation(async (url: unknown) => {
       const s = String(url)
-      if (s.includes("catalog=pictorium-stream2-rai--italy--movies--auto")) {
-        return browseResponse("pictorium-stream2-rai--italy--movies--auto", "rai", "italy", "movies", "flixpatrol", [
+      if (s.includes("catalog=FlameForge-stream2-rai--italy--movies--auto")) {
+        return browseResponse("FlameForge-stream2-rai--italy--movies--auto", "rai", "italy", "movies", "flixpatrol", [
           { tmdbId: 51, mediaType: "movie", title: "Rai Film", rank: 1, posterPath: "/h.jpg", year: 2024 },
         ])
       }
-      if (s.includes("catalog=pictorium-stream2-rai--italy--series--auto--it")) {
-        return browseResponse("pictorium-stream2-rai--italy--series--auto--it", "rai", "italy", "series", "flixpatrol", [
+      if (s.includes("catalog=FlameForge-stream2-rai--italy--series--auto--it")) {
+        return browseResponse("FlameForge-stream2-rai--italy--series--auto--it", "rai", "italy", "series", "flixpatrol", [
           { tmdbId: 52, mediaType: "tv", title: "Rai Serie", rank: 2, posterPath: "/i.jpg", year: 2023 },
         ])
       }
-      if (s.includes("catalog=pictorium-stream2-rai--italy--all--auto")) {
-        return browseResponse("pictorium-stream2-rai--italy--all--auto", "rai", "italy", "all", "flixpatrol", [
+      if (s.includes("catalog=FlameForge-stream2-rai--italy--all--auto")) {
+        return browseResponse("FlameForge-stream2-rai--italy--all--auto", "rai", "italy", "all", "flixpatrol", [
           { tmdbId: 53, mediaType: "movie", title: "Rai Misto", rank: 3, posterPath: "/j.jpg", year: 2022 },
         ])
       }
@@ -963,8 +963,8 @@ describe("CataloghiView curated pairing (Film LEFT + Serie RIGHT, mixed fullwidt
   it("mixed 'all' renders fullwidth (never faked Film/Serie) with mixed media types preserved", async () => {
     mockedUserFetch.mockImplementation(async (url: unknown) => {
       const s = String(url)
-      if (s.includes("catalog=pictorium-stream2-crave--canada--all--auto")) {
-        return browseResponse("pictorium-stream2-crave--canada--all--auto", "crave", "canada", "all", "flixpatrol", [
+      if (s.includes("catalog=FlameForge-stream2-crave--canada--all--auto")) {
+        return browseResponse("FlameForge-stream2-crave--canada--all--auto", "crave", "canada", "all", "flixpatrol", [
           { tmdbId: 31, mediaType: "movie", title: "Misto Film", rank: 1, posterPath: "/c.jpg", year: 2024 },
           { tmdbId: 32, mediaType: "tv", title: "Misto Serie", rank: 2, posterPath: "/d.jpg", year: 2023 },
         ])
@@ -1006,19 +1006,19 @@ describe("CataloghiView curated pairing (Film LEFT + Serie RIGHT, mixed fullwidt
       const s = String(url)
       // Movies-only paramount/italy is a legacy-curated entry (sections are
       // movies/series only): the derived id is the legacy byte-identical one.
-      if (s.includes("catalog=pictorium-stream-paramount-it-movies")) {
-        return singleBrowse("pictorium-stream-paramount-it-movies", "paramount", "movies", "P Film", 41, "movie")
+      if (s.includes("catalog=FlameForge-stream-paramount-it-movies")) {
+        return singleBrowse("FlameForge-stream-paramount-it-movies", "paramount", "movies", "P Film", 41, "movie")
       }
-      if (s.includes("catalog=pictorium-stream2-crave--canada--all--auto")) {
-        return browseResponse("pictorium-stream2-crave--canada--all--auto", "crave", "canada", "all", "flixpatrol", [
+      if (s.includes("catalog=FlameForge-stream2-crave--canada--all--auto")) {
+        return browseResponse("FlameForge-stream2-crave--canada--all--auto", "crave", "canada", "all", "flixpatrol", [
           { tmdbId: 43, mediaType: "movie", title: "P Misto", rank: 3, posterPath: "/g.jpg", year: 2022 },
         ])
       }
-      if (s.includes("catalog=pictorium-stream-netflix-it-movies")) {
-        return singleBrowse("pictorium-stream-netflix-it-movies", "netflix", "movies", "Film Uno", 11, "movie")
+      if (s.includes("catalog=FlameForge-stream-netflix-it-movies")) {
+        return singleBrowse("FlameForge-stream-netflix-it-movies", "netflix", "movies", "Film Uno", 11, "movie")
       }
-      if (s.includes("catalog=pictorium-stream-netflix-it-series")) {
-        return singleBrowse("pictorium-stream-netflix-it-series", "netflix", "series", "Serie Uno", 12, "tv")
+      if (s.includes("catalog=FlameForge-stream-netflix-it-series")) {
+        return singleBrowse("FlameForge-stream-netflix-it-series", "netflix", "series", "Serie Uno", 12, "tv")
       }
       return new Response(JSON.stringify({}))
     })
@@ -1059,13 +1059,13 @@ describe("CataloghiView curated pairing (Film LEFT + Serie RIGHT, mixed fullwidt
   it("paired Film+Serie cards keep the capped fill (no single-full bleed)", async () => {
     mockedUserFetch.mockImplementation(async (url: unknown) => {
       const s = String(url)
-      if (s.includes("catalog=pictorium-stream-netflix-it-movies")) {
-        return browseResponse("pictorium-stream-netflix-it-movies", "netflix", "italy", "movies", "flixpatrol", [
+      if (s.includes("catalog=FlameForge-stream-netflix-it-movies")) {
+        return browseResponse("FlameForge-stream-netflix-it-movies", "netflix", "italy", "movies", "flixpatrol", [
           { tmdbId: 11, mediaType: "movie", title: "Film Uno", rank: 1, posterPath: "/a.jpg", year: 2024 },
         ])
       }
-      if (s.includes("catalog=pictorium-stream-netflix-it-series")) {
-        return browseResponse("pictorium-stream-netflix-it-series", "netflix", "italy", "series", "justwatch", [
+      if (s.includes("catalog=FlameForge-stream-netflix-it-series")) {
+        return browseResponse("FlameForge-stream-netflix-it-series", "netflix", "italy", "series", "justwatch", [
           { tmdbId: 22, mediaType: "tv", title: "Serie Uno", rank: 2, posterPath: "/b.jpg", year: 2023 },
         ])
       }
@@ -1085,3 +1085,5 @@ describe("CataloghiView curated pairing (Film LEFT + Serie RIGHT, mixed fullwidt
     }
   })
 })
+
+

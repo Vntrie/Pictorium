@@ -255,3 +255,4 @@ describe("BadgeControls families: conditional details still follow their masters
     expect(screen.queryByText("ui.qualityBadgeStyle")).toBeNull()
   })
 })
+

@@ -86,3 +86,4 @@ describe("PosterBtn TPDb thumbnail referrer policy", () => {
     expect(referrerOfImg(bySrc.get("https://image.tmdb.org/t/p/w154/clean1.jpg"))).toBeNull()
   })
 })
+

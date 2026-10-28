@@ -417,3 +417,4 @@ describe("poster-service (normalized auto badge, manual intact, separate blur)",
     expect(normalizeAutomaticAccentHex(naturalTint)).not.toBe(naturalTint)
   }, 120000)
 })
+

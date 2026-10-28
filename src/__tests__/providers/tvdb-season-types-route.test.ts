@@ -105,3 +105,4 @@ describe("GET /api/tvdb/[id]/seasonTypes", () => {
     }
   })
 })
+

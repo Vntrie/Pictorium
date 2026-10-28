@@ -184,9 +184,9 @@ describe("poster mode env wiring", () => {
     expect(isPreviewAuthRequired()).toBe(true)
   })
 
-  it("allows explicit PICTORIUM_PREVIEW_AUTH=0 override even on public instances", async () => {
+  it("allows explicit FLAMEFORGE_PREVIEW_AUTH=0 override even on public instances", async () => {
     vi.resetModules()
-    vi.stubEnv("PICTORIUM_PREVIEW_AUTH", "0")
+    vi.stubEnv("FLAMEFORGE_PREVIEW_AUTH", "0")
     vi.stubEnv("PREVIEW_AUTH", "0")
     const off = await import("@/lib/poster-params-hardening")
     expect(off.isPreviewAuthRequired()).toBe(false)
@@ -196,19 +196,19 @@ describe("poster mode env wiring", () => {
 
   it("disables preview auth on private instances unless explicitly forced", async () => {
     vi.resetModules()
-    vi.stubEnv("PICTORIUM_PUBLIC_INSTANCE", "0")
+    vi.stubEnv("FLAMEFORGE_PUBLIC_INSTANCE", "0")
     vi.stubEnv("PUBLIC_INSTANCE", "0")
-    vi.stubEnv("PICTORIUM_HOSTED_BY", "")
+    vi.stubEnv("FLAMEFORGE_HOSTED_BY", "")
     vi.stubEnv("HOSTED_BY", "")
-    vi.stubEnv("PICTORIUM_MULTI_USER", "0")
+    vi.stubEnv("FLAMEFORGE_MULTI_USER", "0")
     vi.stubEnv("MULTI_USER", "0")
-    vi.stubEnv("PICTORIUM_PREVIEW_AUTH", "")
+    vi.stubEnv("FLAMEFORGE_PREVIEW_AUTH", "")
     vi.stubEnv("PREVIEW_AUTH", "")
 
     const priv = await import("@/lib/poster-params-hardening")
     expect(priv.isPreviewAuthRequired()).toBe(false)
 
-    vi.stubEnv("PICTORIUM_PREVIEW_AUTH", "1")
+    vi.stubEnv("FLAMEFORGE_PREVIEW_AUTH", "1")
     vi.stubEnv("PREVIEW_AUTH", "1")
     vi.resetModules()
     const forced = await import("@/lib/poster-params-hardening")
@@ -279,3 +279,5 @@ describe("presets hardening: derived hints, rank, animerank, rsrc", () => {
     expect(key("title=aaa", { presets: false })).toContain("title=aaa")
   })
 })
+
+

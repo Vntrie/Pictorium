@@ -17,3 +17,4 @@ describe("checkSubject (auto-changelog gate)", () => {
     expect(checkSubject("fix(poster): Correct badge offset.")).not.toBeNull()
   })
 })
+

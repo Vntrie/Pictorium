@@ -1,4 +1,4 @@
-import fsp from "node:fs/promises"
+﻿import fsp from "node:fs/promises"
 import path from "node:path"
 import type { Mapping } from "@/lib/types"
 import { DATA_DIR } from "@/lib/data-dir"
@@ -9,7 +9,7 @@ import { getKv, getStorageMode as getKvStorageMode, KvTimeoutError, withKvTimeou
 
 export type { Mapping }
 
-/** Superata la quota mapping del namespace utente → il caller risponde 413. */
+/** Superata la quota mapping del namespace utente â†’ il caller risponde 413. */
 export class QuotaExceededError extends Error {
   constructor(readonly max: number) {
     super(`Mapping quota exceeded (max ${max} mappings per user)`)
@@ -18,7 +18,7 @@ export class QuotaExceededError extends Error {
 }
 
 // userId validati dai caller (sanitizeUserId); qui fail-closed difensivo:
-// un id non-UUID non tocca mai path né chiavi KV.
+// un id non-UUID non tocca mai path nÃ© chiavi KV.
 function assertValidUserId(userId: string): void {
   if (!/^[0-9a-f-]{36}$/i.test(userId)) throw new Error("Invalid user id")
 }
@@ -43,10 +43,10 @@ if (getKvStorageMode() === "file" && debugStore) {
 
 // ---- Vercel KV helpers ----
 
-// C5: cache di lettura per la modalità KV. Il poster hot path chiama getById a
-// ogni render: senza cache, in modalità KV è un round-trip di rete verso Vercel
-// KV per richiesta. TTL breve + inflight dedup: più render concorrenti condividono
-// UN solo hgetall per finestra (500ms) — coerente col file mode (staleness
+// C5: cache di lettura per la modalitÃ  KV. Il poster hot path chiama getById a
+// ogni render: senza cache, in modalitÃ  KV Ã¨ un round-trip di rete verso Vercel
+// KV per richiesta. TTL breve + inflight dedup: piÃ¹ render concorrenti condividono
+// UN solo hgetall per finestra (500ms) â€” coerente col file mode (staleness
 // bounded, multi-istanza). Le scritture aggiornano la cache in-place.
 const KV_READ_TTL_MS = process.env.NODE_ENV === "test" ? 0 : 500
 let kvCache: Record<string, Mapping> | null = null
@@ -63,7 +63,7 @@ async function kvReadAllCached(): Promise<Record<string, Mapping>> {
       raw = await withKvTimeout(getKv().hgetall<Record<string, Mapping>>("mappings"))
     } catch (e) {
       // KV stallato: fail-open sulla mappa stantia (o vuota), mai hang. La
-      // promise si chiude sempre così il finally libera l'inflight.
+      // promise si chiude sempre cosÃ¬ il finally libera l'inflight.
       if (e instanceof KvTimeoutError) return kvCache ?? {}
       throw e
     }
@@ -97,7 +97,7 @@ async function kvRemoveAll() {
 }
 
 async function kvImportMappings(mappings: Mapping[]) {
-  // Import vuoto: hset con 0 campi fa 500 su Redis — niente da scrivere.
+  // Import vuoto: hset con 0 campi fa 500 su Redis â€” niente da scrivere.
   if (mappings.length === 0) return
   const entries: Record<string, Mapping> = {}
   const now = new Date().toISOString()
@@ -156,7 +156,7 @@ async function kvReadAllCachedFor(userId: string): Promise<Record<string, Mappin
       raw = await withKvTimeout(getKv().hgetall<Record<string, Mapping>>(userKvKey(userId)))
     } catch (e) {
       // KV stallato: fail-open sulla mappa stantia (o vuota), mai hang. La
-      // promise si chiude sempre così il finally libera l'inflight del
+      // promise si chiude sempre cosÃ¬ il finally libera l'inflight del
       // namespace invece di avvelenarlo fino al restart.
       if (e instanceof KvTimeoutError) return c.map ?? {}
       throw e
@@ -170,8 +170,8 @@ async function kvReadAllCachedFor(userId: string): Promise<Record<string, Mappin
 }
 
 /**
- * Profondità degli inflight KV (globale + namespace utente): early warning per
- * /api/status. Se sale e non scende, una lettura KV è appesa.
+ * ProfonditÃ  degli inflight KV (globale + namespace utente): early warning per
+ * /api/status. Se sale e non scende, una lettura KV Ã¨ appesa.
  */
 export function getStoreInflightSize(): number {
   let n = kvCacheInflight ? 1 : 0
@@ -186,7 +186,7 @@ export function getStoreInflightSize(): number {
 // strings (parity across the Redis/Upstash adapters, same as Q2b1 presets).
 // Return codes: 0 stored, 1 quota exceeded, 3 unexpected key type
 // (fail-closed, never a quota rejection).
-const MAPPING_UPSERT_SCRIPT = `-- pictorium:mapping-upsert:v1
+const MAPPING_UPSERT_SCRIPT = `-- FlameForge:mapping-upsert:v1
 if redis.call('TYPE', KEYS[1])['ok'] ~= 'none' and redis.call('TYPE', KEYS[1])['ok'] ~= 'hash' then
   return 3
 end
@@ -200,7 +200,7 @@ end
 redis.call('HSET', KEYS[1], ARGV[2], ARGV[3])
 return 0`
 
-const MAPPING_IMPORT_SCRIPT = `-- pictorium:mapping-import:v1
+const MAPPING_IMPORT_SCRIPT = `-- FlameForge:mapping-import:v1
 if redis.call('TYPE', KEYS[1])['ok'] ~= 'none' and redis.call('TYPE', KEYS[1])['ok'] ~= 'hash' then
   return 3
 end
@@ -223,9 +223,9 @@ return 0`
 // never count aliases, but a NEW alias field is gated on
 // HLEN(aliases)+HLEN(mappings) >= max, while an alias overwrite bypasses the
 // gate. Global aliases keep counting against global mappings (historical).
-// No symmetric aggregate cap is imposed on mapping writes here — that stays a
+// No symmetric aggregate cap is imposed on mapping writes here â€” that stays a
 // residual contract decision, not a silent Q2b2 change.
-const ALIAS_SET_SCRIPT = `-- pictorium:alias-set:v1
+const ALIAS_SET_SCRIPT = `-- FlameForge:alias-set:v1
 if redis.call('TYPE', KEYS[1])['ok'] ~= 'none' and redis.call('TYPE', KEYS[1])['ok'] ~= 'hash' then
   return 3
 end
@@ -244,7 +244,7 @@ return 0`
 
 /**
  * Strict fail-closed reply validation: only integer 0/1/3 is accepted
- * (number or numeric string — integer Redis reply on both adapters).
+ * (number or numeric string â€” integer Redis reply on both adapters).
  * Number(null/false/'') coerces to 0 and would fake a successful store, so
  * the raw reply is inspected first; anything else fails closed generically
  * (never a quota rejection).
@@ -304,11 +304,11 @@ let writeQueue = Promise.resolve()
 let memCache: Record<string, Mapping> | null = null
 let memCacheTime = 0
 
-// Leggere lo stat del file a ogni lettura è costoso su storage remoti
+// Leggere lo stat del file a ogni lettura Ã¨ costoso su storage remoti
 // (HF Spaces: bucket FUSE con round-trip di rete per ogni stat). Lo stat viene
 // fatto al massimo ogni READ_STAT_TTL_MS; le scritture nostre aggiornano la
-// memCache subito, quindi la staleness è limitata alle scritture di ALTRI
-// processi (multi-istanza) ed è bounded a 500ms. Nei test il TTL è 0 per
+// memCache subito, quindi la staleness Ã¨ limitata alle scritture di ALTRI
+// processi (multi-istanza) ed Ã¨ bounded a 500ms. Nei test il TTL Ã¨ 0 per
 // mantenere il determinismo (i test scrivono il file e lo rileggono subito).
 const READ_STAT_TTL_MS = process.env.NODE_ENV === "test" ? 0 : 500
 let lastStatAt = 0
@@ -331,7 +331,7 @@ function assertRecordMap(value: unknown, file: string): asserts value is Record<
   }
 }
 
-/** Consecutive write failures — resets to 0 on success */
+/** Consecutive write failures â€” resets to 0 on success */
 let writeFailures = 0
 
 function enqueueWrite<T>(task: () => Promise<T>): Promise<T> {
@@ -343,7 +343,7 @@ function enqueueWrite<T>(task: () => Promise<T>): Promise<T> {
       const msg = error instanceof Error ? error.message : String(error)
       log.error("Write queue task failed", { error: msg, consecutiveFailures: writeFailures })
       if (writeFailures >= 5) {
-        log.error("Write queue has 5+ consecutive failures — check disk permissions or storage backend")
+        log.error("Write queue has 5+ consecutive failures â€” check disk permissions or storage backend")
       }
       throw error
     },
@@ -413,7 +413,7 @@ async function persist(data: Record<string, Mapping>) {
       await fsp.rename(tmp, DATA_FILE)
     } catch (e) {
       if (isNodeError(e) && (e as NodeJS.ErrnoException).code === "EXDEV") {
-        // HF Storage FUSE può dare EXDEV se tmp e DATA_FILE sono su mount diversi
+        // HF Storage FUSE puÃ² dare EXDEV se tmp e DATA_FILE sono su mount diversi
         // (es. symlink o /tmp separato). Fallback come in flixpatrol.ts: copy+unlink
         await fsp.copyFile(tmp, DATA_FILE)
         await fsp.unlink(tmp).catch(() => {})
@@ -430,7 +430,7 @@ async function persist(data: Record<string, Mapping>) {
     const msg = e instanceof Error ? e.message : String(e)
     log.error("Failed to write mappings", { file: DATA_FILE, error: msg })
     if (msg.includes("EACCES") || msg.includes("EPERM")) {
-      log.error("Permission error — check that data dir is writable", { dir: DATA_DIR })
+      log.error("Permission error â€” check that data dir is writable", { dir: DATA_DIR })
       log.error("If using HF Storage Bucket, verify it's linked in Space Settings -> Storage")
     }
     throw new Error(`Cannot persist mappings: ${msg}`)
@@ -503,7 +503,7 @@ async function readUserFromMem(userId: string): Promise<Record<string, Mapping>>
     if (mirror.data && stat.mtimeMs <= mirror.time) return mirror.data
   } catch (e) {
     // File sparito (wipe account): ricarica da disco (resetta il mirror a {}),
-    // mai servire lo snapshot stantio. Altri errori → fallback al mirror.
+    // mai servire lo snapshot stantio. Altri errori â†’ fallback al mirror.
     if (isNodeError(e) && e.code === "ENOENT") return loadUserFromDisk(userId)
     if (mirror.data) return mirror.data
   }
@@ -686,7 +686,7 @@ export async function removeAll(userId?: string | null) {
 }
 
 export async function importMappings(mappings: Mapping[], userId?: string | null) {
-  // Import vuoto: no-op (hset con 0 campi fa 500 su Redis — v1.23.0).
+  // Import vuoto: no-op (hset con 0 campi fa 500 su Redis â€” v1.23.0).
   if (mappings.length === 0) return
   if (userId) {
     assertValidUserId(userId)
@@ -722,7 +722,7 @@ export async function importMappings(mappings: Mapping[], userId?: string | null
       const now = new Date().toISOString()
       for (const m of mappings) {
         const key = `${m.mediaType}:${m.tmdbId}`
-        // Stesso motivo del ramo KV: updatedAt è parte del cache key dei poster.
+        // Stesso motivo del ramo KV: updatedAt Ã¨ parte del cache key dei poster.
         data[key] = { ...m, updatedAt: now }
       }
       await persistUser(userId, data)
@@ -737,14 +737,14 @@ export async function importMappings(mappings: Mapping[], userId?: string | null
     const now = new Date().toISOString()
     for (const m of mappings) {
       const key = `${m.mediaType}:${m.tmdbId}`
-      // Stesso motivo del ramo KV: updatedAt è parte del cache key dei poster.
+      // Stesso motivo del ramo KV: updatedAt Ã¨ parte del cache key dei poster.
       data[key] = { ...m, updatedAt: now }
     }
     await persist(data)
   })
 }
 
-// ---- IMDb aliases (tt... → show Saved, per-namespace) ----
+// ---- IMDb aliases (tt... â†’ show Saved, per-namespace) ----
 // Un tt di franchise (es. Monster tt13207736, una sola scheda per 4 stagioni
 // su Cinemeta/AIO) non si risolve via TMDB /find sulla entry di stagione
 // (es. tv:299939, imdb_id vuoto): l'alias manuale cuce il ponte e vince sul
@@ -1131,3 +1131,4 @@ export function __evictAliasCache(userId?: string | null): void {
   kvAliasGlobal = { map: null, at: 0, inflight: null }
   aliasMemCache = null
 }
+

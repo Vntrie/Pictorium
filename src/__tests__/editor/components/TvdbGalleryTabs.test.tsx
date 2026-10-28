@@ -6,7 +6,7 @@ import { PosterOptions } from "@/components/PosterOptions"
 import { LogoOptions } from "@/components/LogoOptions"
 import { BackdropOptions } from "@/components/BackdropOptions"
 import { MOCK_CTX, renderWithCtx } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import { usePosterFit } from "@/lib/usePosterFit"
@@ -75,14 +75,14 @@ function BackdropShell({ backdrops, onSelect, onClear }: {
   return (
     <ThemeProvider>
       <PosterEditorProvider>
-        <PictoriumProvider value={ctx}>
+        <FlameForgeProvider value={ctx}>
           <BackdropOptions
             backdrops={backdrops}
             backdropActivePath={active}
             selectBackdrop={(i) => { setActive(i.file_path); onSelect(i) }}
             clearBackdrop={() => { setActive(null); onClear() }}
           />
-        </PictoriumProvider>
+        </FlameForgeProvider>
       </PosterEditorProvider>
     </ThemeProvider>
   )
@@ -313,3 +313,5 @@ describe("BackdropOptions TVDB tab", () => {
     expect(document.querySelectorAll('img[src*="/bd1.jpg"]')).toHaveLength(1)
   })
 })
+
+

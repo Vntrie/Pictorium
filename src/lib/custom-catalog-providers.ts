@@ -1,4 +1,4 @@
-import crypto from "node:crypto"
+﻿import crypto from "node:crypto"
 import { cacheGet, cacheSet } from "@/lib/cache"
 import { combineAbortSignals } from "@/lib/abort-signal"
 import { fetchCustomMDBList, type MDBListEntry } from "@/lib/mdblist"
@@ -6,7 +6,7 @@ import { createLogger } from "@/lib/logger"
 import { envWithFallback } from "@/lib/env-compat"
 import { detectCatalogProvider, isTraktUserContentUrl } from "./catalog-provider-detect"
 
-// Re-export per compatibilità: il riconoscimento URL vive in
+// Re-export per compatibilitÃ : il riconoscimento URL vive in
 // catalog-provider-detect.ts (foglia client-safe); route e test continuano
 // a importarlo da qui senza modifiche.
 export { detectCatalogProvider } from "./catalog-provider-detect"
@@ -21,7 +21,7 @@ const CUSTOM_LIST_SOURCE_TTL_MS = 12 * 60 * 60 * 1000
 
 /**
  * Esito tipizzato del fetch catalogo (Fase 5): la pipeline Stremio tratta
- * tutto ciò che non è ok come vuoto, mentre preview/modal mostrano il
+ * tutto ciÃ² che non Ã¨ ok come vuoto, mentre preview/modal mostrano il
  * messaggio specifico invece del generico "nessun titolo".
  */
 export type CatalogFetchStatus =
@@ -51,7 +51,7 @@ export interface UnifiedCatalogResult {
    * Owner-private provenance (task 4 correction cycle 1): true when the
    * items were fetched with the owner's verified Bearer under a fenced
    * lease. The Stremio catalog handler uses it to skip outer-cache writes
-   * (and suppress the body) whenever the fence cannot be revalidated —
+   * (and suppress the body) whenever the fence cannot be revalidated â€”
    * private items are never persisted under an unverifiable identity.
    * Absent/false = public or unfenced fetch (existing cache semantics).
    */
@@ -92,16 +92,16 @@ interface TraktDiscoveryMedia {
 
 /**
  * Item di discovery Trakt "wrapped" (docs ufficiali: trending
- * `GET /movies/trending` e `/shows/trending` → `{ watchers, movie|show }`;
- * anticipated `GET /movies/anticipated` e `/shows/anticipated` →
+ * `GET /movies/trending` e `/shows/trending` â†’ `{ watchers, movie|show }`;
+ * anticipated `GET /movies/anticipated` e `/shows/anticipated` â†’
  * `{ list_count, movie|show }`; media miste `GET /media/trending` e
- * `/media/anticipated` → stessa forma wrapped con `movie` OPPURE `show`
- * (required solo `watchers`/`list_count`, niente `type` — vedi
- * developer.trakt.tv/openapi.json). Niente `type`, l'ordine API è il ranking
- * (più visti/listati prima). Popular (`GET /movies/popular`,
+ * `/media/anticipated` â†’ stessa forma wrapped con `movie` OPPURE `show`
+ * (required solo `watchers`/`list_count`, niente `type` â€” vedi
+ * developer.trakt.tv/openapi.json). Niente `type`, l'ordine API Ã¨ il ranking
+ * (piÃ¹ visti/listati prima). Popular (`GET /movies/popular`,
  * `/shows/popular`) restituisce invece record bare (il media stesso); la
  * media mista `GET /media/popular` restituisce record bare interleaved
- * (oneOf movie|show, required `[title, ids]`, niente wrapper né `type`).
+ * (oneOf movie|show, required `[title, ids]`, niente wrapper nÃ© `type`).
  */
 interface TraktWrappedDiscoveryItem {
   watchers?: number
@@ -116,7 +116,7 @@ type TraktDiscoveryScope = "movies" | "shows" | "media"
 /**
  * Chiave top-level presente solo nella variante movie dello schema ufficiale
  * `GET /media/popular` (la variante show non la definisce): chiavi Optional
- * in openapi.json — `?extended=full` richiesto ne migliora la presenza ma non
+ * in openapi.json â€” `?extended=full` richiesto ne migliora la presenza ma non
  * la garantisce. Vedi developer.trakt.tv/openapi.json, oneOf movie|show di
  * `getMediaPopular` (movie: `released`; show: `first_aired`, `aired_episodes`,
  * `airs`, `network`, ...). Presenza, non valore: quando presente,
@@ -128,11 +128,11 @@ const TRAKT_MEDIA_MOVIE_KEYS = ["released"] as const
 /**
  * Chiavi top-level presenti solo nella variante show dello schema ufficiale
  * `GET /media/popular` (la variante movie non le definisce): chiavi Optional
- * in openapi.json — `?extended=full` richiesto ne migliora la presenza ma non
+ * in openapi.json â€” `?extended=full` richiesto ne migliora la presenza ma non
  * la garantisce. Insieme alla presenza della chiave `tvdb` negli ids (la
  * variante show la definisce nullable, quella movie non la definisce
- * proprio), sono il marcatore show esplicito per i record bare misti — che
- * non hanno wrapper né `type`. Presenza, non valore: quando presenti,
+ * proprio), sono il marcatore show esplicito per i record bare misti â€” che
+ * non hanno wrapper nÃ© `type`. Presenza, non valore: quando presenti,
  * `first_aired: null` o `tvdb: null` restano marcatori show espliciti;
  * record senza alcun marcatore esclusivo restano ambigui e vengono scartati.
  */
@@ -146,18 +146,18 @@ function isRecordObject(value: unknown): value is Record<string, unknown> {
  * Classifica un record di discovery mista (`GET /media/<kind>`) nella forma
  * ufficiale verificata, senza default impliciti:
  * - trending/anticipated: solo wrapped `{ watchers|list_count, movie|show }`
- *   con ESATTAMENTE una delle due chiavi (entrambe → ambiguo, nessuna →
+ *   con ESATTAMENTE una delle due chiavi (entrambe â†’ ambiguo, nessuna â†’
  *   mancante: scartato);
  * - popular (richiesto con `?extended=full`, vedi fetchTraktDiscovery): solo
  *   record bare `{ title, year, ids }` (un record con chiavi oggetto
- *   `movie`/`show` non è bare → scartato, mai reinterpretato); movie se e
+ *   `movie`/`show` non Ã¨ bare â†’ scartato, mai reinterpretato); movie se e
  *   solo se compare la chiave solo-movie `released` (presenza, anche null)
  *   SENZA alcun marcatore show; show se e solo se gli ids portano la chiave
  *   `tvdb` (presenza, anche null) oppure compaiono chiavi top-level
- *   solo-show, SENZA `released`. ENTRAMBE (movie+show) o NESSUNA → ambiguo,
+ *   solo-show, SENZA `released`. ENTRAMBE (movie+show) o NESSUNA â†’ ambiguo,
  *   scartato: un record minimale valido per schema (`{ title, ids }` senza
- *   marcatori — la variante show richiede solo `[trakt, slug]`, `tvdb`
- *   opzionale) non è mai classificato movie in silenzio.
+ *   marcatori â€” la variante show richiede solo `[trakt, slug]`, `tvdb`
+ *   opzionale) non Ã¨ mai classificato movie in silenzio.
  * Ritorna null per ogni forma non ufficiale o ambigua: il caller scarta la
  * voce invece di emettere mediatype inventati o id Trakt nudi.
  */
@@ -193,7 +193,7 @@ function getTraktClientId(): string | undefined {
 
 /**
  * Header ufficiali Trakt v2 (stessi della path pubblica). Con `accessToken`
- * la chiamata è autenticata come proprietario (liste private + watchlist);
+ * la chiamata Ã¨ autenticata come proprietario (liste private + watchlist);
  * senza resta la Client ID d'istanza (liste pubbliche). Il token vive solo in
  * memoria server, mai nei log/URL/cache key (solo il suo hash di fences, vedi
  * dispatcher).
@@ -204,14 +204,14 @@ function traktHeaders(clientId: string, accessToken?: string): Record<string, st
     "Content-Type": "application/json",
     "trakt-api-version": "2",
     "trakt-api-key": clientId,
-    "User-Agent": "Mozilla/5.0 Pictorium",
+    "User-Agent": "Mozilla/5.0 FlameForge",
   }
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`
   return headers
 }
 
-// ── Authenticated Trakt (task 4) ──────────────────────────────────────
-// Il contesto nasce SOLO da un UUID proprietario già autorizzato dal caller
+// â”€â”€ Authenticated Trakt (task 4) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Il contesto nasce SOLO da un UUID proprietario giÃ  autorizzato dal caller
 // (preview browser: checkUserAuth sugli header; catalogo Stremio: namespace
 // UUID dalla manifest URL). Mai token forniti dall'utente in query/body/
 // config: il Bearer arriva server-side da getValidTraktAccessToken (con
@@ -226,7 +226,7 @@ type TraktAuthContext =
 async function resolveTraktAuthContext(userId: string): Promise<TraktAuthContext> {
   // Coherent lease (task 4 correction cycle 1): generation-before, token,
   // generation-after with one refresh-tolerant retry live in
-  // `getTraktCatalogLease` — this resolver never couples an old token to a
+  // `getTraktCatalogLease` â€” this resolver never couples an old token to a
   // new fence. A generation outage with a verified token stays servable but
   // fenced out of every cache layer (`noCache`); without a verified token
   // every outage maps to its typed reason (fail-closed, never served).
@@ -250,7 +250,7 @@ function traktApiBase(): string {
  * Normalizza voci di catalogo al contratto comune (Fase 0):
  * almeno imdb, tmdb oppure tvdb; dedup per tmdb, poi imdb, poi tvdb;
  * tetto limit. Le voci solo-titolo non sono risolvibili dalla pipeline
- * (catalog-handler scarta comunque ciò che non risolve in tmdbId).
+ * (catalog-handler scarta comunque ciÃ² che non risolve in tmdbId).
  */
 export function normalizeCatalogEntries(items: MDBListEntry[], limit: number = 500): MDBListEntry[] {
   const seen = new Set<string>()
@@ -313,7 +313,7 @@ async function fetchLetterboxdList(url: string, limit: number = 500, signal?: Ab
     const headRes = await fetch(requestUrl, {
       method: "HEAD",
       headers: {
-        "User-Agent": "Mozilla/5.0 Pictorium",
+        "User-Agent": "Mozilla/5.0 FlameForge",
         "Accept-Language": "en-US,en;q=0.9",
       },
       signal: combineAbortSignals(signal, 8000),
@@ -342,7 +342,7 @@ async function fetchLetterboxdList(url: string, limit: number = 500, signal?: Ab
     const res = await fetch(stremThruUrl, {
       headers: {
         Accept: "application/json",
-        "User-Agent": "Mozilla/5.0 Pictorium",
+        "User-Agent": "Mozilla/5.0 FlameForge",
       },
       signal: combineAbortSignals(signal, 12000),
     }).catch(() => null)
@@ -391,9 +391,9 @@ async function fetchLetterboxdList(url: string, limit: number = 500, signal?: Ab
 
 /**
  * Scarica una lista Trakt tramite API ufficiale Trakt v2 (router: discovery
- * pubblica invariata; contenuto utente con/senza Bearer del proprietario —
+ * pubblica invariata; contenuto utente con/senza Bearer del proprietario â€”
  * vedi fetchTraktWatchlist/fetchTraktStandardList).
- * Richiede la Client ID d'istanza (PICTORIUM_TRAKT_CLIENT_ID); le liste
+ * Richiede la Client ID d'istanza (FLAMEFORGE_TRAKT_CLIENT_ID); le liste
  * pubbliche non richiedono OAuth.
  */
 async function fetchTraktList(url: string, limit: number = 500, signal?: AbortSignal, traktAuth?: TraktAuthContext | null): Promise<UnifiedCatalogResult> {
@@ -402,9 +402,9 @@ async function fetchTraktList(url: string, limit: number = 500, signal?: AbortSi
     const trimmed = url.trim()
     // Discovery trending/anticipated/popular (film, serie o misti):
     // https://app.trakt.tv/discover/<kind>?mode=movie|show|media
-    // (speculare al detect: solo i mode canonici del sito — `movie`, `show`
-    // e `media` singolari; mode mancante/altro → unsupported esplicito, mai
-    // default implicito né fetch incrociato). I misti usano gli endpoint
+    // (speculare al detect: solo i mode canonici del sito â€” `movie`, `show`
+    // e `media` singolari; mode mancante/altro â†’ unsupported esplicito, mai
+    // default implicito nÃ© fetch incrociato). I misti usano gli endpoint
     // ufficiali `GET /media/<kind>` (singolo ranking upstream, mai
     // concatenazione di movie+show).
     const discoveryMatch = trimmed.match(/^(?:https?:\/\/)?(?:www\.|app\.)?trakt\.tv\/discover\/(anticipated|trending|popular)\/?(?:[?#].*)?$/i)
@@ -424,12 +424,12 @@ async function fetchTraktList(url: string, limit: number = 500, signal?: AbortSi
       log.warn(`Trakt ${kind} mode not supported as custom catalog`)
       return empty("unsupported")
     }
-    // Smart-list web view (es. .../lists/smart/view/films-...): l'ID web è
-    // opaco — le docs ufficiali richiedono un integer id per GET /lists/{id}
+    // Smart-list web view (es. .../lists/smart/view/films-...): l'ID web Ã¨
+    // opaco â€” le docs ufficiali richiedono un integer id per GET /lists/{id}
     // e non documentano alcun endpoint smart-list con sola Client ID.
     // Rifiuto esplicito senza rete: mai inviare films-... a /lists/{id},
-    // mai scraping, mai sostituzioni. Se in futuro Trakt documenterà un
-    // accesso con Client ID (o sarà autorizzato OAuth), implementarlo qui.
+    // mai scraping, mai sostituzioni. Se in futuro Trakt documenterÃ  un
+    // accesso con Client ID (o sarÃ  autorizzato OAuth), implementarlo qui.
     const smartMatch = trimmed.match(/^(?:https?:\/\/)?(?:www\.|app\.)?trakt\.tv\/lists\/smart\/view\/([a-zA-Z0-9_.-]+)\/?(?:[?#].*)?$/i)
     if (smartMatch) {
       log.warn("Trakt smart list web IDs are opaque: no official client-ID endpoint")
@@ -468,11 +468,11 @@ async function fetchTraktList(url: string, limit: number = 500, signal?: AbortSi
 /**
  * Loop paginato condiviso per gli endpoint Trakt lista/watchlist (docs
  * ufficiali: `page`/`limit` in query, ordine API preservato come ranking,
- * header di paginazione onorati, voci senza imdb/tmdb scartate — mai id Trakt
+ * header di paginazione onorati, voci senza imdb/tmdb scartate â€” mai id Trakt
  * nudi). `transient` distingue il fallimento di trasporto della path pubblica
  * (`unavailable`, invariato) da quello autenticato (`temporary`: mai cache
- * lungo, mai downgrade silenzioso). Sulla path autenticata il 401 è
- * `connection_required` (grant morto dopo la validazione — riconnettiti),
+ * lungo, mai downgrade silenzioso). Sulla path autenticata il 401 Ã¨
+ * `connection_required` (grant morto dopo la validazione â€” riconnettiti),
  * il 403 resta `private` genuino; sulla pubblica 401/403 restano `private`.
  * Stesse scadenze/garanzie delle liste pubbliche.
  */
@@ -485,7 +485,7 @@ async function fetchTraktPaged(
   authenticated = false,
 ): Promise<UnifiedCatalogResult> {
   const empty = (status: CatalogFetchStatus): UnifiedCatalogResult => ({ items: [], status })
-  // Partial prefix: pagination was interrupted (abort/page error) — the
+  // Partial prefix: pagination was interrupted (abort/page error) â€” the
   // caller may serve it but must never long-cache it (`incomplete`).
   const done = (items: MDBListEntry[], incomplete = false): UnifiedCatalogResult => ({
     items: items.slice(0, limit),
@@ -507,13 +507,13 @@ async function fetchTraktPaged(
       if (!res) return items.length ? done(items, true) : empty(transient)
       // Authenticated 401 (correction cycle 1): the Bearer was just
       // validated, so upstream rejecting it means the grant died (revoked /
-      // expired past refresh) — explicit `connection_required`, never a
+      // expired past refresh) â€” explicit `connection_required`, never a
       // silent `private` that hides the reconnect path. Authenticated 403
-      // stays `private` (valid token, genuinely forbidden — e.g. someone
-      // else's list). The public path is untouched (401/403 → `private`,
+      // stays `private` (valid token, genuinely forbidden â€” e.g. someone
+      // else's list). The public path is untouched (401/403 â†’ `private`,
       // remapped by the caller when the owner is disconnected).
       if (res.status === 401 && authenticated) {
-        log.warn("Trakt access rejected for a validated Bearer — reconnect required")
+        log.warn("Trakt access rejected for a validated Bearer â€” reconnect required")
         return empty("connection_required")
       }
       if (res.status === 401 || res.status === 403) {
@@ -586,13 +586,13 @@ async function fetchTraktPaged(
 /**
  * Watchlist del proprietario via endpoint ufficiale user-specific (docs
  * ufficiali `GET /users/{id}/watchlist/movie,show/{sort}`, sort `rank`):
- * lo username incollato viaggia a upstream così com'è — MAI sostituito con
+ * lo username incollato viaggia a upstream cosÃ¬ com'Ã¨ â€” MAI sostituito con
  * `/me` o `/sync` in silenzio. Upstream autentica le restrizioni: la
- * watchlist privata di un altro utente torna 401/403 → `private` esplicito,
+ * watchlist privata di un altro utente torna 401/403 â†’ `private` esplicito,
  * mai item altrui serviti. Zero fetch privata senza token valido: non
- * connesso → `connection_required` (riconnettiti, nessun item, nessuna rete
- * verso l'endpoint privato), transient → `temporary`, OAuth non configurato
- * → `key_missing`. Mai scraping, mai SSRF (base hardcoded, segmenti validati
+ * connesso â†’ `connection_required` (riconnettiti, nessun item, nessuna rete
+ * verso l'endpoint privato), transient â†’ `temporary`, OAuth non configurato
+ * â†’ `key_missing`. Mai scraping, mai SSRF (base hardcoded, segmenti validati
  * dalla regex del router).
  */
 async function fetchTraktWatchlist(
@@ -609,7 +609,7 @@ async function fetchTraktWatchlist(
   if (traktAuth.kind !== "token") return empty(traktAuth.kind)
   const clientId = getTraktClientId()
   if (!clientId) {
-    log.warn("Trakt client ID missing: set PICTORIUM_TRAKT_CLIENT_ID")
+    log.warn("Trakt client ID missing: set FLAMEFORGE_TRAKT_CLIENT_ID")
     return empty("key_missing")
   }
   return fetchTraktPaged(
@@ -629,8 +629,8 @@ async function fetchTraktWatchlist(
  * pubbliche, Bearer inutile). La connessione assente/transient non toglie
  * l'accesso pubblico indipendente, ma un 401/403 pubblico su path utente con
  * proprietario disconnesso non diventa mai un `private` definitivo in
- * silenzio: è `connection_required` (la riconnessione può sbloccare) o
- * `temporary` (riprova). A token valido il 401/403 è `private` genuino.
+ * silenzio: Ã¨ `connection_required` (la riconnessione puÃ² sbloccare) o
+ * `temporary` (riprova). A token valido il 401/403 Ã¨ `private` genuino.
  */
 async function fetchTraktStandardList(
   user: string | null,
@@ -642,7 +642,7 @@ async function fetchTraktStandardList(
   const empty = (status: CatalogFetchStatus): UnifiedCatalogResult => ({ items: [], status })
   const clientId = getTraktClientId()
   if (!clientId) {
-    log.warn("Trakt client ID missing: set PICTORIUM_TRAKT_CLIENT_ID")
+    log.warn("Trakt client ID missing: set FLAMEFORGE_TRAKT_CLIENT_ID")
     return empty("key_missing")
   }
   const path = user
@@ -653,9 +653,9 @@ async function fetchTraktStandardList(
   }
   const pub = await fetchTraktPaged(path, traktHeaders(clientId), limit, signal, "unavailable")
   // 401/403 pubblico su path utente con proprietario non autenticabile qui:
-  // disconnesso → reconnect esplicito; transient → riprova più tardi. Mai un
+  // disconnesso â†’ reconnect esplicito; transient â†’ riprova piÃ¹ tardi. Mai un
   // `private` definitivo che nasconde la via di riconnessione. (Token + path
-  // nuda, o OAuth non configurabile: esito pubblico così com'è.)
+  // nuda, o OAuth non configurabile: esito pubblico cosÃ¬ com'Ã¨.)
   if (
     pub.status !== "private" ||
     !user ||
@@ -672,21 +672,21 @@ async function fetchTraktStandardList(
  * Scarica una discovery Trakt (trending/anticipated/popular; film, serie o
  * misti) tramite API ufficiale Trakt v2 (`GET /movies|shows|media/<kind>`,
  * docs ufficiali + developer.trakt.tv/openapi.json): richiede la stessa
- * Client ID d'istanza delle liste (PICTORIUM_TRAKT_CLIENT_ID), niente OAuth
+ * Client ID d'istanza delle liste (FLAMEFORGE_TRAKT_CLIENT_ID), niente OAuth
  * (security: traktAPI da sola basta, OAuth opzionale). Forme ufficiali:
  * trending e anticipated sono wrapped (`{ watchers|list_count, movie|show }`,
- * niente `type` — anche gli endpoint misti `/media/...`, con una sola delle
- * due chiavi); popular è bare (il record film/serie stesso) e la media mista
- * `/media/popular` è bare interleaved (oneOf movie|show, niente wrapper né
- * `type`, richiesta con `?extended=full` — SOLO lì, mai su movie/show né su
- * trending/anticipated: il minimale `{ title, ids }` è ambiguo per schema,
+ * niente `type` â€” anche gli endpoint misti `/media/...`, con una sola delle
+ * due chiavi); popular Ã¨ bare (il record film/serie stesso) e la media mista
+ * `/media/popular` Ã¨ bare interleaved (oneOf movie|show, niente wrapper nÃ©
+ * `type`, richiesta con `?extended=full` â€” SOLO lÃ¬, mai su movie/show nÃ© su
+ * trending/anticipated: il minimale `{ title, ids }` Ã¨ ambiguo per schema,
  * con full movie porta `released` e show porta `tvdb`/`first_aired`/...;
- * entrambe o nessuna → ambiguo, scartato, mai default movie). L'ordine API è il ranking — preservato, mai concatenazioni.
+ * entrambe o nessuna â†’ ambiguo, scartato, mai default movie). L'ordine API Ã¨ il ranking â€” preservato, mai concatenazioni.
  * Voci senza imdb/tmdb (serie: anche tvdb) non sono risolvibili dalla
  * pipeline (mai id Trakt nudi) e vengono scartate; voci ambigue o fuori forma
  * ufficiale (entrambe/nessuna chiave wrapped, wrapper dentro popular,
  * popular misto senza marcatore esclusivo o con entrambi) pure.
- * Stesse garanzie delle liste: paginazione limitata, abort → prefisso
+ * Stesse garanzie delle liste: paginazione limitata, abort â†’ prefisso
  * parziale `incomplete` (mai long-cache), stessi status (key_missing,
  * private, not_found, rate_limited, unavailable).
  */
@@ -705,7 +705,7 @@ async function fetchTraktDiscovery(
   try {
     const clientId = getTraktClientId()
     if (!clientId) {
-      log.warn("Trakt client ID missing: set PICTORIUM_TRAKT_CLIENT_ID")
+      log.warn("Trakt client ID missing: set FLAMEFORGE_TRAKT_CLIENT_ID")
       return empty("key_missing")
     }
 
@@ -718,8 +718,8 @@ async function fetchTraktDiscovery(
 
     const maxPages = Math.max(1, Math.min(25, Math.ceil(limit / TRAKT_PAGE_LIMIT)))
     const items: MDBListEntry[] = []
-    // La popular mista minimale è ambigua per schema (show senza `tvdb`
-    // ≡ movie): SOLO lì si chiede `extended=full` così i record portano i
+    // La popular mista minimale Ã¨ ambigua per schema (show senza `tvdb`
+    // â‰¡ movie): SOLO lÃ¬ si chiede `extended=full` cosÃ¬ i record portano i
     // marcatori esclusivi (`released` vs `tvdb`/`first_aired`/...) e la
     // classifica non inventa mai il tipo. Movie/show e trending/anticipated
     // restano minimali (ordine e richieste invariati).
@@ -753,9 +753,9 @@ async function fetchTraktDiscovery(
 
       const json = await res.json().catch(() => null)
       // Stessa validazione esplicita delle liste: un 200 senza array top-level
-      // (es. error body) è una pagina fallita, non una coda vuota sana. Con
-      // prefisso atterrato → partial incomplete (mai long-cache); senza righe
-      // → transient.
+      // (es. error body) Ã¨ una pagina fallita, non una coda vuota sana. Con
+      // prefisso atterrato â†’ partial incomplete (mai long-cache); senza righe
+      // â†’ transient.
       const rawItems: unknown[] | null = Array.isArray(json) ? (json as unknown[]) : null
       if (rawItems === null) {
         log.warn(`Trakt ${kind} page malformed`, { page })
@@ -768,7 +768,7 @@ async function fetchTraktDiscovery(
         if (!record) continue
         // Scope misto: il record si classifica da solo nella forma ufficiale
         // (wrapped con una sola chiave per trending/anticipated, bare con
-        // marcatore esclusivo per popular con extended=full) — mai default
+        // marcatore esclusivo per popular con extended=full) â€” mai default
         // a film, mai entrambe-le-chiavi/nessuna, mai wrapper dentro popular.
         let media: TraktDiscoveryMedia | undefined
         let entryType: "movie" | "tv" = mediatype
@@ -811,9 +811,9 @@ async function fetchTraktDiscovery(
 
 /**
  * Scarica una lista TheTVDB pubblica tramite API ufficiale v4 (BYOK).
- * Spike: `thetvdb.com/lists/{slug}` → `GET /lists/slug/{slug}` → id →
+ * Spike: `thetvdb.com/lists/{slug}` â†’ `GET /lists/slug/{slug}` â†’ id â†’
  * `GET /lists/{id}/extended` (entities: solo tvdb movieId/seriesId + tipo).
- * Niente scraping HTML: slug non risolvibili ufficialmente → not_found.
+ * Niente scraping HTML: slug non risolvibili ufficialmente â†’ not_found.
  * Gli item escono con solo tvdb+tipo: la pipeline li risolve in TMDB via
  * tmdbFindByTvdb, come per gli imdb-only.
  */
@@ -832,7 +832,7 @@ function tvdbApiBase(): string {
 }
 
 // Token JWT v4 (validi 1 mese) cachati 24h per hash chiave, mai plaintext.
-// Su 401 il token si butta e si rifà login una volta (token scaduto).
+// Su 401 il token si butta e si rifÃ  login una volta (token scaduto).
 const tvdbTokenCache = new Map<string, { token: string; exp: number }>()
 
 async function tvdbLogin(tvdbKey: string, signal?: AbortSignal): Promise<{ token: string | null; status: CatalogFetchStatus }> {
@@ -842,7 +842,7 @@ async function tvdbLogin(tvdbKey: string, signal?: AbortSignal): Promise<{ token
   tvdbTokenCache.delete(h)
   const res = await fetch(`${tvdbApiBase()}/login`, {
     method: "POST",
-    headers: { Accept: "application/json", "Content-Type": "application/json", "User-Agent": "Mozilla/5.0 Pictorium" },
+    headers: { Accept: "application/json", "Content-Type": "application/json", "User-Agent": "Mozilla/5.0 FlameForge" },
     body: JSON.stringify({ apikey: tvdbKey }),
     signal: combineAbortSignals(signal, TVDB_TIMEOUT_MS),
   }).catch(() => null)
@@ -885,12 +885,12 @@ async function fetchTvdbList(url: string, tvdbKey: string | undefined, limit: nu
 
     const get = async (apiPath: string): Promise<Response | null> =>
       fetch(`${tvdbApiBase()}${apiPath}`, {
-        headers: { Accept: "application/json", Authorization: `Bearer ${token}`, "User-Agent": "Mozilla/5.0 Pictorium" },
+        headers: { Accept: "application/json", Authorization: `Bearer ${token}`, "User-Agent": "Mozilla/5.0 FlameForge" },
         signal: combineAbortSignals(signal, TVDB_TIMEOUT_MS),
       }).catch(() => null)
 
-    // GET con un solo retry su 401 (token scaduto → re-login). Se anche il
-    // retry è 401 con token fresco, è la risorsa a essere privata.
+    // GET con un solo retry su 401 (token scaduto â†’ re-login). Se anche il
+    // retry Ã¨ 401 con token fresco, Ã¨ la risorsa a essere privata.
     const getWithAuth = async (apiPath: string): Promise<Response | null> => {
       let res = await get(apiPath)
       if (res && res.status === 401) {
@@ -956,9 +956,9 @@ async function fetchTvdbList(url: string, tvdbKey: string | undefined, limit: nu
 
 /**
  * Scarica i film di una TMDb Collection (saga) o TMDb List.
- * Ritorna anche `incomplete` (correction1): true quando la paginazione è
- * stata interrotta (abort) o una pagina è fallita (catch) e `items` è solo
- * un prefisso parziale — il dispatcher non deve mai cacharlo a lungo.
+ * Ritorna anche `incomplete` (correction1): true quando la paginazione Ã¨
+ * stata interrotta (abort) o una pagina Ã¨ fallita (catch) e `items` Ã¨ solo
+ * un prefisso parziale â€” il dispatcher non deve mai cacharlo a lungo.
  */
 async function fetchTmdbCollectionOrList(
   provider: "tmdb_collection" | "tmdb_list",
@@ -1105,7 +1105,7 @@ import { getImdbDataset } from "@/lib/imdb-datasets"
 
 /**
  * Item di uno snapshot CSV IMDb salvato nel namespace utente (o globale).
- * Ritorna al massimo `limit` voci già normalizzate all'import.
+ * Ritorna al massimo `limit` voci giÃ  normalizzate all'import.
  */
 async function fetchImdbDatasetItems(
   datasetId: string,
@@ -1160,7 +1160,7 @@ export async function fetchUnifiedCatalogResult(
   const provider = detection?.provider ?? "mdblist"
 
   // Contesto Trakt autenticato (task 4): risolto una sola volta PRIMA della
-  // cache così la generation di fencing entra nel key — isolamento per UUID +
+  // cache cosÃ¬ la generation di fencing entra nel key â€” isolamento per UUID +
   // connessione: reconnect/disconnect/wipe cambiano chiave e gli item privati
   // pre-disconnect diventano irraggiungibili in L1 e L2 (scadono per TTL).
   // Solo path contenuto-utente (`users/<name>/lists|watchlist`); bare
@@ -1171,12 +1171,12 @@ export async function fetchUnifiedCatalogResult(
     provider === "trakt" && traktOwner && isTraktUserContentUrl(trimmed)
       ? await resolveTraktAuthContext(traktOwner)
       : null
-  // Generation illeggibile (outage): si serve senza toccare la cache (né
-  // lettura né scrittura) invece di chiaveare item privati su un frammento
+  // Generation illeggibile (outage): si serve senza toccare la cache (nÃ©
+  // lettura nÃ© scrittura) invece di chiaveare item privati su un frammento
   // condiviso.
   const traktNoCache = traktAuth?.kind === "token" && traktAuth.noCache
 
-  // Le chiavi cambiano il payload (liste private/quote diverse) → parte del
+  // Le chiavi cambiano il payload (liste private/quote diverse) â†’ parte del
   // cache key come hash, mai plaintext (stesso pattern di mdblist.ts). Senza,
   // il fallback pubblico senza chiave avvelenava la vista keyed e viceversa.
   // La Client ID Trakt d'istanza entra come hash: a rotazione chiave la cache
@@ -1184,7 +1184,7 @@ export async function fetchUnifiedCatalogResult(
   // due utenti non collidono mai. Il contesto Trakt aggiunge UUID proprietario
   // + generation di fencing (solo path contenuto-utente autenticate): due
   // utenti con lo stesso URL incollato non condividono mai nulla, e dopo
-  // disconnect/reconnect la chiave vecchia non viene più letta.
+  // disconnect/reconnect la chiave vecchia non viene piÃ¹ letta.
   const hashFragment = (value: string | undefined): string =>
     value ? crypto.createHash("sha1").update(value).digest("hex").slice(0, 8) : "none"
   const traktCacheFragment =
@@ -1245,11 +1245,11 @@ export async function fetchUnifiedCatalogResult(
 
   // Post-fetch fence revalidation (task 4 correction cycle 1): a
   // disconnect/wipe/reconnect that landed DURING the paged upstream fetch
-  // must never bind old-token items to any fence — no stale write, no stale
-  // return. Fully verified stable fence → `traktPrivateVerified` (normal
+  // must never bind old-token items to any fence â€” no stale write, no stale
+  // return. Fully verified stable fence â†’ `traktPrivateVerified` (normal
   // caching + provenance below). Verified token with an unreadable fence at
-  // either end → serve fresh to the owner, never persist. Moved fence or a
-  // lost connection → fail closed with the fresh typed status.
+  // either end â†’ serve fresh to the owner, never persist. Moved fence or a
+  // lost connection â†’ fail closed with the fresh typed status.
   let traktPrivateVerified = false
   if (
     provider === "trakt" &&
@@ -1275,7 +1275,7 @@ export async function fetchUnifiedCatalogResult(
     items = normalizeCatalogEntries(items, limit)
   }
   // Bearer provenance for the outer handler (correction cycle 1): set only
-  // when this response actually serves owner-fetched items — suppressed
+  // when this response actually serves owner-fetched items â€” suppressed
   // responses returned above carry none, public fallbacks never qualify.
   const traktPrivateServed =
     provider === "trakt" && traktAuth?.kind === "token" && items.length > 0 && result.status === "ok"
@@ -1310,3 +1310,4 @@ export async function fetchUnifiedCatalogItems(
 ): Promise<MDBListEntry[]> {
   return (await fetchUnifiedCatalogResult(urlOrSlug, options)).items
 }
+

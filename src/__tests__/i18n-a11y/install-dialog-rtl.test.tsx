@@ -26,12 +26,12 @@ import itDict from "@/lib/translations/it.json"
 const he = heDict as Record<string, string>
 const itStr = itDict as Record<string, string>
 
-const TMDB = "https://pictorium.test/api/poster/{type}/{tmdb_id}?lang=he&rv=1"
-const IMDB = "https://pictorium.test/api/poster/{type}/{imdb_id}?lang=he&rv=1"
-const AUTO = "https://pictorium.test/api/poster/{type}/{tmdb_id|imdb_id}?lang=he&rv=1"
-const NUVIO_TMDB = "https://pictorium.test/api/poster/{type}/{tmdb_id}?lang=he&rv=1&shape={shape}"
-const NUVIO_IMDB = "https://pictorium.test/api/poster/{type}/{imdb_id}?lang=he&rv=1&shape={shape}"
-const NUVIO_AUTO = "https://pictorium.test/api/poster/{type}/{tmdb_id|imdb_id}?lang=he&rv=1&shape={shape}"
+const TMDB = "https://FlameForge.test/api/poster/{type}/{tmdb_id}?lang=he&rv=1"
+const IMDB = "https://FlameForge.test/api/poster/{type}/{imdb_id}?lang=he&rv=1"
+const AUTO = "https://FlameForge.test/api/poster/{type}/{tmdb_id|imdb_id}?lang=he&rv=1"
+const NUVIO_TMDB = "https://FlameForge.test/api/poster/{type}/{tmdb_id}?lang=he&rv=1&shape={shape}"
+const NUVIO_IMDB = "https://FlameForge.test/api/poster/{type}/{imdb_id}?lang=he&rv=1&shape={shape}"
+const NUVIO_AUTO = "https://FlameForge.test/api/poster/{type}/{tmdb_id|imdb_id}?lang=he&rv=1&shape={shape}"
 
 function hebrewT(key: string): string {
   return he[key] ?? key
@@ -46,7 +46,7 @@ function renderHebrewModal() {
     <InstallModal
       isOpen={true}
       onClose={vi.fn()}
-      manifestUrl="https://pictorium.test/manifest.json"
+      manifestUrl="https://FlameForge.test/manifest.json"
       posterUrlPattern={TMDB}
       posterUrlPatternImdb={IMDB}
       posterUrlPatternAuto={AUTO}
@@ -247,7 +247,7 @@ describe("InstallModal Hebrew RTL semantics", () => {
       <InstallModal
         isOpen={true}
         onClose={vi.fn()}
-        manifestUrl="https://pictorium.test/manifest.json"
+        manifestUrl="https://FlameForge.test/manifest.json"
         posterUrlPattern={TMDB}
         posterUrlPatternAuto={AUTO}
       />,
@@ -263,3 +263,5 @@ describe("InstallModal Hebrew RTL semantics", () => {
     expect(activeTemplateInput().getAttribute("dir")).toBe("ltr")
   })
 })
+
+

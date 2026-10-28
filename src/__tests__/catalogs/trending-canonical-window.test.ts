@@ -1,5 +1,5 @@
 // Canonical-window coherence: Cataloghi UI (/api/tmdb/trending) vs Stremio
-// catalogs (pictorium-jw-*) for the GENERAL JustWatch series chart.
+// catalogs (FlameForge-jw-*) for the GENERAL JustWatch series chart.
 //
 // USER REPRO (Lupin FIRST client vs 12th Stremio, Italy fixture): the UI read
 // a rolling live ranking while Stremio served the published chart-generation
@@ -190,7 +190,7 @@ describe("trending canonical window (Lupin series, IT fixture)", () => {
     // order, same membership — but NO automatic rk= (Top-20-only contract:
     // the badge resolves live from the authorized sources, identically on
     // both sides).
-    const cat = await catalogGET(req("/catalog/series/pictorium-jw-series.json?api_key=testkey"), catalogParams("pictorium-jw-series.json"))
+    const cat = await catalogGET(req("/catalog/series/FlameForge-jw-series.json?api_key=testkey"), catalogParams("FlameForge-jw-series.json"))
     expect(cat.status).toBe(200)
     const catBody = await readJson(cat)
     expect(catBody.metas).toHaveLength(20)
@@ -238,7 +238,7 @@ describe("trending canonical window (Lupin series, IT fixture)", () => {
 
       // Stremio converges on the same new rows (no stale JW rank); poster
       // URLs carry no automatic rk= (live badge resolution on both sides).
-      const cat = await catalogGET(req("/catalog/series/pictorium-jw-series.json?api_key=testkey"), catalogParams("pictorium-jw-series.json"))
+      const cat = await catalogGET(req("/catalog/series/FlameForge-jw-series.json?api_key=testkey"), catalogParams("FlameForge-jw-series.json"))
       const catBody = await readJson(cat)
       expect((catBody.metas as CatalogMeta[]).map((m) => posterTmdbId(m.poster))).toEqual(PHASE_B)
       const catLupin = (catBody.metas as CatalogMeta[]).find((m) => posterTmdbId(m.poster) === LUPIN)
@@ -262,7 +262,7 @@ describe("trending canonical window (Lupin series, IT fixture)", () => {
     liveOrder = PHASE_B
     const ui2 = await trendingGET(req("/api/tmdb/trending?country=IT&api_key=testkey"))
     expect((await readJson(ui2)).tv).toEqual([])
-    const cat = await catalogGET(req("/catalog/series/pictorium-jw-series.json?api_key=testkey"), catalogParams("pictorium-jw-series.json"))
+    const cat = await catalogGET(req("/catalog/series/FlameForge-jw-series.json?api_key=testkey"), catalogParams("FlameForge-jw-series.json"))
     expect((await readJson(cat)).metas).toEqual([])
     // No live refetch loop: pinned empty is served, not refetched.
     expect(chartsCalls - callsBefore).toBe(publishedCalls)
@@ -280,7 +280,7 @@ describe("trending canonical window (Lupin series, IT fixture)", () => {
     const uiPopBody = await readJson(uiPop)
     expect(uiPopBody.tv.map((t) => t.id)).toEqual(POPULAR_SHOWS)
     expect(uiPopBody.tv.map((t) => t.rank)).toEqual([1, 2, 3])
-    const catPop = await catalogGET(req(`/catalog/series/pictorium-jw-series.json?api_key=testkey&u=${UID}`), catalogParams("pictorium-jw-series.json"))
+    const catPop = await catalogGET(req(`/catalog/series/FlameForge-jw-series.json?api_key=testkey&u=${UID}`), catalogParams("FlameForge-jw-series.json"))
     const catPopBody = await readJson(catPop)
     expect((catPopBody.metas as CatalogMeta[]).map((m) => posterTmdbId(m.poster))).toEqual(POPULAR_SHOWS)
 
@@ -290,7 +290,7 @@ describe("trending canonical window (Lupin series, IT fixture)", () => {
     liveOrder = PHASE_B
     const uiCharts = await trendingGET(req("/api/tmdb/trending?country=IT&api_key=testkey"))
     expect((await readJson(uiCharts)).tv.map((t) => t.id)).toEqual(PHASE_B)
-    const catCharts = await catalogGET(req("/catalog/series/pictorium-jw-series.json?api_key=testkey"), catalogParams("pictorium-jw-series.json"))
+    const catCharts = await catalogGET(req("/catalog/series/FlameForge-jw-series.json?api_key=testkey"), catalogParams("FlameForge-jw-series.json"))
     expect(((await readJson(catCharts)).metas as CatalogMeta[]).map((m) => posterTmdbId(m.poster))).toEqual(PHASE_B)
 
     // Custom movie list replaces JW; back to "" restores JW identically.
@@ -298,8 +298,8 @@ describe("trending canonical window (Lupin series, IT fixture)", () => {
     mockedUserDefaults.mockResolvedValue({ customCatalogs: [MOVIE_CUSTOM], rankingSourceMovie: "lupin-custom" })
     const uiCustom = await trendingGET(req(`/api/tmdb/trending?country=IT&api_key=testkey&u=${UID}`))
     expect((await readJson(uiCustom)).movies.map((t) => t.id)).toEqual(CUSTOM_MOVIES)
-    const catCustom = await catalogGET(req(`/catalog/movie/pictorium-jw-movies.json?api_key=testkey&u=${UID}`), {
-      params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }),
+    const catCustom = await catalogGET(req(`/catalog/movie/FlameForge-jw-movies.json?api_key=testkey&u=${UID}`), {
+      params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }),
     })
     expect(((await readJson(catCustom)).metas as CatalogMeta[]).map((m) => posterTmdbId(m.poster))).toEqual(CUSTOM_MOVIES)
 
@@ -310,3 +310,5 @@ describe("trending canonical window (Lupin series, IT fixture)", () => {
     expect((await readJson(uiBack)).tv.map((t) => t.id)).toEqual(PHASE_A)
   })
 })
+
+

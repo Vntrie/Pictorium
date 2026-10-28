@@ -102,3 +102,4 @@ describe("es-419 language infrastructure", () => {
     expect(getSubGenreLabel(["martial arts"], "es-MX")).toBe("Artes marciales")
   })
 })
+

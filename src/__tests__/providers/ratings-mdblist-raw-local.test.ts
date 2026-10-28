@@ -79,12 +79,12 @@ function approvedBase(): string {
 /** Isola il layer durevole: DATA_DIR temporaneo per test + file mode (stesse
  *  chiavi di awards-rest-fastpath.test.ts). */
 async function stubFileMode(): Promise<void> {
-  const dir = await fsp.mkdtemp(path.join(approvedBase(), "pictorium-mdblist-raw-"))
+  const dir = await fsp.mkdtemp(path.join(approvedBase(), "FlameForge-mdblist-raw-"))
   tmpDirs.push(dir)
   dataDir = dir
-  vi.stubEnv("PICTORIUM_DATA_DIR", dir)
-  vi.stubEnv("PICTORIUM_REDIS_URL", "")
-  vi.stubEnv("POSTERIUM_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
   vi.stubEnv("REDIS_URL", "")
   vi.stubEnv("KV_REST_API_URL", "")
   vi.stubEnv("KV_REST_API_TOKEN", "")
@@ -133,7 +133,7 @@ async function freshModules() {
 
 async function flushKvRawSets(n: number): Promise<void> {
   for (let i = 0; i < 300; i += 1) {
-    const count = [...kvBacking.keys()].filter((k) => k.startsWith("pictorium:cache:mdb:raw:")).length
+    const count = [...kvBacking.keys()].filter((k) => k.startsWith("FlameForge:cache:mdb:raw:")).length
     if (count >= n) return
     await new Promise((r) => setTimeout(r, 5))
   }
@@ -394,7 +394,7 @@ describe("MDBList raw LOCAL persistence (task 3, file mode)", () => {
   it("storage non scrivibile fail-open: l'upstream resta servito, niente throw", async () => {
     const blocker = path.join(dataDir, "blocker")
     await fsp.writeFile(blocker, "x")
-    vi.stubEnv("PICTORIUM_DATA_DIR", blocker)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", blocker)
     const { ratings } = await freshModules()
     ratings.__resetMdblistBreaker()
     const fetchMock = mdblistFetch(() => okRatings(RICH))
@@ -509,8 +509,8 @@ describe("MDBList raw LOCAL persistence (task 3, file mode)", () => {
 
   it("DATA_DIR non configurato: nessun file nel default ./data, comportamento invariato", async () => {
     vi.unstubAllEnvs()
-    vi.stubEnv("PICTORIUM_REDIS_URL", "")
-    vi.stubEnv("POSTERIUM_REDIS_URL", "")
+    vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+    vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
     vi.stubEnv("REDIS_URL", "")
     vi.stubEnv("KV_REST_API_URL", "")
     vi.stubEnv("KV_REST_API_TOKEN", "")
@@ -552,7 +552,7 @@ describe("MDBList raw KV mode (task 3): disco mai toccato, path esistente invari
     await flushKvRawSets(1)
 
     // Path KV esistente invariato: envelope grezza in KV…
-    const rawKeys = [...kvBacking.keys()].filter((k) => k.startsWith("pictorium:cache:mdb:raw:"))
+    const rawKeys = [...kvBacking.keys()].filter((k) => k.startsWith("FlameForge:cache:mdb:raw:"))
     expect(rawKeys).toHaveLength(1)
     expect(JSON.parse(kvBacking.get(rawKeys[0])!).ttl).toBe(DAY)
     // …e zero file locali (la sottodirectory non viene nemmeno creata).
@@ -710,3 +710,5 @@ describe("MDBList raw LOCAL bounded retention (correction cycle 1)", () => {
     }
   })
 })
+
+

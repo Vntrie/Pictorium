@@ -194,3 +194,4 @@ describe("Simkl client (src/lib/simkl.ts)", () => {
     expect(aggregated?.sources.simkl).toBe(8.7)
   })
 })
+

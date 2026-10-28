@@ -160,3 +160,4 @@ describe("PUT /api/defaults global family independence", () => {
     expect(body.badgePresets).toEqual({ genre: GENRE })
   })
 })
+

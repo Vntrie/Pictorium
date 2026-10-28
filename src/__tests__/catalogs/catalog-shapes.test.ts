@@ -78,25 +78,25 @@ async function getCatalogItem(catalogId: string) {
 describe("catalog-shape helper", () => {
   it("sanitizes records strictly: legacy ids normalized, malformed skipped, prototype safe", () => {
     const clean = sanitizeCatalogShapes({
-      "pictorium-jw-series": "landscape",
+      "FlameForge-jw-series": "landscape",
       "posterium-jw-movies": "poster",
-      "pictorium-netflix-movies": "global",
-      "pictorium-x": "sideways",
-      "pictorium-y": 42,
+      "FlameForge-netflix-movies": "global",
+      "FlameForge-x": "sideways",
+      "FlameForge-y": 42,
       __proto__: "landscape",
       constructor: "poster",
       prototype: "poster",
       ["k".repeat(81)]: "poster",
     })
     expect(clean).toEqual({
-      "pictorium-jw-series": "landscape",
-      "pictorium-jw-movies": "poster",
+      "FlameForge-jw-series": "landscape",
+      "FlameForge-jw-movies": "poster",
     })
   })
 
   it("caps entries at a reasonable bound", () => {
     const input: Record<string, string> = {}
-    for (let i = 0; i < 300; i++) input[`pictorium-jw-${i}`] = "poster"
+    for (let i = 0; i < 300; i++) input[`FlameForge-jw-${i}`] = "poster"
     expect(Object.keys(sanitizeCatalogShapes(input))).toHaveLength(200)
   })
 
@@ -105,18 +105,18 @@ describe("catalog-shape helper", () => {
     expect(normalizeCatalogShapeKeys(null)).toBeUndefined()
     expect(normalizeCatalogShapeKeys({})).toEqual({})
     expect(normalizeCatalogShapeKeys({ "posterium-jw-series": "landscape" })).toEqual({
-      "pictorium-jw-series": "landscape",
+      "FlameForge-jw-series": "landscape",
     })
   })
 
   it("getExplicitCatalogShape uses own-property lookup with legacy normalization", () => {
-    const shapes = { "pictorium-jw-series": "landscape" } as Record<string, string>
-    expect(getExplicitCatalogShape("pictorium-jw-series", shapes)).toBe("landscape")
+    const shapes = { "FlameForge-jw-series": "landscape" } as Record<string, string>
+    expect(getExplicitCatalogShape("FlameForge-jw-series", shapes)).toBe("landscape")
     expect(getExplicitCatalogShape("posterium-jw-series", shapes)).toBe("landscape")
-    expect(getExplicitCatalogShape("pictorium-jw-movies", shapes)).toBeUndefined()
+    expect(getExplicitCatalogShape("FlameForge-jw-movies", shapes)).toBeUndefined()
     expect(getExplicitCatalogShape("toString", shapes)).toBeUndefined()
     expect(getExplicitCatalogShape("__proto__", shapes)).toBeUndefined()
-    expect(getExplicitCatalogShape("pictorium-jw-series", undefined)).toBeUndefined()
+    expect(getExplicitCatalogShape("FlameForge-jw-series", undefined)).toBeUndefined()
   })
 })
 
@@ -142,7 +142,7 @@ describe("per-catalog format truth matrix (route)", () => {
     vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
-    const item = await getCatalogItem("pictorium-jw-series")
+    const item = await getCatalogItem("FlameForge-jw-series")
     expect(item.posterShape).toBe("landscape")
     expect(new URL(item.poster).searchParams.get("shape")).toBe("landscape")
     expect(item.landscapePoster).toBe(item.poster)
@@ -155,14 +155,14 @@ describe("per-catalog format truth matrix (route)", () => {
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
       .mockResolvedValueOnce(Response.json({ id: 94997, logos: [] }))
-    const item = await getCatalogItem("pictorium-jw-series")
+    const item = await getCatalogItem("FlameForge-jw-series")
     expect(item.posterShape).toBe("landscape")
   })
 
   it("explicit portrait countermands a landscape global for that catalog only, keeping logo and dropping landscapePoster", async () => {
     vi.mocked(getServerDefaults).mockReturnValue({
       posterShape: "landscape",
-      catalogShapes: { "pictorium-jw-series": "poster" },
+      catalogShapes: { "FlameForge-jw-series": "poster" },
     })
     mockedGetById.mockResolvedValue(portraitMapping() as never)
     vi.spyOn(globalThis, "fetch")
@@ -172,7 +172,7 @@ describe("per-catalog format truth matrix (route)", () => {
         id: 94997,
         logos: [{ file_path: "/hotd-logo.png", iso_639_1: "it" }],
       }))
-    const item = await getCatalogItem("pictorium-jw-series")
+    const item = await getCatalogItem("FlameForge-jw-series")
     expect(item.posterShape).toBe("poster")
     expect(new URL(item.poster).searchParams.get("shape")).not.toBe("landscape")
     expect(item.landscapePoster).toBeUndefined()
@@ -185,7 +185,7 @@ describe("per-catalog format truth matrix (route)", () => {
   it("explicit landscape forces a portrait mapping to landscape with baked-in card and no separate logo", async () => {
     vi.mocked(getServerDefaults).mockReturnValue({
       posterShape: "poster",
-      catalogShapes: { "pictorium-jw-series": "landscape" },
+      catalogShapes: { "FlameForge-jw-series": "landscape" },
     })
     mockedGetById.mockResolvedValue(portraitMapping() as never)
     vi.spyOn(globalThis, "fetch")
@@ -195,7 +195,7 @@ describe("per-catalog format truth matrix (route)", () => {
         id: 94997,
         logos: [{ file_path: "/hotd-logo.png", iso_639_1: "it" }],
       }))
-    const item = await getCatalogItem("pictorium-jw-series")
+    const item = await getCatalogItem("FlameForge-jw-series")
     expect(item.posterShape).toBe("landscape")
     const posterUrl = new URL(item.poster)
     expect(posterUrl.searchParams.get("shape")).toBe("landscape")
@@ -208,7 +208,7 @@ describe("per-catalog format truth matrix (route)", () => {
   it("same title in two catalogs resolves independently and the stored mapping is untouched", async () => {
     vi.mocked(getServerDefaults).mockReturnValue({
       posterShape: "landscape",
-      catalogShapes: { "pictorium-jw-series": "poster" },
+      catalogShapes: { "FlameForge-jw-series": "poster" },
     })
     const stored = portraitMapping()
     mockedGetById.mockResolvedValue({ ...stored } as never)
@@ -220,11 +220,11 @@ describe("per-catalog format truth matrix (route)", () => {
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
       .mockResolvedValueOnce(emptyLogos())
-    const forcedPortrait = await getCatalogItem("pictorium-jw-series")
+    const forcedPortrait = await getCatalogItem("FlameForge-jw-series")
     expect(forcedPortrait.posterShape).toBe("poster")
     // The other catalog still follows the landscape global.
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const other = (await res.json()).metas[0]
     expect(other.posterShape).toBe("landscape")
     // The mapping store still holds the portrait mapping (never rewritten).
@@ -241,14 +241,14 @@ describe("per-catalog format truth matrix (route)", () => {
     vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
-    const item = await getCatalogItem("pictorium-jw-series")
+    const item = await getCatalogItem("FlameForge-jw-series")
     expect(item.posterShape).toBe("landscape")
   })
 
   it("a config-token override wins over namespace shapes without leaking credentials", async () => {
     vi.mocked(getServerDefaults).mockReturnValue({
       posterShape: "poster",
-      catalogShapes: { "pictorium-jw-series": "poster" },
+      catalogShapes: { "FlameForge-jw-series": "poster" },
     })
     mockedGetById.mockResolvedValue(portraitMapping() as never)
     const token = encodeConfig({
@@ -263,15 +263,15 @@ describe("per-catalog format truth matrix (route)", () => {
       gradientHeight: 50,
       networkLogo: true,
       autoRotateClean: false,
-      catalogShapes: { "pictorium-jw-series": "landscape" },
+      catalogShapes: { "FlameForge-jw-series": "landscape" },
     })
     vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
     const req = new NextRequest(
-      `http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key&mdblist_key=secret-key&config=${token}`,
+      `http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key&mdblist_key=secret-key&config=${token}`,
     )
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const item = (await res.json()).metas[0]
     expect(item.posterShape).toBe("landscape")
     expect(item.poster).not.toContain("mdblist_key")
@@ -282,7 +282,7 @@ describe("per-catalog format truth matrix (route)", () => {
   it("a token without shapes inherits the namespace map", async () => {
     vi.mocked(getServerDefaults).mockReturnValue({
       posterShape: "poster",
-      catalogShapes: { "pictorium-jw-series": "landscape" },
+      catalogShapes: { "FlameForge-jw-series": "landscape" },
     })
     mockedGetById.mockResolvedValue(portraitMapping() as never)
     const token = encodeConfig({
@@ -302,9 +302,9 @@ describe("per-catalog format truth matrix (route)", () => {
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
     const req = new NextRequest(
-      `http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key&config=${token}`,
+      `http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key&config=${token}`,
     )
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const item = (await res.json()).metas[0]
     expect(item.posterShape).toBe("landscape")
   })
@@ -324,9 +324,9 @@ describe("catalogShapes transport validation", () => {
       gradientHeight: 50,
       networkLogo: true,
       autoRotateClean: false,
-      catalogShapes: { "pictorium-jw-series": "landscape" },
+      catalogShapes: { "FlameForge-jw-series": "landscape" },
     })
-    expect(decodeConfig(token)?.catalogShapes).toEqual({ "pictorium-jw-series": "landscape" })
+    expect(decodeConfig(token)?.catalogShapes).toEqual({ "FlameForge-jw-series": "landscape" })
     const tampered = Buffer.from(
       JSON.stringify({
         globalBadges: true,
@@ -340,7 +340,7 @@ describe("catalogShapes transport validation", () => {
         gradientHeight: 50,
         networkLogo: true,
         autoRotateClean: false,
-        catalogShapes: { "pictorium-jw-series": "global" },
+        catalogShapes: { "FlameForge-jw-series": "global" },
       }),
       "utf-8",
     ).toString("base64url")
@@ -349,11 +349,11 @@ describe("catalogShapes transport validation", () => {
 
   it("partial catalog tokens accept shapes and stay strict on unknown keys", () => {
     const ok = partialCatalogTokenSchema.safeParse({
-      catalogShapes: { "pictorium-jw-series": "poster" },
+      catalogShapes: { "FlameForge-jw-series": "poster" },
     })
     expect(ok.success).toBe(true)
     const bad = partialCatalogTokenSchema.safeParse({
-      catalogShapes: { "pictorium-jw-series": "poster" },
+      catalogShapes: { "FlameForge-jw-series": "poster" },
       posterShape: "landscape",
     })
     expect(bad.success).toBe(false)
@@ -366,15 +366,15 @@ describe("catalogShapes transport validation", () => {
       setItem: (k: string, v: string) => { storage.set(k, v) },
     }
     store.setItem(
-      "pictorium_catalog_shapes",
+      "FLAMEFORGE_catalog_shapes",
       JSON.stringify({
-        "pictorium-jw-series": "landscape",
-        "pictorium-jw-movies": "global",
+        "FlameForge-jw-series": "landscape",
+        "FlameForge-jw-movies": "global",
         __proto__: "landscape",
       }),
     )
     const collected = collectLocalBackup(store, null)
-    expect(collected.catalogs?.shapes).toEqual({ "pictorium-jw-series": "landscape" })
+    expect(collected.catalogs?.shapes).toEqual({ "FlameForge-jw-series": "landscape" })
     const fresh = new Map<string, string>()
     const freshStore = {
       getItem: (k: string) => fresh.get(k) ?? null,
@@ -382,10 +382,12 @@ describe("catalogShapes transport validation", () => {
     }
     const applied = applyLocalBackup(freshStore, null, { catalogs: collected.catalogs })
     expect(applied.applied).toContain("catalogs.shapes")
-    expect(JSON.parse(fresh.get("pictorium_catalog_shapes")!)).toEqual({ "pictorium-jw-series": "landscape" })
+    expect(JSON.parse(fresh.get("FLAMEFORGE_catalog_shapes")!)).toEqual({ "FlameForge-jw-series": "landscape" })
     // All-malformed never wipes the current map.
     const res = applyLocalBackup(freshStore, null, { catalogs: { shapes: { a: "bogus" } } })
     expect(res.skipped).toContain("catalogs.shapes")
-    expect(JSON.parse(fresh.get("pictorium_catalog_shapes")!)).toEqual({ "pictorium-jw-series": "landscape" })
+    expect(JSON.parse(fresh.get("FLAMEFORGE_catalog_shapes")!)).toEqual({ "FlameForge-jw-series": "landscape" })
   })
 })
+
+

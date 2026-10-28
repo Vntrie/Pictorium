@@ -1,8 +1,8 @@
-Pictorium — NOTICE
+﻿FlameForge â€” NOTICE
 ==================
 
-Pictorium — Dynamic poster generator for movies and TV shows.
-Copyright (C) 2025 Eful97 <https://github.com/Eful97/Pictorium>
+FlameForge â€” Dynamic poster generator for movies and TV shows.
+Copyright (C) 2025 Eful97 <https://github.com/Eful97/FlameForge>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
@@ -12,25 +12,25 @@ by the Free Software Foundation, either version 3 of the License, or
 Inspired by erdb (https://github.com/realbestia1/erdb) by realbestia1,
 also licensed under AGPL v3.
 
-Additional term under AGPL-3.0 section 7(b) — preservation of attribution:
+Additional term under AGPL-3.0 section 7(b) â€” preservation of attribution:
 when you convey this work or a modified version of it, you must preserve
 this NOTICE file and the copyright notice above, keep a visible credit to
-the original project (name "Pictorium", author "Eful97", and the URL
-https://github.com/Eful97/Pictorium) in your README and in your
+the original project (name "FlameForge", author "Eful97", and the URL
+https://github.com/Eful97/FlameForge) in your README and in your
 application's interface or documentation, and state prominently that you
 modified the work, with a relevant date (AGPL-3.0 section 5(a)).
 
 Fork provenance: if you publish a derivative on GitHub, please use the
-"Fork" button on https://github.com/Eful97/Pictorium so the fork network
+"Fork" button on https://github.com/Eful97/FlameForge so the fork network
 stays connected to the original project.
 
 Fork contributions reused here (this section only):
-four badge ideas/code paths reused from the fork kesemb2/Pictorium-HE
-(https://github.com/kesemb2/Pictorium-HE) at pinned commit
+four badge ideas/code paths reused from the fork kesemb2/FlameForge-HE
+(https://github.com/kesemb2/FlameForge-HE) at pinned commit
 9bbd83961d2d9cc368c9ec21efd9bda927a2e292 (source verified 2026-10-20):
 1. exact TMDB keyword matching for "based on (a) true story" and the
    "based on novel or book" variants (tag-catalog.ts KEYWORD_TAGS
-   s_truestory/s_book) — only these two entries;
+   s_truestory/s_book) â€” only these two entries;
 2. "Only N episodes" enrichment for miniseries with a known episode
    count of 1..8 (tag-catalog.ts fewEpisodes);
 3. future next-episode label within 14 days (poster-badge.ts
@@ -41,3 +41,4 @@ Daily tag rotation, trending/highly-rated badges and every other fork tag
 were deliberately NOT reused. All surrounding integration (calendar-day
 window, 18-locale keys, ephemeral cache lifetime, editor wiring) is
 original work, not fork-attributed.
+

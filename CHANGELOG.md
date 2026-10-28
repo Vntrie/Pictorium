@@ -1,41 +1,41 @@
-# Changelog
+﻿# Changelog
 
-> **Fonte di verità delle release: [GitHub Releases](https://github.com/Eful97/Pictorium/releases).**
-> Da `1.21.0` le note di rilascio (generate dai commit convenzionali) vivono lì; questo file resta
-> come indice storico e non viene più aggiornato ad ogni release.
-> Le sezioni storiche non coprono le versioni `1.0.11`–`1.20.x`, che non sono mai state documentate qui.
+> **Fonte di veritÃ  delle release: [GitHub Releases](https://github.com/Eful97/FlameForge/releases).**
+> Da `1.21.0` le note di rilascio (generate dai commit convenzionali) vivono lÃ¬; questo file resta
+> come indice storico e non viene piÃ¹ aggiornato ad ogni release.
+> Le sezioni storiche non coprono le versioni `1.0.11`â€“`1.20.x`, che non sono mai state documentate qui.
 
 ## [1.21.0] - 2026-09-16
 
-Prima release taggata del progetto. Note di rilascio complete: [v1.21.0](https://github.com/Eful97/Pictorium/releases/tag/v1.21.0).
+Prima release taggata del progetto. Note di rilascio complete: [v1.21.0](https://github.com/Eful97/FlameForge/releases/tag/v1.21.0).
 
 ### Added
-- **Override esplicito di `APP_VERSION`** (`APP_VERSION=x.y.z`) in `scripts/write-app-version.mjs`, passato dalle build CI come build-arg dal tag: gli artefatti container riportano la versione reale invece della sola base del `package.json` (il build context esclude `.git`, quindi il conteggio commit non è disponibile).
+- **Override esplicito di `APP_VERSION`** (`APP_VERSION=x.y.z`) in `scripts/write-app-version.mjs`, passato dalle build CI come build-arg dal tag: gli artefatti container riportano la versione reale invece della sola base del `package.json` (il build context esclude `.git`, quindi il conteggio commit non Ã¨ disponibile).
 
 ### Changed
-- **Documentazione allineata alla realtà**: badge Node.js `>=22` (era `>=20`), 10 lingue UI dichiarate (`he` e `cs` incluse), `audit.yml` su Node 22, `AGENTS.md` senza valori di versione hardcoded.
+- **Documentazione allineata alla realtÃ **: badge Node.js `>=22` (era `>=20`), 10 lingue UI dichiarate (`he` e `cs` incluse), `audit.yml` su Node 22, `AGENTS.md` senza valori di versione hardcoded.
 - **Nuova sezione "Limiti Noti"** in entrambi i README (ebraico RTL, versione negli artefatti container).
 - **Badge CI** nei README (stato dei workflow, dinamico).
 
 ### Documentation
-- GitHub Releases è ora la fonte di verità delle release; questo changelog resta come indice storico.
+- GitHub Releases Ã¨ ora la fonte di veritÃ  delle release; questo changelog resta come indice storico.
 
 ## [Storico pre-1.21.0]
 
 Sezioni accumulate senza rilascio corrispondente: restano come scritte all'epoca.
 
 ### Added
-- **Progressive bottom blur** (`src/lib/blur.ts`): dual-sigma a intensità crescente, bleed anti-seam 16px, alpha smoothstep, shade quadratico e tinta di scena same-hue (`findSceneTint`) con intensità regolabile (`tintStrength` 0-100, default 20: per-titolo, config token, default globale, env `PICTORIUM_TINT_STRENGTH`, slider editor)
+- **Progressive bottom blur** (`src/lib/blur.ts`): dual-sigma a intensitÃ  crescente, bleed anti-seam 16px, alpha smoothstep, shade quadratico e tinta di scena same-hue (`findSceneTint`) con intensitÃ  regolabile (`tintStrength` 0-100, default 20: per-titolo, config token, default globale, env `FLAMEFORGE_TINT_STRENGTH`, slider editor)
 - **Stile badge `minimal`** (`Genere | Voto | Anno` con separatore pipe, portrait-only)
 - **Layout landscape senza baked-in**: niente logo film stampato in 16:9, badge genere in basso a destra, sfumatura default 70 (portrait 50)
-- **Nuovi default sfocatura** (Altezza 30, Intensità 20, Sfumatura 50 portrait / 70 landscape, Velatura 30, Tinta 20) e slider intensità blur fino a 100
-- **Welcome env-aware**: la schermata di benvenuto appare solo senza chiave TMDB né nel browser né sul server (`hasInstanceKeys` da `/api/defaults`)
+- **Nuovi default sfocatura** (Altezza 30, IntensitÃ  20, Sfumatura 50 portrait / 70 landscape, Velatura 30, Tinta 20) e slider intensitÃ  blur fino a 100
+- **Welcome env-aware**: la schermata di benvenuto appare solo senza chiave TMDB nÃ© nel browser nÃ© sul server (`hasInstanceKeys` da `/api/defaults`)
 
 ### Changed
-- **APP_VERSION automatica**: `scripts/write-app-version.mjs` torna a `1.0.<commit count>` (`git rev-list --count HEAD`), fallback a `package.json` quando git non disponibile — versione nuova ad ogni push senza bump manuale
+- **APP_VERSION automatica**: `scripts/write-app-version.mjs` torna a `1.0.<commit count>` (`git rev-list --count HEAD`), fallback a `package.json` quando git non disponibile â€” versione nuova ad ogni push senza bump manuale
 
 ### Removed
-- **Ricerca Groq AI** (`src/lib/groq.ts`, `src/app/api/ai/search`, fallback `aiSearchFallback` in `catalog-handler.ts`, stati `isAiSearch`/`aiExplanation`/`aiModel`, UI `SearchBar`/`SearchView`): rimossa perché non affidabile — ricerca ora solo TMDB standard
+- **Ricerca Groq AI** (`src/lib/groq.ts`, `src/app/api/ai/search`, fallback `aiSearchFallback` in `catalog-handler.ts`, stati `isAiSearch`/`aiExplanation`/`aiModel`, UI `SearchBar`/`SearchView`): rimossa perchÃ© non affidabile â€” ricerca ora solo TMDB standard
 
 ## [1.0.10] - 2026-08-28
 
@@ -60,12 +60,12 @@ Sezioni accumulate senza rilascio corrispondente: restano come scritte all'epoca
 
 ### Changed
 - **Ottimizzazione render non-mappato (P1)**: `getImages` ora parte in parallelo con `getDetails`/`getExternalIds`; `original_language` entra solo in un retry condizionato (titoli senza poster/logo nelle lingue base) invece che in ogni richiesta
-- **Riuso del logo dal best-fit**: il logo scaricato durante il logo-fit non viene più re-fetchato nel Block A (fallback su cache hit / timeout del logo)
-- **Cap worst-case ridotti**: auto-fit 2s→1.2s, Wikidata 4s→2.5s, attesa rating 2s→1.5s; `RATING_WAIT_MS` ora env-overridable (`POSTERIUM_RATING_WAIT_MS`, condiviso con la route tmdb-details)
-- **Blur come overlay del composite finale**: eliminato il roundtrip PNG `blur → modulate` (1 decode + 1 encode totali invece di 2 roundtrip)
-- **Warmup post-deploy automatico**: entrypoint lancia `/api/warmup` in background dopo il boot (poll su `/api/health`); disattivabile con `POSTERIUM_SELF_WARMUP=0`
-- **`AbortSignal.any`** in `fetchImg`/MDBList: il timeout interno non è più bypassato quando arriva un signal esterno
-- Improved tab chip contrast (zinc-400 → zinc-300)
+- **Riuso del logo dal best-fit**: il logo scaricato durante il logo-fit non viene piÃ¹ re-fetchato nel Block A (fallback su cache hit / timeout del logo)
+- **Cap worst-case ridotti**: auto-fit 2sâ†’1.2s, Wikidata 4sâ†’2.5s, attesa rating 2sâ†’1.5s; `RATING_WAIT_MS` ora env-overridable (`FLAMEFORGE_RATING_WAIT_MS`, condiviso con la route tmdb-details)
+- **Blur come overlay del composite finale**: eliminato il roundtrip PNG `blur â†’ modulate` (1 decode + 1 encode totali invece di 2 roundtrip)
+- **Warmup post-deploy automatico**: entrypoint lancia `/api/warmup` in background dopo il boot (poll su `/api/health`); disattivabile con `FLAMEFORGE_SELF_WARMUP=0`
+- **`AbortSignal.any`** in `fetchImg`/MDBList: il timeout interno non Ã¨ piÃ¹ bypassato quando arriva un signal esterno
+- Improved tab chip contrast (zinc-400 â†’ zinc-300)
 - Badge cache key normalization (voteAverage rounded to 1 decimal)
 - Tab chips use role="tablist" + aria-selected for accessibility
 - useSearch shows toast on search failure
@@ -79,7 +79,7 @@ Sezioni accumulate senza rilascio corrispondente: restano come scritte all'epoca
 
 ### Removed
 - Fallback OMDb per i rating
-- **Chiavi API d'istanza** (sezione Impostazioni + fallback server in `getServerDefaults`): le chiavi TMDB/MDBList sono ora solo personali — dalla richiesta (`x-api-key`/`api_key`/`mdblist_key`) o dal fallback d'istanza opt-in (`POSTERIUM_TMDB_KEY`/`POSTERIUM_MDBLIST_KEY` per deploy single-user). Niente più chiave condivisa di default: senza chiave esplicita né fallback le chiamate falliscono. (Nota: il riferimento al "profilo (`?u=`)" della stesura originale era errato — `?u=` è solo identità/tracking, non fornisce chiavi; nessun profile store è mai esistito.)
+- **Chiavi API d'istanza** (sezione Impostazioni + fallback server in `getServerDefaults`): le chiavi TMDB/MDBList sono ora solo personali â€” dalla richiesta (`x-api-key`/`api_key`/`mdblist_key`) o dal fallback d'istanza opt-in (`FLAMEFORGE_TMDB_KEY`/`FLAMEFORGE_MDBLIST_KEY` per deploy single-user). Niente piÃ¹ chiave condivisa di default: senza chiave esplicita nÃ© fallback le chiamate falliscono. (Nota: il riferimento al "profilo (`?u=`)" della stesura originale era errato â€” `?u=` Ã¨ solo identitÃ /tracking, non fornisce chiavi; nessun profile store Ã¨ mai esistito.)
 
 ### Fixed
 - Orphan fetch MDBList dopo la race del rating: `AbortController` dedicato abortito subito dopo la race (prima un signal mai abortito lasciava il fetch in background)
@@ -87,10 +87,10 @@ Sezioni accumulate senza rilascio corrispondente: restano come scritte all'epoca
 - TMDB fetch failures tracked in serviceErrors state
 - Id metadati cataloghi risolvibili (`tt...`/`tmdb:`) nei Top 20 JustWatch
 - Race mtime sui mapping scritti da un altro worker
-- Slot wait default 15s — poster mancanti nelle griglie catalogo
+- Slot wait default 15s â€” poster mancanti nelle griglie catalogo
 - Snapshot `/status` riallineati dopo rimozione della sezione System
 - Carousel demo: passata la chiave personale come `api_key` (fix poster 404 locali `TMDB API key is missing`)
-- `PUT /api/defaults`: merge parziale invece di replace + scrittura attesa prima della 200 (salvare un campo non cancella più gli altri default)
+- `PUT /api/defaults`: merge parziale invece di replace + scrittura attesa prima della 200 (salvare un campo non cancella piÃ¹ gli altri default)
 
 ## [0.15.2] - 2026-07-21
 
@@ -111,7 +111,7 @@ Sezioni accumulate senza rilascio corrispondente: restano come scritte all'epoca
 - Header CORS su manifest e cataloghi
 
 ### Fixed
-- Cache mismatch del badge ranking anime (cache key da proprietà TMDB)
+- Cache mismatch del badge ranking anime (cache key da proprietÃ  TMDB)
 - Selezione best-fit poster nella route Stremio senza mapping
 - Auto-scroll del carousel dopo i click sulle frecce
 - Warning ESLint e timeout auto-fit aumentato
@@ -119,14 +119,14 @@ Sezioni accumulate senza rilascio corrispondente: restano come scritte all'epoca
 ## [0.15.0] - 2026-07-19
 
 ### Added
-- **analyzeLumaWithGrid** — edge detection a stride 4px con griglia calore per penalizzare dettagli sotto il logo
-- **Skin-tone detection** — cerca pixel pelle nel bottom 35% del poster, penalizza se il logo si sovrappone a volti/busti
-- **Gradient smoothness** — confronta mean top/bottom half della safety area, penalizza gradienti brusci
-- **Text penalty migliorato** — rilevamento crediti cinematografici con pattern alternante chiaro/scuro in computeTextPenalty
-- **Offset Y variants** — valuta 3 posizioni verticali ([-20, 0, +20]), punteggio finale = 70% base + 30% worst-case
-- **Candidati aumentati** — TMDB_CANDIDATE_COUNT da 8 a 12 per pool più ampio
+- **analyzeLumaWithGrid** â€” edge detection a stride 4px con griglia calore per penalizzare dettagli sotto il logo
+- **Skin-tone detection** â€” cerca pixel pelle nel bottom 35% del poster, penalizza se il logo si sovrappone a volti/busti
+- **Gradient smoothness** â€” confronta mean top/bottom half della safety area, penalizza gradienti brusci
+- **Text penalty migliorato** â€” rilevamento crediti cinematografici con pattern alternante chiaro/scuro in computeTextPenalty
+- **Offset Y variants** â€” valuta 3 posizioni verticali ([-20, 0, +20]), punteggio finale = 70% base + 30% worst-case
+- **Candidati aumentati** â€” TMDB_CANDIDATE_COUNT da 8 a 12 per pool piÃ¹ ampio
 - **Supporto "Prime Video"** in NETWORKS per matchare etichette Wikidata senza "Amazon"
-- **Fallback studios da Wikidata** — awards API ora restituisce studios; se TMDB non ha networks, il client usa wikidata
+- **Fallback studios da Wikidata** â€” awards API ora restituisce studios; se TMDB non ha networks, il client usa wikidata
 
 ### Changed
 - computeTextPenalty ora usa weighting: density 0.25 + edge 0.25 + pattern 0.20 + textLineScore 0.30
@@ -136,3 +136,4 @@ Sezioni accumulate senza rilascio corrispondente: restano come scritte all'epoca
 - Duplicato "Ritorna" nel dropdown badge rimosso (params.extra era aggiunto due volte in getAllBadgeOptions)
 - Badge studio mostrava "Ritorna" invece del network per titoli senza networks TMDB (fallback a wikidata)
 - Offset Y variants threadato attraverso rankBestFitPosters, poster-auto-fit e API route
+

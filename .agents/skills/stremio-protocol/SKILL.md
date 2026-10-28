@@ -1,30 +1,30 @@
----
+﻿---
 name: stremio-protocol
 description: >
-  Stremio addon contract for Pictorium: manifest (manifest.json, /u/<uuid>/
+  Stremio addon contract for FlameForge: manifest (manifest.json, /u/<uuid>/
   path variant for AIOMetadata), addonId scheme, resources (catalog,
   meta), /meta/{type}/{id} resolution and idPrefixes, catalog routes and their
   query params (u=, config=, skip=), poster endpoint contract, resolvable
-  metadata IDs (tt... / provider:id — never bare numbers), headers
+  metadata IDs (tt... / provider:id â€” never bare numbers), headers
   (Cache-Control, CORS), maxDuration. Trigger: "manifest", "addon",
   "stremio", "catalogo", "catalog route", "AIOMetadata", "meta id", "id risolvibile",
   "poster url", "addonId".
 ---
 
-Pictorium is a Stremio addon serving posters, catalogs and full metadata cards:
+FlameForge is a Stremio addon serving posters, catalogs and full metadata cards:
 it DOES resolve `/meta/{type}/{id}` via `src/lib/meta-handler.ts` (see below), so
-catalog `id` values are resolvable by Pictorium itself — without relying on
+catalog `id` values are resolvable by FlameForge itself â€” without relying on
 external addons like AIOMetadata.
 
 ## Meta resource (`/meta/{type}/{id}`)
 
-- Route `src/app/meta/[type]/[id]/route.ts`, delegating to `pictoriumMeta` in
+- Route `src/app/meta/[type]/[id]/route.ts`, delegating to `FlameForgeMeta` in
   `src/lib/meta-handler.ts`. Also reachable at `/c/[config]/meta/[type]/[id]` and
   `/u/[user]/meta/[type]/[id]`.
 - Resolvable id prefixes: `tt...` (IMDb), `tmdb:<id>`, `tvdb:<id>`, `tvdbc:<id>`;
   a bare numeric id is treated as a TMDB id (fallback). `kitsu:`, `mal:`,
-  `anilist:`, `anidb:` are intentionally NOT resolved → `{ meta: null }` (200)
-  so dedicated anime addons keep serving them (manifest C3). Unresolvable id →
+  `anilist:`, `anidb:` are intentionally NOT resolved â†’ `{ meta: null }` (200)
+  so dedicated anime addons keep serving them (manifest C3). Unresolvable id â†’
   `{ meta: null }` (200), never a 404/cancel.
 - Resolution flow: TMDB id via `tmdbFindByImdb` / `tmdbFindByTvdb` or direct
   parse; full details via `getFullDetails` (+ credits/videos/external_ids);
@@ -34,11 +34,11 @@ external addons like AIOMetadata.
 - The manifest declares the `meta` resource with `types` and `idPrefixes`
   (see `src/lib/build-manifest.ts`).
 
-## Golden rule — resolvable metadata IDs
+## Golden rule â€” resolvable metadata IDs
 
-Catalog `id` values are emitted so they resolve (now via Pictorium's own `/meta`,
+Catalog `id` values are emitted so they resolve (now via FlameForge's own `/meta`,
 previously only via AIOMetadata). A bare number (`12345`) is NOT a portable id:
-use `tt...` (IMDb) or `provider:id` (e.g. `tmdb:12345`). Pictorium's own
+use `tt...` (IMDb) or `provider:id` (e.g. `tmdb:12345`). FlameForge's own
 catalogs are IMDb-first via `catalogMetaId` in `src/lib/catalog-handler.ts`:
 the valid source IMDb id (fail-closed `tt` + 7-10 digits, lowercased) wins,
 `tmdb:<id>` is the fallback when absent/invalid.
@@ -49,9 +49,9 @@ Never emit a bare numeric `id` as the catalog meta id.
 
 - URL: classic `manifest.json?u=...` OR path `/u/<uuid>/manifest.json` for
   AIOMetadata imports (they reject/break URLs with query strings).
-- `addonId`: `org.pictorium` + `.` + first 8 chars of user UUID (or config token).
+- `addonId`: `org.FlameForge` + `.` + first 8 chars of user UUID (or config token).
 - Fields: `resources: ["catalog", { name: "meta", types, idPrefixes }]`,
-  `types`, `idPrefixes`, `manifestVersion: 1`, `catalogs` from `PICTORIUM_CATALOGS`
+  `types`, `idPrefixes`, `manifestVersion: 1`, `catalogs` from `FLAMEFORGE_CATALOGS`
   each with `extra: [{ name: "skip" }]`, `version: APP_VERSION` (generated).
 - Headers: `Access-Control-Allow-Origin: *`, `Content-Type: application/json`,
   `Cache-Control: no-cache, max-age=0, must-revalidate`.
@@ -59,12 +59,12 @@ Never emit a bare numeric `id` as the catalog meta id.
 
 ## Catalog route
 
-`src/app/catalog/[type]/[id]/route.ts` — type normalized movie/series (see
+`src/app/catalog/[type]/[id]/route.ts` â€” type normalized movie/series (see
 `normalizeCatalogType` in `catalog-handler.ts`). Query params: `u=` (user UUID
-profile) and `config=` (config token) — both enter cache keys and poster URLs.
+profile) and `config=` (config token) â€” both enter cache keys and poster URLs.
 `skip=` supports pagination.
 
-- Empty `metas: []` = unknown catalog, missing key, or error. Rate limit → 429
+- Empty `metas: []` = unknown catalog, missing key, or error. Rate limit â†’ 429
   with `Retry-After`. `Cache-Control: no-cache`, CORS `*`.
 - Movie previews carry video navigation (Easy parity): `behaviorHints:
   { defaultVideoId: <emitted id>, hasScheduledVideos: false }` and `videos: []`;
@@ -73,28 +73,28 @@ profile) and `config=` (config token) — both enter cache keys and poster URLs.
 
 ## Poster endpoint
 
-`/api/poster/{type}/{id}` — the SAME endpoint serves the client preview and the
+`/api/poster/{type}/{id}` â€” the SAME endpoint serves the client preview and the
 Stremio poster. Query params: `rv` (render version), `mv` (saved mapping), `u=`
 (user profile), plus all render params (see `.agents/render-params.md`).
 The copy-paste AIO template comes in three variants with identical params:
-`{tmdb_id|imdb_id}` auto first (recommended for Nuvio and AIOMetadata — both
+`{tmdb_id|imdb_id}` auto first (recommended for Nuvio and AIOMetadata â€” both
 support `{a|b}` alternation with graceful fallback to the original poster),
 `{tmdb_id}` (exact, no TMDB `/find` involved) and `{imdb_id}` as the
 universal fallback (every item has one, but franchise-shared `tt` ids on
-split season entries need a manual alias or mapping `imdbId` — resolution
+split season entries need a manual alias or mapping `imdbId` â€” resolution
 order: user alias > global alias > own mapping `imdbId` > global mapping
 `imdbId` > `/find`). Typed `tmdb:<num>` substitutions resolve as the exact
 numeric path, other prefixes stay `400`.
 
-## Catalog list (`PICTORIUM_CATALOGS` in `catalog-definitions.ts`)
+## Catalog list (`FLAMEFORGE_CATALOGS` in `catalog-definitions.ts`)
 
-Canonical IDs use the `pictorium-` prefix; legacy `posterium-*` IDs are accepted
+Canonical IDs use the `FlameForge-` prefix; legacy `posterium-*` IDs are accepted
 as route aliases (`normalizeCatalogId`) but never emitted.
 
-- `pictorium-jw-movies` / `pictorium-jw-series` — JustWatch StreamingCharts
-- Platform catalogs — JustWatch package rankings with regional FlixPatrol fallback.
-- Anime movies/series — MDBList lists with public fallback.
-- Search/person catalogs — see `PICTORIUM_CATALOGS` for the full inventory.
+- `FlameForge-jw-movies` / `FlameForge-jw-series` â€” JustWatch StreamingCharts
+- Platform catalogs â€” JustWatch package rankings with regional FlixPatrol fallback.
+- Anime movies/series â€” MDBList lists with public fallback.
+- Search/person catalogs â€” see `FLAMEFORGE_CATALOGS` for the full inventory.
 
 Read `WARMUP_CATALOG_IDS` in `catalog-definitions.ts` for the current warmup set;
 do not duplicate it here. Catalog responses are cached 1h from generation
@@ -104,17 +104,18 @@ request-only resolver; see the `tmdb-api` skill and `.agents/catalog.md`.
 ## Do NOT
 
 - Do NOT emit bare numeric meta ids.
-- Do NOT hardcode new catalogs in the route: add them to `PICTORIUM_CATALOGS`
+- Do NOT hardcode new catalogs in the route: add them to `FLAMEFORGE_CATALOGS`
   (and `WARMUP_CATALOG_IDS` if they must be pre-warmed).
 - Do NOT change route/param names or response formats (public contracts).
 - Do NOT add new id prefixes to `/meta`: the resolver (`meta-handler.ts`) fixes
-  the supported set — align the manifest with it, not the other way round.
+  the supported set â€” align the manifest with it, not the other way round.
 
 ## Files
 
-- `src/lib/build-manifest.ts` — manifest builder
-- `src/lib/catalog-definitions.ts` — catalog list + warmup
-- `src/lib/catalog-handler.ts` — `pictoriumCatalog` logic, `catalogMetaId`
-- `src/app/catalog/[type]/[id]/route.ts` — Stremio catalog route
-- `src/lib/stremio-poster-url.ts` / `stremio-poster-params.ts` — poster URL builder
-- `.agents/catalog.md` — full catalog architecture doc
+- `src/lib/build-manifest.ts` â€” manifest builder
+- `src/lib/catalog-definitions.ts` â€” catalog list + warmup
+- `src/lib/catalog-handler.ts` â€” `FlameForgeCatalog` logic, `catalogMetaId`
+- `src/app/catalog/[type]/[id]/route.ts` â€” Stremio catalog route
+- `src/lib/stremio-poster-url.ts` / `stremio-poster-params.ts` â€” poster URL builder
+- `.agents/catalog.md` â€” full catalog architecture doc
+

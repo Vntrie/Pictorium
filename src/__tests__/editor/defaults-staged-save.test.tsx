@@ -643,3 +643,4 @@ describe("saveStagedDefaults", () => {
     expect(result.current.defaultBadgeYear).toBe(false)
   })
 })
+

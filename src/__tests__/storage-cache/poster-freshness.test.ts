@@ -203,7 +203,7 @@ describe("poster freshness: ETag represents the actual bytes (audit problem 1)",
     fakeNow = Date.UTC(2026, 9, 15, 12, 0, 0)
     installFakeClock()
     resetChartStateForTest()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -372,7 +372,7 @@ describe("poster freshness: stale entries revalidate before 304 (audit problem 2
     fakeNow = Date.UTC(2026, 9, 15, 12, 0, 0)
     installFakeClock()
     resetChartStateForTest()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -474,7 +474,7 @@ describe("poster freshness: no annual immutable for mutable posters (audit probl
     fakeNow = Date.UTC(2026, 9, 15, 12, 0, 0)
     installFakeClock()
     resetChartStateForTest()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -552,7 +552,7 @@ describe("poster freshness: representation-specific validators (webp/jpeg/avif)"
     fakeNow = Date.UTC(2026, 9, 15, 12, 0, 0)
     installFakeClock()
     resetChartStateForTest()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -598,7 +598,7 @@ describe("poster freshness: live=1 revalidates on every path", () => {
     fakeNow = Date.UTC(2026, 9, 15, 12, 0, 0)
     installFakeClock()
     resetChartStateForTest()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -647,7 +647,7 @@ describe("poster freshness: concurrent conditionals share one render", () => {
     fakeNow = Date.UTC(2026, 9, 15, 12, 0, 0)
     installFakeClock()
     resetChartStateForTest()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -708,3 +708,5 @@ describe("poster freshness: concurrent conditionals share one render", () => {
     vi.mocked(resolveStreamQuality).mockReset()
   }, 30000)
 })
+
+

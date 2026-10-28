@@ -1,11 +1,11 @@
-import crypto from "node:crypto"
+﻿import crypto from "node:crypto"
 import { NextRequest } from "next/server"
 import { rateLimit, rateLimitKey, rateLimitResponse } from "@/lib/rate-limit"
 import { cacheGetShared, cacheSet, hashUserFragment } from "@/lib/cache"
 import { getServerDefaultsChecked, getServerDefaultsForUser, type ServerDefaults } from "@/lib/server-defaults"
 import { POSTER_URL_VERSION } from "@/lib/render-version"
 import { getById } from "@/lib/store"
-import { decodeConfig, type PictoriumUserConfig } from "@/lib/config-token"
+import { decodeConfig, type FlameForgeUserConfig } from "@/lib/config-token"
 import { selectBestLogo } from "@/lib/logo-selection"
 import {
   getFullDetails,
@@ -113,7 +113,7 @@ const KNOWN_META_TYPES = new Set([
   "movie", "series", "tv", "show", "tvshow", "anime.movie", "anime.series", "anime",
 ])
 
-// C4: come nei cataloghi — tipo ignoto → null (400) invece di servire
+// C4: come nei cataloghi â€” tipo ignoto â†’ null (400) invece di servire
 // silenziosamente dati series.
 function normalizeMediaType(type: string): "movie" | "series" | null {
   const t = type.toLowerCase()
@@ -123,7 +123,7 @@ function normalizeMediaType(type: string): "movie" | "series" | null {
 
 // Come in catalog-handler.ts: la chiave MDBList resta server-side, mai nel
 // poster URL servito a Stremio (M2).
-async function pictoriumPosterUrl(
+async function FlameForgePosterUrl(
   req: NextRequest,
   type: "movie" | "series",
   id: number,
@@ -171,9 +171,9 @@ async function pictoriumPosterUrl(
 /**
  * Gestore principale della risorsa `meta` di Stremio.
  * Fornisce schede complete (dettagli, cast, trailer, trame, logo e lista episodi)
- * con il poster nativo di Pictorium.
+ * con il poster nativo di FlameForge.
  */
-export async function pictoriumMeta(
+export async function FlameForgeMeta(
   req: NextRequest,
   mediaType: string,
   rawId: string,
@@ -181,7 +181,7 @@ export async function pictoriumMeta(
   configParam: string | null,
 ): Promise<Response> {
   // Rate-limit per-utente (multi-user): come i cataloghi, il bucket segue il
-  // namespace così il flood su `?u=vittima` non brucia la quota altrui.
+  // namespace cosÃ¬ il flood su `?u=vittima` non brucia la quota altrui.
   const preScopedUser = getScopedUserId(userParam)
   const rl = await rateLimit(preScopedUser ? userRateLimitKey(req, preScopedUser) : rateLimitKey(req), "catalog")
   if (!rl.ok) return rateLimitResponse(rl.retAfter)
@@ -203,7 +203,7 @@ export async function pictoriumMeta(
       meta: buildNoticeDetail({
         id: cleanId,
         type: stType,
-        poster: `${getOriginFromRequest(req)}/pictorium.png`,
+        poster: `${getOriginFromRequest(req)}/FlameForge.png`,
       }),
     })
   }
@@ -219,14 +219,14 @@ export async function pictoriumMeta(
     (req as { signal?: AbortSignal }).signal ?? null,
     META_TOTAL_BUDGET_MS,
   )
-  // Namespace utente (multi-user): null con flag OFF o senza `?u=` → globale.
-  // Spazi inventati → anonimo (v1.23.0): niente cache key separate.
+  // Namespace utente (multi-user): null con flag OFF o senza `?u=` â†’ globale.
+  // Spazi inventati â†’ anonimo (v1.23.0): niente cache key separate.
   let scopedUser = getScopedUserId(userParam)
   if (scopedUser && !(await userExists(scopedUser))) scopedUser = null
-  // Attività di lettura per il cleanup inattivi (throttled, fire-and-forget).
+  // AttivitÃ  di lettura per il cleanup inattivi (throttled, fire-and-forget).
   if (scopedUser) touchUserActivity(scopedUser)
   // Chiavi effettive (slice 2): esplicite della richiesta > namespace utente
-  // (solo con `?u=`) > env d'istanza. Entrano nei cache key (hash) così due
+  // (solo con `?u=`) > env d'istanza. Entrano nei cache key (hash) cosÃ¬ due
   // namespace non collidono.
   const resolvedKeys = await resolveUserApiKeys(req, scopedUser)
   const apiKey = resolvedKeys.tmdb.key
@@ -235,7 +235,7 @@ export async function pictoriumMeta(
   const effectiveDefaults: ServerDefaults = scopedUser
     ? await getServerDefaultsForUser(scopedUser)
     : await getServerDefaultsChecked()
-  let userConfig: Partial<PictoriumUserConfig> | null = null
+  let userConfig: Partial<FlameForgeUserConfig> | null = null
 
   if (configParam) {
     userConfig = decodeConfig(configParam)
@@ -262,8 +262,8 @@ export async function pictoriumMeta(
   let imdbId: string | null = null
 
   // Fall-open come i cataloghi (metas:[]): senza chiave o con upstream in
-  // errore la risoluzione esterna lancia — prima il throw usciva dal try e
-  // diventava 500, ora degrada a meta:null (mai cacheato: il return è prima
+  // errore la risoluzione esterna lancia â€” prima il throw usciva dal try e
+  // diventava 500, ora degrada a meta:null (mai cacheato: il return Ã¨ prima
   // della cache key).
   try {
     if (cleanId.startsWith("tt")) {
@@ -298,16 +298,16 @@ export async function pictoriumMeta(
   // Per le serie, il meta videos dipende dal mapping episodeGroupId; per i film
   // il poster dipende comunque dal mapping (cambio poster/stili): includere
   // episodeGroupId+updatedAt nella cache key (fetch pre-cache) altrimenti dopo
-  // un save si serve lo stale fino a 12h. Il lookup è cached (memCache/KV
+  // un save si serve lo stale fino a 12h. Il lookup Ã¨ cached (memCache/KV
   // 500ms) quindi costo minimo. Prima era solo per le serie (F4).
   let preMappingForCache: { episodeGroupId?: string | null; updatedAt?: string } | null = null
   try {
     const pre = await getById(tmdbMediaType, tmdbId, scopedUser)
     if (pre) preMappingForCache = { episodeGroupId: pre.episodeGroupId ?? null, updatedAt: pre.updatedAt }
-  } catch { /* ignore — fallback a auto */ }
+  } catch { /* ignore â€” fallback a auto */ }
   const egKey = preMappingForCache ? `${preMappingForCache.episodeGroupId ?? "auto"}:${preMappingForCache.updatedAt ?? ""}` : "auto"
   // eo2 = versione ordinamento episodi: il default automatico "Parts" (v2)
-  // cambia i videos a parità di mapping — senza frammento, un meta cachato
+  // cambia i videos a paritÃ  di mapping â€” senza frammento, un meta cachato
   // con le stagioni standard resterebbe servito fino a 12h dopo il deploy.
   // Epoch globale + hash server defaults (come nei cataloghi): senza, un
   // cambio default (badge/blur/regione) via PUT restava invisibile nei meta
@@ -335,7 +335,7 @@ export async function pictoriumMeta(
     }
 
     const primaryId = imdbId || `tmdb:${tmdbId}`
-    const { poster, posterShape } = await pictoriumPosterUrl(req, stType, tmdbId, configParam, userParam, posterLang, region.code, metaSeasonalTheme)
+    const { poster, posterShape } = await FlameForgePosterUrl(req, stType, tmdbId, configParam, userParam, posterLang, region.code, metaSeasonalTheme)
     // NuvioTV: per i titoli landscape, URL del render con logo baked-in
     // (stesso profilo del poster), inclusi i titoli forzati dal default.
     const landscapePoster = posterShape === "landscape" ? poster : undefined
@@ -346,8 +346,8 @@ export async function pictoriumMeta(
     try {
       const images = await getImages(tmdbMediaType, tmdbId, `${posterLang},en,null`, apiKey, requestSignal, 5000)
       if (images?.logos && images.logos.length > 0) {
-        // Stessa scala del render poster (lingua → inglese → lingua originale
-        // → primo): prima si prendeva il PRIMO logo disponibile appena mancava
+        // Stessa scala del render poster (lingua â†’ inglese â†’ lingua originale
+        // â†’ primo): prima si prendeva il PRIMO logo disponibile appena mancava
         // quello locale, servendo a un utente ebraico un logo giapponese o
         // coreano al posto di quello inglese.
         const langLogo = selectBestLogo(images.logos, posterLang, details.original_language)
@@ -375,7 +375,7 @@ export async function pictoriumMeta(
       videos = []
       const mapping = await getById("tv", tmdbId, scopedUser)
 
-      // TVDB / AniZip ordering sentinel (shared helper) — supporta tvdb:<seasonType>
+      // TVDB / AniZip ordering sentinel (shared helper) â€” supporta tvdb:<seasonType>
       const sentinel = mapping?.episodeGroupId || null
       const isTvdbSentinel = sentinel === "tvdb" || (sentinel?.startsWith("tvdb:") ?? false)
       if (isTvdbSentinel) {
@@ -402,9 +402,9 @@ export async function pictoriumMeta(
       let groupDetails: TMDBEpisodeGroupDetails | null = null
       const isGroupSentinel = sentinel !== null && sentinel !== "standard" && !isTvdbSentinel && sentinel !== "anizip"
       // true quando i videos seguono un Episode Group (esplicito o default
-      // automatico): la numerazione S:E non coincide più con quella standard
+      // automatico): la numerazione S:E non coincide piÃ¹ con quella standard
       // e l'arricchimento TVDB (mappato su S:E) assegnerebbe titoli/cover
-      // dell'episodio sbagliato → va saltato (vedi sotto).
+      // dell'episodio sbagliato â†’ va saltato (vedi sotto).
       let videosFromGroup = false
 
       // Default: stagioni standard TMDB. Si usa un Episode Group solo se
@@ -492,9 +492,9 @@ export async function pictoriumMeta(
         }
       }
 
-      // Se la fonte metadati episodi è TVDB ed è presente una chiave TVDB, arricchisci con copertine e trame TVDB
-      // Skip se già ordinato via TVDB (dati già TVDB nativi) o se i videos
-      // seguono un Episode Group: la mappa TVDB è su S:E standard e con le
+      // Se la fonte metadati episodi Ã¨ TVDB ed Ã¨ presente una chiave TVDB, arricchisci con copertine e trame TVDB
+      // Skip se giÃ  ordinato via TVDB (dati giÃ  TVDB nativi) o se i videos
+      // seguono un Episode Group: la mappa TVDB Ã¨ su S:E standard e con le
       // Parti assegnerebbe nome/cover/trama dell'episodio sbagliato.
       const isTvdbOrdering = (mapping?.episodeGroupId === "tvdb" || (mapping?.episodeGroupId?.startsWith("tvdb:") ?? false))
       if (videos.length > 0 && episodeMetadataSource === "tvdb" && tvdbApiKey && !isTvdbOrdering && !videosFromGroup) {
@@ -516,7 +516,7 @@ export async function pictoriumMeta(
       posterShape,
       background,
       landscapePoster,
-      // Titoli landscape: il logo è già baked-in nel landscapePoster —
+      // Titoli landscape: il logo Ã¨ giÃ  baked-in nel landscapePoster â€”
       // esporlo separato farebbe sovrapporre a Nuvio un secondo logo
       // (anche via arricchimento card dal dettaglio).
       logo: posterShape === "landscape" ? undefined : logo,
@@ -548,3 +548,4 @@ export async function pictoriumMeta(
     return metaResponse({ meta: null })
   }
 }
+

@@ -265,3 +265,4 @@ describe("usePosterSave separateBadgeScale", () => {
     expect((portPost.body.landscape as Record<string, unknown>).separateBadgeScale).toBe(130)
   })
 })
+

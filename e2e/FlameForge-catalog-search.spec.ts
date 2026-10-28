@@ -1,13 +1,13 @@
-import { expect, test } from "@playwright/test"
+﻿import { expect, test } from "@playwright/test"
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
-    localStorage.setItem("pictorium_onboarding_done", "true")
+    localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
     localStorage.setItem("preferred_lang", "it")
-    localStorage.setItem("pictorium_profile_id", "e2e-search-profile")
-    localStorage.setItem("pictorium_profile_stateless", "1")
-    localStorage.setItem("pictorium_custom_catalogs", JSON.stringify([
+    localStorage.setItem("FLAMEFORGE_profile_id", "e2e-search-profile")
+    localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+    localStorage.setItem("FLAMEFORGE_custom_catalogs", JSON.stringify([
       { id: "audit", name: "Audit mixed list", type: "mixed", url: "https://mdblist.com/lists/audit/list" },
     ]))
   })
@@ -49,7 +49,7 @@ test(filtered ? "filtered search exposes a silent page failure and retries it" :
   await search.fill("audit")
   await search.press("Enter")
   if (filtered) await page.getByRole("button", { name: /^Film/ }).click()
-  await page.getByRole("button", { name: "Mostra più risultati" }).click()
+  await page.getByRole("button", { name: "Mostra piÃ¹ risultati" }).click()
   // Scope the retry to the search page-failure alert: a background
   // custom-catalog sync failure raises a sonner warning toast whose action
   // button carries the identical "Riprova" label (useCustomCatalogs), and an
@@ -72,11 +72,11 @@ test("mixed catalog opens series absent from preview and restores focus on mobil
   await page.goto("/")
   await expect(page.getByPlaceholder(/cerca/i)).toBeVisible({ timeout: 30_000 })
   await page.getByRole("button", { name: "Sfoglia i cataloghi", exact: true }).click()
-  const card = page.getByRole("button", { name: "Audit mixed list — Serie TV" })
+  const card = page.getByRole("button", { name: "Audit mixed list â€” Serie TV" })
   await expect(card).toBeVisible()
   await card.focus()
   await page.keyboard.press("Enter")
-  const dialog = page.getByRole("dialog", { name: "Audit mixed list — Serie TV" })
+  const dialog = page.getByRole("dialog", { name: "Audit mixed list â€” Serie TV" })
   await expect(dialog.getByRole("button", { name: "Full series" })).toBeVisible()
   await page.keyboard.press("Escape")
   await expect(dialog).not.toBeVisible()
@@ -108,12 +108,12 @@ test("a 400-title catalog loads thirty at a time and retries the next page", asy
   await page.goto("/")
   await expect(page.getByPlaceholder(/cerca/i)).toBeVisible({ timeout: 30_000 })
   await page.getByRole("button", { name: "Sfoglia i cataloghi", exact: true }).click()
-  await page.getByRole("button", { name: "Audit mixed list — Film" }).focus()
+  await page.getByRole("button", { name: "Audit mixed list â€” Film" }).focus()
   await page.keyboard.press("Enter")
-  const dialog = page.getByRole("dialog", { name: "Audit mixed list — Film" })
+  const dialog = page.getByRole("dialog", { name: "Audit mixed list â€” Film" })
   await expect(dialog.getByText("30 di 400 titoli", { exact: true })).toBeVisible()
   await expect(dialog.getByRole("button", { name: /^Paged title / })).toHaveCount(30)
-  await dialog.getByRole("button", { name: "Mostra più risultati" }).click()
+  await dialog.getByRole("button", { name: "Mostra piÃ¹ risultati" }).click()
   await expect(dialog.getByRole("alert")).toBeVisible()
   await expect(dialog.getByRole("button", { name: /^Paged title / })).toHaveCount(30)
   await dialog.getByRole("button", { name: "Riprova", exact: true }).click()
@@ -154,7 +154,7 @@ test("search retry targets the page alert when a background sync toast also offe
     }
     // Hold the sync PUT failure until the search exhausted its internal
     // retries (3rd page-2 attempt): the toast then overlaps the page alert
-    // deterministically — event-gated on real requests, no fixed sleeps.
+    // deterministically â€” event-gated on real requests, no fixed sleeps.
     syncPutSeen = true
     await syncFailGate
     await route.fulfill({ status: 429, headers: { "Retry-After": "1" }, json: { error: "Rate limited" } })
@@ -178,7 +178,7 @@ test("search retry targets the page alert when a background sync toast also offe
   const search = page.getByPlaceholder(/cerca/i)
   await search.fill("audit")
   await search.press("Enter")
-  await page.getByRole("button", { name: "Mostra più risultati" }).click()
+  await page.getByRole("button", { name: "Mostra piÃ¹ risultati" }).click()
   // Both failure surfaces up at once: the page alert AND the sync toast.
   await expect(page.getByRole("alert")).toBeVisible()
   await expect(page.getByRole("button", { name: "Riprova", exact: true })).toHaveCount(2)
@@ -187,3 +187,4 @@ test("search retry targets the page alert when a background sync toast also offe
   expect(syncPutSeen).toBe(true)
   expect(pages).toEqual([1, 2, 2, 2, 2])
 })
+

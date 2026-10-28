@@ -314,3 +314,4 @@ describe("stremio builder emits the shape-effective visuals (never Lab params)",
     expect(portraitUrl.searchParams.get("extra")).toBe("Portrait pick")
   })
 })
+

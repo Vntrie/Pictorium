@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 @theme inline {
   --color-background: var(--bg);
@@ -249,7 +249,7 @@ input[type="range"]::-moz-range-thumb:active {
 }
 
 /* ==========================================================================
-   Toast — Pillola Glassmorphism con Goccia d'Arancio & Animazione Spring
+   Toast â€” Pillola Glassmorphism con Goccia d'Arancio & Animazione Spring
    ========================================================================== */
 
 /* Posizionamento Toaster: margine e layer */
@@ -269,18 +269,18 @@ input[type="range"]::-moz-range-thumb:active {
   }
 }
 
-/* Da lg in su, SOLO mentre il dialog settings desktop è aperto, il toast
+/* Da lg in su, SOLO mentre il dialog settings desktop Ã¨ aperto, il toast
    bottom-right scavalca il footer del dialog (Save/Sincronizzato) anche
-   durante la corsa d'ingresso: il pannello desktop è h-[88dvh] centrato →
+   durante la corsa d'ingresso: il pannello desktop Ã¨ h-[88dvh] centrato â†’
    margine inferiore 6dvh; il centro del Save sta a ~78px dal fondo pannello
-   (py-3 + h-11), la pillola standard è alta 44px e l'ingresso sonner viaggia
+   (py-3 + h-11), la pillola standard Ã¨ alta 44px e l'ingresso sonner viaggia
    di un'altezza toast da sotto. 6dvh + 86px tiene il volo d'ingresso sopra il
    centro del Save e la sosta 28px sopra il footer a ogni altezza viewport.
    Lo scope `body:has(.settings-dialog-panel)` (il pannello esiste nel DOM
    solo a settings aperte, solo nel layout desktop) riporta il toast ordinario
    a settings chiuse al default sonner vicino al bordo (--offset-bottom, 24px:
    ingresso dal bordo, non a mezz'aria). !important vince sulla var inline di
-   sonner. Sotto lg il toaster è top-center: regola inerte su mobile. */
+   sonner. Sotto lg il toaster Ã¨ top-center: regola inerte su mobile. */
 @media (min-width: 1024px) {
   body:has(.settings-dialog-panel) [data-sonner-toaster][data-y-position="bottom"] {
     --offset-bottom: calc(6dvh + 86px) !important;
@@ -317,7 +317,7 @@ input[type="range"]::-moz-range-thumb:active {
   backdrop-filter: blur(20px) saturate(190%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
 
-  /* Profondità e alone arancio */
+  /* ProfonditÃ  e alone arancio */
   box-shadow:
     0 16px 40px -4px rgba(0, 0, 0, 0.75),
     0 0 24px -2px rgba(232, 93, 42, 0.35),
@@ -569,7 +569,7 @@ input[type="range"]::-moz-range-thumb:active {
     inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
 }
 
-/* Info (Arancio Pictorium) */
+/* Info (Arancio FlameForge) */
 [data-sonner-toast][data-type="info"],
 [data-rich-colors="true"][data-sonner-toast][data-type="info"] {
   border-color: rgba(232, 93, 42, 0.58) !important;
@@ -692,16 +692,16 @@ input[type="range"]::-moz-range-thumb:active {
 }
 .animate-shake { animation: shake 0.4s ease-in-out both; }
 
-/* ═══════════════════════════════════════════════
-   Premium animation polish — ingressi a strati
-   ═══════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   Premium animation polish â€” ingressi a strati
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* Cambio vista (AppShell): fade + sollevamento morbido, più "prodotto" del
+/* Cambio vista (AppShell): fade + sollevamento morbido, piÃ¹ "prodotto" del
    semplice fade-scale-in usato per dropdown/modali. */
 @keyframes view-enter {
   from { opacity: 0; transform: translateY(16px) scale(0.985); }
   /* `transform: none` nel frame finale: con fill-mode both un transform
-     identità (translateY(0) scale(1)) resterebbe applicato PER SEMPRE,
+     identitÃ  (translateY(0) scale(1)) resterebbe applicato PER SEMPRE,
      creando un containing block che rompe i position:fixed discendenti
      (dialog di conferma, lightbox): apparivano disallineati/"in basso". */
   to { opacity: 1; transform: none; }
@@ -723,8 +723,8 @@ input[type="range"]::-moz-range-thumb:active {
 }
 .animate-step-enter { animation: step-enter 0.25s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* Pannello modale (Modal/ProfileUnlock): sale con un leggero scale — la
-   differenza con fade-scale-in (dropdown) è la traduzione verticale, che
+/* Pannello modale (Modal/ProfileUnlock): sale con un leggero scale â€” la
+   differenza con fade-scale-in (dropdown) Ã¨ la traduzione verticale, che
    rende il pannello "emergente" invece di "materializzarsi". */
 @keyframes modal-panel-in {
   from { opacity: 0; transform: translateY(14px) scale(0.97); }
@@ -733,7 +733,7 @@ input[type="range"]::-moz-range-thumb:active {
 .animate-modal-panel-in { animation: modal-panel-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 /* Respirazione del glow del podio: scala appena percettibile (nessuna
-   variazione di opacity → nessun flicker, e lo stato 0% coincide col
+   variazione di opacity â†’ nessun flicker, e lo stato 0% coincide col
    valore statico, quindi anche gli screenshot con animazioni disabilitate
    restano identici). */
 @keyframes breath {
@@ -880,10 +880,10 @@ input[type="range"]::-moz-range-thumb:active {
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-/* Sfondo pagina — gradiente ambientale adattivo: arancione di default,
+/* Sfondo pagina â€” gradiente ambientale adattivo: arancione di default,
    segue il colore dominante del poster in editing (--bg-accent impostato da
    AppShell sul contenitore, fallback arancione). Tre strati: aura in alto,
-   riverbero in basso e una velatura verticale leggera perché il fondo non
+   riverbero in basso e una velatura verticale leggera perchÃ© il fondo non
    sia mai nero piatto. */
 .app-shell {
   min-height: 100dvh;
@@ -897,7 +897,7 @@ input[type="range"]::-moz-range-thumb:active {
   isolation: isolate;
 }
 
-/* Light mode — Sfondo galleria calda con pesca tenue vicino all'hero e lavanda opposta */
+/* Light mode â€” Sfondo galleria calda con pesca tenue vicino all'hero e lavanda opposta */
 [data-theme="light"] .app-shell,
 html.light .app-shell {
   min-height: 100dvh;
@@ -1079,7 +1079,7 @@ html.light .header-logo-dark {
   border-radius: 1.25rem;
 }
 
-/* Editor panel — hairline superiore neutra (niente accent: l'accento è
+/* Editor panel â€” hairline superiore neutra (niente accent: l'accento Ã¨
    riservato agli stati attivi) */
 .editor-panel::before {
   content: "";
@@ -1452,7 +1452,7 @@ html.light .header-logo-dark {
 }
 
 /* Shine sweep sui CTA primari: lucentezza che attraversa il bottone all'hover
-   (dettaglio premium; pointer-events none così il click passa). */
+   (dettaglio premium; pointer-events none cosÃ¬ il click passa). */
 .btn-primary::before,
 .top-action-button-primary::before {
   content: '';
@@ -1519,9 +1519,9 @@ select:focus-visible {
   translate: 55px 0;
 }
 
-/* ═══════════════════════════════════════════════
-   Simkl-style List Card — fino a 10 poster sovrapposti, hover slide
-   ═══════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   Simkl-style List Card â€” fino a 10 poster sovrapposti, hover slide
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .simkl-list-card {
   --glass-tint: rgba(20, 22, 28, 0.92);
   --glass-border: rgba(255, 255, 255, 0.07);
@@ -1546,7 +1546,7 @@ select:focus-visible {
 }
 
 /* Card flessibile: riempie la colonna del layout a due (Film | Serie sulla stessa riga).
-   Con meno spazio i poster scorrono orizzontalmente dentro la card (overflow-x già attivo). */
+   Con meno spazio i poster scorrono orizzontalmente dentro la card (overflow-x giÃ  attivo). */
 .simkl-list-card--fill {
   width: 100%;
   max-width: 980px;
@@ -1561,7 +1561,7 @@ select:focus-visible {
   max-width: none;
 }
 
-/* Card singola (1 poster) — più stretta */
+/* Card singola (1 poster) â€” piÃ¹ stretta */
 .simkl-list-card--single {
   width: 180px;
 }
@@ -1583,7 +1583,7 @@ select:focus-visible {
   transform: none !important;
 }
 
-/* Contenitore dei poster — su schermi stretti (card ridotta da max-width)
+/* Contenitore dei poster â€” su schermi stretti (card ridotta da max-width)
    la striscia scorre orizzontalmente dentro la card, niente overflow pagina. */
 .posters {
   position: relative;
@@ -1591,7 +1591,7 @@ select:focus-visible {
   display: flex;
   align-items: flex-end;
   /* padding-left 40px: spazio per lo slide (-35px) dei fratelli a sinistra,
-     così il primo poster non esce dal bordo della card durante l'hover. */
+     cosÃ¬ il primo poster non esce dal bordo della card durante l'hover. */
   padding: 12px 14px 0 40px;
   overflow-x: auto;
   -ms-overflow-style: none;
@@ -1636,10 +1636,10 @@ select:focus-visible {
   backface-visibility: hidden;
 }
 
-/* Posizione di partenza (sovrapposti con margin-left — tutti ben visibili:
-   overlap -25px → 90px esposti per poster. z-index 10→1 POSITIVI: con valori
+/* Posizione di partenza (sovrapposti con margin-left â€” tutti ben visibili:
+   overlap -25px â†’ 90px esposti per poster. z-index 10â†’1 POSITIVI: con valori
    negativi i poster 7-10 finivano sotto il piano del contenitore e il mouse
-   non li raggiungeva (hit-test sul container) → hover morto oltre il 5°. */
+   non li raggiungeva (hit-test sul container) â†’ hover morto oltre il 5Â°. */
 .posters > *:nth-child(1) { margin-left: 0; z-index: 10; }
 .posters > *:nth-child(2) { margin-left: -25px; z-index: 9; }
 .posters > *:nth-child(3) { margin-left: -25px; z-index: 8; }
@@ -1652,7 +1652,7 @@ select:focus-visible {
 .posters > *:nth-child(10) { margin-left: -25px; z-index: 1; }
 
 /* Hover stile RankRow: il poster sotto il mouse resta fermo, slittano via
-   SOLO i fratelli a sinistra (-35px) — quelli a destra non si muovono.
+   SOLO i fratelli a sinistra (-35px) â€” quelli a destra non si muovono.
    Vale per TUTTI i 10 poster. */
 .posters:has(> *:nth-child(2):hover) > *:nth-child(1) { translate: -35px 0; }
 .posters:has(> *:nth-child(3):hover) > *:nth-child(-n+2) { translate: -35px 0; }
@@ -1696,7 +1696,7 @@ select:focus-visible {
   opacity: 0.85;
 }
 
-/* Counter badge — glass pill per contatori numerici */
+/* Counter badge â€” glass pill per contatori numerici */
 .counter-badge {
   font-size: 11px;
   font-weight: 600;
@@ -1710,7 +1710,7 @@ select:focus-visible {
   line-height: 1;
 }
 
-/* Collection chip — glass effect per pill collezioni */
+/* Collection chip â€” glass effect per pill collezioni */
 .collection-chip-glass {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012)),
@@ -1745,9 +1745,9 @@ select:focus-visible {
   border: none;
 }
 
-/* ═══════════════════════════════════════════════
-   Home editor — premium refinement
-   ═══════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   Home editor â€” premium refinement
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /* Tagline under the header logo (home only) */
 .header-tagline {
@@ -1759,7 +1759,7 @@ select:focus-visible {
   text-align: center;
 }
 
-/* Kicker pill — hero & welcome panel */
+/* Kicker pill â€” hero & welcome panel */
 .hero-kicker {
   display: inline-flex;
   align-items: center;
@@ -1850,7 +1850,7 @@ select:focus-visible {
   color: rgb(113 113 122);
 }
 
-/* Carousel poster card — hover lift + orange glow */
+/* Carousel poster card â€” hover lift + orange glow */
 .carousel-card {
   --glass-tint: rgba(24,24,27,0.85);
   --glass-shadow: none; /* nessuna ombra base: solo hover (vedi sotto) */
@@ -1869,7 +1869,7 @@ select:focus-visible {
     0 18px 40px rgba(0,0,0,0.36);
 }
 
-/* Carousel track — glass wrapper */
+/* Carousel track â€” glass wrapper */
 .carousel-track {
   border-radius: 1.25rem;
   border: 1px solid rgba(255,255,255,0.05);
@@ -1877,7 +1877,7 @@ select:focus-visible {
 }
 
 /* ============================================================
-   Home — hero, podio e strip di stato
+   Home â€” hero, podio e strip di stato
    ============================================================ */
 
 /* Hero a due colonne: copia (sinistra) + podio poster (destra) */
@@ -1930,7 +1930,7 @@ select:focus-visible {
   max-width: 28rem;
   /* La tendina "ricerche recenti" (absolute dentro) deve coprire pill e CTA
      sottostanti: il wrapper ha animate-fade-up con fill both, quindi resta uno
-     stacking context permanente a z auto — senza z-index esplicito i fratelli
+     stacking context permanente a z auto â€” senza z-index esplicito i fratelli
      successivi (stesso stacking context, in ordine DOM) lo dipingono sopra. */
   position: relative;
   z-index: 30;
@@ -1980,7 +1980,7 @@ select:focus-visible {
   border-color: rgba(255,255,255,0.14);
 }
 
-/* ── Podio poster (3D) ─────────────────────────────────────── */
+/* â”€â”€ Podio poster (3D) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .podium {
   position: relative;
   display: flex;
@@ -2069,7 +2069,7 @@ select:focus-visible {
   /* Niente animazione infinita: un layer con filter + animazione trasforma
      costringe il compositor a ri-rasterizzare ogni frame per sempre, anche da
      fermo, e ruba budget allo scroll (misurato via tracing: 60fps continui in
-     idle). Il frame statico è identico allo 0% del vecchio breath. */
+     idle). Il frame statico Ã¨ identico allo 0% del vecchio breath. */
 }
 
 /* Chip flottanti attorno al podio */
@@ -2092,7 +2092,7 @@ select:focus-visible {
   backdrop-filter: blur(14px);
   /* Niente bob infinito: muovere un layer con backdrop-filter costringe a
      ricampionare il backdrop ogni frame per sempre (come sopra: compositor
-     mai in idle → scroll laggoso). Chip statiche, look invariato. */
+     mai in idle â†’ scroll laggoso). Chip statiche, look invariato. */
 }
 
 .float-chip svg {
@@ -2159,7 +2159,7 @@ select:focus-visible {
   transform: scale(1);
 }
 
-/* ── Strip di stato (footer home) ──────────────────────────── */
+/* â”€â”€ Strip di stato (footer home) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .status-strip {
   display: flex;
   align-items: center;
@@ -2283,10 +2283,10 @@ button.status-version:hover {
 }
 
 /* Attribuzione TMDB: regione "Credits" inline a SINISTRA della stessa strip
-   (sinistra: stato + logo/notice · destra: spazi/versione), sempre
+   (sinistra: stato + logo/notice Â· destra: spazi/versione), sempre
    visibile. La notice esatta (TOS TMDB) va mostrata su ogni viewport, quindi
    qui non si usa nessuna utility `hidden`; il testo va a capo (wrap) invece di
-   troncare. Niente seconda barra: nessuna base piena né divisore orizzontale —
+   troncare. Niente seconda barra: nessuna base piena nÃ© divisore orizzontale â€”
    su viewport strette la regione va a capo dentro la stessa strip. */
 .status-credits {
   flex: 1 1 auto;
@@ -2447,7 +2447,7 @@ button.status-version:hover {
   }
 }
 
-/* Riduzione movimento: congela bob/pulse (il marquee rAF è gestito in JS) */
+/* Riduzione movimento: congela bob/pulse (il marquee rAF Ã¨ gestito in JS) */
 @media (prefers-reduced-motion: reduce) {
   .float-chip,
   .pulse-dot,
@@ -2464,10 +2464,10 @@ button.status-version:hover {
 }
 
 /* ============================================================
-   Editor — Rifinitura Premium UI
+   Editor â€” Rifinitura Premium UI
    ============================================================ */
 
-/* Preview podium — frosted ring around the live poster */
+/* Preview podium â€” frosted ring around the live poster */
 .editor-stage {
   position: relative;
   border-radius: 1.35rem;
@@ -2521,7 +2521,7 @@ button.status-version:hover {
 }
 
 /* Poster anteprima: si adatta all'altezza disponibile del pannello (niente
-   scroll), con cap massimo 360×540 come il vecchio max-w-[360px].
+   scroll), con cap massimo 360Ã—540 come il vecchio max-w-[360px].
    Sotto lg il workspace non ha altezza fissa: torniamo a sizing width-driven. */
 .editor-preview-fit {
   width: 100%;
@@ -2541,7 +2541,7 @@ button.status-version:hover {
 }
 
 /* Variante orizzontale 16:9 (vista landscape): a differenza del portrait
-   (alto e stretto, guidato dall'altezza), il 16:9 sta sempre in altezza —
+   (alto e stretto, guidato dall'altezza), il 16:9 sta sempre in altezza â€”
    quindi sizing guidato dalla larghezza della colonna, mai oltre il 100%.
    Un max-width fisso (es. 640px) traboccherebbe dalla colonna centrale
    tagliando l'immagine ai lati. */
@@ -2613,7 +2613,7 @@ button.status-version:hover {
   transform: scale(0.97);
 }
 
-/* Control row — hover highlight for toggle/slider rows */
+/* Control row â€” hover highlight for toggle/slider rows */
 .control-row {
   border-radius: 0.625rem;
   padding: 0.25rem 0.375rem;
@@ -2826,12 +2826,12 @@ html.light .badge-style-preview {
   background: #252321;
   padding: 3px 4px;
 }
-/* Tile opzioni stile badge in light — hover senza flash bianchi: i tile non
+/* Tile opzioni stile badge in light â€” hover senza flash bianchi: i tile non
    selezionati restano taupe. Nel DOM con sola classe `light` (senza
    attributo data-theme) gli override `[data-theme="light"]` qui sopra non
    matchano e `hover:bg-white/10` di Tailwind dipinge il tile quasi bianco
    (misurato: btn oklab(0.99/0.06) contro taupe in attribute-mode), affogando
-   la pill di preview — l'icona Vetro appare "bianca e buggata". I tile
+   la pill di preview â€” l'icona Vetro appare "bianca e buggata". I tile
    selezionati (accento arancio, senza utility hover) sono esclusi: invariati. */
 [data-theme="light"] button:has(> .badge-style-preview):not([class*="bg-accent-orange"]):hover,
 html.light button:has(> .badge-style-preview):not([class*="bg-accent-orange"]):hover {
@@ -2853,3 +2853,4 @@ html.light button:has(> .badge-style-preview):not([class*="bg-accent-orange"]):h
     scroll-behavior: auto !important;
   }
 }
+

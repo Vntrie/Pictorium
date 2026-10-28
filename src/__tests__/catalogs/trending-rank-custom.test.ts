@@ -368,3 +368,4 @@ describe("GET /api/trending/rank with custom ranking source", () => {
     expect(await jw.json()).toMatchObject({ rank: 1 })
   })
 })
+

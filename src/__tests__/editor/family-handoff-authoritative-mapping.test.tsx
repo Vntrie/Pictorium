@@ -9,7 +9,7 @@
  * explicit 0/0. The helper fix (fresh-unmapped defaults init) is correct for
  * genuinely new titles but must never overwrite a stored 0 under this race.
  *
- * Contract under test (through the REAL provider tree: `usePictorium` +
+ * Contract under test (through the REAL provider tree: `useFlameForge` +
  * `usePosterEditor` on a live `PosterEditorProvider`; HTTP mocked at
  * `@/lib/http` only):
  * - list load pending forever + authoritative per-id GET 200 with
@@ -25,7 +25,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { act, renderHook, waitFor } from "@testing-library/react"
 import type { ReactNode } from "react"
 import { PosterEditorProvider, usePosterEditor } from "@/lib/contexts/PosterEditorContext"
-import { usePictorium } from "@/lib/context"
+import { useFlameForge } from "@/lib/context"
 import { http, userFetch } from "@/lib/http"
 
 vi.mock("@/lib/http", () => ({
@@ -98,7 +98,7 @@ function Wrapper({ children }: { children: ReactNode }) {
 }
 
 function useHarness() {
-  const ctx = usePictorium()
+  const ctx = useFlameForge()
   const ed = usePosterEditor()
   return { ctx, ed }
 }
@@ -221,3 +221,5 @@ describe("handoff authoritative per-id settlement (real open path)", () => {
     expect(posted.length).toBe(0)
   })
 })
+
+

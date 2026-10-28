@@ -3,20 +3,20 @@
  *
  * loadCurrentItemData publishes artwork as soon as details+images resolve;
  * rank/awards/MDBList enrich afterwards without blocking the editor. These
- * tests drive the REAL provider (PictoriumRoot + useP) with deferred network
+ * tests drive the REAL provider (FlameForgeRoot + useP) with deferred network
  * responses — never a mocked loader — and use controlled promises instead of
  * sleeps or real network.
  */
 import { useEffect } from "react"
 import { render, act } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import type { SearchResult, TMDBImage, Mapping } from "@/lib/types"
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -215,9 +215,9 @@ async function renderRoot() {
   ctx = null
   ed = null
   const root = render(
-    <PictoriumRoot>
+    <FlameForgeRoot>
       <Probe />
-    </PictoriumRoot>,
+    </FlameForgeRoot>,
   )
   await flush()
   expect(ctx, "provider context available").toBeTruthy()
@@ -808,3 +808,5 @@ describe("editor early readiness (rank/awards do not block)", () => {
     expect(ctx!.metaInfo.voteAverage).toBe(8.2)
   })
 })
+
+

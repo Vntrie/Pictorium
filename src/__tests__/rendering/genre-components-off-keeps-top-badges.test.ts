@@ -165,3 +165,4 @@ describe("genre/rating components off keep the upper badges", () => {
     expect(ratio).toBeLessThan(0.0001)
   }, 60000)
 })
+

@@ -28,3 +28,4 @@ describe("ChangelogModal recent section", () => {
     expect(recentIdx).toBeLessThan(curatedIdx)
   })
 })
+

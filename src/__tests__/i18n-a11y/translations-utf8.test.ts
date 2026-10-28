@@ -41,3 +41,4 @@ describe("translations raw UTF-8 encoding", () => {
     expect(lone, `${file}: lone surrogates`).toBeNull()
   })
 })
+

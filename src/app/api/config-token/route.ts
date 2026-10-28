@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 // Full dictionary registry for resolveLabelFor inside resolvePosterRenderConfig
 // (customBadge "__..." labels). Side-effect only: this route never calls
 // createT directly, but poster-config reads the shared registry.
 import "@/lib/i18n-server"
-import { configTokenSchema, encodeConfig, partialCatalogTokenSchema, type PictoriumUserConfig } from "@/lib/config-token"
+import { configTokenSchema, encodeConfig, partialCatalogTokenSchema, type FlameForgeUserConfig } from "@/lib/config-token"
 import { getServerDefaultsChecked } from "@/lib/server-defaults"
 import { resolvePosterRenderConfig } from "@/lib/poster-config"
 import { rateLimit, rateLimitKey, rateLimitResponse } from "@/lib/rate-limit"
@@ -17,8 +17,8 @@ const log = createLogger("config-token")
  * POST /api/config-token
  *
  * Genera un config token firmato (`?config=`) dalla configurazione corrente
- * dell'editor. L'encoding richiede `node:crypto` → solo server: il client non
- * può generare il token. In produzione senza `CONFIG_HMAC_SECRET` l'encoding
+ * dell'editor. L'encoding richiede `node:crypto` â†’ solo server: il client non
+ * puÃ² generare il token. In produzione senza `CONFIG_HMAC_SECRET` l'encoding
  * fallisce (fail-closed): risposta chiara con le istruzioni.
  */
 export async function POST(req: NextRequest) {
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   const config = (body as { config?: unknown })?.config
   const full = configTokenSchema.safeParse(config)
-  let data: PictoriumUserConfig
+  let data: FlameForgeUserConfig
   if (full.success) {
     data = full.data
   } else {
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       networkLogo: defaults.networkLogo ?? renderDefaults.networkLogo,
       autoRotateClean: defaults.autoRotateClean ?? false,
       // Esclusioni automatiche space-wide (flat condivisi, nessun per-titolo):
-      // viaggiano nel token composto così i link installati restano
+      // viaggiano nel token composto cosÃ¬ i link installati restano
       // self-contained anche senza defaults d'istanza (il server risanitize).
       ...(defaults.disabledContentTags && defaults.disabledContentTags.length > 0
         ? { disabledContentTags: defaults.disabledContentTags }
@@ -113,3 +113,4 @@ export async function POST(req: NextRequest) {
     )
   }
 }
+

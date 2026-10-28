@@ -479,3 +479,4 @@ describe("fresh separate icons in the pipeline", () => {
     expect(withSep.equals(noSep)).toBe(false)
   }, 120000)
 })
+

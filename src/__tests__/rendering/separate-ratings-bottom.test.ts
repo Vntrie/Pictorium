@@ -729,3 +729,4 @@ describe("logo anchor invariance column/bottom (reservation logoBadgeVisibility)
     expect(bright).toBeGreaterThan(500)
   }, 180000)
 })
+

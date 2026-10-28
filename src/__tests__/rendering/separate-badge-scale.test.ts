@@ -32,7 +32,7 @@ import {
 } from "@/lib/poster-params-hardening"
 import { posterQuerySchema, mappingSchema } from "@/lib/validation"
 import type { Mapping } from "@/lib/types"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 
 const ITEMS = [
   { id: "imdb", value: 8.7 },
@@ -61,7 +61,7 @@ const mapping = (partial: Partial<Mapping> = {}): Mapping => ({
   ...partial,
 })
 
-const tokenCfg = (partial: Partial<PictoriumUserConfig> = {}): PictoriumUserConfig => ({
+const tokenCfg = (partial: Partial<FlameForgeUserConfig> = {}): FlameForgeUserConfig => ({
   globalBadges: true,
   rankingBadges: true,
   badgeStyle: "shadow",
@@ -519,3 +519,5 @@ describe("cache e firme sepscale", () => {
     expect(c100.get("dv")).not.toBe(c150.get("dv"))
   })
 })
+
+

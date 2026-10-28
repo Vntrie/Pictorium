@@ -97,3 +97,4 @@ describe("cover layouts contract-only (portrait + landscape)", () => {
     expect(resolveOpenPosterLayout(null, "landscape", "standard", { posterLayout: layout })).toBe(layout)
   })
 })
+

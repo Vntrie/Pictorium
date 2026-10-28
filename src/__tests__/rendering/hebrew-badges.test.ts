@@ -107,3 +107,4 @@ describe("Hebrew badge rasterisation", () => {
     expect(inkWidth).toBeLessThan(bounds.width)
   })
 })
+

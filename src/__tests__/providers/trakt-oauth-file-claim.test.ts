@@ -15,15 +15,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
  * this process and across processes/hosts sharing nothing but the dir.
  */
 const ENV_KEYS = [
-  "PICTORIUM_DATA_DIR",
-  "PICTORIUM_MULTI_USER",
+  "FLAMEFORGE_DATA_DIR",
+  "FLAMEFORGE_MULTI_USER",
   "PROFILE_ENCRYPTION_KEY",
-  "PICTORIUM_REDIS_URL",
-  "POSTERIUM_REDIS_URL",
+  "FLAMEFORGE_REDIS_URL",
+  "FLAMEFORGE_REDIS_URL",
   "REDIS_URL",
   "KV_REST_API_URL",
   "KV_REST_API_TOKEN",
-  "PICTORIUM_RATELIMIT_KV",
+  "FLAMEFORGE_RATELIMIT_KV",
 ] as const
 
 let savedEnv: Record<string, string | undefined> = {}
@@ -32,9 +32,9 @@ let tempDir: string | undefined
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-traktclaim-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
-  process.env.PICTORIUM_MULTI_USER = "1"
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-traktclaim-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
+  process.env.FLAMEFORGE_MULTI_USER = "1"
   process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
   for (const k of ENV_KEYS.slice(3)) delete process.env[k]
   vi.resetModules()
@@ -64,7 +64,7 @@ describe("file single-use witness (O_EXCL mutual exclusion)", () => {
     const mod = await loadState()
     const uuid = crypto.randomUUID()
     for (let i = 0; i < 200; i++) {
-      const created = await mod.createTraktOAuthState(uuid, "https://pictorium.duckdns.org/api/trakt/callback")
+      const created = await mod.createTraktOAuthState(uuid, "https://FlameForge.duckdns.org/api/trakt/callback")
       const [a, b] = await Promise.all([
         mod.consumeTraktOAuthState(created.state, created.nonce),
         mod.consumeTraktOAuthState(created.state, created.nonce),
@@ -80,7 +80,7 @@ describe("file single-use witness (O_EXCL mutual exclusion)", () => {
   it("32-way burst on one state: exactly one winner, 31 unknown", async () => {
     const mod = await loadState()
     const uuid = crypto.randomUUID()
-    const created = await mod.createTraktOAuthState(uuid, "https://pictorium.duckdns.org/api/trakt/callback")
+    const created = await mod.createTraktOAuthState(uuid, "https://FlameForge.duckdns.org/api/trakt/callback")
     const results = await Promise.all(
       Array.from({ length: 32 }, () => mod.consumeTraktOAuthState(created.state, created.nonce)),
     )
@@ -101,7 +101,7 @@ describe("file single-use witness (O_EXCL mutual exclusion)", () => {
     // (fails); fixed code returns exactly 1 ok + 1 unknown (passes).
     const mod = await loadState()
     const uuid = crypto.randomUUID()
-    const redirect = "https://pictorium.duckdns.org/api/trakt/callback"
+    const redirect = "https://FlameForge.duckdns.org/api/trakt/callback"
     const created = await mod.createTraktOAuthState(uuid, redirect)
     const source = path.join(tempDir!, "trakt-oauth", `${created.state}.json`)
     const realBytes = await fsp.readFile(source, "utf-8")
@@ -176,7 +176,7 @@ describe("file single-use witness (O_EXCL mutual exclusion)", () => {
   it("validation still burns the state: wrong nonce then correct nonce is unknown", async () => {
     const mod = await loadState()
     const uuid = crypto.randomUUID()
-    const created = await mod.createTraktOAuthState(uuid, "https://pictorium.duckdns.org/api/trakt/callback")
+    const created = await mod.createTraktOAuthState(uuid, "https://FlameForge.duckdns.org/api/trakt/callback")
     expect(await mod.consumeTraktOAuthState(created.state, "wrong-nonce")).toEqual({
       ok: false,
       reason: "binding",
@@ -190,14 +190,14 @@ describe("file single-use witness (O_EXCL mutual exclusion)", () => {
   it("expired state burns and never links, live flow unaffected", async () => {
     const mod = await loadState()
     const uuid = crypto.randomUUID()
-    const old = await mod.createTraktOAuthState(uuid, "https://pictorium.duckdns.org/api/trakt/callback", {
+    const old = await mod.createTraktOAuthState(uuid, "https://FlameForge.duckdns.org/api/trakt/callback", {
       ttlMs: -1000,
     })
     expect(await mod.consumeTraktOAuthState(old.state, old.nonce)).toEqual({
       ok: false,
       reason: "expired",
     })
-    const live = await mod.createTraktOAuthState(uuid, "https://pictorium.duckdns.org/api/trakt/callback")
+    const live = await mod.createTraktOAuthState(uuid, "https://FlameForge.duckdns.org/api/trakt/callback")
     const ok = await mod.consumeTraktOAuthState(live.state, live.nonce)
     expect(ok.ok).toBe(true)
   })
@@ -205,7 +205,7 @@ describe("file single-use witness (O_EXCL mutual exclusion)", () => {
   it("sweep reaps stale witnesses but keeps fresh ones", async () => {
     const mod = await loadState()
     const uuid = crypto.randomUUID()
-    const redirect = "https://pictorium.duckdns.org/api/trakt/callback"
+    const redirect = "https://FlameForge.duckdns.org/api/trakt/callback"
 
     // Consume a flow: leaves a fresh `<state>.consumed` witness.
     const first = await mod.createTraktOAuthState(uuid, redirect)
@@ -238,3 +238,5 @@ describe("file single-use witness (O_EXCL mutual exclusion)", () => {
     }
   })
 })
+
+

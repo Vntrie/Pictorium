@@ -144,3 +144,4 @@ describe("legacy pages saved-language init (mocked loader transport)", () => {
     expect(document.documentElement.lang).toBe("pt")
   })
 })
+

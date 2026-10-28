@@ -120,3 +120,4 @@ describe("Trakt Space integration", () => {
     setUrl("/")
   })
 })
+

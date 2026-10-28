@@ -1,4 +1,4 @@
-import crypto from "node:crypto"
+﻿import crypto from "node:crypto"
 import { NextRequest } from "next/server"
 import { rateLimit, rateLimitKey, rateLimitResponse } from "@/lib/rate-limit"
 import { cacheGetShared, cacheSet, hashUserFragment } from "@/lib/cache"
@@ -54,15 +54,15 @@ export interface StreamingBrowseItem {
 }
 
 /**
- * GET /api/streaming-catalog?catalog=<id> — safe read-only browsing
+ * GET /api/streaming-catalog?catalog=<id> â€” safe read-only browsing
  * projection for opt-in streaming lists (SimklCard-style boxes with fast
- * ORIGINAL TMDB thumbnails, no rendered Pictorium posters).
+ * ORIGINAL TMDB thumbnails, no rendered FlameForge posters).
  *
  * Returns the pinned chart rows (the same source rows Stremio serves: order
  * + rank + real media type preserved) enriched with the original TMDB
  * `poster_path` via the shared details cache. NEVER touches the poster
  * render endpoint, never calls images/external_ids/logo endpoints per
- * title — one bounded `getDetails` per row at most (concurrency 5,
+ * title â€” one bounded `getDetails` per row at most (concurrency 5,
  * 2500ms fail-open each). Secrets never enter cache keys (key hashes
  * only), responses, or logs: key precedence is request > namespace >
  * permitted instance env (`resolveUserApiKeys`, unchanged).
@@ -116,8 +116,8 @@ export async function GET(req: NextRequest): Promise<Response> {
   const source = pin.snapshot?.provenance ?? "unknown"
   const cgFragment = chartPinCacheFragment(pin)
   // Publication metadata (T1 backend contract): last successful publication
-  // time of the SAME snapshot served here (snapshot.publishedAt, ms epoch) —
-  // Pictorium's publication, NOT the fp-crawler chart date, NOT the request
+  // time of the SAME snapshot served here (snapshot.publishedAt, ms epoch) â€”
+  // FlameForge's publication, NOT the fp-crawler chart date, NOT the request
   // time. Null with no genuine pin. Cache hits do NOT retimestamp.
   const updatedAt = pin.snapshot?.publishedAt ?? null
   const cacheKey =
@@ -206,3 +206,4 @@ export async function GET(req: NextRequest): Promise<Response> {
   cacheSet(cacheKey, { items, source, updatedAt }, ["streaming", "browse"], items.length > 0 ? readyTtlMs({ items }) : CATALOG_EMPTY_TTL_MS)
   return respond(items, source, updatedAt)
 }
+

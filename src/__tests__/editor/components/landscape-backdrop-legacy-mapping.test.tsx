@@ -23,7 +23,7 @@ import userEvent from "@testing-library/user-event"
 import { useEffect } from "react"
 import EditView from "@/components/EditView"
 import { MOCK_CTX, renderWithCtx } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider, usePosterEditor, type PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import type { Mapping, SearchResult, TMDBImage } from "@/lib/types"
@@ -106,10 +106,10 @@ function renderSwitchableEditor(first: Record<string, unknown>) {
     return (
       <ThemeProvider>
         <PosterEditorProvider>
-          <PictoriumProvider value={ctx}>
+          <FlameForgeProvider value={ctx}>
             <EditView />
             <Probe />
-          </PictoriumProvider>
+          </FlameForgeProvider>
         </PosterEditorProvider>
       </ThemeProvider>
     )
@@ -239,3 +239,5 @@ describe("EditView init: legacy portrait mapping without backdrop (N3)", () => {
     expect(calls).toEqual(["/a-clean1.jpg", "/b-clean1.jpg"])
   })
 })
+
+

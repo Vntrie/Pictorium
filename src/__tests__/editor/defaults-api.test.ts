@@ -208,7 +208,7 @@ describe("PUT /api/defaults", () => {
 })
 
 describe("GET /api/defaults hasInstanceKeys", () => {
-  const KEY_ENVS = ["PICTORIUM_TMDB_KEY", "POSTERIUM_TMDB_KEY", "TMDB_KEY", "TMDB_API_KEY"] as const
+  const KEY_ENVS = ["FLAMEFORGE_TMDB_KEY", "FLAMEFORGE_TMDB_KEY", "TMDB_KEY", "TMDB_API_KEY"] as const
   let saved: Record<string, string | undefined>
 
   function mockGetRequest(headers?: Record<string, string>): Request {
@@ -233,7 +233,7 @@ describe("GET /api/defaults hasInstanceKeys", () => {
   })
 
   it("exposes only booleans publicly, never key values (no leak)", async () => {
-    process.env.PICTORIUM_TMDB_KEY = "secret-instance-key"
+    process.env.FLAMEFORGE_TMDB_KEY = "secret-instance-key"
     const res = await GET(mockGetRequest() as unknown as NextRequest)
     expect(res.status).toBe(200)
     const body = (await res.json()) as Record<string, unknown>
@@ -250,7 +250,7 @@ describe("GET /api/defaults hasInstanceKeys", () => {
   })
 
   it("still exposes values to an authenticated admin", async () => {
-    process.env.PICTORIUM_TMDB_KEY = "secret-instance-key"
+    process.env.FLAMEFORGE_TMDB_KEY = "secret-instance-key"
     process.env.ADMIN_TOKEN = "secret-token"
     const res = await GET(
       mockGetRequest({ "x-admin-token": "secret-token" }) as unknown as NextRequest,
@@ -261,3 +261,5 @@ describe("GET /api/defaults hasInstanceKeys", () => {
     expect((body.serverKeys as Record<string, unknown>).tmdbKey).toBe("secret-instance-key")
   })
 })
+
+

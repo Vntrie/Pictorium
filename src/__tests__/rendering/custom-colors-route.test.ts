@@ -81,3 +81,4 @@ describe("GET /api/custom-colors", () => {
     expect(mockedSample).toHaveBeenCalledTimes(1)
   })
 })
+

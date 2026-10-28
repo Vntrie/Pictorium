@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test"
+﻿import { expect, test, type Locator, type Page } from "@playwright/test"
 import { putDefaultsWithRetry } from "./defaults-retry"
 
 // Canonical factory defaults (single-source values from useDefaults factory +
@@ -242,9 +242,9 @@ for (const viewport of [
   test(`settings keyboard navigation at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport)
     await page.addInitScript(() => {
-      localStorage.setItem("pictorium_profile_id", "e2e-settings-keyboard")
-      localStorage.setItem("pictorium_profile_stateless", "1")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_profile_id", "e2e-settings-keyboard")
+      localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       localStorage.setItem("preferred_lang", "it")
     })
     await page.goto("/")
@@ -271,7 +271,7 @@ for (const viewport of [
     // committed them. Assertions below traverse the full order in both
     // directions against the live list (see helpers above).
     // (Desktop preview column has its own testid; mobile compact preview does
-    // not — fall back to dialog scope. Alt is the demo title in both.)
+    // not â€” fall back to dialog scope. Alt is the demo title in both.)
     const previewScope = (await dialog.getByTestId("settings-preview").count())
       ? dialog.getByTestId("settings-preview")
       : dialog
@@ -374,3 +374,4 @@ for (const viewport of [
     await expect(trigger).toBeFocused()
   })
 }
+

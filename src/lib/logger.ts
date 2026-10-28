@@ -1,4 +1,4 @@
-import { envWithFallback } from "@/lib/env-compat"
+﻿import { envWithFallback } from "@/lib/env-compat"
 
 type LogLevel = "debug" | "info" | "warn" | "error"
 
@@ -11,9 +11,9 @@ interface LogEntry {
 }
 
 const LOG_LEVELS: Record<LogLevel, number> = { debug: 0, info: 1, warn: 2, error: 3 }
-// Finding 12: un valore env non valido (es. PICTORIUM_LOG_LEVEL=verbose) produceva
-// undefined → `shouldLog` valutava `>= undefined` → ogni log silenziato. Con `??`
-// si ripiega su info, che è anche il default quando la var è assente.
+// Finding 12: un valore env non valido (es. FLAMEFORGE_LOG_LEVEL=verbose) produceva
+// undefined â†’ `shouldLog` valutava `>= undefined` â†’ ogni log silenziato. Con `??`
+// si ripiega su info, che Ã¨ anche il default quando la var Ã¨ assente.
 const rawLevel = envWithFallback("LOG_LEVEL")
 const CURRENT_LEVEL: number = LOG_LEVELS[rawLevel as LogLevel] ?? LOG_LEVELS.info
 
@@ -112,9 +112,9 @@ function toJSON(entry: LogEntry): string {
 function formatHuman(entry: LogEntry): string {
   const prefix = `[${entry.module}]`
   switch (entry.level) {
-    case "error": return `${prefix} ❌ ${entry.message}${entry.data ? " " + JSON.stringify(entry.data) : ""}`
-    case "warn":  return `${prefix} ⚠️  ${entry.message}${entry.data ? " " + JSON.stringify(entry.data) : ""}`
-    case "debug": return `${prefix} 🔍 ${entry.message}${entry.data ? " " + JSON.stringify(entry.data) : ""}`
+    case "error": return `${prefix} âŒ ${entry.message}${entry.data ? " " + JSON.stringify(entry.data) : ""}`
+    case "warn":  return `${prefix} âš ï¸  ${entry.message}${entry.data ? " " + JSON.stringify(entry.data) : ""}`
+    case "debug": return `${prefix} ðŸ” ${entry.message}${entry.data ? " " + JSON.stringify(entry.data) : ""}`
     default:      return `${prefix} ${entry.message}${entry.data ? " " + JSON.stringify(entry.data) : ""}`
   }
 }
@@ -139,3 +139,4 @@ export function createLogger(module: string) {
     error: (msg: string, data?: Record<string, unknown>) => log("error", module, msg, data),
   }
 }
+

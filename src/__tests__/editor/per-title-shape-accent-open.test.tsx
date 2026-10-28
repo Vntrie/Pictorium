@@ -3,7 +3,7 @@
  * async auto recompute never clobbers an explicit manual, and the full
  * Reset -> switch -> save -> reopen flow holds on the production wiring.
  *
- * Drives the REAL provider (PictoriumRoot + useP) with the REAL EditView
+ * Drives the REAL provider (FlameForgeRoot + useP) with the REAL EditView
  * mounted: real openPosterBrowser, real Reset/switch/Save clicks, real
  * ctx.saveConfig (shared-stash bridge, same as the exclusion autosaves) and
  * real ctx.autoSaveExcludedPosters. Deferred network fixtures, no sleeps.
@@ -12,8 +12,8 @@ import { useEffect } from "react"
 import { render, act, screen, waitFor } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import userEvent from "@testing-library/user-event"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
@@ -22,7 +22,7 @@ import { mappingSchema } from "@/lib/validation"
 import EditView from "@/components/EditView"
 import type { SearchResult, TMDBImage } from "@/lib/types"
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -188,10 +188,10 @@ async function renderRoot() {
   ed = null
   const root = render(
     <ThemeProvider>
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
         <EditView />
-      </PictoriumRoot>
+      </FlameForgeRoot>
     </ThemeProvider>,
   )
   await flush()
@@ -376,3 +376,5 @@ describe("correction 1/3: real-provider open / recompute / save / reopen", () =>
     expect(effectiveMappingForShape(saved, "poster")?.accentColor).toBeUndefined()
   })
 })
+
+

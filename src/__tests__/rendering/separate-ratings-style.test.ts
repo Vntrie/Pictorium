@@ -40,7 +40,7 @@ import {
 } from "@/lib/poster-params-hardening"
 import { posterQuerySchema, mappingSchema } from "@/lib/validation"
 import type { Mapping } from "@/lib/types"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 
 function cfgInput(overrides: Partial<PosterRenderConfigInput> = {}): PosterRenderConfigInput {
   return {
@@ -64,7 +64,7 @@ const mapping = (partial: Partial<Mapping> = {}): Mapping => ({
   ...partial,
 })
 
-const tokenCfg = (partial: Partial<PictoriumUserConfig> = {}): PictoriumUserConfig => ({
+const tokenCfg = (partial: Partial<FlameForgeUserConfig> = {}): FlameForgeUserConfig => ({
   globalBadges: true,
   rankingBadges: true,
   badgeStyle: "shadow",
@@ -540,3 +540,5 @@ describe("cache e hardening sepstyle", () => {
     expect(garbage).not.toBe(dark)
   })
 })
+
+

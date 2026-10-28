@@ -47,11 +47,11 @@ async function stubDurableIsolation(): Promise<void> {
   } catch {
     // platform default
   }
-  const dir = await fsp.mkdtemp(path.join(base, "pictorium-awardstop-"))
+  const dir = await fsp.mkdtemp(path.join(base, "FlameForge-awardstop-"))
   tmpDirs.push(dir)
-  vi.stubEnv("PICTORIUM_DATA_DIR", dir)
-  vi.stubEnv("PICTORIUM_REDIS_URL", "")
-  vi.stubEnv("POSTERIUM_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
   vi.stubEnv("REDIS_URL", "")
   vi.stubEnv("KV_REST_API_URL", "")
   vi.stubEnv("KV_REST_API_TOKEN", "")
@@ -421,3 +421,5 @@ describe("short winner/nominee badge texts (category is selection-only, i18n)", 
     expect(label).not.toContain("Miglior")
   })
 })
+
+

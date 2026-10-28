@@ -1,4 +1,4 @@
-// Targeted benchmark: image-level cache payoff (badge colors, logo resize,
+﻿// Targeted benchmark: image-level cache payoff (badge colors, logo resize,
 // backdrop resize, byte LRU) on repeated renders of the same title.
 //
 // The poster cache is keyed on ALL params, so two requests for one title under
@@ -6,30 +6,30 @@
 // depend on the source image (skipped after the first render via the
 // image-level caches in poster-service.ts / image-bytes-cache.ts).
 //
-// Design (both phases use a fresh disjoint id per sample — symmetric identity
-// policy — so ONLY source-URL reuse differs; never vary just `x` in phase B,
+// Design (both phases use a fresh disjoint id per sample â€” symmetric identity
+// policy â€” so ONLY source-URL reuse differs; never vary just `x` in phase B,
 // it is stripped by normalization and collapses all samples onto one key):
 //   Phase A (baseline): fresh id + unique poster/logo/backdrop paths per
-//     sample → different final keys AND sources: extraction/resize/download
+//     sample â†’ different final keys AND sources: extraction/resize/download
 //     repeat every time.
-//   Phase B (cached): fresh id per sample, SAME paths → different final keys
+//   Phase B (cached): fresh id per sample, SAME paths â†’ different final keys
 //     (id is part of the key) but identical sources: bytes/analysis/resize
 //     come from image-level caches after the first render. The mock is
 //     deterministic per numeric id, so all bodies stay byte-identical
 //     (sha256-checked).
 // Self-spawned app = private throwaway instance on loopback (explicit child
-// env), so anonymous image overrides survive and separate the keys — verified
+// env), so anonymous image overrides survive and separate the keys â€” verified
 // fail-closed by the renders=N gates. Warmup uses index 0 of each id range,
 // measured samples 1..N: warming a measured identity would turn it into a HIT.
 // Every phase MUST yield exactly N real renders (requests/renders deltas == N,
 // zero hits/coalesced/stale): any HIT is a fail-closed FAIL, not data.
 // `ranking=0` isolates pure image work. Timing (avg/p50/p95) is INFORMATIONAL:
-// timings may be affected by dev/JIT/GC, so no clock gate — correctness gates
+// timings may be affected by dev/JIT/GC, so no clock gate â€” correctness gates
 // decide, and no speedup is established from the clock alone. Outbound host counts show network work only, not CPU cost.
 //
 // Usage:
 //   node scripts/bench-image-cache.mjs
-//   PICTORIUM_BASE_URL=http://127.0.0.1:3100 node scripts/bench-image-cache.mjs
+//   FLAMEFORGE_BASE_URL=http://127.0.0.1:3100 node scripts/bench-image-cache.mjs
 //   BENCH_N=25 node scripts/bench-image-cache.mjs
 //   BENCH_ADMIN_TOKEN=<token> node scripts/bench-image-cache.mjs  # existing instance
 
@@ -40,7 +40,7 @@ import { fileURLToPath } from "node:url"
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 
-const BASE_URL = process.env.PICTORIUM_BASE_URL || process.env.POSTERIUM_BASE_URL || ""
+const BASE_URL = process.env.FLAMEFORGE_BASE_URL || process.env.FLAMEFORGE_BASE_URL || ""
 const PORT = Number(process.env.BENCH_PORT) || 3102
 const MOCK_PORT = Number(process.env.BENCH_MOCK_PORT) || 8792
 
@@ -64,7 +64,7 @@ export function parseBenchN(raw, fallback = 25) {
 const N = parseBenchN(process.env.BENCH_N, 25)
 const appUrl = BASE_URL || `http://127.0.0.1:${PORT}`
 
-/** Local-only scope: loopback http(s) root origins only — no embedded
+/** Local-only scope: loopback http(s) root origins only â€” no embedded
  *  credentials, path, query, or fragment, so request paths stay unambiguous.
  *  Harness fetches additionally never follow redirects, so the admin token
  *  cannot be forwarded to a redirect target. */
@@ -93,7 +93,7 @@ export async function isHttpPortOccupied(url, timeoutMs = 2000) {
     try {
       await res.body?.cancel()
     } catch {
-      // body already consumed/closed — response already proves occupancy
+      // body already consumed/closed â€” response already proves occupancy
     }
     return true
   } catch {
@@ -139,7 +139,7 @@ async function waitFor(url, timeoutMs, label, headers = {}) {
     }
     await new Promise((r) => setTimeout(r, 500))
   }
-  throw new Error(`Timeout waiting for ${label} (${url}) — last response: ${lastBody || "no response"}`)
+  throw new Error(`Timeout waiting for ${label} (${url}) â€” last response: ${lastBody || "no response"}`)
 }
 
 const children = []
@@ -253,7 +253,7 @@ export function isValidStatusSnapshot(snap) {
 
 /**
  * Poster counter delta between two snapshots. Returns null on
- * missing/malformed counters or counter resets — malformed stats must never
+ * missing/malformed counters or counter resets â€” malformed stats must never
  * look like a clean phase.
  */
 export function posterDelta(before, after) {
@@ -271,7 +271,7 @@ export function posterDelta(before, after) {
 /**
  * Correctness gate for one phase: every measured sample MUST be a real render
  * (requests and renders deltas == expectedN, zero hits/coalesced/stale).
- * Returns { ok, lines } — never throws on missing snapshots: ok:false.
+ * Returns { ok, lines } â€” never throws on missing snapshots: ok:false.
  */
 export function evaluatePhaseDelta(before, after, expectedN, label) {
   const lines = []
@@ -285,7 +285,7 @@ export function evaluatePhaseDelta(before, after, expectedN, label) {
     return { ok: false, lines, delta: null }
   }
   lines.push(
-    `${label}: Δrequests=${d.requests} Δrenders=${d.renders} Δhits=${d.hits} Δcoalesced=${d.coalescedHits} Δstale=${d.staleHits} Δerrors=${d.errors} (expected requests=renders=${expectedN}, rest 0)`,
+    `${label}: Î”requests=${d.requests} Î”renders=${d.renders} Î”hits=${d.hits} Î”coalesced=${d.coalescedHits} Î”stale=${d.staleHits} Î”errors=${d.errors} (expected requests=renders=${expectedN}, rest 0)`,
   )
   const ok =
     d.requests === expectedN &&
@@ -295,7 +295,7 @@ export function evaluatePhaseDelta(before, after, expectedN, label) {
     d.staleHits === 0 &&
     d.errors === 0
   if (!ok) {
-    lines.push(`${label}: FAIL — expected exactly ${expectedN} real renders without HITs/coalesced/stale/errors`)
+    lines.push(`${label}: FAIL â€” expected exactly ${expectedN} real renders without HITs/coalesced/stale/errors`)
   }
   return { ok, lines, delta: d }
 }
@@ -324,7 +324,7 @@ export function buildPhaseAUrl(base, i) {
 }
 
 export function buildPhaseBUrl(base, i) {
-  // Fixed paths (same sources → image-level caches help) + a DIFFERENT id per
+  // Fixed paths (same sources â†’ image-level caches help) + a DIFFERENT id per
   // sample: the id is part of the poster cache key, so every sample really
   // renders. No `x`: it would be stripped by normalization and collapse all
   // samples onto one key (the original bug).
@@ -392,10 +392,10 @@ async function run() {
     // Refuse to measure another process: a port that already answers belongs
     // to someone else, and readiness would succeed against the wrong server.
     if (await isHttpPortOccupied(`${mockUrl}/healthz`)) {
-      throw new Error(`Mock port ${MOCK_PORT} already serves traffic — refusing to measure another process`)
+      throw new Error(`Mock port ${MOCK_PORT} already serves traffic â€” refusing to measure another process`)
     }
     if (await isHttpPortOccupied(`${appUrl}/api/health`)) {
-      throw new Error(`App port ${PORT} already serves traffic — refusing to measure another process (set PICTORIUM_BASE_URL for existing-app mode)`)
+      throw new Error(`App port ${PORT} already serves traffic â€” refusing to measure another process (set FLAMEFORGE_BASE_URL for existing-app mode)`)
     }
     log(`Starting mock server on :${MOCK_PORT}`)
     spawnNode([path.join(rootDir, "e2e", "mock-server.mjs")], { MOCK_PORT: String(MOCK_PORT) })
@@ -406,14 +406,14 @@ async function run() {
       [path.join(rootDir, "node_modules", "next", "dist", "bin", "next"), "dev", "-H", "127.0.0.1", "-p", String(PORT)],
       {
         NEXT_DIST_DIR: ".next-bench",
-        POSTERIUM_DATA_DIR: path.join(rootDir, ".next-bench", "data"),
-        PICTORIUM_DATA_DIR: path.join(rootDir, ".next-bench", "data"),
+        FLAMEFORGE_DATA_DIR: path.join(rootDir, ".next-bench", "data"),
+        FLAMEFORGE_DATA_DIR: path.join(rootDir, ".next-bench", "data"),
         NODE_OPTIONS: "--max-old-space-size=384",
         // Private throwaway instance on loopback: anonymous image overrides
         // survive and separate the sample keys (fail-closed via renders=N).
-        PICTORIUM_MULTI_USER: "0",
-        PICTORIUM_HOSTED_BY: "",
-        PICTORIUM_POSTER_PARAMS: "free",
+        FLAMEFORGE_MULTI_USER: "0",
+        FLAMEFORGE_HOSTED_BY: "",
+        FLAMEFORGE_POSTER_PARAMS: "free",
         // Explicit PORT: background self-fetch targets 127.0.0.1:${PORT}
         // instead of the default 3000 (same as load-smoke).
         PORT: String(PORT),
@@ -425,7 +425,7 @@ async function run() {
         WIKIDATA_API_URL: `${mockUrl}/w/api.php`,
         IMDB_CHART_URL: `${mockUrl}/chart/top`,
         MDBLIST_API_URL: `${mockUrl}/mdblist/api`,
-        PICTORIUM_ADMIN_TOKEN: adminToken,
+        FLAMEFORGE_ADMIN_TOKEN: adminToken,
       },
     )
     await waitFor(`${appUrl}/api/health`, 120000, "app", { "x-api-key": healthKey })
@@ -434,7 +434,7 @@ async function run() {
     // Fail BEFORE any network: snapshots are unreadable without a token and
     // credentials must never go to an external origin (local-only scope).
     if (!process.env.BENCH_ADMIN_TOKEN) {
-      throw new Error("Existing-app mode requires BENCH_ADMIN_TOKEN — refusing to run samples without observability (token never logged)")
+      throw new Error("Existing-app mode requires BENCH_ADMIN_TOKEN â€” refusing to run samples without observability (token never logged)")
     }
     if (!isLoopbackBaseUrl(appUrl)) {
       throw new Error(`Refusing non-loopback BASE_URL ${appUrl} (local-only scope: no auth to external origins)`)
@@ -451,18 +451,18 @@ async function run() {
   const preWarm = await statusSnapshot()
   if (!isValidStatusSnapshot(preWarm)) {
     throw new Error(
-      "Unusable /api/cache/status snapshot before warmup — refusing to run samples without observability (self-spawned: automatic; existing app: BENCH_ADMIN_TOKEN)",
+      "Unusable /api/cache/status snapshot before warmup â€” refusing to run samples without observability (self-spawned: automatic; existing app: BENCH_ADMIN_TOKEN)",
     )
   }
 
   // Warmup on identities DISJOINT from samples (compiles routes, fills badge
-  // PNG cache and other one-shot caches) — excluded from measured keys/stats.
+  // PNG cache and other one-shot caches) â€” excluded from measured keys/stats.
   log(`Warmup (1 request per phase on disjoint identities, then ${N} measured per phase)`)
   await request(warmA)
   await request(warmB)
   const out0 = await statusSnapshot()
 
-  // Sequential (await in loop): no coalescing between samples — every request
+  // Sequential (await in loop): no coalescing between samples â€” every request
   // must resolve its own render.
   const phaseA = []
   for (let i = 1; i <= N; i++) phaseA.push(await request(posterUrl(i, "A")))
@@ -490,7 +490,7 @@ async function run() {
   log(`Server-Timing HIT on measured samples: ${hitMarkers.length} (expected 0)`)
 
   // Outbound per phase: where the network really went (outbound requests per
-  // host). Network counts only — they cannot isolate CPU/render savings.
+  // host). Network counts only â€” they cannot isolate CPU/render savings.
   const printOutbound = (label, before, after) => {
     if (!before || !after) {
       log(`Outbound ${label}: snapshot unavailable (status route unreachable? set BENCH_ADMIN_TOKEN on existing apps)`)
@@ -513,7 +513,7 @@ async function run() {
     exitCode = 1
   }
   if (!allOk) fail("non-200 status in requests")
-  if (!allSameHash) fail("bodies differ — identity variation changed the output!")
+  if (!allSameHash) fail("bodies differ â€” identity variation changed the output!")
   if (hitMarkers.length > 0) fail(`${hitMarkers.length} samples served from final-cache HIT instead of a real render`)
   for (const { label, before, after } of [
     { label: "phase A", before: out0, after: outA },
@@ -529,7 +529,7 @@ async function run() {
     }
   }
   if (bStats.p50 < aStats.p50) {
-    log("Timing only: phase B p50 lower (informational — timings may be affected by dev/JIT/GC; no speedup established from the clock alone)")
+    log("Timing only: phase B p50 lower (informational â€” timings may be affected by dev/JIT/GC; no speedup established from the clock alone)")
   } else {
     log("Timing only: no speedup established (timings may be affected by dev/JIT/GC); verdict comes from the correctness gates")
   }
@@ -545,3 +545,4 @@ if (isMain) {
     await shutdown(1)
   })
 }
+

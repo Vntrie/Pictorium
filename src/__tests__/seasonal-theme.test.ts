@@ -186,36 +186,36 @@ describe("catalog-side theme resolution (server, effective names)", () => {
   }
 
   it("leaves built-in catalogs unframed by default", () => {
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-movies", "movie", base)).toBeNull()
-    expect(resolveCatalogSeasonalTheme("pictorium-netflix-series", "series", base)).toBeNull()
-    expect(resolveCatalogSeasonalTheme("pictorium-anime-movies", "movie", base)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-movies", "movie", base)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-netflix-series", "series", base)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-anime-movies", "movie", base)).toBeNull()
   })
 
   it("themes a renamed built-in catalog, same title elsewhere stays unframed", () => {
-    const renamed = { ...base, catalogRenames: { "pictorium-jw-movies": "My Halloween marathon" } }
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-movies", "movie", renamed)).toBe("halloween")
+    const renamed = { ...base, catalogRenames: { "FlameForge-jw-movies": "My Halloween marathon" } }
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-movies", "movie", renamed)).toBe("halloween")
     // Same title served from another (non-matching) list is untouched.
-    expect(resolveCatalogSeasonalTheme("pictorium-netflix-movies", "movie", renamed)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-netflix-movies", "movie", renamed)).toBeNull()
   })
 
   it("themes custom lists by their stored name (rename wins)", () => {
     const customs = [custom("abc", "Halloween Nights")]
     const opts = { ...base, customCatalogs: customs }
-    expect(resolveCatalogSeasonalTheme("pictorium-custom-movie-abc", "movie", opts)).toBe("halloween")
-    expect(resolveCatalogSeasonalTheme("pictorium-custom-series-abc", "series", opts)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-custom-movie-abc", "movie", opts)).toBe("halloween")
+    expect(resolveCatalogSeasonalTheme("FlameForge-custom-series-abc", "series", opts)).toBeNull()
     const withRename = {
       ...opts,
-      catalogRenames: { "pictorium-custom-movie-abc": "Cozy Autumn" },
+      catalogRenames: { "FlameForge-custom-movie-abc": "Cozy Autumn" },
     }
-    expect(resolveCatalogSeasonalTheme("pictorium-custom-movie-abc", "movie", withRename)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-custom-movie-abc", "movie", withRename)).toBeNull()
   })
 
   it("mirrors the manifest mixed split names", () => {
     const customs = [custom("mix1", "Halloween", "mixed")]
     const opts = { ...base, customCatalogs: customs }
     // "Halloween — Film" / "Halloween — Serie TV" still whole-word match.
-    expect(resolveCatalogSeasonalTheme("pictorium-custom-movie-mix1", "movie", opts)).toBe("halloween")
-    expect(resolveCatalogSeasonalTheme("pictorium-custom-series-mix1", "series", opts)).toBe("halloween")
+    expect(resolveCatalogSeasonalTheme("FlameForge-custom-movie-mix1", "movie", opts)).toBe("halloween")
+    expect(resolveCatalogSeasonalTheme("FlameForge-custom-series-mix1", "series", opts)).toBe("halloween")
   })
 
   it("themes a Top 20 driven by a Halloween-named ranking source", () => {
@@ -225,31 +225,31 @@ describe("catalog-side theme resolution (server, effective names)", () => {
       customCatalogs: customs,
       rankingSourceMovie: "spooky",
     }
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-movies", "movie", opts)).toBe("halloween")
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-series", "series", opts)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-movies", "movie", opts)).toBe("halloween")
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-series", "series", opts)).toBeNull()
   })
 
   it("never matches on ids (display names only)", () => {
     // A custom short id containing the word must not theme by itself.
     const customs = [custom("halloween2024", "Cozy Autumn")]
     const opts = { ...base, customCatalogs: customs }
-    expect(resolveCatalogSeasonalTheme("pictorium-custom-movie-halloween2024", "movie", opts)).toBeNull()
-    expect(resolveCatalogSeasonalTheme("pictorium-search-movies", "movie", base)).toBeNull()
-    expect(resolveCatalogSeasonalTheme("pictorium-unknown-xyz", "movie", base)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-custom-movie-halloween2024", "movie", opts)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-search-movies", "movie", base)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-unknown-xyz", "movie", base)).toBeNull()
   })
 
   it("themes Christmas lists in any supported locale, same title elsewhere stays unframed", () => {
     const customs = [custom("nat", "Festa di Natale")]
     const opts = { ...base, customCatalogs: customs }
-    expect(resolveCatalogSeasonalTheme("pictorium-custom-movie-nat", "movie", opts)).toBe("christmas")
-    expect(resolveCatalogSeasonalTheme("pictorium-custom-series-nat", "series", opts)).toBeNull()
-    expect(resolveCatalogSeasonalTheme("pictorium-netflix-movies", "movie", opts)).toBeNull()
-    const renamed = { ...base, catalogRenames: { "pictorium-jw-movies": "Weihnachten Marathon" } }
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-movies", "movie", renamed)).toBe("christmas")
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-series", "series", renamed)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-custom-movie-nat", "movie", opts)).toBe("christmas")
+    expect(resolveCatalogSeasonalTheme("FlameForge-custom-series-nat", "series", opts)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-netflix-movies", "movie", opts)).toBeNull()
+    const renamed = { ...base, catalogRenames: { "FlameForge-jw-movies": "Weihnachten Marathon" } }
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-movies", "movie", renamed)).toBe("christmas")
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-series", "series", renamed)).toBeNull()
     // Mixed names keep Halloween precedence end-to-end.
-    const mixed = { ...base, catalogRenames: { "pictorium-jw-movies": "Halloween + Natale" } }
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-movies", "movie", mixed)).toBe("halloween")
+    const mixed = { ...base, catalogRenames: { "FlameForge-jw-movies": "Halloween + Natale" } }
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-movies", "movie", mixed)).toBe("halloween")
   })
 })
 
@@ -623,3 +623,5 @@ describe("clean banner gate is landscape + hideLogo ONLY (portrait keeps its fra
     expect(cleanBanner.searchParams.has("theme")).toBe(false)
   })
 })
+
+

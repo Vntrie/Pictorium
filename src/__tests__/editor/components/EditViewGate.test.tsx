@@ -58,3 +58,4 @@ describe("EditView profile gate", () => {
     expect(screen.queryByPlaceholderText("ui.searchPlaceholderLarge")).not.toBeInTheDocument()
   })
 })
+

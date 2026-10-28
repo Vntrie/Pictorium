@@ -1,8 +1,8 @@
-// ---------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------
 // Hardening anti cache-busting dell'endpoint poster (v1.23.0).
 //
 // Su istanze pubbliche ogni URL deve mappare su un set piccolo e finito di
-// render, così la CDN assorbe quasi tutto e i pod rendono solo i veri miss:
+// render, cosÃ¬ la CDN assorbe quasi tutto e i pod rendono solo i veri miss:
 //  1. allowlist rigida dei parametri in cache key (junk ?x=1 collassa);
 //  2. quantizzazione dei numerici liberi su step grossolani (non-preview);
 //  3. `ac` solo palette nota, `extra`/`label` solo da mapping curato;
@@ -11,7 +11,7 @@
 //     rd, fad, voteAverage, imdbId, wikidata_id) are dropped; rank 0-100,
 //     animerank past the anime cap on one sentinel, rsrc known sources only.
 //
-// La preview (`preview=1`, WYSIWYG editor) è SEMPRE esente: gli slider live
+// La preview (`preview=1`, WYSIWYG editor) Ã¨ SEMPRE esente: gli slider live
 // devono rendere i valori esatti prima del save. I valori salvati
 // (mapping/defaults utente) non vengono mai toccati: solo la query.
 // ---------------------------------------------------------------------------
@@ -31,7 +31,7 @@ const HOSTED_BY = (envWithFallback("HOSTED_BY") || "").toLowerCase().trim()
 // Preview blindata (v1.23.0): sulle istanze pubbliche le preview anonime
 // vengono declassate e cachate come normali (niente bypass bot). Restano live
 // per gli spazi utente reali (?u=<uuid>) e sessioni PIN/admin.
-// Auto-on sulle pubbliche; `PICTORIUM_PREVIEW_AUTH=0` permette di disattivarla.
+// Auto-on sulle pubbliche; `FLAMEFORGE_PREVIEW_AUTH=0` permette di disattivarla.
 const PREVIEW_AUTH_RAW = (envWithFallback("PREVIEW_AUTH") || "").toLowerCase().trim()
 
 const MULTI_USER = envWithFallback("MULTI_USER") === "1"
@@ -42,8 +42,8 @@ export function isPublicPosterInstance(): boolean {
 }
 
 /**
- * Modalità presets: le richieste non-preview collassano su un set finito di
- * render. `PICTORIUM_POSTER_PARAMS=presets|free` esplicito vince sempre;
+ * ModalitÃ  presets: le richieste non-preview collassano su un set finito di
+ * render. `FLAMEFORGE_POSTER_PARAMS=presets|free` esplicito vince sempre;
  * senza, auto-on sulle pubbliche (ElfHosted, PUBLIC_INSTANCE=1, MULTI_USER=1).
  */
 export function isPresetsPosterMode(): boolean {
@@ -87,9 +87,9 @@ export function isPreviewDowngraded(input: PreviewDowngradeInput): boolean {
 }
 
 // Allowlist esplicita dei parametri noti dell'endpoint poster: tutto il resto
-// viene ignorato prima della cache key (?x=$RANDOM non crea più un miss).
+// viene ignorato prima della cache key (?x=$RANDOM non crea piÃ¹ un miss).
 // Chiavi schema (validation.ts:posterQuerySchema) + funzionali letti dalla
-// route ma fuori schema (toggles, identità, token, debug).
+// route ma fuori schema (toggles, identitÃ , token, debug).
 export const POSTER_CACHE_ALLOWLIST: ReadonlySet<string> = new Set([
   // Schema query (bound R1).
   "extra", "label", "title", "genreName", "poster", "logo", "backdrop",
@@ -101,9 +101,9 @@ export const POSTER_CACHE_ALLOWLIST: ReadonlySet<string> = new Set([
   "year", "rd", "fad", "mv", "fmt", "format", "shape", "layout", "freshScope", "align", "ac",
   "tl", "bl", "bs", "rs", "xbs", "bfont", "sepstyle", "ts", "tsh", "dv",
   // Seasonal frame (ephemeral catalog context, both canvases with their own
-  // asset): low cardinality enum like sepstyle/xbs — stays explicit in
+  // asset): low cardinality enum like sepstyle/xbs â€” stays explicit in
   // compact mode, never inside `dv`. Valid value = own key; anything else
-  // collapses onto absent (same unframed render, no poisoning — see
+  // collapses onto absent (same unframed render, no poisoning â€” see
   // seasonal-theme.ts).
   "theme",
   // Funzionali (letti dalla route / poster-config, mai stile libero).
@@ -117,10 +117,10 @@ export const POSTER_CACHE_ALLOWLIST: ReadonlySet<string> = new Set([
   // Effective-accent display sync (server-only, Stage 1): read-only JSON
   // branch `?accentmeta=1`. Allowlisted so it reaches the route; the route
   // strips it before the canonical key (same key as the image). No render
-  // input — never changes poster bytes.
+  // input â€” never changes poster bytes.
   "accentmeta",
   // Demo samples (Settings defaults preview only): separa le chiavi con/senza
-  // campioni; il valore è fail-closed in normalizePosterCacheParams.
+  // campioni; il valore Ã¨ fail-closed in normalizePosterCacheParams.
   "demosamples",
   // Cache-busting del ranking client-side: allowlisted per transitare all'handler,
   // rimosso da normalizePosterCacheParams per non frammentare la cache interna del server.
@@ -152,7 +152,7 @@ export const RANK_MAX = 100
 
 /**
  * Strict bounded parse for the ephemeral list-rank context `rk` (shared by
- * cache key, render preflight and tests — single point of truth, no drift).
+ * cache key, render preflight and tests â€” single point of truth, no drift).
  * Valid: integer 0..RANK_MAX (0 = explicit unranked). Anything else (null,
  * empty, non-int, out of bounds) = absent (legacy inert, no fetch skip).
  */
@@ -166,7 +166,7 @@ export function parseListRankParam(raw: string | null): number | null {
  * Final-rank precedence (shared by the poster route render + tests):
  * explicit `rank=` (manual override, preserved verbatim incl. >100 legacy)
  * wins; invalid/absent `rank=` falls through to valid `rk=` (list context,
- * decisione A); else the live `rankingRank` (null on miss — never resurrect).
+ * decisione A); else the live `rankingRank` (null on miss â€” never resurrect).
  */
 export function resolveFinalRankWithListContext(
   qRankRaw: string | null,
@@ -221,7 +221,7 @@ function quantizeInPlace(params: URLSearchParams, key: string, step: number): vo
   params.set(key, String(Math.round(n / step) * step))
 }
 
-// Palette accent ammessa per le query: i fallback di genere (badges.ts) —
+// Palette accent ammessa per le query: i fallback di genere (badges.ts) â€”
 // riuso esistente, 18 colori, set finito per la chiave di cache.
 const ACCENT_PALETTE: ReadonlySet<string> = new Set(
   Object.values(GENRE_FALLBACK).map((c) => c.toLowerCase()),
@@ -238,11 +238,11 @@ function canonicalizeAccent(raw: string | null): string | null {
 }
 
 export interface HardenPosterQueryInput {
-  /** Modalità presets attiva (isPresetsPosterMode). */
+  /** ModalitÃ  presets attiva (isPresetsPosterMode). */
   readonly presets: boolean
   /** Richiesta preview WYSIWYG: sempre esente. */
   readonly preview: boolean
-  /** Senza user space (né ?u= né namespace): override immagini bloccati. */
+  /** Senza user space (nÃ© ?u= nÃ© namespace): override immagini bloccati. */
   readonly anonymous: boolean
   /** Istanza pubblica (isPublicPosterInstance). */
   readonly publicInstance: boolean
@@ -307,7 +307,7 @@ export function hardenPosterSearchParams(
   }
 
   // Removed Badge Lab params (`badgePreset`/`prv`/`pt`/`bp`/`bpf`/`bpt`):
-  // the custom badge library is retired — legacy query values are inert and
+  // the custom badge library is retired â€” legacy query values are inert and
   // collapse onto the native key, never a separate render or cache entry.
   params.delete("badgePreset")
   params.delete("prv")
@@ -315,7 +315,7 @@ export function hardenPosterSearchParams(
   params.delete("bp")
   params.delete("bpf")
   params.delete("bpt")
-  // netPos: enum finita ("top"/"auto") — garbage collassato (stesso render di
+  // netPos: enum finita ("top"/"auto") â€” garbage collassato (stesso render di
   // auto, che il server risolve da solo).
   if (params.has("netPos")) {
     const v = (params.get("netPos") || "").toLowerCase()
@@ -323,9 +323,9 @@ export function hardenPosterSearchParams(
     else params.delete("netPos")
   }
   // agecountry: territorio ISO-2 maiuscolo, GLOBAL esplicitamente escluso
-  // (non è un territorio di certification). Presente-ma-invalido → delete:
+  // (non Ã¨ un territorio di certification). Presente-ma-invalido â†’ delete:
   // il resolver cade sul default di spazio come con l'assenza (stesso
-  // render, un'unica chiave — mai avvelenamento). Solo in presets mode
+  // render, un'unica chiave â€” mai avvelenamento). Solo in presets mode
   // (preview WYSIWYG e istanze private passano intatte; la normalizzazione
   // chiave in normalizePosterCacheParams copre tutti i modi).
   if (params.has("agecountry")) {
@@ -336,7 +336,7 @@ export function hardenPosterSearchParams(
   // sepstyle: enum finita ("column"/"bottom-bar"/"bottom-pills"), query
   // case-insensitive con canonical lowercase (stessa policy di
   // resolveSeparateRatingsStyle e normalizePosterCacheParams). Valore
-  // presente ma non valido (garbage o vuoto) → "column" esplicito, MAI
+  // presente ma non valido (garbage o vuoto) â†’ "column" esplicito, MAI
   // delete: cancellarlo cambierebbe semantica (l'assenza eredita
   // mapping/default, il garbage rende column).
   if (params.has("sepstyle")) {
@@ -346,7 +346,7 @@ export function hardenPosterSearchParams(
   // layout: enum finita ("standard"/"fresh"), query case-insensitive con
   // canonical lowercase (stessa policy di resolvePosterLayout e
   // normalizePosterCacheParams). Valore presente ma non valido (garbage o
-  // vuoto) → "standard" esplicito, MAI delete: cancellarlo cambierebbe
+  // vuoto) â†’ "standard" esplicito, MAI delete: cancellarlo cambierebbe
   // semantica (l'assenza eredita mapping/default, il garbage rende standard).
   if (params.has("layout")) {
     const v = (params.get("layout") || "").toLowerCase()
@@ -355,7 +355,7 @@ export function hardenPosterSearchParams(
   // freshScope: enum finita ("all"/"ranked"), query case-insensitive con
   // canonical lowercase (stessa policy di resolvePosterFreshScope e
   // normalizePosterCacheParams). Valore presente ma non valido (garbage o
-  // vuoto) → "ranked" esplicito (default condiviso, fail-closed: restringe
+  // vuoto) â†’ "ranked" esplicito (default condiviso, fail-closed: restringe
   // Fresh invece di allargarlo), MAI delete: cancellarlo cambierebbe
   // semantica (l'assenza eredita mapping/default, il garbage rende ranked).
   if (params.has("freshScope")) {
@@ -365,3 +365,4 @@ export function hardenPosterSearchParams(
 
   return params
 }
+

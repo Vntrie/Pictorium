@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react"
+﻿import { useState, useRef, useEffect, useCallback } from "react"
 import { usePSelector } from "@/lib/context"
 import { t } from "@/lib/i18n"
 import { toast } from "sonner"
@@ -6,8 +6,8 @@ import { ACCENT_META_HEADER, parseEffectiveAccentHeader } from "@/lib/effective-
 import { publishEffectiveAccentDisplay } from "@/lib/effective-accent-display"
 
 export function usePosterPreview() {
-  // B2: selettore slice — prima useP() ri-renderizzava il hook (e chi lo usa)
-  // a OGNI aggiornamento del context Pictorium, non solo al cambio previewUrl.
+  // B2: selettore slice â€” prima useP() ri-renderizzava il hook (e chi lo usa)
+  // a OGNI aggiornamento del context FlameForge, non solo al cambio previewUrl.
   const previewUrl = usePSelector((v) => v.previewUrl)
   // Rank-source save bump: la preview va rifetchata anche a URL identico
   // (la selezione vive server-side e non entra nell'URL); le risposte
@@ -19,7 +19,7 @@ export function usePosterPreview() {
   const [previewLoading, setPreviewLoading] = useState(false)
   const [loadProgress, setLoadProgress] = useState(0)
   const [imgSrc, setImgSrc] = useState("")
-  // Bump per far ripartire la fetch: il Retry del preview non può dipendere
+  // Bump per far ripartire la fetch: il Retry del preview non puÃ² dipendere
   // solo da previewUrl (invariato dopo un errore), serve un nonce.
   const [retryNonce, setRetryNonce] = useState(0)
   
@@ -30,9 +30,9 @@ export function usePosterPreview() {
   // a superseded XHR whose onload fires late (e.g. manually after abort())
   // can never publish over the latest image + metadata pair.
   const accentGenerationRef = useRef(0)
-  // D6: throttle del progress — gli eventi onprogress di XHR arrivano a decine
+  // D6: throttle del progress â€” gli eventi onprogress di XHR arrivano a decine
   // al secondo; setLoadProgress a ogni evento ri-renderizza la preview senza
-  // beneficio visivo. Aggiorna solo a step ≥5% (il 100% arriva in onload).
+  // beneficio visivo. Aggiorna solo a step â‰¥5% (il 100% arriva in onload).
   const lastProgressRef = useRef(-1)
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export function usePosterPreview() {
     // Show loading bar only if request takes >200ms
     loadDelayRef.current = setTimeout(() => setPreviewLoading(true), 200)
 
-    // Keep old img visible while new one loads — no flicker
+    // Keep old img visible while new one loads â€” no flicker
     const url = previewUrl
     // New load (URL/shape change or rank-source/catalog/retry nonce refetch
     // at the SAME url): publish loading FIRST so the accent picker can never
@@ -106,7 +106,7 @@ export function usePosterPreview() {
         setPreviewLoading(false)
         // Primary accent transport: validated metadata parsed from the SAME
         // response that carried these bytes. Absent/malformed (legacy cache,
-        // stripped CDN header) → honest unknown, never a guessed color; the
+        // stripped CDN header) â†’ honest unknown, never a guessed color; the
         // manual chooser stays available and nothing is re-rendered.
         let meta: ReturnType<typeof parseEffectiveAccentHeader> = null
         try {
@@ -142,7 +142,7 @@ export function usePosterPreview() {
     }
 
     xhr.ontimeout = () => {
-      // Eligibility first: same as onerror — a stale timeout is fully ignored.
+      // Eligibility first: same as onerror â€” a stale timeout is fully ignored.
       if (xhrRef.current !== xhr || accentGenerationRef.current !== generation) return
       if (loadDelayRef.current) {
         clearTimeout(loadDelayRef.current)
@@ -160,7 +160,7 @@ export function usePosterPreview() {
       // Invalidate BEFORE abort: abort() may synchronously re-enter
       // xhr.onerror while this XHR is still registered as current, which
       // would poison the next generation (error state + toast + cleared
-      // timer). No record is published here — the next effect owns it.
+      // timer). No record is published here â€” the next effect owns it.
       xhrRef.current = null
       xhr.abort()
       if (loadDelayRef.current) {
@@ -170,13 +170,13 @@ export function usePosterPreview() {
     }
   }, [previewUrl, retryNonce, rankSourceNonce, catalogsSyncNonce])
 
-  // Rifà la fetch della preview corrente (usato dal pulsante Retry dopo un errore).
+  // RifÃ  la fetch della preview corrente (usato dal pulsante Retry dopo un errore).
   const retry = useCallback(() => {
     setRetryNonce((n) => n + 1)
   }, [])
 
   // Revoca l'object URL residuo SOLO allo smontaggio. La cleanup dell'effetto
-  // sopra non può revocare: durante il caricamento della nuova preview l'immagine
+  // sopra non puÃ² revocare: durante il caricamento della nuova preview l'immagine
   // vecchia deve restare valida (no-flicker).
   useEffect(() => {
     return () => {
@@ -196,3 +196,4 @@ export function usePosterPreview() {
     retry,
   }
 }
+

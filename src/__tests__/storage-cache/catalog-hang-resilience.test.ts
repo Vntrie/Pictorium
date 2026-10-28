@@ -50,7 +50,7 @@ afterEach(() => {
   vi.restoreAllMocks()
   __clearTMDBCache()
   __resetKey401Cache()
-  delete process.env.PICTORIUM_REDIS_URL
+  delete process.env.FLAMEFORGE_REDIS_URL
 })
 
 describe("withKvTimeout", () => {
@@ -107,7 +107,7 @@ describe("tmdbFetch waiter con signal proprio", () => {
 
 describe("store KV stallata: fail-open senza hang", () => {
   it("getById scoped esce entro il tetto con null e non avvelena il namespace", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:9"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:9"
     getKvMock.mockReturnValue(hangingKvClient())
     const userId = "11111111-1111-4111-8111-111111111111"
     const start = Date.now()
@@ -120,7 +120,7 @@ describe("store KV stallata: fail-open senza hang", () => {
   }, 15000)
 
   it("getById globale esce entro il tetto con null", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:9"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:9"
     getKvMock.mockReturnValue(hangingKvClient())
     const start = Date.now()
     await expect(getById("tv", 977013)).resolves.toBeNull()
@@ -130,10 +130,12 @@ describe("store KV stallata: fail-open senza hang", () => {
 
 describe("cache L2 stallata: miss senza hang", () => {
   it("cacheGetShared ritorna null entro il tetto", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:9"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:9"
     getKvMock.mockReturnValue(hangingKvClient())
     const start = Date.now()
     await expect(cacheGetShared("hang-resilience-key", [])).resolves.toBeNull()
     expect(Date.now() - start).toBeLessThan(4000)
   }, 15000)
 })
+
+

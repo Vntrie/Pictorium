@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { toast } from "sonner"
@@ -22,7 +22,7 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
   /**
    * Guarded close+action (five-tab settings): export/import/repeat-setup
    * run through the session dirty-guard and execute only on confirmed
-   * close — never an implicit bypass. Absent = legacy direct behavior.
+   * close â€” never an implicit bypass. Absent = legacy direct behavior.
    */
   requestAction?: (run: () => void) => void
 }) {
@@ -43,14 +43,14 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
   const [overwriteKeys, setOverwriteKeys] = useState(false)
   const [cacheCount, setCacheCount] = useState<number | null>(null)
   // Disclosure "Diagnostica & manutenzione": chiusa di default, contenuto
-  // SMONTATO (niente DOM né fetch finché l'utente non la apre).
+  // SMONTATO (niente DOM nÃ© fetch finchÃ© l'utente non la apre).
   const [diagOpen, setDiagOpen] = useState(false)
   // Disclosure "Sicurezza & Accesso PIN": stesso pattern, chiusa di default.
   const [pinOpen, setPinOpen] = useState(false)
   // Snapshot compatto delle risorse server: visibile SOLO con admin token in
-  // sessione. Doppio fail-closed: niente token → niente fetch e niente render;
+  // sessione. Doppio fail-closed: niente token â†’ niente fetch e niente render;
   // con token ma 401/errore (l'endpoint richiede requireAdminToken anche su
-  // istanze pubbliche) → sysStats resta null e la riga non si mostra.
+  // istanze pubbliche) â†’ sysStats resta null e la riga non si mostra.
   const [sysStats, setSysStats] = useState<{
     rssMb: number
     heapUsedMb: number
@@ -78,7 +78,7 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
       .catch(() => null)
   }, [])
   // Diagnostica on-demand: il fetch parte solo a disclosure aperta (e tab
-  // visibile), mai al mount — prima partiva sempre con token in sessione.
+  // visibile), mai al mount â€” prima partiva sempre con token in sessione.
   useEffect(() => {
     if (adminUnlocked && active && diagOpen) loadSysStats()
   }, [loadSysStats, adminUnlocked, active, diagOpen])
@@ -223,7 +223,7 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
       </div>
 
       {/* Diagnostica & manutenzione (disclosure: chiusa di default, contenuto
-          smontato — niente DOM né fetch finché non la si apre) */}
+          smontato â€” niente DOM nÃ© fetch finchÃ© non la si apre) */}
       <div className="bg-surface/50 border border-surface2/60 rounded-xl p-4 space-y-3.5 shadow-sm">
         <button
           type="button"
@@ -252,8 +252,8 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
         <div className="space-y-3 animate-fade-in pt-1 border-t border-white/[0.04]">
         {adminUnlocked && sysStats && (
           <p className="text-xs text-zinc-400 font-mono tabular-nums px-0.5">
-            {t("ui.statusMemoryRss")}: {sysStats.rssMb} MB · {t("ui.statusMemoryHeap")}:{" "}
-            {sysStats.heapUsedMb}/{sysStats.heapTotalMb} MB · {t("ui.statusMemoryUptime")}:{" "}
+            {t("ui.statusMemoryRss")}: {sysStats.rssMb} MB Â· {t("ui.statusMemoryHeap")}:{" "}
+            {sysStats.heapUsedMb}/{sysStats.heapTotalMb} MB Â· {t("ui.statusMemoryUptime")}:{" "}
             {t("ui.statusUptimeValue", {
               min: Math.floor(sysStats.uptimeSeconds / 60),
               sec: sysStats.uptimeSeconds,
@@ -304,7 +304,7 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
 
       {/* (spazio utente, UUID e chiavi: nel tab Spazio dedicato sotto) */}
 
-      {/* Token admin — solo quando il server ha PICTORIUM_ADMIN_TOKEN: senza
+      {/* Token admin â€” solo quando il server ha FLAMEFORGE_ADMIN_TOKEN: senza
           sblocco, warmup/clear/save rispondono 401. Solo sessione (muore col
           tab, mai su disco). Su istanze pubbliche non serve: la card sparisce. */}
       {adminTokenConfigured !== false && (
@@ -321,9 +321,9 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
         />
       )}
 
-      {/* Sicurezza & Accesso PIN — nascosta con multi-user ON (lì il cancello
-          è la password dello spazio e l'admin è ADMIN_TOKEN): niente doppio
-          lucchetto. Si mostra finché lo stato è ignoto (fail-open display). */}
+      {/* Sicurezza & Accesso PIN â€” nascosta con multi-user ON (lÃ¬ il cancello
+          Ã¨ la password dello spazio e l'admin Ã¨ ADMIN_TOKEN): niente doppio
+          lucchetto. Si mostra finchÃ© lo stato Ã¨ ignoto (fail-open display). */}
       {multiUserOn !== true && (
       <div className="bg-surface/50 border border-surface2/60 rounded-xl p-4 space-y-3.5 shadow-sm">
         <button
@@ -415,7 +415,7 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
                       maxLength={8}
                       value={curPinInput}
                       onChange={(e) => setCurPinInput(e.target.value.replace(/\D/g, ""))}
-                      placeholder="••••"
+                      placeholder="â€¢â€¢â€¢â€¢"
                       // Numeric PIN: LTR under RTL document.
                       dir="ltr"
                       className="w-full text-center text-sm font-mono tracking-widest min-h-[42px] py-2 px-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500/50"
@@ -430,7 +430,7 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
                     maxLength={8}
                     value={newPinInput}
                     onChange={(e) => setNewPinInput(e.target.value.replace(/\D/g, ""))}
-                    placeholder="••••"
+                    placeholder="â€¢â€¢â€¢â€¢"
                     // Numeric PIN: LTR under RTL document.
                     dir="ltr"
                     className="w-full text-center text-sm font-mono tracking-widest min-h-[42px] py-2 px-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500/50"
@@ -458,7 +458,7 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
                         })
                         if (res.ok) {
                           if (typeof window !== "undefined") {
-                            window.dispatchEvent(new CustomEvent("pictorium:pin-change", { detail: { unlocked: true } }))
+                            window.dispatchEvent(new CustomEvent("FlameForge:pin-change", { detail: { unlocked: true } }))
                           }
                           toast.success(t("ui.pinSavedSuccess"))
                           setPinModalMode(null)
@@ -489,7 +489,7 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
                     maxLength={8}
                     value={curPinInput}
                     onChange={(e) => setCurPinInput(e.target.value.replace(/\D/g, ""))}
-                    placeholder="••••"
+                    placeholder="â€¢â€¢â€¢â€¢"
                     // Numeric PIN: LTR under RTL document.
                     dir="ltr"
                     className="w-full text-center text-sm font-mono tracking-widest min-h-[42px] py-2 px-3 rounded-xl bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-rose-500/50"
@@ -517,7 +517,7 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
                         })
                         if (res.ok) {
                           if (typeof window !== "undefined") {
-                            window.dispatchEvent(new CustomEvent("pictorium:pin-change", { detail: { unlocked: false } }))
+                            window.dispatchEvent(new CustomEvent("FlameForge:pin-change", { detail: { unlocked: false } }))
                           }
                           toast.success(t("ui.pinRemovedSuccess"))
                           setPinModalMode(null)
@@ -548,3 +548,4 @@ export function DataPanel({ active, exportData, importData, setSettingsOpen, mul
     </div>
   )
 }
+

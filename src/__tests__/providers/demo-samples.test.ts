@@ -147,3 +147,4 @@ describe("demosamples cache handling", () => {
     expect(out.get("demosamples")).toBe("1")
   })
 })
+

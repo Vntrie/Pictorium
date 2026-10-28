@@ -213,3 +213,4 @@ describe("badge-priority disabled content tags", () => {
     expect(hit?.label).toBe("Soon")
   })
 })
+

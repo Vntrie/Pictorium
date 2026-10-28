@@ -1,7 +1,7 @@
-// Mock server per i test E2E di Pictorium.
+﻿// Mock server per i test E2E di FlameForge.
 //
 // Sostituisce le API esterne (TMDB, JustWatch, Wikidata, IMDb) con risposte
-// statiche deterministiche, così i test girano senza TMDB_API_KEY e senza
+// statiche deterministiche, cosÃ¬ i test girano senza TMDB_API_KEY e senza
 // dipendere dalla rete. L'app viene avviata da playwright.config.ts con
 // variabili d'ambiente che puntano i client HTTP a questo server.
 //
@@ -49,8 +49,8 @@ function posterItem() {
 }
 
 function detailFor(type, tmdbId) {
-  // Per-title IMDb id (IMDb-first catalogs desde v-identità: ogni item del
-  // catalogo deve risolvere a un tt distinto — un costante condiviso
+  // Per-title IMDb id (IMDb-first catalogs desde v-identitÃ : ogni item del
+  // catalogo deve risolvere a un tt distinto â€” un costante condiviso
   // colliderebbe su tutti gli id del catalogo). Zero-padded a 7 cifre:
   // sempre valido (^tt\d{7,10}$) e round-trip via /find/ numerico sotto.
   const numericId = Number(tmdbId) || 0
@@ -136,15 +136,15 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { ok: true })
     }
 
-    // Immagini poster (image.tmdb.org/t/p/... → mock)
+    // Immagini poster (image.tmdb.org/t/p/... â†’ mock)
     if (method === "GET" && pathname.startsWith("/t/p/")) {
       return respond(res, 200, await getPosterBuffer(), "image/jpeg")
     }
 
-    // TMDB API — search person
+    // TMDB API â€” search person
     if (pathname === "/3/search/person") {
       const q = (url.searchParams.get("query") || "").toLowerCase()
-      // Only exact "brad pitt" (normalized) returns a match — mirrors person-search thresholds
+      // Only exact "brad pitt" (normalized) returns a match â€” mirrors person-search thresholds
       if (q.includes("brad pitt")) {
         return json(res, 200, {
           page: 1,
@@ -210,9 +210,9 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { genres: [{ id: 28, name: "Azione" }, { id: 12, name: "Avventura" }] })
     }
     if (pathname === "/3/find/tt1234567" || pathname.startsWith("/3/find/")) {
-      // Legacy tt1234567 → fixture Avatar; i tt per-id (detailFor sopra)
-      // risolvono numericamente (tt0019995 → 19995) per il round-trip
-      // catalogo → /meta.
+      // Legacy tt1234567 â†’ fixture Avatar; i tt per-id (detailFor sopra)
+      // risolvono numericamente (tt0019995 â†’ 19995) per il round-trip
+      // catalogo â†’ /meta.
       const m = pathname.match(/^\/3\/find\/(tt\d+)$/)
       const tt = m ? m[1] : ""
       const id = tt === "tt1234567" ? 19995 : (tt ? Number(tt.slice(2)) || 19995 : 19995)
@@ -250,9 +250,9 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { id: Number(kwMatch[2]), keywords: [] })
     }
     // TMDB age certifications (deterministiche, verifica pre-integrazione):
-    // movie release_dates → IT VM14 theatrical + US PG-13; tv content_ratings
-    // → US TV-MA + IT VM14. Nessun fallback cross-country lato mock: entrambe
-    // le entry presenti così gli spec asseriscono il match stesso-paese.
+    // movie release_dates â†’ IT VM14 theatrical + US PG-13; tv content_ratings
+    // â†’ US TV-MA + IT VM14. Nessun fallback cross-country lato mock: entrambe
+    // le entry presenti cosÃ¬ gli spec asseriscono il match stesso-paese.
     const relMatch = pathname.match(/^\/3\/movie\/(\d+)\/release_dates$/)
     if (relMatch) {
       return json(res, 200, {
@@ -301,12 +301,12 @@ const server = http.createServer(async (req, res) => {
       const episodesBySeason = {
         0: [{ id: 900, season_number: 0, episode_number: 1, name: "Speciale Pilota", overview: "Episodio speciale", still_path: MOCKED_POSTER_PATH, air_date: "2009-12-01", vote_average: 7.5 }],
         1: [
-          { id: 901, season_number: 1, episode_number: 1, name: "Episodio 1 — L'inizio", overview: "Inizio della storia", still_path: MOCKED_POSTER_PATH, air_date: "2009-12-10", vote_average: 8.1 },
-          { id: 902, season_number: 1, episode_number: 2, name: "Episodio 2 — Il ritorno", overview: "Continuazione", still_path: MOCKED_POSTER_PATH, air_date: "2009-12-17", vote_average: 8.3 },
+          { id: 901, season_number: 1, episode_number: 1, name: "Episodio 1 â€” L'inizio", overview: "Inizio della storia", still_path: MOCKED_POSTER_PATH, air_date: "2009-12-10", vote_average: 8.1 },
+          { id: 902, season_number: 1, episode_number: 2, name: "Episodio 2 â€” Il ritorno", overview: "Continuazione", still_path: MOCKED_POSTER_PATH, air_date: "2009-12-17", vote_average: 8.3 },
         ],
         2: [
-          { id: 903, season_number: 2, episode_number: 1, name: "Episodio 1 — Nuova stagione", overview: "Nuovi personaggi", still_path: MOCKED_POSTER_PATH, air_date: "2010-01-10", vote_average: 8.0 },
-          { id: 904, season_number: 2, episode_number: 2, name: "Episodio 2 — Finale", overview: "Chiusura", still_path: MOCKED_POSTER_PATH, air_date: "2010-01-17", vote_average: 8.5 },
+          { id: 903, season_number: 2, episode_number: 1, name: "Episodio 1 â€” Nuova stagione", overview: "Nuovi personaggi", still_path: MOCKED_POSTER_PATH, air_date: "2010-01-10", vote_average: 8.0 },
+          { id: 904, season_number: 2, episode_number: 2, name: "Episodio 2 â€” Finale", overview: "Chiusura", still_path: MOCKED_POSTER_PATH, air_date: "2010-01-17", vote_average: 8.5 },
         ],
       }
       const eps = episodesBySeason[seasonNum] || []
@@ -337,8 +337,8 @@ const server = http.createServer(async (req, res) => {
             name: "Parte 1",
             order: groupId.includes("netflix") ? 1 : 0,
             episodes: [
-              { id: 901, episode_number: 1, name: "Episodio 1 — L'inizio", overview: "Inizio", still_path: MOCKED_POSTER_PATH, air_date: "2009-12-10", vote_average: 8.1, order: 0 },
-              { id: 902, episode_number: 2, name: "Episodio 2 — Il ritorno", overview: "Continuazione", still_path: MOCKED_POSTER_PATH, air_date: "2009-12-17", vote_average: 8.3, order: 1 },
+              { id: 901, episode_number: 1, name: "Episodio 1 â€” L'inizio", overview: "Inizio", still_path: MOCKED_POSTER_PATH, air_date: "2009-12-10", vote_average: 8.1, order: 0 },
+              { id: 902, episode_number: 2, name: "Episodio 2 â€” Il ritorno", overview: "Continuazione", still_path: MOCKED_POSTER_PATH, air_date: "2009-12-17", vote_average: 8.3, order: 1 },
             ],
           },
           {
@@ -346,8 +346,8 @@ const server = http.createServer(async (req, res) => {
             name: "Parte 2",
             order: groupId.includes("netflix") ? 2 : 1,
             episodes: [
-              { id: 903, episode_number: 1, name: "Episodio 1 — Nuova stagione", overview: "Nuovi", still_path: MOCKED_POSTER_PATH, air_date: "2010-01-10", vote_average: 8.0, order: 0 },
-              { id: 904, episode_number: 2, name: "Episodio 2 — Finale", overview: "Chiusura", still_path: MOCKED_POSTER_PATH, air_date: "2010-01-17", vote_average: 8.5, order: 1 },
+              { id: 903, episode_number: 1, name: "Episodio 1 â€” Nuova stagione", overview: "Nuovi", still_path: MOCKED_POSTER_PATH, air_date: "2010-01-10", vote_average: 8.0, order: 0 },
+              { id: 904, episode_number: 2, name: "Episodio 2 â€” Finale", overview: "Chiusura", still_path: MOCKED_POSTER_PATH, air_date: "2010-01-17", vote_average: 8.5, order: 1 },
             ],
           },
         ],
@@ -373,7 +373,7 @@ const server = http.createServer(async (req, res) => {
       })
     }
 
-    // JustWatch GraphQL: classifiche giornaliere deterministiche + offerte qualità.
+    // JustWatch GraphQL: classifiche giornaliere deterministiche + offerte qualitÃ .
     if (pathname === "/graphql" && method === "POST") {
       let opName = ""
       let objectType = "SHOW"
@@ -441,14 +441,14 @@ const server = http.createServer(async (req, res) => {
       })
     }
 
-    // Wikidata SPARQL: bindings vuoti → nessun award
+    // Wikidata SPARQL: bindings vuoti â†’ nessun award
     if (pathname === "/sparql") {
       return json(res, 200, { head: { vars: [] }, results: { bindings: [] } })
     }
 
     // Wikidata Action API (fast-path REST): payload deterministico per Q12345.
-    // claims → QID finti; labels → label inglesi che matchano le RULES
-    // (Academy Award → Oscar) così il fast-path produce badge in E2E.
+    // claims â†’ QID finti; labels â†’ label inglesi che matchano le RULES
+    // (Academy Award â†’ Oscar) cosÃ¬ il fast-path produce badge in E2E.
     if (pathname === "/w/api.php") {
       const ids = (url.searchParams.get("ids") || "").split("|").filter(Boolean)
       const props = url.searchParams.get("props") || ""
@@ -468,20 +468,20 @@ const server = http.createServer(async (req, res) => {
       }
       const entities = {}
       for (const id of ids) {
-        // Label distinte per ramo: wins → Oscar, nominations → BAFTA,
-        // regista → allowlist DIRECTORS. Così i test distinguono i rami.
+        // Label distinte per ramo: wins â†’ Oscar, nominations â†’ BAFTA,
+        // regista â†’ allowlist DIRECTORS. CosÃ¬ i test distinguono i rami.
         const label = id === "Q25191" ? "Christopher Nolan" : id === "Q109488" ? "British Academy Film Award" : "Academy Award"
         entities[id] = { labels: { en: { value: label } } }
       }
       return json(res, 200, { entities })
     }
 
-    // IMDb chart minimale: nessun tt-id → fallback al dataset statico
+    // IMDb chart minimale: nessun tt-id â†’ fallback al dataset statico
     if (pathname === "/chart/top/") {
       return respond(res, 200, "<!doctype html><html><body></body></html>", "text/html")
     }
 
-    // MDBList (ranking anime): Avatar in posizione #1 → animeRankResult = 1
+    // MDBList (ranking anime): Avatar in posizione #1 â†’ animeRankResult = 1
     if (method === "GET" && pathname.startsWith("/mdblist/api/lists/snoak/")) {
       return json(res, 200, {
         items: [
@@ -491,10 +491,10 @@ const server = http.createServer(async (req, res) => {
       })
     }
 
-    // MDBList aggregated ratings — NEW media API (lib/ratings.ts →
+    // MDBList aggregated ratings â€” NEW media API (lib/ratings.ts â†’
     // `${MDBLIST_API_URL}/imdb/{movie|show|any}/{imdbId}/?apikey=`): voti
     // deterministici per la colonna rating separati (sep=1). I votes stanno
-    // sopra il default min-votes (10) così l'harness resta verde.
+    // sopra il default min-votes (10) cosÃ¬ l'harness resta verde.
     if (method === "GET" && pathname.startsWith("/mdblist/api/imdb/")) {
       const segs = pathname.split("/").filter(Boolean)
       const imdbId = segs[4] || ""
@@ -523,11 +523,11 @@ const server = http.createServer(async (req, res) => {
       })
     }
 
-    // MDBList aggregated ratings — NEW typed TMDB API (task C →
+    // MDBList aggregated ratings â€” NEW typed TMDB API (task C â†’
     // `${MDBLIST_API_URL}/tmdb/{movie|show}/{id}/?apikey=`): copre i titoli
     // senza IMDb senza richiederlo. Corpi identici ai gemelli /imdb (verifica
-    // anonima 2026-10-15: tt0111161 ≡ tmdb movie 278, tt0944947 ≡ tmdb show
-    // 1399). Solo gli id noti rispondono 200; tipo sbagliato o id ignoto →
+    // anonima 2026-10-15: tt0111161 â‰¡ tmdb movie 278, tt0944947 â‰¡ tmdb show
+    // 1399). Solo gli id noti rispondono 200; tipo sbagliato o id ignoto â†’
     // 404 come il reale (mai retry automatico sull'altro tipo).
     if (method === "GET" && pathname.startsWith("/mdblist/api/tmdb/")) {
       const segs = pathname.split("/").filter(Boolean)
@@ -565,7 +565,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // Legacy MDBList aggregated ratings (`${MDBLIST_API_URL}/?i=tt...`):
-    // non più chiamato dall'app (task B), tenuto per compatibilità harness.
+    // non piÃ¹ chiamato dall'app (task B), tenuto per compatibilitÃ  harness.
     // Nota: l'app chiama `${MDBLIST_API_URL}/?i=...` (slash prima del ?),
     // quindi il pathname arriva con trailing slash.
     if (method === "GET" && (pathname === "/mdblist/api" || pathname === "/mdblist/api/")) {
@@ -603,8 +603,8 @@ const server = http.createServer(async (req, res) => {
       })
     }
 
-    // AniZip mappings (lib/anime-ratings.ts → ${ANIZIP_API_URL}/mappings?...):
-    // solo tt0388629/tmdb 37854 (One Piece) è un anime; resto → 404.
+    // AniZip mappings (lib/anime-ratings.ts â†’ ${ANIZIP_API_URL}/mappings?...):
+    // solo tt0388629/tmdb 37854 (One Piece) Ã¨ un anime; resto â†’ 404.
     if (method === "GET" && pathname === "/anizip/mappings") {
       const tmdb = url.searchParams.get("themoviedb_id")
       const imdb = url.searchParams.get("imdb_id")
@@ -648,3 +648,4 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, "127.0.0.1", () => {
   console.log(`[mock-server] in ascolto su http://127.0.0.1:${PORT}`)
 })
+

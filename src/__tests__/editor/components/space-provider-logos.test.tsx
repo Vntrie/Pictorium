@@ -164,3 +164,4 @@ describe("Space provider logos", () => {
     expect(document.querySelector('img[src="/rating/trakt.svg"]')).not.toBeNull()
   })
 })
+

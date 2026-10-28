@@ -58,3 +58,4 @@ describe("normalizeGenreName (TV compound genres)", () => {
     expect(GENRE_FALLBACK["War & Politics"]).toBeDefined()
   })
 })
+

@@ -182,3 +182,4 @@ describe("es-419 provider wiring", () => {
     expect(selectBestLogo(logos, "pt-BR")?.file_path).toBe("/en.png")
   })
 })
+

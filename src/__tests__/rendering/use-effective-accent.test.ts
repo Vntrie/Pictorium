@@ -1,6 +1,6 @@
 /**
  * useEffectiveAccent (client, header transport): pure display selector over
- * the record published by `usePosterPreview` from the `X-Pictorium-Accent`
+ * the record published by `usePosterPreview` from the `X-FlameForge-Accent`
  * response header of the SAME image bytes. No fetch, no timers, no retries —
  * zero dedicated JSON traffic in the normal flow. No canonical writes, URL
  * identity gating, stale-gated.
@@ -18,7 +18,7 @@ import {
 import type { EffectiveAccentMeta } from "@/lib/effective-accent"
 
 const PREVIEW =
-  "https://pictorium.test/api/poster/movie/1?rv=e6889605bb&preview=1&bs=colored&rs=default&ts=80&bd=30&be=1&shape=poster&config=abc&api_key=secret"
+  "https://FlameForge.test/api/poster/movie/1?rv=e6889605bb&preview=1&bs=colored&rs=default&ts=80&bd=30&be=1&shape=poster&config=abc&api_key=secret"
 
 const META: EffectiveAccentMeta = {
   genreHex: "#1f7a8c",
@@ -116,3 +116,5 @@ describe("resolveAccentPickerDisplay", () => {
     expect(resolveAccentPickerDisplay(null).pickerHex).toBeNull()
   })
 })
+
+

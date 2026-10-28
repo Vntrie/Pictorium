@@ -103,7 +103,7 @@ describe("usePresetTransfer", () => {
     await act(async () => { await result.current.exportAll() })
     await flushBlobs()
     expect(downloaded).toHaveLength(1)
-    expect(clickedFilenames).toMatchObject([expect.stringMatching(/^pictorium-presets-\d{4}-\d{2}-\d{2}\.json$/)])
+    expect(clickedFilenames).toMatchObject([expect.stringMatching(/^FlameForge-presets-\d{4}-\d{2}-\d{2}\.json$/)])
     const body = JSON.parse(downloaded[0]?.json ?? "{}")
     expect(Object.keys(body).sort()).toEqual(["exportedAt", "formatVersion", "gradientPresets", "kind", "visualPresets"])
     expect(body.visualPresets).toHaveLength(1)
@@ -118,8 +118,8 @@ describe("usePresetTransfer", () => {
     act(() => { result.current.exportGradient({ name: "Glow", values: GRADIENT }) })
     await flushBlobs()
     expect(clickedFilenames).toEqual([
-      "pictorium-visual-preset-my-look.json",
-      "pictorium-gradient-preset-glow.json",
+      "FlameForge-visual-preset-my-look.json",
+      "FlameForge-gradient-preset-glow.json",
     ])
     expect(JSON.parse(downloaded[0]?.json ?? "{}").visualPresets).toHaveLength(1)
     expect(JSON.parse(downloaded[1]?.json ?? "{}").gradientPresets).toHaveLength(1)
@@ -130,7 +130,7 @@ describe("usePresetTransfer", () => {
     const onVisualsChanged = vi.fn()
     const { result } = renderHook(() => usePresetTransfer({ onVisualsChanged }), { wrapper: createWrapper() })
     const file = presetFile({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [
         { name: "  KEEP  ", values: VISUAL },
@@ -154,7 +154,7 @@ describe("usePresetTransfer", () => {
     mockHttpList(existing)
     const { result } = renderHook(() => usePresetTransfer(), { wrapper: createWrapper() })
     const file = presetFile({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [{ name: "Extra", values: VISUAL }],
     })
@@ -170,7 +170,7 @@ describe("usePresetTransfer", () => {
     const onVisualsChanged = vi.fn()
     const { result } = renderHook(() => usePresetTransfer({ onVisualsChanged }), { wrapper: createWrapper() })
     const file = presetFile({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [
         { name: "  TWIN  ", values: VISUAL },
@@ -211,7 +211,7 @@ describe("usePresetTransfer", () => {
     mockHttpList([])
     const { result } = renderHook(() => usePresetTransfer(), { wrapper: createWrapper() })
     const file = presetFile({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       gradientPresets: [{ name: "Glow", values: GRADIENT }],
     })
@@ -224,7 +224,7 @@ describe("usePresetTransfer", () => {
     httpMock.mockRejectedValue(new Error("server down"))
     const { result } = renderHook(() => usePresetTransfer(), { wrapper: createWrapper() })
     const file = presetFile({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       gradientPresets: [{ name: "Glow", values: GRADIENT }],
     })
@@ -240,7 +240,7 @@ describe("usePresetTransfer", () => {
     // Concurrent add AFTER hook creation: a stale closure would miss it and dup it.
     act(() => { addCustomGradientPreset("Glow", GRADIENT) })
     const file = presetFile({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       gradientPresets: [{ name: "glow", values: GRADIENT }],
     })
@@ -265,7 +265,7 @@ describe("usePresetTransfer", () => {
     })
     const { result } = renderHook(() => usePresetTransfer(), { wrapper: createWrapper() })
     const file = presetFile({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [{ name: "Fresh", values: VISUAL }],
       gradientPresets: [{ name: "glow", values: GRADIENT }],
@@ -279,7 +279,7 @@ describe("usePresetTransfer", () => {
 
   it("unreadable file errors without server calls and resets busy", async () => {
     const { result } = renderHook(() => usePresetTransfer(), { wrapper: createWrapper() })
-    const bad = presetFile({ kind: "pictorium-presets", formatVersion: 1 })
+    const bad = presetFile({ kind: "FlameForge-presets", formatVersion: 1 })
     vi.spyOn(bad, "text").mockRejectedValue(new Error("read fail"))
     await act(async () => { await result.current.importFile(bad) })
     expect(httpMock).not.toHaveBeenCalled()
@@ -297,7 +297,7 @@ describe("usePresetTransfer", () => {
     try {
       const { result } = renderHook(() => usePresetTransfer(), { wrapper: createWrapper() })
       const file = presetFile({
-        kind: "pictorium-presets",
+        kind: "FlameForge-presets",
         formatVersion: 1,
         gradientPresets: [{ name: "Glow", values: GRADIENT }],
       })
@@ -315,7 +315,7 @@ describe("usePresetTransfer", () => {
     mockHttpList([], [], true)
     const { result } = renderHook(() => usePresetTransfer(), { wrapper: createWrapper() })
     const file = presetFile({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [{ name: "Fresh", values: VISUAL }],
       gradientPresets: [{ name: "Glow", values: GRADIENT }],
@@ -350,7 +350,7 @@ describe("usePresetTransfer", () => {
     const onVisualsChanged = vi.fn()
     const { result } = renderHook(() => usePresetTransfer({ onVisualsChanged }), { wrapper: createWrapper() })
     const file = presetFile({
-      kind: "pictorium-presets",
+      kind: "FlameForge-presets",
       formatVersion: 1,
       visualPresets: [{ name: "Fresh", values: VISUAL }],
     })
@@ -466,3 +466,5 @@ describe("preset transfer UI", () => {
     expect(onApply).toHaveBeenCalledWith(GRADIENT_PRESET_NERO)
   })
 })
+
+

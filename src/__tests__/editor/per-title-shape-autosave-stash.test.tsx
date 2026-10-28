@@ -18,7 +18,7 @@ import { render, act, screen, waitFor } from "@testing-library/react"
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
 import { MOCK_CTX } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider, usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
@@ -205,7 +205,7 @@ function renderAutosaveEditor(first: Record<string, unknown>) {
     return (
       <ThemeProvider>
         <PosterEditorProvider>
-          <PictoriumProvider value={value}>
+          <FlameForgeProvider value={value}>
             <EditView />
             <Probes
               selected={value.selected as SearchResult}
@@ -213,7 +213,7 @@ function renderAutosaveEditor(first: Record<string, unknown>) {
               mappingsMap={value.mappingsMap as Map<string, Mapping>}
               userId={(value.currentUserId as string | null) ?? null}
             />
-          </PictoriumProvider>
+          </FlameForgeProvider>
         </PosterEditorProvider>
       </ThemeProvider>
     )
@@ -463,3 +463,5 @@ describe("shape-draft key/ownership/clone units", () => {
     expect(copy.videoFormats).not.toBe((src as Record<string, unknown>).videoFormats)
   })
 })
+
+

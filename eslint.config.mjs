@@ -1,4 +1,4 @@
-import { defineConfig, globalIgnores } from "eslint/config";
+﻿import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
@@ -38,11 +38,11 @@ const eslintConfig = defineConfig([
     ".next-e2e/**",
     // DistDir isolato dell'harness E2E autenticato (NEXT_DIST_DIR
     // ".next-e2e-auth" di playwright.preset-auth.config.ts): stesso pattern
-    // di .next-e2e — senza questo ignore, `npm run lint` fallisce dopo i
+    // di .next-e2e â€” senza questo ignore, `npm run lint` fallisce dopo i
     // test E2E autenticati (migliaia di errori dai chunk generati da Next,
     // es. require()/no-unused-vars/@ts-ignore).
     ".next-e2e-auth/**",
-    // DistDir di load-smoke.mjs (PICTORIUM_DATA_DIR/NEXT_DIST_DIR dedicati).
+    // DistDir di load-smoke.mjs (FLAMEFORGE_DATA_DIR/NEXT_DIST_DIR dedicati).
     ".next-load/**",
     // DistDir di bench-image-cache.mjs (stesso pattern di .next-load).
     ".next-bench/**",
@@ -53,16 +53,16 @@ const eslintConfig = defineConfig([
     ".next-shot /**",
     // DistDir di tune-env.mjs (NEXT_DIST_DIR ".next-tune", cfr. next.config.ts
     // `distDir: process.env.NEXT_DIST_DIR || ".next"`): stesso pattern degli
-    // altri distDir sopra — senza questo ignore, `npm run lint` fallisce dopo
+    // altri distDir sopra â€” senza questo ignore, `npm run lint` fallisce dopo
     // i tuning run (chunk generati da Next/Turbopack).
     ".next-tune/**",
     // DistDir ad-hoc NEXT_DIST_DIR ".next-e2e-probe" (runtime di probe):
-    // stesso pattern degli altri distDir sopra — output generato da
+    // stesso pattern degli altri distDir sopra â€” output generato da
     // Next/Turbopack, mai sorgente (git-ignored, untracked, layout distDir
     // canonico con build-manifest.json/routes-manifest.json/trace).
     ".next-e2e-probe/**",
     // Isolated build-output distDir (NEXT_DIST_DIR ".next-verify"): same
-    // pattern as the other distDirs above — without this ignore,
+    // pattern as the other distDirs above â€” without this ignore,
     // `npm run lint` fails with thousands of errors from the generated
     // Next/Turbopack chunks (and the standalone copy even pulls in the
     // e2e/* suites, which vitest would collect as repo tests).
@@ -75,7 +75,7 @@ const eslintConfig = defineConfig([
     // dai tipi generati da Next).
     ".claude/**",
     // Tooling locale .opencode (plugin + node_modules con test di terze
-    // parti): non e' codice dell'app — vitest li raccoglie come suite del
+    // parti): non e' codice dell'app â€” vitest li raccoglie come suite del
     // repo e falliscono per dipendenze/env mancanti loro, non nostre.
     ".opencode/**",
     // Artefatti di audit/documentazione generati localmente
@@ -84,3 +84,4 @@ const eslintConfig = defineConfig([
 ]);
 
 export default eslintConfig;
+

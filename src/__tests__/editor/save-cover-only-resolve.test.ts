@@ -220,3 +220,4 @@ describe("cover-only mapping inherits the global defaults (delivered URL chain)"
     expect(config.logoOffsetY).toBe(-5)
   })
 })
+

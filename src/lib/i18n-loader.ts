@@ -15,24 +15,7 @@ type DictModule = { default: Dictionary }
  * reliable way to keep one chunk per language instead of collapsing them
  * into a single context chunk via a variable/template-string path.
  */
-const loaders: Record<string, () => Promise<DictModule>> = {
-  pl: () => import("./translations/pl.json"),
-  fr: () => import("./translations/fr.json"),
-  de: () => import("./translations/de.json"),
-  es: () => import("./translations/es.json"),
-  "es-419": () => import("./translations/es-419.json"),
-  ja: () => import("./translations/ja.json"),
-  ko: () => import("./translations/ko.json"),
-  pt: () => import("./translations/pt.json"),
-  he: () => import("./translations/he.json"),
-  cs: () => import("./translations/cs.json"),
-  ro: () => import("./translations/ro.json"),
-  ar: () => import("./translations/ar.json"),
-  tr: () => import("./translations/tr.json"),
-  nl: () => import("./translations/nl.json"),
-  sv: () => import("./translations/sv.json"),
-  vi: () => import("./translations/vi.json"),
-}
+const loaders: Record<string, () => Promise<DictModule>> = {}
 
 // Coalesces concurrent loads of the same language into a single import.
 const inflight = new Map<string, Promise<Dictionary>>()

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback, useRef, useEffect } from "react"
 import { http } from "./http"
@@ -17,7 +17,7 @@ export type ListStatus = "idle" | "loading" | "ready" | "empty" | "error"
 /**
  * Publication stamps (ms epoch) of the served snapshots, per slot. Null =
  * unknown (no genuine pin, failed fetch, or never loaded). The UI renders
- * these verbatim — never the page clock, never a re-timestamped cache hit.
+ * these verbatim â€” never the page clock, never a re-timestamped cache hit.
  */
 export interface PublicationStamps {
   readonly movie: number | null
@@ -91,7 +91,7 @@ export function useTrending(
 
   // Scoped Top 20 URL: the server resolves the effective ranking source
   // (namespace `?u=`, `?config=` token, or global defaults) through the SAME
-  // shared service the Stremio catalogs use — the UI rows and the installed
+  // shared service the Stremio catalogs use â€” the UI rows and the installed
   // catalogs can never disagree on content/order/ids.
   const trendingUrl = useCallback((buster?: number) => {
     let url = `/api/tmdb/trending?api_key=${tmdbKey}&country=${encodeURIComponent(region.code)}`
@@ -155,7 +155,7 @@ export function useTrending(
         setTrendingStatus(statusOf(list.length))
         // Served publication stamps (T1 contract): per-slot ms epoch, or
         // null when the slot has no genuine pin. A reload carries the same
-        // stamps — never the page clock.
+        // stamps â€” never the page clock.
         const stamp = data.updatedAt && typeof data.updatedAt === "object" ? data.updatedAt : null
         setTrendingUpdatedAt({
           movie: stamp ? parsePublicationStamp(stamp.movie) : null,
@@ -164,7 +164,7 @@ export function useTrending(
       })
       .catch((e) => {
         if (signal.aborted || gen !== trendGenRef.current) return
-        console.error("[pictorium] Failed to load trending:", e)
+        console.error("[FlameForge] Failed to load trending:", e)
         setTrendingStatus("error")
       })
     return () => { ctrl.abort(); if (abortRef.current === ctrl) abortRef.current = null }
@@ -187,14 +187,14 @@ export function useTrending(
     animeAbortRef.current = ctrl
     const signal = ctrl.signal
     // userFetch (not http): the per-slot publication stamps travel in the
-    // response headers (`X-Pictorium-Updated-At-Movie/Series`), which the
+    // response headers (`X-FlameForge-Updated-At-Movie/Series`), which the
     // JSON-only helper cannot see. Same timeout/abort semantics; a non-OK
     // status still falls through to the TMDB fallback below.
     userFetch(`/api/mdblist/anime?mdblist_key=${encodeURIComponent(mdblistApiKey || "")}&api_key=${encodeURIComponent(tmdbKey)}`, { timeout: 30000, signal })
       .then(async (res) => {
         if (signal.aborted || gen !== animeGenRef.current) return
-        const movieStamp = parsePublicationStamp(res.headers.get("X-Pictorium-Updated-At-Movie"))
-        const seriesStamp = parsePublicationStamp(res.headers.get("X-Pictorium-Updated-At-Series"))
+        const movieStamp = parsePublicationStamp(res.headers.get("X-FlameForge-Updated-At-Movie"))
+        const seriesStamp = parsePublicationStamp(res.headers.get("X-FlameForge-Updated-At-Series"))
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = (await res.json().catch(() => null)) as EnrichedAnimeItem[] | null
         if (signal.aborted || gen !== animeGenRef.current) return
@@ -282,7 +282,7 @@ export function useTrending(
         return true
       } catch (error) {
         if (!ctrl.signal.aborted) {
-          console.error("[pictorium] Platform failed:", slug, error)
+          console.error("[FlameForge] Platform failed:", slug, error)
           setPlatformErrors(prev => ({ ...prev, [slug]: true }))
         }
         return false
@@ -319,7 +319,7 @@ export function useTrending(
     const customPromise = refreshCustom ? refreshCustom().catch(() => 1) : Promise.resolve(0)
     let failures = 0
     // Token suspend/error or server save pending: the manual refresh
-    // resolves through the same scoped selection as the mount effect — never
+    // resolves through the same scoped selection as the mount effect â€” never
     // through the empty namespace while a device selection is pending or
     // failed (silent JW), and never through the stale server defaults while
     // a ranking save is pending or failed. Anime and platforms stay
@@ -342,8 +342,8 @@ export function useTrending(
       const animePromise = userFetch(`/api/mdblist/anime?mdblist_key=${encodeURIComponent(mdblistApiKey || "")}&api_key=${encodeURIComponent(tmdbKey)}&_t=${now}`, { timeout: 30000, signal: animeSignal })
         .then(async (res) => {
           if (animeSignal.aborted) return null
-          const movieStamp = parsePublicationStamp(res.headers.get("X-Pictorium-Updated-At-Movie"))
-          const seriesStamp = parsePublicationStamp(res.headers.get("X-Pictorium-Updated-At-Series"))
+          const movieStamp = parsePublicationStamp(res.headers.get("X-FlameForge-Updated-At-Movie"))
+          const seriesStamp = parsePublicationStamp(res.headers.get("X-FlameForge-Updated-At-Series"))
           if (!res.ok) return null
           const data = (await res.json().catch(() => null)) as EnrichedAnimeItem[] | null
           if (Array.isArray(data) && data.length > 0) {
@@ -399,7 +399,7 @@ export function useTrending(
         })
       } else {
         if (trendGen !== trendGenRef.current) return
-        console.error("[pictorium] Failed to refresh lists:", trendingRes.status === "rejected" ? trendingRes.reason : "suspended")
+        console.error("[FlameForge] Failed to refresh lists:", trendingRes.status === "rejected" ? trendingRes.reason : "suspended")
         setTrendingStatus("error")
         failures++
       }
@@ -410,13 +410,13 @@ export function useTrending(
         setAnimeUpdatedAt(refreshAnimeStamps)
       } else if (animeRes.status === "rejected" || !animeRes.value) {
         if (animeGen !== animeGenRef.current) return
-        if (animeRes.status === "rejected") console.error("[pictorium] Failed to refresh anime:", animeRes.reason)
+        if (animeRes.status === "rejected") console.error("[FlameForge] Failed to refresh anime:", animeRes.reason)
         setAnimeStatus("error")
         failures++
       }
     } catch (e) {
       if ((e as Error).name === "AbortError") return
-      console.error("[pictorium] Failed to refresh lists:", e)
+      console.error("[FlameForge] Failed to refresh lists:", e)
       setTrendingStatus("error")
       failures++
     }
@@ -438,3 +438,4 @@ export function useTrending(
 
   return { trending, trendingStatus, trendingError: trendingStatus === "error", trendingUpdatedAt, mdblistAnimeList, animeStatus, animeSource, animeUpdatedAt, streamingCharts, platformErrors, loadPlatform, refreshLists, refreshNonce }
 }
+

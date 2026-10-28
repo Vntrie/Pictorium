@@ -249,3 +249,4 @@ describe("applyBlur", () => {
     expect(aLast).toBe(255)
   })
 })
+

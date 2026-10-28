@@ -104,3 +104,4 @@ describe("PosterLightbox customPosterUrl", () => {
     expect(screen.getByAltText("Fight Club").getAttribute("src")).toBe(posterUrlFn("/abc.jpg", "w500"))
   })
 })
+

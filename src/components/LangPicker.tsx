@@ -55,7 +55,7 @@ export function LangPicker({ onPickLang, onPickRegion, onDone, skipPin }: SetupW
     }
   }, [step])
 
-  const pickLang = (code: string) => {
+  const pickLang = (code: string) => { onPickLang("en");
     onPickLang(code)
     setStep("region")
   }
@@ -87,7 +87,7 @@ export function LangPicker({ onPickLang, onPickRegion, onDone, skipPin }: SetupW
 
       if (res.ok) {
         if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("pictorium:pin-change", { detail: { unlocked: true } }))
+          window.dispatchEvent(new CustomEvent("FlameForge:pin-change", { detail: { unlocked: true } }))
         }
         onDone()
       } else {
@@ -122,9 +122,9 @@ export function LangPicker({ onPickLang, onPickRegion, onDone, skipPin }: SetupW
       <div className="w-full max-w-lg mx-4">
         <div className="text-center mb-8">
           {/* eslint-disable-next-line @next/next/no-img-element -- local SVG asset */}
-          <img src="/pictorium.svg" alt="Pictorium" loading="eager" decoding="async" className="header-logo-dark h-auto w-[min(92vw,430px)] mx-auto mb-4 hover:brightness-110 transition-all duration-150" />
+          <img src="/FlameForge.svg" alt="FlameForge" loading="eager" decoding="async" className="header-logo-dark h-auto w-[min(92vw,430px)] mx-auto mb-4 hover:brightness-110 transition-all duration-150" />
           {/* eslint-disable-next-line @next/next/no-img-element -- local SVG asset */}
-          <img src="/pictorium-light.svg" alt="Pictorium" loading="eager" decoding="async" className="header-logo-light h-auto w-[min(92vw,430px)] mx-auto mb-4 hover:brightness-110 transition-all duration-150" />
+          <img src="/FlameForge-light.svg" alt="FlameForge" loading="eager" decoding="async" className="header-logo-light h-auto w-[min(92vw,430px)] mx-auto mb-4 hover:brightness-110 transition-all duration-150" />
           <h2 className="text-2xl font-bold text-zinc-100">{getTitle()}</h2>
           <p className="text-sm text-muted mt-1.5">{getSubtitle()}</p>
 
@@ -138,7 +138,7 @@ export function LangPicker({ onPickLang, onPickRegion, onDone, skipPin }: SetupW
           </div>
         </div>
 
-        {step === "lang" && (
+        {false && (
           <div key="lang" className="grid grid-cols-2 gap-2 max-h-[52vh] overflow-y-auto pr-0.5 animate-step-enter">
             {UI_LANGUAGES.map((l) => (
               <button type="button" key={l.code} onClick={() => pickLang(l.code)} className="surface-card flex items-center gap-2 px-4 py-3.5 rounded-2xl hover:-translate-y-0.5 active:scale-[0.97] transition-all duration-200 text-left group cursor-pointer">
@@ -234,3 +234,5 @@ export function LangPicker({ onPickLang, onPickRegion, onDone, skipPin }: SetupW
     </div>
   )
 }
+
+

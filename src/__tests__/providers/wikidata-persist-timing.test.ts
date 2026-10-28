@@ -106,7 +106,7 @@ afterAll(async () => {
 
 describe("fetchAllWikidata durable timing contract", () => {
   it("shared L2 hit returns without waiting for a stalled durable read", async () => {
-    vi.stubEnv("PICTORIUM_REDIS_URL", "redis://localhost:6379")
+    vi.stubEnv("FLAMEFORGE_REDIS_URL", "redis://localhost:6379")
     vi.stubEnv("KV_REST_API_URL", "")
     vi.stubEnv("KV_REST_API_TOKEN", "")
     cacheSet(
@@ -243,7 +243,7 @@ describe("fetchAllWikidata durable timing contract", () => {
   })
 
   it("delayed shared miss + stale + slow upstream falls back within the 2250ms total", async () => {
-    vi.stubEnv("PICTORIUM_REDIS_URL", "redis://localhost:6379")
+    vi.stubEnv("FLAMEFORGE_REDIS_URL", "redis://localhost:6379")
     vi.stubEnv("KV_REST_API_URL", "")
     vi.stubEnv("KV_REST_API_TOKEN", "")
     // Shared L2 miss after a 1400ms stall (inside the 1500ms KV cap).
@@ -322,3 +322,5 @@ describe("fetchAllWikidata durable timing contract", () => {
     }
   })
 })
+
+

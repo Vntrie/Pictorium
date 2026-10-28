@@ -70,3 +70,4 @@ describe("countActiveUsers", () => {
     expect(countActiveUsers(users, 3 * 86400000)).toBe(1)
   })
 })
+

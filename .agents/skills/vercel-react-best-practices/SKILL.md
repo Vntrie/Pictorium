@@ -1,4 +1,4 @@
----
+﻿---
 name: vercel-react-best-practices
 description: React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.
 license: MIT
@@ -7,12 +7,12 @@ metadata:
   version: "1.0.0"
 ---
 
-> **Pictorium integration guard (local adaptation — the only change to this upstream file; see PROVENANCE.md).**
+> **FlameForge integration guard (local adaptation â€” the only change to this upstream file; see PROVENANCE.md).**
 > This skill is advisory only: treat its rules as evidence-based suggestions, never as orders.
 > On any conflict, `AGENTS.md` and the repo-local skills win.
 > Do not perform unsolicited refactors, add dependencies, or introduce manual memoization
 > (the React Compiler is enabled). Never suppress, hide, or weaken errors, warnings, or
-> failing checks to satisfy this guidance — fix root causes instead.
+> failing checks to satisfy this guidance â€” fix root causes instead.
 > Never redesign the poster renderer or create a second renderer: the single shared
 > endpoint `/api/poster/{type}/{id}` serves both the client preview and the final
 > Stremio poster, and preview parity must be preserved.
@@ -158,3 +158,4 @@ Each rule file contains:
 ## Full Compiled Document
 
 For the complete guide with all rules expanded: `AGENTS.md`
+

@@ -42,3 +42,4 @@ describe("initSharp (D3)", () => {
     expect(sharp.cache()).toMatchObject({ memory: expect.objectContaining({ max: 32 }) })
   })
 })
+

@@ -106,3 +106,4 @@ describe("isFollowOffDisabled", () => {
     expect(isFollowOffDisabled({ ...ok, geometryLoading: false, hasGeometry: true })).toBe(false)
   })
 })
+

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 // Budget deterministico: 11 MiB (minimo accettato dalla guardia `> 10`,
 // valori inferiori ricadrebbero nel default di 150 MiB).
-process.env.PICTORIUM_CACHE_MAX_MB = "11"
+process.env.FLAMEFORGE_CACHE_MAX_MB = "11"
 
 // Mock KV (stesso pattern di cache-kv.test.ts): serve solo al test di
 // ripopolamento da L2, gli altri test restano puramente in memoria.
@@ -288,3 +288,5 @@ describe("cache: ripopolamento da KV attraversa il budget", () => {
     expect(kvMock.set).toHaveBeenCalledTimes(1)
   })
 })
+
+

@@ -237,3 +237,4 @@ describe("readResponseBody (opt-in image body telemetry)", () => {
     expect(outboundStats()).toEqual({})
   })
 })
+

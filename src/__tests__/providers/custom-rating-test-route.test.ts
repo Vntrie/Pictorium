@@ -22,9 +22,9 @@ function post() {
 describe("POST /api/custom-rating/test", () => {
   it("returns the diagnosis and never leaks the API key", async () => {
     delete process.env.ADMIN_TOKEN
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "true")
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_API_KEY", "super-secret")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "true")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENDPOINT", "https://example.com/{imdbId}")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_API_KEY", "super-secret")
     const ratings = [{ id: "s", name: "Source", value: 8.8, format: "decimal" as const }]
     mockedDiagnose.mockResolvedValue({ status: 200, ms: 142, ratings, error: null })
     const res = await POST(post() as unknown as NextRequest)
@@ -52,3 +52,5 @@ describe("POST /api/custom-rating/test", () => {
     expect(mockedDiagnose).not.toHaveBeenCalled()
   })
 })
+
+

@@ -109,3 +109,4 @@ describe("Inter copre l'alfabeto polacco", () => {
     expect(fontFamilyFor("Kryminał")).toBe("Inter")
   })
 })
+

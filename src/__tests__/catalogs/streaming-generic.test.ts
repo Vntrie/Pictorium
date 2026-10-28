@@ -241,7 +241,7 @@ describe("generic descriptors (sanitize/identity/isolation)", () => {
     expect(parseGenericStreamingCatalogId(allId)).toMatchObject({ section: "all", variant: "amazon-channels" })
     // Malformed ids never parse (no silent fallback, no traversal):
     for (const bad of [
-      "pictorium-stream-hulu-us-series",
+      "FlameForge-stream-hulu-us-series",
       `${GENERIC_STREAMING_CATALOG_ID_PREFIX}hulu--united-states--shows--auto`,
       `${GENERIC_STREAMING_CATALOG_ID_PREFIX}hulu--united-states--series--sometimes`,
       `${GENERIC_STREAMING_CATALOG_ID_PREFIX}hu--lu--united-states--series--auto`,
@@ -253,14 +253,14 @@ describe("generic descriptors (sanitize/identity/isolation)", () => {
       expect(parseGenericStreamingCatalogId(bad)).toBeNull()
     }
     // Legacy ids parse through the unified parser as source auto:
-    expect(parseAnyStreamingCatalogId("pictorium-stream-netflix-it-series")).toMatchObject({
+    expect(parseAnyStreamingCatalogId("FlameForge-stream-netflix-it-series")).toMatchObject({
       service: "netflix",
       chartSlug: "italy",
       source: "auto",
       variant: null,
     })
     expect(parseAnyStreamingCatalogId(id)).toMatchObject({ service: "hulu", source: "flixpatrol" })
-    expect(parseAnyStreamingCatalogId("pictorium-netflix-series")).toBeNull()
+    expect(parseAnyStreamingCatalogId("FlameForge-netflix-series")).toBeNull()
   })
 
   it("isolates chart families per full descriptor (source choices never share pins)", () => {
@@ -490,17 +490,17 @@ describe("manifest exposure (legacy byte-identical, generic additive)", () => {
     const json = await res.json()
     const ids = json.catalogs.map((c: { id: string }) => c.id)
     // Legacy byte-identical:
-    expect(ids).toContain("pictorium-stream-netflix-it-movies")
-    expect(ids).toContain("pictorium-stream-netflix-it-series")
+    expect(ids).toContain("FlameForge-stream-netflix-it-movies")
+    expect(ids).toContain("FlameForge-stream-netflix-it-series")
     // Generic additive (source + variant encoded, no legacy alias):
-    expect(ids).toContain("pictorium-stream2-hulu--united-states--movies--flixpatrol")
-    expect(ids).toContain("pictorium-stream2-hulu--united-states--series--flixpatrol")
-    expect(ids).toContain("pictorium-stream2-rai--italy--series--auto--it")
-    expect(ids).toContain("pictorium-stream2-crave--canada--all--auto--amazon-channels")
+    expect(ids).toContain("FlameForge-stream2-hulu--united-states--movies--flixpatrol")
+    expect(ids).toContain("FlameForge-stream2-hulu--united-states--series--flixpatrol")
+    expect(ids).toContain("FlameForge-stream2-rai--italy--series--auto--it")
+    expect(ids).toContain("FlameForge-stream2-crave--canada--all--auto--amazon-channels")
     expect(ids.some((id: string) => id.includes("now--") && id.includes("us"))).toBe(false)
     // Mixed overall uses the Stremio mixed type; names stay source-neutral.
     const byId = new Map(json.catalogs.map((c: { id: string; name: string; type: string }) => [c.id, c]))
-    expect(byId.get("pictorium-stream2-crave--canada--all--auto--amazon-channels")).toMatchObject({ type: "all" })
+    expect(byId.get("FlameForge-stream2-crave--canada--all--auto--amazon-channels")).toMatchObject({ type: "all" })
     for (const [, cat] of byId) {
       expect(String((cat as { name: string }).name).toLowerCase()).not.toContain("flixpatrol")
       expect(String((cat as { name: string }).name).toLowerCase()).not.toContain("justwatch")
@@ -538,8 +538,8 @@ describe("manifest exposure (legacy byte-identical, generic additive)", () => {
 })
 
 describe("catalog serving per generic descriptor", () => {
-  const HULU_SERIES = "pictorium-stream2-hulu--united-states--series--flixpatrol"
-  const CRAVE_ALL = "pictorium-stream2-crave--canada--all--auto--amazon-channels"
+  const HULU_SERIES = "FlameForge-stream2-hulu--united-states--series--flixpatrol"
+  const CRAVE_ALL = "FlameForge-stream2-crave--canada--all--auto--amazon-channels"
 
   it("serves a generic selection with its chart country and FP source header, without automatic rank override", async () => {
     mockTmdbFetch()
@@ -598,14 +598,14 @@ describe("catalog serving per generic descriptor", () => {
     mockTmdbFetch()
     mockedEnsureFresh.mockResolvedValue(LIVE_PIN as never)
     const cases = [
-      ["series", "pictorium-stream2-hulu--united-states--movies--flixpatrol.json"],
-      ["movie", "pictorium-stream2-hulu--united-states--series--flixpatrol.json"],
+      ["series", "FlameForge-stream2-hulu--united-states--movies--flixpatrol.json"],
+      ["movie", "FlameForge-stream2-hulu--united-states--series--flixpatrol.json"],
       ["series", `${CRAVE_ALL}.json`],
       ["movie", `${CRAVE_ALL}.json`],
-      ["all", "pictorium-stream2-hulu--united-states--series--flixpatrol.json"],
-      ["all", "pictorium-netflix-series.json"],
-      ["all", "pictorium-jw-series.json"],
-      ["all", "pictorium-stream-netflix-it-series.json"],
+      ["all", "FlameForge-stream2-hulu--united-states--series--flixpatrol.json"],
+      ["all", "FlameForge-netflix-series.json"],
+      ["all", "FlameForge-jw-series.json"],
+      ["all", "FlameForge-stream-netflix-it-series.json"],
     ] as const
     for (const [type, id] of cases) {
       const res = await catalogGET(new NextRequest(`http://localhost:3000/catalog/${type}/${id}?api_key=k`), {
@@ -617,7 +617,7 @@ describe("catalog serving per generic descriptor", () => {
 
   it("reports justwatch for eligible justwatch-only pins and unknown for unavailable strict modes", async () => {
     mockTmdbFetch()
-    const JW_ID = "pictorium-stream2-prime--italy--series--justwatch"
+    const JW_ID = "FlameForge-stream2-prime--italy--series--justwatch"
     mockedEnsureFresh.mockResolvedValue(
       pinWith([{ tmdbId: 31, imdbId: "tt3000001", rank: 1, title: "JW Show" }], "justwatch") as never,
     )
@@ -638,7 +638,7 @@ describe("catalog serving per generic descriptor", () => {
   })
 })
 
-describe("read-only browse projection (original TMDB posters, no renderer traffic)", () => {  const HULU_SERIES = "pictorium-stream2-hulu--united-states--series--flixpatrol"
+describe("read-only browse projection (original TMDB posters, no renderer traffic)", () => {  const HULU_SERIES = "FlameForge-stream2-hulu--united-states--series--flixpatrol"
 
   it("projects pinned rows with original poster paths and actual source", async () => {
     const seen: string[] = []
@@ -937,3 +937,5 @@ describe("generic renewal policy (strict sources, failure retention)", () => {
     expect(fetchSpy.mock.calls.every(([u]) => !String(u).includes("justwatch"))).toBe(true)
   })
 })
+
+

@@ -159,3 +159,4 @@ describe("correction1: snapshot generator reproducibility/provenance/safety", ()
     expect(content).toContain('"sourceGeneratedAt":"UNKNOWN"');
   });
 });
+

@@ -178,3 +178,4 @@ describe("Quick badge setup presets", () => {
     expect(fullSetup.defaultNetworkLogo).toBe(true)
   })
 })
+

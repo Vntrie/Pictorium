@@ -158,3 +158,4 @@ describe("posterQuerySchema", () => {
     expect(validatePosterQuery(params({ badges: "0", ranking: "1", preview: "1", be: "0", tl: "1" }))).toBeNull()
   })
 })
+

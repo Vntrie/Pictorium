@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Ranking source selection for the global Top 20 catalogs (movie/series).
  *
  * CLIENT-SAFE LEAF: zero imports, pure types + functions only. The future UI
@@ -18,7 +18,7 @@
  * here. A deleted id or an incompatible type also returns JustWatch.
  *
  * The resolver is selection only: it never fetches. A configured source that
- * is temporarily unavailable does NOT degrade to JustWatch here — the
+ * is temporarily unavailable does NOT degrade to JustWatch here â€” the
  * catalog layer surfaces an explicit error instead (see `custom-ranking.ts`).
  */
 
@@ -149,7 +149,7 @@ export interface RankingCustomOption {
  * Custom catalogs eligible as a Top 20 source for one slot: enabled and
  * type-compatible (`mixed` fits both). Stremio-addon imports are excluded
  * (the ranking service cannot read them). Single source of truth for every
- * picker — never duplicate the rule in components.
+ * picker â€” never duplicate the rule in components.
  */
 export function compatibleRankingCustoms<T extends RankingCustomOption>(
   customCatalogs: readonly T[] | undefined | null,
@@ -165,8 +165,8 @@ export function compatibleRankingCustoms<T extends RankingCustomOption>(
   )
 }
 
-const JW_MOVIE_CATALOG_ID = "pictorium-jw-movies"
-const JW_SERIES_CATALOG_ID = "pictorium-jw-series"
+const JW_MOVIE_CATALOG_ID = "FlameForge-jw-movies"
+const JW_SERIES_CATALOG_ID = "FlameForge-jw-series"
 
 /**
  * Slots whose raw selection points at a deleted custom id. Called when a
@@ -210,9 +210,9 @@ export interface RankingCatalogRegion {
  * Canonical display name override for the global Top 20 catalogs: when a
  * slot is driven by a custom list, the custom catalog name wins. For
  * "popular" or "trending" modes, returns the mode-specific label with the
- * region flag prefix ("🇮🇹 I più popolari — Film"): the flag follows the
+ * region flag prefix ("ðŸ‡®ðŸ‡¹ I piÃ¹ popolari â€” Film"): the flag follows the
  * active region (dynamic country code) and is part of the canonical/export
- * name shown in Priorità e nomi and in the install/export manifests while
+ * name shown in PrioritÃ  e nomi and in the install/export manifests while
  * the global emoji preference is ON. Returns null for every other catalog
  * and for the default "charts" mode (the caller falls through to the
  * regional Top 20 name). User renames still win: the caller checks them
@@ -235,17 +235,17 @@ export function rankingSourceCatalogName(
   }
   if (source.mode === "popular" && region) {
     const mediaLabel = slot === "movie" ? "Film" : "Serie TV"
-    return `${region.flag} I più popolari — ${mediaLabel}`
+    return `${region.flag} I piÃ¹ popolari â€” ${mediaLabel}`
   }
   if (source.mode === "trending" && region) {
     const mediaLabel = slot === "movie" ? "Film" : "Serie TV"
-    return `${region.flag} In tendenza — ${mediaLabel}`
+    return `${region.flag} In tendenza â€” ${mediaLabel}`
   }
   return null
 }
 
 /**
- * Browsing-only variant of `rankingSourceCatalogName` for the Pictorium
+ * Browsing-only variant of `rankingSourceCatalogName` for the FlameForge
  * client catalog grids/rows: derived from the canonical name, with only
  * the leading region flag removed for built-in popular/trending (browsing
  * display vs canonical/export names), so the two helpers can never drift
@@ -291,11 +291,11 @@ export function isCatalogEmojisShown(value: boolean | undefined | null): boolean
  * values untouched (callers keep the full name and strip only for display,
  * so re-enabling restores the original text). Removed: regional-indicator
  * flag pairs, tag sequences, keycaps, ZWJ chains, skin-tone modifiers,
- * default-emoji pictographs (`Emoji_Presentation`, e.g. 🔴 🍥 🔍 ⭐) and
- * text-default symbols shown in emoji form (trailing VS16, e.g. ©️ ❤️ ☁️
- * ⛩️ ㊗️). Preserved: plain ©/®/❤/☁, ordinary arrows (→), CJK
- * punctuation/text (U+3000–U+303F, e.g. 「」、 。), enclosed CJK in text
- * form (U+3200–U+32FF, e.g. ㈱ ㊗), digits (no keycap), accents, general
+ * default-emoji pictographs (`Emoji_Presentation`, e.g. ðŸ”´ ðŸ¥ ðŸ” â­) and
+ * text-default symbols shown in emoji form (trailing VS16, e.g. Â©ï¸ â¤ï¸ â˜ï¸
+ * â›©ï¸ ãŠ—ï¸). Preserved: plain Â©/Â®/â¤/â˜, ordinary arrows (â†’), CJK
+ * punctuation/text (U+3000â€“U+303F, e.g. ã€Œã€ã€ ã€‚), enclosed CJK in text
+ * form (U+3200â€“U+32FF, e.g. ãˆ± ãŠ—), digits (no keycap), accents, general
  * punctuation and spacing; leftovers collapse to single spaces. Matching
  * is property-based (`Extended_Pictographic` / `Emoji_Presentation`),
  * never blanket Unicode-range stripping of non-emoji text.
@@ -310,17 +310,17 @@ export function stripCatalogEmojis(name: string): string {
   // Keycaps: digit/#/* + optional VS16 + combining enclosing keycap. Bare
   // digits (e.g. "Top 20") have no U+20E3 after them and survive.
   out = out.replace(/[0-9#*]\uFE0F?\u20E3/gu, "")
-  // Emoji ZWJ chains (e.g. 👨‍👩‍👧), each link with optional skin tone / VS16.
+  // Emoji ZWJ chains (e.g. ðŸ‘¨â€ðŸ‘©â€ðŸ‘§), each link with optional skin tone / VS16.
   out = out.replace(/\p{Extended_Pictographic}(?:[\u{1F3FB}-\u{1F3FF}]\uFE0F?|\uFE0F)?(?:\u200D\p{Extended_Pictographic}(?:[\u{1F3FB}-\u{1F3FF}]\uFE0F?|\uFE0F)?)+/gu, "")
-  // Skin-tone-modified pictographs (e.g. 👍🏽): base + modifier go together.
+  // Skin-tone-modified pictographs (e.g. ðŸ‘ðŸ½): base + modifier go together.
   out = out.replace(/\p{Extended_Pictographic}[\u{1F3FB}-\u{1F3FF}]/gu, "")
   // Text-default emoji-capable symbols only in emoji form (trailing VS16,
-  // e.g. ©️ ❤️ ☁️ ⛩️ ㊗️): plain © ® ❤ ☁, CJK punctuation/text, enclosed
-  // CJK in text form and ordinary arrows (→) survive.
+  // e.g. Â©ï¸ â¤ï¸ â˜ï¸ â›©ï¸ ãŠ—ï¸): plain Â© Â® â¤ â˜, CJK punctuation/text, enclosed
+  // CJK in text form and ordinary arrows (â†’) survive.
   out = out.replace(/\p{Extended_Pictographic}\uFE0F/gu, "")
-  // Default-emoji pictographs (e.g. 🔴 🍥 🔍 ⭐), plain or with VS16.
+  // Default-emoji pictographs (e.g. ðŸ”´ ðŸ¥ ðŸ” â­), plain or with VS16.
   out = out.replace(/\p{Emoji_Presentation}\uFE0F?/gu, "")
-  // Remaining supplementary emoji symbols (no CJK text lives in 1F000–1FAFF).
+  // Remaining supplementary emoji symbols (no CJK text lives in 1F000â€“1FAFF).
   out = out.replace(/[\u{1F000}-\u{1FAFF}]\uFE0F?/gu, "")
   // Leftover invisibles: variation selectors, joiners, lone modifiers.
   out = out.replace(/[\uFE0E\uFE0F\u200D\u{E0020}-\u{E007F}\u{1F3FB}-\u{1F3FF}]/gu, "")
@@ -340,3 +340,4 @@ export function resolveCatalogDisplayName(
   if (isCatalogEmojisShown(catalogShowEmojis ?? undefined)) return baseName
   return stripCatalogEmojis(baseName)
 }
+

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo, useSyncExternalStore } from "react"
 import type { SearchResult, TMDBImage, Mapping, CustomCatalogConfig, NetworkLogoPosition, PosterLayout, PosterFreshScope, PosterShape } from "./types"
@@ -76,12 +76,12 @@ export interface MetaInfo {
   /** QID Wikidata (es. "Q23577") da TMDB external_ids: alimenta il param
    * wikidata_id della preview (fast-path REST awards, niente SPARQL). */
   wikidata_id?: string | null
-  /** Dettaglio reti/produzioni con logo_path TMDB per fallback network logo (SVG → TMDB). */
+  /** Dettaglio reti/produzioni con logo_path TMDB per fallback network logo (SVG â†’ TMDB). */
   networksDetailed?: { name: string; logo_path: string | null; origin_country?: string }[]
   productionCompaniesDetailed?: { name: string; logo_path: string | null; origin_country?: string }[]
 }
 
-export interface PictoriumCtx {
+export interface FlameForgeCtx {
   selected: SearchResult | null
   setSelected: React.Dispatch<React.SetStateAction<SearchResult | null>>
   view: ViewType
@@ -118,7 +118,7 @@ export interface PictoriumCtx {
   urlPatternNuvioImdb: string
   urlPatternNuvioAuto: string
   /**
-   * Modalità dei template AIO/Custom: "follow" (Segui il mio spazio, live=1,
+   * ModalitÃ  dei template AIO/Custom: "follow" (Segui il mio spazio, live=1,
    * nessun visuale congelato) o "fixed" (Impostazioni fisse nel link,
    * comportamento attuale). Riguarda solo gli URL poster, mai il manifest.
    */
@@ -157,7 +157,7 @@ export interface PictoriumCtx {
   goHome: () => void
   sourceView: "edit" | "search" | "myposters" | "cataloghi" | null
   /**
-   * Apre un titolo nell'editor. `originatingListName` è il nome visibile
+   * Apre un titolo nell'editor. `originatingListName` Ã¨ il nome visibile
    * della lista/catalogo di origine (contesto effimero per il `theme=`
    * della preview): omesso = contesto azzerato (niente leakage).
    */
@@ -180,9 +180,9 @@ export interface PictoriumCtx {
   mdblistAnimeList: EnrichedAnimeItem[]
   animeStatus: import("./useTrending").ListStatus
   animeSource: "mdblist" | "tmdb" | null
-  /** Pictorium publication stamps (ms epoch, per slot) of the served Top 20; null = unknown. */
+  /** FlameForge publication stamps (ms epoch, per slot) of the served Top 20; null = unknown. */
   trendingUpdatedAt: import("./useTrending").PublicationStamps | null
-  /** Pictorium publication stamps (ms epoch, per slot) of the served anime lists; null = unknown. */
+  /** FlameForge publication stamps (ms epoch, per slot) of the served anime lists; null = unknown. */
   animeUpdatedAt: import("./useTrending").PublicationStamps | null
   streamingCharts: Record<string, import("./types").FlixPatrolChart>
   platformErrors: Record<string, boolean>
@@ -382,27 +382,27 @@ export interface PictoriumCtx {
   localConfigTokenStatus: "off" | "pending" | "ready" | "error"
 }
 
-const Ctx = createContext<PictoriumCtx | null>(null)
+const Ctx = createContext<FlameForgeCtx | null>(null)
 
 // Store scoped al provider per la subscription ottimizzata (usePSelector):
-// ogni PictoriumProvider ha il proprio store, così i test restano isolati e i
+// ogni FlameForgeProvider ha il proprio store, cosÃ¬ i test restano isolati e i
 // selettori ri-renderizzano SOLO quando lo slice selezionato cambia (Object.is).
 interface SelectorStore {
-  value: PictoriumCtx | null
+  value: FlameForgeCtx | null
   listeners: Set<() => void>
 }
 const SelectorStoreCtx = createContext<SelectorStore | null>(null)
 
 /**
- * Consuma solo lo slice richiesto del contesto Pictorium. Il componente
+ * Consuma solo lo slice richiesto del contesto FlameForge. Il componente
  * ri-renderizza SOLO quando il valore selezionato cambia (Object.is), non a
  * ogni aggiornamento di qualsiasi slice. Il selettore DEVE restituire un
  * riferimento stabile (primitiva o campo di stato esistente), mai un oggetto
  * nuovo creato inline, altrimenti il confronto fallisce.
  */
-export function usePSelector<T>(selector: (v: PictoriumCtx) => T): T {
+export function usePSelector<T>(selector: (v: FlameForgeCtx) => T): T {
   const store = useContext(SelectorStoreCtx)
-  if (!store) throw new Error("usePSelector must be inside PictoriumProvider")
+  if (!store) throw new Error("usePSelector must be inside FlameForgeProvider")
   const get = (): T | undefined => (store.value ? selector(store.value) : undefined)
   return useSyncExternalStore(
     (cb) => {
@@ -416,11 +416,11 @@ export function usePSelector<T>(selector: (v: PictoriumCtx) => T): T {
 
 export function useP() {
   const ctx = useContext(Ctx)
-  if (!ctx) throw new Error("useP must be inside PictoriumProvider")
+  if (!ctx) throw new Error("useP must be inside FlameForgeProvider")
   return ctx
 }
 
-export function PictoriumProvider({ value, children }: { value: PictoriumCtx; children: React.ReactNode }) {
+export function FlameForgeProvider({ value, children }: { value: FlameForgeCtx; children: React.ReactNode }) {
   const storeRef = useRef<SelectorStore | null>(null)
   if (!storeRef.current) storeRef.current = { value: null, listeners: new Set() }
   const store = storeRef.current
@@ -447,13 +447,13 @@ export function PictoriumProvider({ value, children }: { value: PictoriumCtx; ch
 }
 
 /**
- * PictoriumRoot — racchiude la creazione dello stato e la catena provider.
- * PosterEditorProvider wrappa l'esterno così usa useDefaults() in autonomia.
- * Il PictoriumProvider interno riceve tutto lo stato (inclusi editor fields
+ * FlameForgeRoot â€” racchiude la creazione dello stato e la catena provider.
+ * PosterEditorProvider wrappa l'esterno cosÃ¬ usa useDefaults() in autonomia.
+ * Il FlameForgeProvider interno riceve tutto lo stato (inclusi editor fields
  * per backward compat via useP()).
  */
-export function PictoriumRoot({ children }: { children: React.ReactNode }) {
-  // Migrazione one-time localStorage posterium_* → pictorium_*: l'initializer
+export function FlameForgeRoot({ children }: { children: React.ReactNode }) {
+  // Migrazione one-time localStorage posterium_* â†’ FLAMEFORGE_*: l'initializer
   // di useState gira nel render del parent, quindi PRIMA degli useEffect dei
   // figli che leggono lo storage (hydration da useCustomCatalogs, tema, ...).
   useState(() => {
@@ -462,17 +462,17 @@ export function PictoriumRoot({ children }: { children: React.ReactNode }) {
   })
   return (
     <PosterEditorProvider>
-      <PictoriumRootInner>{children}</PictoriumRootInner>
+      <FlameForgeRootInner>{children}</FlameForgeRootInner>
     </PosterEditorProvider>
   )
 }
 
-function PictoriumRootInner({ children }: { children: React.ReactNode }) {
-  const value = usePictorium()
-  return <PictoriumProvider value={value}>{children}</PictoriumProvider>
+function FlameForgeRootInner({ children }: { children: React.ReactNode }) {
+  const value = useFlameForge()
+  return <FlameForgeProvider value={value}>{children}</FlameForgeProvider>
 }
 
-export function usePictorium(): PictoriumCtx {
+export function useFlameForge(): FlameForgeCtx {
   // Helper per localStorage: evita crash in Safari ITP / Brave Shield / Firefox Strict
   const safeGetItem = useCallback((key: string): string | null => {
     try { return localStorage.getItem(key) } catch { return null }
@@ -488,13 +488,13 @@ export function usePictorium(): PictoriumCtx {
   // /api/defaults): la home funziona anche senza chiave nel browser.
   const [serverHasTmdbKey, setServerHasTmdbKey] = useState(false)
   // Chiave TMDB env d'istanza (booleano pubblico da /api/defaults), separata
-  // da quella del namespace: l'effettivo è l'OR dei due (vedi sotto) così la
+  // da quella del namespace: l'effettivo Ã¨ l'OR dei due (vedi sotto) cosÃ¬ la
   // rimozione della chiave profilo riazzera il flag invece di restare latchato.
   const [instanceHasTmdbKey, setInstanceHasTmdbKey] = useState(false)
   // Namespace utente (multi-user): uuid dal path /u/<uuid> (o ?u=). Mai
   // catturato una volta sola: back/forward e navigazioni SPA che riusano
   // l'albero lascerebbero lo stato stantio (listener post-unlock mai
-  // riattaccati, template AIO sull'uuid sbagliato) — si risincronizza a ogni
+  // riattaccati, template AIO sull'uuid sbagliato) â€” si risincronizza a ogni
   // unlock e a ogni popstate.
   const [currentUserId, setCurrentUserId] = useState<string | null>(() => currentPathUuid())
   useEffect(() => {
@@ -525,7 +525,7 @@ export function usePictorium(): PictoriumCtx {
       }
       // Retry anti secret-stantio: un secret marcio in storage oscurerebbe la
       // password fresca e il gate poster (serverHasTmdbKey) resterebbe chiuso
-      // fino al refresh — mentre gli altri loader (chiavi, identity) si
+      // fino al refresh â€” mentre gli altri loader (chiavi, identity) si
       // riprendevano da soli. Stesso idioma di UserKeysSection.
       fetchWithUserAuthRetry(currentUserId, `/api/users/${currentUserId}/keys`)
         .then((r) => (r.ok ? r.json() : null))
@@ -544,7 +544,7 @@ export function usePictorium(): PictoriumCtx {
   }, [currentUserId])
   // Chiave TMDB di sessione = env d'istanza OPPURE namespace: con una
   // chiave profilo salvata, ricerca/trending/hero partono anche senza chiave
-  // nel browser (il server la risolve da `?u=`). Derivato (non latchato) così
+  // nel browser (il server la risolve da `?u=`). Derivato (non latchato) cosÃ¬
   // rimozione chiave / forget dello spazio spengono davvero i gate.
   useEffect(() => {
     setServerHasTmdbKey(instanceHasTmdbKey || serverKeyStatus?.tmdb === true)
@@ -557,10 +557,10 @@ export function usePictorium(): PictoriumCtx {
   // Lettura differita in useEffect per evitare hydration mismatch client/server
   const [uiAccent, setUiAccent] = useState(false)
   useEffect(() => {
-    const saved = safeGetItem("pictorium_ui_accent")
+    const saved = safeGetItem("FLAMEFORGE_ui_accent")
     if (saved === "true") setUiAccent(true)
   }, [safeGetItem])
-  useEffect(() => { safeSetItem("pictorium_ui_accent", String(uiAccent)) }, [uiAccent, safeSetItem])
+  useEffect(() => { safeSetItem("FLAMEFORGE_ui_accent", String(uiAccent)) }, [uiAccent, safeSetItem])
   // Sync uiAccent toggle to <html> class
   useEffect(() => {
     document.documentElement.classList.toggle("ui-accent", uiAccent)
@@ -574,7 +574,7 @@ export function usePictorium(): PictoriumCtx {
   // re-armed by every setup, otherwise the interim cleanup leaves it false
   // and the remounted init load is dropped. No request-nonce bump here: every
   // language continuation already checks this flag first, init runs add their
-  // own per-run cancelled flag, and a full remount allocates fresh refs — so
+  // own per-run cancelled flag, and a full remount allocates fresh refs â€” so
   // falsifying the flag invalidates all pendings on unmount by itself.
   // (Bumping the nonce in a cleanup also trips react-hooks/exhaustive-deps,
   // which flags ref reads inside cleanups as potentially stale values.)
@@ -596,7 +596,7 @@ export function usePictorium(): PictoriumCtx {
   // --- Custom Catalogs & Profile Auth Hooks ---
   // Declared BEFORE useTrending: the Top 20 scope (ranking selections +
   // device token) threads into the trending fetch below. Static order, never
-  // conditional — hook identity stays stable across renders.
+  // conditional â€” hook identity stays stable across renders.
   const {
     customCatalogs,
     setCustomCatalogs,
@@ -651,7 +651,7 @@ export function usePictorium(): PictoriumCtx {
   } = useRankingSources(safeGetItem, safeSetItem)
 
   // Signed device config for namespace-less spaces (null otherwise).
-  // Opt-in streaming selections travel when defined — even explicit `[]` —
+  // Opt-in streaming selections travel when defined â€” even explicit `[]` â€”
   // so a cleared device wins over the namespace fill (same absent-vs-explicit
   // boundary as the space-wide exclusions below).
   const { token: localConfigToken, status: localConfigTokenStatus } =
@@ -788,7 +788,7 @@ export function usePictorium(): PictoriumCtx {
     extraBadgeOffsetY,
     // Badge genere
     genreBadgeScale, setGenreBadgeScale,
-    // Badge qualità
+    // Badge qualitÃ 
     qualityBadgeScale, setQualityBadgeScale,
     // Colonna rating separati
     separateBadgeScale, setSeparateBadgeScale,
@@ -796,7 +796,7 @@ export function usePictorium(): PictoriumCtx {
     separateBadgeOffsetY, setSeparateBadgeOffsetY,
     // Logo network
     networkLogoScale, setNetworkLogoScale,
-    // Offset badge genere/qualità/network
+    // Offset badge genere/qualitÃ /network
     genreBadgeOffsetX, setGenreBadgeOffsetX,
     genreBadgeOffsetY, setGenreBadgeOffsetY,
     qualityBadgeOffsetX, setQualityBadgeOffsetX,
@@ -833,7 +833,7 @@ export function usePictorium(): PictoriumCtx {
   const [urlPatternNuvio, setUrlPatternNuvio] = useState("")
   const [urlPatternNuvioImdb, setUrlPatternNuvioImdb] = useState("")
   const [urlPatternNuvioAuto, setUrlPatternNuvioAuto] = useState("")
-  // Modalità template AIO/Custom: per gli spazi utente default "follow"
+  // ModalitÃ  template AIO/Custom: per gli spazi utente default "follow"
   // (Segui il mio spazio), altrove "fixed" (comportamento attuale). Se lo
   // spazio compare dopo (unlock/query) e l'utente non ha scelto, passa a follow.
   const [linkMode, setLinkMode] = useState<"follow" | "fixed">(() => (currentUserId ? "follow" : "fixed"))
@@ -864,7 +864,7 @@ export function usePictorium(): PictoriumCtx {
   const [showLangPicker, setShowLangPicker] = useState(false)
   const [previewUrl, setPreviewUrl] = useState("")
   // URL poster esattamente come lo serve Stremio (via /meta, stesso builder
-  // dei cataloghi): risolto on-demand quando il toggle è attivo.
+  // dei cataloghi): risolto on-demand quando il toggle Ã¨ attivo.
   const [stremioPreview, setStremioPreview] = useState(false)
   const [stremioPreviewUrl, setStremioPreviewUrl] = useState<string | null>(null)
   const [imdbTop250, setImdbTop250] = useState(false)
@@ -890,9 +890,9 @@ export function usePictorium(): PictoriumCtx {
   const [posterScrollInfo, setPosterScrollInfo] = useState({ top: 0, height: 100 })
 
 
-  // Appearance state (logo, backdrop, editing — owned by PosterEditorProvider via usePosterEditor())
-  // Specchio client di hasGenreBadge (server): il badge è visibile se almeno uno dei
-  // 3 componenti (genere/anno/voto) è abilitato E disponibile.
+  // Appearance state (logo, backdrop, editing â€” owned by PosterEditorProvider via usePosterEditor())
+  // Specchio client di hasGenreBadge (server): il badge Ã¨ visibile se almeno uno dei
+  // 3 componenti (genere/anno/voto) Ã¨ abilitato E disponibile.
   const metaYear = (metaInfo.release_date || metaInfo.first_air_date || "").slice(0, 4)
   const genreAvailable = metaInfo.genres.length > 0
   const ratingAvailable = metaInfo.voteAverage > 0
@@ -902,15 +902,15 @@ export function usePictorium(): PictoriumCtx {
   const hasNetflixRank = !!(trendRank || (navigation.selected && trending.mdblistAnimeList.some((a: EnrichedAnimeItem) => a.id === navigation.selected!.id)))
 
   // Auto-resolve IMDb Top 250 membership.
-  // Guard di race: se metaInfo.imdb_id cambia mentre una fetch è in flight,
+  // Guard di race: se metaInfo.imdb_id cambia mentre una fetch Ã¨ in flight,
   // la risposta stale per l'id precedente NON deve sovrascrivere lo stato
-  // corrente. fetchIdRef traccia quale id è quello "attivo"; l'AbortController
+  // corrente. fetchIdRef traccia quale id Ã¨ quello "attivo"; l'AbortController
   // cancella fisicamente la richiesta precedente.
   const fetchIdRef = useRef<string | null>(null)
   // Absolute Cinema = rank 1..100 only (limit=100); the flag stays named
   // imdbTop250 for minimal diff (see imdb-top250.ts: Top100 eligibility).
   // Fail-closed positive evidence: only an explicit `inTop100: true` from
-  // this limit=100 caller sets the badge — a missing field (unknown/error)
+  // this limit=100 caller sets the badge â€” a missing field (unknown/error)
   // or a bare `inTop250` must never resurrect the Top250 badge here.
   useEffect(() => {
     const imdbId = metaInfo.imdb_id
@@ -934,7 +934,7 @@ export function usePictorium(): PictoriumCtx {
   // Abort lifecycle of the current title load: starting a replacement load
   // aborts the previous network work (see loadCurrentItemData), browser
   // back/forward and view changes abort too, and unmount aborts whatever is
-  // left. Aborting only stops the network — navigation.fetchIdRef stays the
+  // left. Aborting only stops the network â€” navigation.fetchIdRef stays the
   // guard that drops late state updates.
   const loadAbortRef = useRef<AbortController | null>(null)
   useEffect(() => {
@@ -962,7 +962,7 @@ export function usePictorium(): PictoriumCtx {
 
   const logoBounds = useMemo(() => {
     if (!navigation.previewPoster || !navigation.selectedLogo) return { minX: -500, maxX: 500, minY: -500, maxY: 500 }
-    // Stessi vincoli del server (poster-service): in landscape il canvas è
+    // Stessi vincoli del server (poster-service): in landscape il canvas Ã¨
     // 16:9 col fondo logo in linea col badge genere (vedi costanti in
     // logo-layout.ts), con l'allineamento corrente.
     const isLandscapeShape = posterShape === "landscape"
@@ -1031,7 +1031,7 @@ export function usePictorium(): PictoriumCtx {
   // save refetches trendRank for the open title (same title, same user).
   // The callback identity is intentionally out of deps (ref-indirection):
   // it renews on every title/key/region switch while the loader already
-  // fetches rank there — depending on it would double-fetch on navigation.
+  // fetches rank there â€” depending on it would double-fetch on navigation.
   const refreshRankRef = useRef(refreshCurrentRank)
   refreshRankRef.current = refreshCurrentRank
   useEffect(() => {
@@ -1090,7 +1090,7 @@ export function usePictorium(): PictoriumCtx {
     setMdblistApiKey(savedMdblist)
     const savedTvdb = safeGetItem("tvdb_key") || ""
     setTvdbApiKey(savedTvdb)
-    const savedTheme = safeGetItem("pictorium_theme")
+    const savedTheme = safeGetItem("FLAMEFORGE_theme")
     if (savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme)
 
     // Instance keys: memory only, NEVER localStorage. Persisting here would
@@ -1121,7 +1121,7 @@ export function usePictorium(): PictoriumCtx {
   }, [safeGetItem])
 
   useEffect(() => {
-    safeSetItem("pictorium_theme", theme)
+    safeSetItem("FLAMEFORGE_theme", theme)
   }, [theme, safeSetItem])
 
   useEffect(() => {
@@ -1235,9 +1235,9 @@ export function usePictorium(): PictoriumCtx {
     // Template WYSIWYG: a titolo aperto la sfumatura segue il profilo del
     // formato in editing (landscapeBlur in orizzontale), come la preview.
     const tmplLandscape = !noPreview && posterShape === "landscape"
-    // Badge età per i template senza titolo: il template segue il trio
+    // Badge etÃ  per i template senza titolo: il template segue il trio
     // effettivo per forma (`land ?? flat`, stessa regola della preview, di
-    // layout/scope e del server) nella forma di consegna — un portrait ON
+    // layout/scope e del server) nella forma di consegna â€” un portrait ON
     // non accende mai un landscape e viceversa (WYSIWYG preview/template/
     // Stremio). A titolo aperto il live per-titolo vince (vedi base sotto).
     const deliveryAge = effectiveShapeDefaultAge(
@@ -1246,11 +1246,11 @@ export function usePictorium(): PictoriumCtx {
     )
     const deliveryLandscape = noPreview && defaultPosterShape === "landscape"
     // Delivery-shape effective extra (task 3B2): a landscape profile that
-    // OWNS the key — including explicit `null` (follow own rank) — shadows
+    // OWNS the key â€” including explicit `null` (follow own rank) â€” shadows
     // the portrait flat so the template never bakes the portrait style into
     // the landscape URL (both builders omit `xbs`; the server ownership guard
-    // then resolves the own-rank fallback — or the shared `config` token when
-    // one travels — identically for preview and template).
+    // then resolves the own-rank fallback â€” or the shared `config` token when
+    // one travels â€” identically for preview and template).
     const tmplRawExtra = deliveryLandscape && landscapeDefaults != null && "extraBadgeStyle" in landscapeDefaults
       ? (landscapeDefaults as { extraBadgeStyle?: unknown }).extraBadgeStyle
       : undefined
@@ -1259,7 +1259,7 @@ export function usePictorium(): PictoriumCtx {
       : defaultExtraBadgeStyle
     // Delivery-shape effective align: landscape profile override wins,
     // null/absent follows the flat, flat null (auto) stays omitted (the
-    // server resolves landscape "left" itself — legacy URLs byte-identical).
+    // server resolves landscape "left" itself â€” legacy URLs byte-identical).
     const tmplEffAlign = deliveryLandscape
       ? (landscapeDefaults?.logoAlign ?? defaultLogoAlign)
       : defaultLogoAlign
@@ -1276,8 +1276,8 @@ export function usePictorium(): PictoriumCtx {
       badgeYear: noPreview ? defaultBadgeYear : badgeYear,
       badgeRating: noPreview ? defaultBadgeRating : badgeRating,
       badgeQuality: noPreview ? defaultBadgeQuality : badgeQuality,
-      // Badge età per-titolo: vedi tmplAge/deliveryAge sopra per i default;
-      // a titolo aperto vince il live del titolo (già effettivo per forma),
+      // Badge etÃ  per-titolo: vedi tmplAge/deliveryAge sopra per i default;
+      // a titolo aperto vince il live del titolo (giÃ  effettivo per forma),
       // senza titolo il default effettivo della forma di consegna.
       ageBadge: noPreview ? deliveryAge.ageBadge : ageBadge,
       ageCountry: noPreview ? deliveryAge.ageCountry : ageCountry,
@@ -1306,7 +1306,7 @@ export function usePictorium(): PictoriumCtx {
       // (`land ?? flat`, same rule as the server and the open path): with a
       // landscape delivery default the baked layout is the landscape profile.
       // Known Nuvio limitation: `shape={shape}` templates bake this single
-      // value for the default delivery shape — a divergent per-shape pair
+      // value for the default delivery shape â€” a divergent per-shape pair
       // (portrait standard / landscape fresh) cannot freeze both in one
       // explicit param; the dynamic shape then renders this baked value for
       // both shapes. Per-shape delivery needs follow-space (live) or
@@ -1315,7 +1315,7 @@ export function usePictorium(): PictoriumCtx {
       posterLayout: noPreview
         ? effectiveShapeDefaultLayout(defaultPosterLayout, landscapeDefaults, defaultPosterShape)
         : posterLayout,
-      // Fresh scope: stessa regola del layout (land ?? flat) — i template
+      // Fresh scope: stessa regola del layout (land ?? flat) â€” i template
       // seguono il default effettivo per forma, come il server.
       posterFreshScope: noPreview
         ? effectiveShapeDefaultFreshScope(defaultPosterFreshScope, landscapeDefaults, defaultPosterShape)
@@ -1365,7 +1365,7 @@ export function usePictorium(): PictoriumCtx {
   // Una modifica ai default (barra Impostazioni) si riflette subito sulla
   // preview del titolo aperto SOLO se non ha mapping salvato (mai clobberare
   // lavoro salvato). Si propaga solo il default effettivamente cambiato
-  // (compare via ref), così i tweak per-titolo sugli altri campi sopravvivono.
+  // (compare via ref), cosÃ¬ i tweak per-titolo sugli altri campi sopravvivono.
   // Senza deps array (gira a ogni render, agisce solo sui delta): niente
   // stale closure, niente loop (dopo il set il compare torna uguale).
   const prevDefaultsRef = useRef<string | null>(null)
@@ -1374,8 +1374,8 @@ export function usePictorium(): PictoriumCtx {
       badgeStyle: defaultBadgeStyle, rankingBadgeStyle: defaultRankingBadgeStyle, extraBadgeStyle: defaultExtraBadgeStyle, badgeFont: defaultBadgeFont, qualityBadgeStyle: defaultQualityBadgeStyle, videoFormats: defaultVideoFormats, globalBadges: defaultGlobalBadges,
       rankingBadges: defaultRankingBadges, badgeGenre: defaultBadgeGenre, badgeYear: defaultBadgeYear,
       badgeRating: defaultBadgeRating, badgeQuality: defaultBadgeQuality, customRatings: defaultCustomRatings,
-      // Badge età per-titolo: propagazione live sotto (stessa regola degli
-      // altri visuali — solo senza mapping salvato, mai clobberare).
+      // Badge etÃ  per-titolo: propagazione live sotto (stessa regola degli
+      // altri visuali â€” solo senza mapping salvato, mai clobberare).
       ageBadge: defaultAgeBadge, ageCountry: defaultAgeCountry, ageBadgeStyle: defaultAgeBadgeStyle,
       ratingSources: defaultRatingSources, separateRatings: defaultSeparateRatings,
       separateRatingsStyle: defaultSeparateRatingsStyle,
@@ -1394,7 +1394,7 @@ export function usePictorium(): PictoriumCtx {
       networkLogoOffsetX: defaultNetworkLogoOffsetX, networkLogoOffsetY: defaultNetworkLogoOffsetY,
       // Default logo globali (flat + override Orizzontale): propagazione live sotto.
       logoScaleDefault: defaultLogoScale, logoOffsetXDefault: defaultLogoOffsetX, logoOffsetYDefault: defaultLogoOffsetY,
-      // Profilo Orizzontale: senza, cambiare le Impostazioni · Orizzontale a
+      // Profilo Orizzontale: senza, cambiare le Impostazioni Â· Orizzontale a
       // poster aperto non muove mai la preview landscape (resta standard).
       landscape: landscapeDefaults ?? {},
     })
@@ -1418,8 +1418,8 @@ export function usePictorium(): PictoriumCtx {
     const changed = (k: string) => JSON.stringify(prev[k]) !== JSON.stringify(cur[k])
     if (changed("badgeStyle")) setBadgeStyle(cur.badgeStyle as BadgeStyle)
     if (changed("rankingBadgeStyle")) setRankingBadgeStyle(cur.rankingBadgeStyle as RankingBadgeStyle)
-    // Shape-aware (task 3B2): in landscape an owned profile key — including
-    // explicit `null` (follow own rank) — shadows the flat, so a portrait
+    // Shape-aware (task 3B2): in landscape an owned profile key â€” including
+    // explicit `null` (follow own rank) â€” shadows the flat, so a portrait
     // extra edit must never clobber the landscape override. Profile edits
     // arrive via the landscape block below.
     if (changed("extraBadgeStyle")) {
@@ -1439,9 +1439,9 @@ export function usePictorium(): PictoriumCtx {
     if (changed("badgeYear")) setBadgeYear(cur.badgeYear as boolean)
     if (changed("badgeRating")) setBadgeRating(cur.badgeRating as boolean)
     if (changed("badgeQuality")) setBadgeQuality(cur.badgeQuality as boolean)
-    // Badge età per-titolo live (unmapped title only, like the other
+    // Badge etÃ  per-titolo live (unmapped title only, like the other
     // defaults): portrait follows the flat; landscape follows the effective
-    // profile (`land ?? flat`, same rule as the open path) — a flat edit
+    // profile (`land ?? flat`, same rule as the open path) â€” a flat edit
     // under an owned profile resolves back to the profile (harmless no-op,
     // never a clobber); profile edits arrive via the landscape block below.
     if (changed("ageBadge") || changed("ageCountry") || changed("ageBadgeStyle")) {
@@ -1473,9 +1473,9 @@ export function usePictorium(): PictoriumCtx {
     if (changed("separateRatings")) setSeparateRatings(cur.separateRatings as boolean)
     if (changed("separateRatingsStyle")) setSeparateRatingsStyle(cur.separateRatingsStyle as SeparateRatingsStyle)
     // Graphical poster layout live (unmapped title only, like the other
-    // defaults): saved overrides stay protected — mapped titles never follow.
+    // defaults): saved overrides stay protected â€” mapped titles never follow.
     // Shape-aware: in landscape an explicit profile is preserved (`land ??
-    // flat`, same rule as the server and the open path) — a flat edit must
+    // flat`, same rule as the server and the open path) â€” a flat edit must
     // never clobber the landscape override; with no profile the flat is
     // followed. The landscape block below repairs profile edits the same way.
     if (changed("posterLayout")) {
@@ -1487,7 +1487,7 @@ export function usePictorium(): PictoriumCtx {
       )
     }
     // Fresh apply scope live (unmapped title only, like the layout above):
-    // saved overrides stay protected — mapped titles never follow.
+    // saved overrides stay protected â€” mapped titles never follow.
     if (changed("posterFreshScope")) {
       const flatScope = cur.posterFreshScope as PosterFreshScope
       setPosterFreshScope(
@@ -1500,7 +1500,7 @@ export function usePictorium(): PictoriumCtx {
     if (changed("networkLogoPosition")) setNetworkLogoPosition(cur.networkLogoPosition as NetworkLogoPosition)
     // Flat network follow/offsets propagate raw in portrait; in landscape the
     // open poster follows the effective view (server semantics: a flat OFF
-    // without a landscape profile still renders ON with relative offsets —
+    // without a landscape profile still renders ON with relative offsets â€”
     // raw flat absolutes would desync sliders/checkbox from the render).
     if (changed("networkLogoFollowTitle") || changed("networkLogoOffsetX") || changed("networkLogoOffsetY")) {
       if (posterShape === "landscape") {
@@ -1525,7 +1525,7 @@ export function usePictorium(): PictoriumCtx {
     if (changed("ribbonSide")) setRibbonSide(cur.ribbonSide as RibbonSide)
     // Coming Soon live (unmapped title only, like the other defaults):
     // portrait follows the flat; landscape follows the effective profile
-    // (`land ?? flat`, same rule as the open path) — a flat edit under an
+    // (`land ?? flat`, same rule as the open path) â€” a flat edit under an
     // owned profile resolves back to the profile (harmless no-op, never a
     // clobber); profile edits arrive via the landscape block below.
     if (changed("preRelease")) {
@@ -1577,17 +1577,17 @@ export function usePictorium(): PictoriumCtx {
     if (changed("qualityBadgeOffsetY")) setQualityBadgeOffsetY(cur.qualityBadgeOffsetY as number)
     // Flat network offsets propagate raw only in portrait: in landscape the
     // effective view above already ran (raw flat absolutes must not clobber
-    // it — see the networkLogoFollowTitle block).
+    // it â€” see the networkLogoFollowTitle block).
     if (posterShape !== "landscape") {
       if (changed("networkLogoOffsetX")) setNetworkLogoOffsetX(cur.networkLogoOffsetX as number)
       if (changed("networkLogoOffsetY")) setNetworkLogoOffsetY(cur.networkLogoOffsetY as number)
     }
     // Profilo Orizzontale: come i flat, si propaga al poster aperto solo senza
-    // mapping salvato — per singola chiave (le altre sopravvivono, come i flat).
+    // mapping salvato â€” per singola chiave (le altre sopravvivono, come i flat).
     // Chiavi landscape assenti = segui i flat (coerente con l'init
     // all'apertura: mapping.landscape > globali Orizzontale > flat).
     // resetLandscapeBlur (non setLandscapeBlur): la propagazione dai default
-    // NON è un edit esplicito, quindi non alza il dirty — altrimenti un save
+    // NON Ã¨ un edit esplicito, quindi non alza il dirty â€” altrimenti un save
     // portrait congelerebbe il profilo dai default invece di preservarlo.
     if (changed("landscape")) {
       const prevLand = (prev.landscape ?? {}) as Record<string, unknown>
@@ -1605,7 +1605,7 @@ export function usePictorium(): PictoriumCtx {
       if (landKeyChanged("topShadeHeight")) patch.topShadeHeight = eff("topShadeHeight", topShadeHeight) as number
       if (Object.keys(patch).length > 0) resetLandscapeBlur({ ...landscapeBlur, ...patch })
       // Scale/offset badge in landscape: gli slider condividono lo stato flat,
-      // che in landscape mostra il profilo Orizzontale — i default globali
+      // che in landscape mostra il profilo Orizzontale â€” i default globali
       // Orizzontale si propagano qui (solo in landscape: in portrait i flat
       // mostrano il profilo Verticale e non si toccano). Chiavi assenti =
       // segui i default flat (come il server).
@@ -1619,7 +1619,7 @@ export function usePictorium(): PictoriumCtx {
         // poster follows `land ?? flat`, same rule as the server and the open
         // path. Absent profile key = follow the flat default.
         if (landKeyChanged("preRelease")) setPreRelease(eff("preRelease", defaultPreRelease) as boolean)
-        // Badge età per-titolo nel profilo Orizzontale (unmapped title
+        // Badge etÃ  per-titolo nel profilo Orizzontale (unmapped title
         // only): il poster aperto segue `land ?? flat`, stessa regola del
         // server e dell'open path. Chiave assente = segue il flat.
         if (landKeyChanged("ageBadge")) setAgeBadge(eff("ageBadge", defaultAgeBadge) as boolean)
@@ -1652,7 +1652,7 @@ export function usePictorium(): PictoriumCtx {
         if (landKeyChanged("qualityBadgeOffsetY")) setQualityBadgeOffsetY(eff("qualityBadgeOffsetY", defaultQualityBadgeOffsetY) as number)
         if (landKeyChanged("networkLogoScale")) setNetworkLogoScale(eff("networkLogoScale", defaultNetworkLogoScale) as number)
         // Effective landscape view (server semantics): a profile OFF without
-        // fixed coords still renders ON — raw `land ?? flat` would desync the
+        // fixed coords still renders ON â€” raw `land ?? flat` would desync the
         // open poster (checkbox/sliders vs render).
         if (landKeyChanged("networkLogoOffsetX") || landKeyChanged("networkLogoOffsetY") || landKeyChanged("networkLogoFollowTitle")) {
           const syncLandView = resolveNetworkShapeView(
@@ -1699,8 +1699,8 @@ export function usePictorium(): PictoriumCtx {
   })
 
   // --- Preview URL ---
-  // Modalità Stremio: risolve l'URL esatto servito a Stremio per il titolo
-  // (meta → stesso builder dei cataloghi: mapping/auto, default, mv). Chiave
+  // ModalitÃ  Stremio: risolve l'URL esatto servito a Stremio per il titolo
+  // (meta â†’ stesso builder dei cataloghi: mapping/auto, default, mv). Chiave
   // browser in query (come le altre preview autenticate) + namespace `u`:
   // se il server non risolve i metadati, si resta sull'editor senza rumore.
   useEffect(() => {
@@ -1713,13 +1713,13 @@ export function usePictorium(): PictoriumCtx {
     if (tmdbKey) params.set("api_key", tmdbKey)
     params.set("lang", lang)
     // Region di selezione (paese chart della lista di origine) vince sul
-    // default globale: la modalità Stremio risolve lo stesso snapshot.
+    // default globale: la modalitÃ  Stremio risolve lo stesso snapshot.
     params.set("region", navigation.listRegion ?? editorCtx.defaultRegion)
     if (localConfigToken) params.set("config", localConfigToken)
     // Contesto stagionale effimero della lista di origine
     // (navigation.seasonalTheme, whole-word dal nome lista): la scelta
     // per-titolo salvata vince sul contesto (esplicita segue il titolo,
-    // `none` lo sopprime, assente = Automatico segue la lista) — stesso
+    // `none` lo sopprime, assente = Automatico segue la lista) â€” stesso
     // renderer di Stremio (WYSIWYG). Assente = nessun parametro (URL legacy
     // byte-identici); il banner pulito resta senza tema nel builder
     // condiviso server-side.
@@ -1734,17 +1734,17 @@ export function usePictorium(): PictoriumCtx {
     // l'URL fresco post-save (il `mv` cambia a ogni salvataggio).
     http<{ meta?: { poster?: string | null } }>(`/meta/${stype}/tmdb:${sel.id}${qs}`, { timeout: 15000, cache: "no-store" })
       .then((d) => { if (live) setStremioPreviewUrl(d?.meta?.poster || null) })
-      // Fallimento = modalità non attiva (niente stato bugiardo): si torna
+      // Fallimento = modalitÃ  non attiva (niente stato bugiardo): si torna
       // all'editor e il modale, se aperto, si chiude da solo.
       .catch(() => { if (live) { setStremioPreviewUrl(null); setStremioPreview(false) } })
     return () => { live = false }
-    // mappingsMap: dopo un save il mapping (e il suo `mv`) cambia — l'URL va
+    // mappingsMap: dopo un save il mapping (e il suo `mv`) cambia â€” l'URL va
     // ririsolta o il modale mostra l'artefatto pre-save (stale).
   }, [stremioPreview, navigation.selected, navigation.seasonalTheme, navigation.listRank, navigation.listRegion, seasonalTheme, currentUserId, tmdbKey, mappingsMap, lang, editorCtx.defaultRegion, localConfigToken, localConfigTokenStatus])
 
   const buildPreviewUrlCb = useCallback(() => {
     // Token suspend: while the device config is minting (or failed), no
-    // preview is (re)built — the server would resolve the empty namespace
+    // preview is (re)built â€” the server would resolve the empty namespace
     // instead of the device selection. The effect below refires on ready.
     if (localConfigTokenStatus === "pending" || localConfigTokenStatus === "error") return
     // Toggle Stremio attivo e URL risolto: mostra l'artefatto finale vero.
@@ -1757,9 +1757,9 @@ export function usePictorium(): PictoriumCtx {
     // live della sezione Orizzontale (quelli salvati nel profilo), in
     // portrait i flat. Tinta e ombra superiore restano condivise (flat).
     const isLandscapePreview = posterShape === "landscape"
-    // Badge età per-titolo: la preview segue il live del titolo in editing
-    // (già effettivo per formato all'apertura e allo switch — mapping >
-    // default di forma), così la query esplicita vince sul server per la
+    // Badge etÃ  per-titolo: la preview segue il live del titolo in editing
+    // (giÃ  effettivo per formato all'apertura e allo switch â€” mapping >
+    // default di forma), cosÃ¬ la query esplicita vince sul server per la
     // forma mostrata (WYSIWYG). Senza titolo si segue il default di forma.
     const previewAgeDefaults = effectiveShapeDefaultAge(
       defaultAgeBadge, defaultAgeCountry, defaultAgeBadgeStyle,
@@ -1808,7 +1808,7 @@ export function usePictorium(): PictoriumCtx {
     globalBadges, rankingBadges, badgeStyle, rankingBadgeStyle, extraBadgeStyle, badgeFont, qualityBadgeStyle, videoFormats, badgeGenre, badgeYear, badgeRating, badgeQuality, ageBadge, ageCountry, ageBadgeStyle, defaultAgeBadge, defaultAgeCountry, defaultAgeBadgeStyle, customRatings, ratingSources, separateRatings, separateRatingsStyle, posterLayout, posterFreshScope, customBadge, editorCtx.defaultDisabledContentTags, editorCtx.defaultDisabledNetworks, gradientHeight, blurIntensity, blurFade, blurDarkness, blurEnabled, landscapeBlur, landscapeDefaults, tintStrength, topShade, topShadeHeight, networkLogo, networkLogoPosition, networkLogoFollowTitle, preRelease, ribbonSide, ribbonEnabled, posterShape, logoAlign, topBadgeScale, topBadgeOffsetX, topBadgeOffsetY, extraBadgeScale, extraBadgeOffsetX, extraBadgeOffsetY, genreBadgeScale, qualityBadgeScale, networkLogoScale, separateBadgeScale, separateBadgeOffsetX, separateBadgeOffsetY, genreBadgeOffsetX, genreBadgeOffsetY, qualityBadgeOffsetX, qualityBadgeOffsetY, networkLogoOffsetX, networkLogoOffsetY])
 
   // A1: trailing debounce della preview URL (200ms). Ogni tick di slider
-  // cambia l'identità di buildPreviewUrlCb → senza debounce ogni pixel di
+  // cambia l'identitÃ  di buildPreviewUrlCb â†’ senza debounce ogni pixel di
   // drag genera una URL e un render server (storm). Il timer si resetta a
   // ogni tick: solo l'ultimo stato dopo la pausa fa partire XHR + sharp.
   // Cambio di titolo selezionato = fire immediato (niente attesa).
@@ -1826,17 +1826,17 @@ export function usePictorium(): PictoriumCtx {
   }, [navigation.selected, buildPreviewUrlCb])
 
   // --- Color detection ---
-  // In landscape la base è il backdrop: accent/topLight auto si campionano
-  // da lì (w780, tier backdrop), come fa il server sulla stessa immagine —
+  // In landscape la base Ã¨ il backdrop: accent/topLight auto si campionano
+  // da lÃ¬ (w780, tier backdrop), come fa il server sulla stessa immagine â€”
   // altrimenti `ac=`/`tl=` in preview contraddicono il render.
   const landscapePreview = posterShape === "landscape"
   // Ricalcolo auto mai distruttivo (correction 1/3): l'effetto async di
   // useRootColors ricampiona l'auto a ogni cambio poster, ma un manuale
   // esplicito (salvato ripristinato all'apertura, o ripristinato dallo stash
-  // al cambio formato) non deve esserne clobberato — altrimenti aprire un
+  // al cambio formato) non deve esserne clobberato â€” altrimenti aprire un
   // manuale mostrerebbe auto e il save dropperebbe il manuale. Solo il canale
-  // auto segue il ricalcolo; il manuale resta finché l'utente non lo azzera
-  // (Reset) o ne sceglie un altro. I ref specchiano lo stato così la guardia
+  // auto segue il ricalcolo; il manuale resta finchÃ© l'utente non lo azzera
+  // (Reset) o ne sceglie un altro. I ref specchiano lo stato cosÃ¬ la guardia
   // vede i valori live senza riavviare l'effetto (mai loop su deps).
   const accentColorRef = useRef<string | null>(null)
   const autoAccentColorRef = useRef<string | null>(null)
@@ -1859,7 +1859,7 @@ export function usePictorium(): PictoriumCtx {
   // dettagli + rank + awards + immagini, aggiornando metaInfo (generi/voto/badge),
   // trendRank, mdblistMatch, posters/logos/backdrops e titolo. La guardia
   // fetchIdRef evita che una risposta stale sovrascriva la selezione corrente.
-  // The main path publishes artwork as soon as details+images resolve — rank
+  // The main path publishes artwork as soon as details+images resolve â€” rank
   // and awards enrich afterwards without blocking the editor (see pending).
   async function loadCurrentItemData(item: SearchResult, fetchId: number, sourcesOverride?: string[]) {
     // A replacement load aborts the previous network work; exiting the editor
@@ -1874,17 +1874,17 @@ export function usePictorium(): PictoriumCtx {
     const itemType = item.media_type
     const mdblistParam = mdblistApiKey ? "&mdblist_key=" + encodeURIComponent(mdblistApiKey) : ""
     // Fonti esplicite all'apertura titolo (mapping salvato): la closure
-    // `ratingSources` vale ancora la sessione precedente finché setRatingSources
-    // non committa — senza override il voto congelato in metaInfo userebbe le
+    // `ratingSources` vale ancora la sessione precedente finchÃ© setRatingSources
+    // non committa â€” senza override il voto congelato in metaInfo userebbe le
     // fonti vecchie e gareggerebbe col refetch dell'effetto [ratingSources].
     const activeSources = sourcesOverride ?? ratingSources
     const rsrcParam = activeSources && activeSources.length > 0 ? "&rsrc=" + encodeURIComponent(activeSources.join(",")) : ""
     const regionLang = contentLanguageForUiLang(lang, editorCtx.defaultRegion)
     const detailsUrl = `/api/tmdb/${itemId}/details?type=${itemType}&language=${regionLang}&api_key=${tmdbKey}${mdblistParam}${rsrcParam}`
     // Le immagini partono SUBITO in parallelo ai details (non dopo): la lingua
-    // originale serve solo ad allargare la query quando è fuori da lang/en.
+    // originale serve solo ad allargare la query quando Ã¨ fuori da lang/en.
     // Niente retry qui: i dati si ricaricano al tick dopo, e un retry
-    // triplicherebbe la coda peggiore (30s × 3) proprio sul path critico.
+    // triplicherebbe la coda peggiore (30s Ã— 3) proprio sul path critico.
     const defaultImageLangs = `${lang},en,null`
     const imagesUrl = (langs: string) => `/api/tmdb/${itemId}/images?type=${itemType}&languages=${langs}&api_key=${tmdbKey}`
     const emptyLists: ImageLists = { posters: [], logos: [], backdrops: [] }
@@ -1922,7 +1922,7 @@ export function usePictorium(): PictoriumCtx {
     const regionLangForRank = getRegionDef(editorCtx.defaultRegion).lang
     // Namespace-aware rank (same Top 20 source as the catalogs): without it
     // the preview badge would always read JustWatch. Errors settle to null
-    // via the rejection path below — never a JW substitution. Device config
+    // via the rejection path below â€” never a JW substitution. Device config
     // token when the namespace is not enough; never browser-cached (the URL
     // does not version the selection). While a device token is pending or
     // failed the rank stays unsettled here (no silent namespace read); the
@@ -1968,7 +1968,7 @@ export function usePictorium(): PictoriumCtx {
     const detailsPromise: Promise<{ genres: { id: number; name: string }[]; voteAverage: number; voteCount: number; status: string | null; type: string | null; release_date: string | null; first_air_date: string | null; last_air_date: string | null; next_episode_to_air: { air_date: string; episode_number: number; season_number: number } | null; number_of_seasons: number | null; number_of_episodes: number | null; title: string | null; name: string | null; imdb_id: string | null; wikidata_id?: string | null; networks: { name: string; logo_path: string | null; origin_country?: string }[]; production_companies: { name: string; logo_path: string | null; origin_country?: string }[]; original_language: string; anime_ids?: SearchResult["anime_ids"]; aggregatedRatings?: AggregatedRatings | null } | null> = http<{ genres: { id: number; name: string }[]; voteAverage: number; voteCount: number; status: string | null; type: string | null; release_date: string | null; first_air_date: string | null; last_air_date: string | null; next_episode_to_air: { air_date: string; episode_number: number; season_number: number } | null; number_of_seasons: number | null; number_of_episodes: number | null; title: string | null; name: string | null; imdb_id: string | null; wikidata_id?: string | null; networks: { name: string; logo_path: string | null; origin_country?: string }[]; production_companies: { name: string; logo_path: string | null; origin_country?: string }[]; original_language: string; anime_ids?: SearchResult["anime_ids"]; aggregatedRatings?: AggregatedRatings | null }>(detailsUrl, { timeout: 30000, signal }).catch((e) => {
       // Abort is not a service error: no outage flag, no fallback published.
       if (!isCurrent()) return null
-      console.error("[pictorium] Details fetch failed:", e)
+      console.error("[FlameForge] Details fetch failed:", e)
       setServiceErrors((prev) => ({ ...prev, tmdb: true }))
       return { genres: [] as { id: number; name: string }[], voteAverage: 0, voteCount: 0, status: null, type: null, release_date: null, first_air_date: null, last_air_date: null, next_episode_to_air: null, number_of_seasons: null, number_of_episodes: null, title: null, name: null, imdb_id: null, wikidata_id: null, networks: [] as { name: string; logo_path: string | null; origin_country?: string }[], production_companies: [] as { name: string; logo_path: string | null; origin_country?: string }[], original_language: "en", aggregatedRatings: null }
     })
@@ -2019,7 +2019,7 @@ export function usePictorium(): PictoriumCtx {
       }).catch((e) => {
         // Abort is not an error: silent, no fallback applied to another load.
         if (!isCurrent()) return
-        console.error("[pictorium] MDBList lookup failed:", e)
+        console.error("[FlameForge] MDBList lookup failed:", e)
       })
     } else {
       setMdblistMatch(null)
@@ -2064,7 +2064,7 @@ export function usePictorium(): PictoriumCtx {
     }
   }, [ratingSources]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Default logo globali per formato (Impostazioni · Verticale/Orizzontale):
+  // Default logo globali per formato (Impostazioni Â· Verticale/Orizzontale):
   // in landscape vince l'override Orizzontale, altrove il flat. Null =
   // unset (auto-fit per la scala, 0 per gli offset). Usati all'apertura e
   // alla scelta logo quando il mapping non congela un valore proprio.
@@ -2082,7 +2082,7 @@ export function usePictorium(): PictoriumCtx {
   // settings preview and the server). Data sources, region and ratingSources
   // stay shared; the flat gradient (= portrait profile, landscapeBlur is
   // separate) stays shared. Logo alignment follows the landscape profile
-  // (`land ?? flat`, flat null = landscape-left auto — portraits stay
+  // (`land ?? flat`, flat null = landscape-left auto â€” portraits stay
   // centered by contract). Never on the mapping branch:
   // saved per-title values always win. Called both at open (immediate UI)
   // and after load (applyLoadedSelection re-runs loadDefaultsToState, which
@@ -2091,8 +2091,8 @@ export function usePictorium(): PictoriumCtx {
     const land = landscapeDefaults
     setBadgeStyle(land?.badgeStyle ?? defaultBadgeStyle)
     setRankingBadgeStyle(land?.rankingBadgeStyle ?? defaultRankingBadgeStyle)
-    // Task 3B2 ownership: an owned profile key — including explicit `null`
-    // (follow own rank) — shadows the portrait flat (a `??` read would
+    // Task 3B2 ownership: an owned profile key â€” including explicit `null`
+    // (follow own rank) â€” shadows the portrait flat (a `??` read would
     // resurrect the portrait style in the open preview).
     setExtraBadgeStyle(land != null && "extraBadgeStyle" in land && (isExtraFollowRank((land as { extraBadgeStyle?: unknown }).extraBadgeStyle) || isExtraBadgeStyle(typeof (land as { extraBadgeStyle?: unknown }).extraBadgeStyle === "string" ? (land as { extraBadgeStyle?: string }).extraBadgeStyle : null)) ? (land.extraBadgeStyle as ExtraBadgeStyle | ExtraBadgeFollowRank) : defaultExtraBadgeStyle)
     // Task 3B2 per-shape alignment: the landscape profile override wins,
@@ -2126,7 +2126,7 @@ export function usePictorium(): PictoriumCtx {
     setGenreBadgeOffsetX(land?.genreBadgeOffsetX ?? defaultGenreBadgeOffsetX)
     setGenreBadgeOffsetY(land?.genreBadgeOffsetY ?? defaultGenreBadgeOffsetY)
     setQualityBadgeScale(land?.qualityBadgeScale ?? defaultQualityBadgeScale)
-    // Explicit profile scale wins; a saved custom default (≠ its style
+    // Explicit profile scale wins; a saved custom default (â‰  its style
     // default) is preserved; otherwise it follows the land style default
     // (same rule as the existing-mapping branch).
     setSeparateBadgeScale(resolveSeparateBadgeScaleFallback({ explicit: land?.separateBadgeScale, defaultScale: defaultSeparateBadgeScale, defaultStyle: defaultSeparateRatingsStyle, style: isSeparateRatingsStyle(land?.separateRatingsStyle) ? land.separateRatingsStyle : defaultSeparateRatingsStyle }))
@@ -2145,7 +2145,7 @@ export function usePictorium(): PictoriumCtx {
     setQualityBadgeOffsetY(land?.qualityBadgeOffsetY ?? defaultQualityBadgeOffsetY)
     setNetworkLogoScale(land?.networkLogoScale ?? defaultNetworkLogoScale)
     // Effective landscape view (server semantics): a portrait-fixed flat
-    // never leaks its absolutes here — without a landscape profile the fresh
+    // never leaks its absolutes here â€” without a landscape profile the fresh
     // title follows with relative 0,0, and follow reads ON.
     const freshNetView = resolveNetworkShapeView(
       {
@@ -2164,7 +2164,7 @@ export function usePictorium(): PictoriumCtx {
     setRibbonSide(land?.ribbonSide ?? defaultRibbonSide)
     setRibbonEnabled(land?.ribbonEnabled ?? defaultRibbonEnabled)
     // Cornice stagionale: i titoli nuovi partono da Automatico (segue la
-    // lista di origine) — nessun default globale, nessun profilo landscape.
+    // lista di origine) â€” nessun default globale, nessun profilo landscape.
     setSeasonalTheme(null)
   }
 
@@ -2172,7 +2172,7 @@ export function usePictorium(): PictoriumCtx {
   // used by both openPosterBrowser and the language/region refresh: a refresh
   // that supersedes the open before any poster was picked must still land an
   // initial poster instead of leaving the editor empty. Mapping, preset,
-  // logoDisabled, backdrop and format rules live here once — callers must not
+  // logoDisabled, backdrop and format rules live here once â€” callers must not
   // duplicate them. Both the refresh and the open post-load continuation pass
   // skipDefaultsSync: rebuilding the whole editor state from storage would
   // wipe in-memory tweaks (open already synced styles beforehand, the refresh
@@ -2184,9 +2184,9 @@ export function usePictorium(): PictoriumCtx {
     const existing = mappingsMap.get(`${itemType}:${itemId}`)
     // Layout/scope aperti (mapping effettivo > default effettivo di formato):
     // guidano l'auto EFFETTIVO col rank. Rank-aware deliberato (correzione
-    // c1): il rank mostrato è ignoto all'apertura (arriva dopo il fetch) e gli
+    // c1): il rank mostrato Ã¨ ignoto all'apertura (arriva dopo il fetch) e gli
     // auto partono conservativi (ranked = aspect Standard, all + fresh = 100)
-    // col sentinel auto (preview `scale=0`, save null) — mai 100 baked che
+    // col sentinel auto (preview `scale=0`, save null) â€” mai 100 baked che
     // congelerebbe i fallback Standard; il rank-effect sotto riallinea i soli
     // auto al rank noto. Espliciti salvati (mapping/default, anche 75/100)
     // vincono sempre e non vengono mai clobberati. L'handoff Lab viaggia con
@@ -2196,7 +2196,7 @@ export function usePictorium(): PictoriumCtx {
     // Scope aperto (mapping effettivo > default effettivo di formato):
     // guida l'auto EFFETTIVO col rank (mai 100 baked sui no-rank).
     const openScope = resolveOpenPosterFreshScope(existing ?? null, openShape, defaultPosterFreshScope, landscapeDefaults ?? null)
-    // True quando il ramo auto-logo sotto ha già impostato la scala (con le
+    // True quando il ramo auto-logo sotto ha giÃ  impostato la scala (con le
     // dimensioni del logo): il reconciler dopo non deve clobberarla con
     // l'auto senza dimensioni.
     let scaledByAutoLogo = false
@@ -2231,7 +2231,7 @@ export function usePictorium(): PictoriumCtx {
           navigation.setSelectedLogo({ file_path: autoLogo.file_path, iso_639_1: autoLogo.iso_639_1, vote_average: 0, width: autoLogo.width, height: autoLogo.height })
           // Scala logo: default globale per formato (esplicito) > auto
           // EFFETTIVO (correzione c1: Fresh effettivo = 100, fallback
-          // Standard = aspect — rank ancora ignoto qui, quindi ranked =
+          // Standard = aspect â€” rank ancora ignoto qui, quindi ranked =
           // aspect conservativo; il rank-effect riallinea i soli auto).
           // Mai curva/100 baked come esplicito.
           const shapeDefault = logoScaleDefaultFor(openShape)
@@ -2248,7 +2248,7 @@ export function usePictorium(): PictoriumCtx {
       // Scala salvata esplicita (mapping/default, anche 75/100/150/200) sempre
       // preservata come esplicita; solo l'assenza resta auto EFFETTIVO
       // (correzione c1: mai 100 baked sui fallback Standard; il rank-effect
-      // riallinea i soli auto al rank noto). Il ramo auto-logo sopra ha già
+      // riallinea i soli auto al rank noto). Il ramo auto-logo sopra ha giÃ 
       // impostato l'auto con le dimensioni: non clobberarlo.
       const savedOrDefault = effectiveMappingForShape(existing, openShape)?.logoScale ?? logoScaleDefaultFor(openShape)
       if (savedOrDefault != null) setLogoScale(savedOrDefault)
@@ -2259,7 +2259,7 @@ export function usePictorium(): PictoriumCtx {
         )
       }
       // Saved landscape custom base: the selection restarts from the custom
-      // tile (like the portrait one above), not from the TMDB fallback — so
+      // tile (like the portrait one above), not from the TMDB fallback â€” so
       // shape switches and previews immediately show the frozen base.
       if (existing.customBackdropUrl && isCustomPosterUrl(existing.customBackdropUrl)) {
         setSelectedBackdrop({ file_path: existing.customBackdropUrl, iso_639_1: null, vote_average: 0, width: 0, height: 0 })
@@ -2295,7 +2295,7 @@ export function usePictorium(): PictoriumCtx {
           navigation.setPreviewPoster({ file_path: clean.file_path, iso_639_1: null, vote_average: 0, width: 0, height: 0 })
           navigation.setSelectedLogo({ file_path: autoLogo.file_path, iso_639_1: autoLogo.iso_639_1, vote_average: 0, width: autoLogo.width, height: autoLogo.height })
           // Scala logo: default globale per formato (esplicito) > auto
-          // EFFETTIVO (correzione c1 — mai 100 baked; vedi ramo mapping).
+          // EFFETTIVO (correzione c1 â€” mai 100 baked; vedi ramo mapping).
           const cleanDefault = logoScaleDefaultFor(openShape)
           if (cleanDefault != null) setLogoScale(cleanDefault)
           else {
@@ -2325,14 +2325,14 @@ export function usePictorium(): PictoriumCtx {
         }
       }
       // Solo landscape: senza poster clean (o con clean disattivati) il logo
-      // si auto-seleziona comunque (la base è il backdrop, senza testo). In
+      // si auto-seleziona comunque (la base Ã¨ il backdrop, senza testo). In
       // portrait invariato: niente auto-logo senza clean.
       if ((!clean || defaultDisableCleanPosters) && openShape === "landscape" && (data.logos?.length ?? 0) > 0) {
         const autoLogo = autoLogoSelection(data.logos || [], lang, details.original_language, `${itemType}/${itemId}`)
         if (autoLogo) {
           navigation.setSelectedLogo({ file_path: autoLogo.file_path, iso_639_1: autoLogo.iso_639_1, vote_average: 0, width: autoLogo.width, height: autoLogo.height })
           // Scala logo: default globale per formato (esplicito) > auto
-          // EFFETTIVO (correzione c1 — mai 100 baked; vedi ramo mapping).
+          // EFFETTIVO (correzione c1 â€” mai 100 baked; vedi ramo mapping).
           const landDefault = logoScaleDefaultFor(openShape)
           if (landDefault != null) setLogoScale(landDefault)
           else {
@@ -2359,14 +2359,14 @@ export function usePictorium(): PictoriumCtx {
   }
 
   // --- Rank-effect scala titolo (correzione c1) ---
-  // Rank-arrival/change, ranking on/off, scope ranked↔all e switch layout
+  // Rank-arrival/change, ranking on/off, scope rankedâ†”all e switch layout
   // riallineano i SOLI auto (provenance) al Fresh EFFETTIVO (rank mostrato +
-  // rankingEnabled + scope, stessa priorità del service: trendRank ?? animeRank
+  // rankingEnabled + scope, stessa prioritÃ  del service: trendRank ?? animeRank
   // validati 1..100). Gli espliciti (scelta utente o default, anche 75/100/
   // 150/200) non si toccano mai; layout toggle/reset non promuovono un 100
   // automatico a 100 esplicito Standard. Entrambi i formati (per-shape).
   // Soppressione extra/Coming Soon (c2): con custom esplicito o pre-release
-  // (extra Coming Soon del service) il rank mostrato è null — lo slider non
+  // (extra Coming Soon del service) il rank mostrato Ã¨ null â€” lo slider non
   // promette Fresh-100 mentre il service rende Standard. Rank ignoto/pending
   // resta null (sentinel auto / UI pending, mai falsa promessa).
   useEffect(() => {
@@ -2399,7 +2399,7 @@ export function usePictorium(): PictoriumCtx {
     const item = navigation.selected
     const fetchId = navigation.incrementFetchId()
     setLoadingImages(true)
-    // M16: riusa loadCurrentItemData così al cambio lingua si ricaricano anche
+    // M16: riusa loadCurrentItemData cosÃ¬ al cambio lingua si ricaricano anche
     // dettagli/genere/voto/badge, non solo le immagini.
     loadCurrentItemData(item, fetchId).then((loaded) => {
       if (!loaded) return
@@ -2430,7 +2430,7 @@ export function usePictorium(): PictoriumCtx {
           const clean = data.posters?.find((p: TMDBImage) => p.iso_639_1 === null)
           const langPoster = data.posters?.find((p: TMDBImage) => p.iso_639_1 === lang)
           const firstPoster = data.posters?.[0]
-          // Con "disattiva clean" il clean non è mai preferito (né qui né sotto):
+          // Con "disattiva clean" il clean non Ã¨ mai preferito (nÃ© qui nÃ© sotto):
           // la catena resta lingua -> originale -> primo non-clean.
           const firstNonClean = defaultDisableCleanPosters
             ? data.posters?.find((p: TMDBImage) => p.iso_639_1 !== null)
@@ -2467,7 +2467,7 @@ export function usePictorium(): PictoriumCtx {
       // state for it (unmount aborts without bumping fetchId, so the signal
       // check below is load-bearing there).
       if (navigation.fetchIdRef.current !== fetchId || loadAbortRef.current?.signal.aborted) return
-      console.error("[pictorium] Poster image refresh failed:", e)
+      console.error("[FlameForge] Poster image refresh failed:", e)
     }).finally(() => {
       // Clear the spinner only for the current, non-aborted load: a superseded
       // load must not switch off the new title's spinner, and an unmounted
@@ -2485,7 +2485,7 @@ export function usePictorium(): PictoriumCtx {
     navigation.setSelectedLogo(null)
     setSelectedBackdrop(null)
     navigation.setPreviewPoster(null)
-    // N8: drop the previous title's image lists in the same batch — the
+    // N8: drop the previous title's image lists in the same batch â€” the
     // landscape init would otherwise auto-pick a stale tile and mark the
     // new title done (empty lists reuse the grid loading state).
     navigation.setPosters([])
@@ -2508,12 +2508,12 @@ export function usePictorium(): PictoriumCtx {
     // authoritative absent; Mapping = authoritative present.
     const existing = existingOverride !== undefined ? existingOverride : mappingsMap.get(`${itemType}:${itemId}`)
     // Fonti che saranno attive per questo titolo (per-titolo salvato o default):
-    // stesse per setRatingSources e per il fetch details qui sotto — così il
-    // voto in metaInfo nasce già corretto e l'effetto [ratingSources] lo
+    // stesse per setRatingSources e per il fetch details qui sotto â€” cosÃ¬ il
+    // voto in metaInfo nasce giÃ  corretto e l'effetto [ratingSources] lo
     // conferma invece di gareggiare con un fetch su fonti diverse.
     const nextSources = existing?.ratingSources ?? defaultRatingSources
     // Shape the open initializes (handoff override wins over the saved shape,
-    // which wins over the default): every init below — mapped and unmapped —
+    // which wins over the default): every init below â€” mapped and unmapped â€”
     // reads shape-effective values for THIS shape, never another's.
     const openShape = (shapeOverride ?? existing?.posterShape ?? defaultPosterShape) as PosterShape
     if (existing) {
@@ -2523,14 +2523,14 @@ export function usePictorium(): PictoriumCtx {
       // il default effettivo di formato (profilo Orizzontale > flat).
       // `shapeOverride` (handoff Lab "Use for title"): l'apertura inizializza
       // i valori effettivi della forma di riconsegna, non quelli della forma
-      // salvata — impostare solo il canvas dopo inizializzerebbe la forma
+      // salvata â€” impostare solo il canvas dopo inizializzerebbe la forma
       // sbagliata (desync WYSIWYG/preview).
       const eff = effectiveMappingForShape(existing ?? null, openShape)
       const landDef = openShape === "landscape" ? landscapeDefaults : null
       setBadgeStyle(eff?.badgeStyle ?? landDef?.badgeStyle ?? defaultBadgeStyle)
       setRankingBadgeStyle(eff?.rankingBadgeStyle ?? landDef?.rankingBadgeStyle ?? defaultRankingBadgeStyle)
       // Task 3B2 + per-title shape: vince l'extra effettivo per formato
-      // (profilo landscape del titolo incluso — sentinel "follow-rank" =
+      // (profilo landscape del titolo incluso â€” sentinel "follow-rank" =
       // own-rank esplicito, mai il flat portrait); senza, il profilo
       // Orizzontale dei default (se owned) o il default flat.
       {
@@ -2546,7 +2546,7 @@ export function usePictorium(): PictoriumCtx {
       setBadgeYear(eff?.badgeYear ?? landDef?.badgeYear ?? defaultBadgeYear)
       setBadgeRating(eff?.badgeRating ?? landDef?.badgeRating ?? defaultBadgeRating)
       setBadgeQuality(eff?.badgeQuality ?? landDef?.badgeQuality ?? defaultBadgeQuality)
-      // Badge età per-titolo (stessa effettività degli altri visuali:
+      // Badge etÃ  per-titolo (stessa effettivitÃ  degli altri visuali:
       // mapping effettivo per formato > default effettivi di forma; i mapping
       // vecchi senza chiavi seguono i default, mai migrazione in lettura; i
       // setter validano fail-closed come il server).
@@ -2559,7 +2559,7 @@ export function usePictorium(): PictoriumCtx {
       setNetworkLogo(eff?.networkLogo ?? landDef?.networkLogo ?? defaultNetworkLogo)
       setNetworkLogoPosition(eff?.networkLogoPosition ?? landDef?.networkLogoPosition ?? defaultNetworkLogoPosition)
       // ribbonSide solo globale: i mapping storici con valore salvato lo ignorano,
-      // così la preview resta sincrona con Stremio (side dal default d'istanza).
+      // cosÃ¬ la preview resta sincrona con Stremio (side dal default d'istanza).
       setRibbonSide(defaultRibbonSide)
       setRibbonEnabled(eff?.ribbonEnabled ?? landDef?.ribbonEnabled ?? defaultRibbonEnabled)
       setPosterShape(openShape)
@@ -2579,8 +2579,8 @@ export function usePictorium(): PictoriumCtx {
       setGenreBadgeScale(eff?.genreBadgeScale ?? defaultGenreBadgeScale)
       setQualityBadgeScale(eff?.qualityBadgeScale ?? defaultQualityBadgeScale)
       // Scala esplicita del mapping vince (incluso 100); default custom
-      // salvato (≠ default del suo stile) si preserva; altrimenti segue il
-      // default dello stile del titolo (bar senza override → 130).
+      // salvato (â‰  default del suo stile) si preserva; altrimenti segue il
+      // default dello stile del titolo (bar senza override â†’ 130).
       setSeparateBadgeScale(resolveSeparateBadgeScaleFallback({ explicit: eff?.separateBadgeScale, defaultScale: defaultSeparateBadgeScale, defaultStyle: defaultSeparateRatingsStyle, style: isSeparateRatingsStyle(eff?.separateRatingsStyle) ? eff.separateRatingsStyle : defaultSeparateRatingsStyle }))
       setSeparateBadgeOffsetX(eff?.separateBadgeOffsetX ?? defaultSeparateBadgeOffsetX)
       setSeparateBadgeOffsetY(eff?.separateBadgeOffsetY ?? defaultSeparateBadgeOffsetY)
@@ -2591,9 +2591,9 @@ export function usePictorium(): PictoriumCtx {
       // Graphical poster layout dal mapping EFFETTIVO per formato (profilo
       // landscape vince sul flat, stessa regola del server): il mapping
       // storico senza campo segue il default EFFETTIVO di formato
-      // (`landscapeDefaults.posterLayout ?? flat`, mai il solo flat — un
+      // (`landscapeDefaults.posterLayout ?? flat`, mai il solo flat â€” un
       // landscape salvato senza layout con profilo Orizzontale fresh deve
-      // aprire fresh anche se il flat è standard). Scelta singola in UI — gli
+      // aprire fresh anche se il flat Ã¨ standard). Scelta singola in UI â€” gli
       // altri visuali (badge/logo/transform) restano intatti.
       setPosterLayout(resolveOpenPosterLayout(existing ?? null, (existing?.posterShape ?? defaultPosterShape) as PosterShape, defaultPosterLayout, landscapeDefaults ?? null))
       // Fresh apply scope dal mapping EFFETTIVO per formato (stessa regola
@@ -2607,7 +2607,7 @@ export function usePictorium(): PictoriumCtx {
       // Effective network view composing the saved mapping with the global
       // defaults (server semantics): without mapping network fields a
       // portrait-fixed flat never leaks its absolutes into the landscape
-      // live state — the title follows with relative offsets. Complete
+      // live state â€” the title follows with relative offsets. Complete
       // mapping overrides always win.
       const netLoadView = resolveNetworkEffectiveView(
         existing ?? null,
@@ -2629,7 +2629,7 @@ export function usePictorium(): PictoriumCtx {
       setBlurIntensity(eff?.blurIntensity ?? defaultBlurIntensity)
       setTintStrength(eff?.tintStrength ?? defaultTintStrength)
       // Ombra superiore e tinta: effettive per formato (profilo landscape
-      // vince sul flat, come gli altri tuning) — default globale quando il
+      // vince sul flat, come gli altri tuning) â€” default globale quando il
       // mapping non ce l'ha. Stessa regola per l'altezza (25 = look storico).
       setTopShade(eff?.topShade ?? defaultTopShade)
       setTopShadeHeight(eff?.topShadeHeight ?? defaultTopShadeHeight)
@@ -2653,8 +2653,8 @@ export function usePictorium(): PictoriumCtx {
       setCustomBadge(eff?.customBadge ?? null)
       // Accent live effettivo per il formato di apertura (profilo landscape
       // vince sul flat, come gli altri visuali): il manuale salvato si
-      // ripristina nel live così provenance (`isManualAccent`) e Reset
-      // auto restano distinguibili — senza, l'apertura mostrerebbe auto e un
+      // ripristina nel live cosÃ¬ provenance (`isManualAccent`) e Reset
+      // auto restano distinguibili â€” senza, l'apertura mostrerebbe auto e un
       // save successivo dropperebbe il manuale. Null/assente = automatico in
       // attesa del ricalcolo (mai colori campionati congelati qui).
       setAccentColor(eff?.accentColor ?? null)
@@ -2685,13 +2685,13 @@ export function usePictorium(): PictoriumCtx {
       setBadgeYear(unmappedLand?.badgeYear ?? defaultBadgeYear)
       setBadgeRating(unmappedLand?.badgeRating ?? defaultBadgeRating)
       setBadgeQuality(unmappedLand?.badgeQuality ?? defaultBadgeQuality)
-      // Badge età per-titolo senza mapping: default effettivi di forma
+      // Badge etÃ  per-titolo senza mapping: default effettivi di forma
       // (profilo Orizzontale in landscape, come gli altri visuali).
       setAgeBadge(unmappedLand?.ageBadge ?? defaultAgeBadge)
       setAgeCountry(unmappedLand?.ageCountry ?? defaultAgeCountry)
       setAgeBadgeStyle(unmappedLand?.ageBadgeStyle ?? defaultAgeBadgeStyle)
       setQualityBadgeStyle(unmappedLand?.qualityBadgeStyle ?? defaultQualityBadgeStyle)
-      // Offset badge qualità per i titoli senza mapping (F4): installa i
+      // Offset badge qualitÃ  per i titoli senza mapping (F4): installa i
       // default effettivi di forma (profilo Orizzontale in landscape, flat
       // altrimenti), come il ramo mapping. Senza, il live resterebbe sul
       // valore di hydration (0/0 al primo load, -10/+15 dopo la persistenza
@@ -2751,14 +2751,14 @@ export function usePictorium(): PictoriumCtx {
       }
       setPosterShape(openShape)
       // Task 3B2: landscape follows the profile override (applyFresh above
-      // already set it; this keeps the same value after the shape commit) —
+      // already set it; this keeps the same value after the shape commit) â€”
       // portraits stay centered by contract.
       setLogoAlign(openShape === "landscape" ? (landscapeDefaults?.logoAlign ?? defaultLogoAlign ?? "left") : "center")
       setCustomBadge(null)
-      // Titolo senza mapping: nessuna scelta salvata — la cornice riparte da
+      // Titolo senza mapping: nessuna scelta salvata â€” la cornice riparte da
       // Automatico (isolamento dal titolo precedente).
       setSeasonalTheme(null)
-      // Titolo senza mapping: nessun manuale da ripristinare — l'accent live
+      // Titolo senza mapping: nessun manuale da ripristinare â€” l'accent live
       // riparte da automatico (isolamento dal titolo precedente; il ricalcolo
       // lo riempie, mai colori stantii).
       setAccentColor(null)
@@ -2784,7 +2784,7 @@ export function usePictorium(): PictoriumCtx {
       const { details, data } = loaded
       // Styles were already synced before the fetch (see above): the
       // continuation only merges artwork/details/rank, so it must not rebuild
-      // editor state from storage — that would wipe tweaks made mid-load.
+      // editor state from storage â€” that would wipe tweaks made mid-load.
       // The handoff shape override travels too: logo/auto init follows the
       // same shape the sync init above used.
       applyLoadedSelection(data, details, item, true, openShape)
@@ -2803,7 +2803,7 @@ export function usePictorium(): PictoriumCtx {
   // Title deep-link open (`?title=<type>:<id>&shape=...`, e.g. shared links):
   // opens the exact title and stages nothing (the custom badge library is
   // retired: legacy Lab handoff params `fam`/`preset`/`rev` are consumed from
-  // the URL for hygiene but ignored — never fetched, never staged).
+  // the URL for hygiene but ignored â€” never fetched, never staged).
   // Params are consumed from the URL immediately (no loops, no resurrect on
   // reload); malformed handoffs are ignored silently. The open settles
   // authoritatively per-id (GET /api/mappings/[id], owner-aware: 200 =
@@ -2843,7 +2843,7 @@ export function usePictorium(): PictoriumCtx {
     const handoffShape: PosterShape = shapeParam === "landscape" ? "landscape" : "poster"
     void (async () => {
       // Title identity first (details for a real SearchResult; the open flow
-      // refetches anyway — this only seeds title/poster for the header).
+      // refetches anyway â€” this only seeds title/poster for the header).
       // No api_key: the server resolves request > namespace > instance, same
       // as catalogs. Failure = honest error, no open, no stage.
       let item: SearchResult
@@ -2874,7 +2874,7 @@ export function usePictorium(): PictoriumCtx {
       // stale list). Any other outcome (401/429/5xx/network/timeout) is
       // transient or denied: honest error, no open, never treated
       // as "no mapping" (a full-replacement save over 0/0 would follow).
-      // Exact target only, same namespace via userFetch — no new auth leaks.
+      // Exact target only, same namespace via userFetch â€” no new auth leaks.
       let authoritative: Mapping | null
       try {
         const res = await userFetch(`/api/mappings/${mediaType}:${tmdbId}`)
@@ -2898,7 +2898,7 @@ export function usePictorium(): PictoriumCtx {
       await openPosterBrowserRef.current(item, handoffShape, authoritative)
       // No canvas override here: the open above already initialized the
       // shape-effective values for the handoff shape (setting only the canvas
-      // after the init would keep the other shape's values — desync).
+      // after the init would keep the other shape's values â€” desync).
     })()
     // Mount-only consume (openPosterBrowserRef stays live; setters stable).
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2940,7 +2940,7 @@ export function usePictorium(): PictoriumCtx {
   // Shared per-title other-shape draft boundary (see src/lib/shape-draft.ts):
   // the normal Save passes its local stash explicitly (that wins inside the
   // hook); exclusion autosaves below resolve the staged other-format draft
-  // here — same full-save contract, same `otherShapeStash`. Cover-only saves
+  // here â€” same full-save contract, same `otherShapeStash`. Cover-only saves
   // never call this (intentional clear-customization contract, unchanged).
   const withSharedShapeStash = useSharedShapeStash<SaveConfigOverrides>({
     selected: navigation.selected,
@@ -2956,7 +2956,7 @@ export function usePictorium(): PictoriumCtx {
   const saveCoverOnly = useCallback(async () => {
     // Snapshot pre-save: il payload cover-only preserva l'altro formato dal
     // mapping salvato (mai dal live unsaved) e azzera la rotazione del
-    // formato selezionato — a successo il live va riconciliato al salvato,
+    // formato selezionato â€” a successo il live va riconciliato al salvato,
     // altrimenti la UI claimerebbe rotazioni/backdrop mai persistiti.
     const key = navigation.selected ? `${navigation.selected.media_type}:${navigation.selected.id}` : null
     const prev = key ? (mappingsMap.get(key) ?? null) : null
@@ -2964,14 +2964,14 @@ export function usePictorium(): PictoriumCtx {
     const ok = await saveCoverOnlyPost()
     if (ok === true) {
       // Il mapping salvato congela solo cover + logo: riconcilia l'editor ai
-      // default globali così la preview (sempre esplicita) corrisponde al
-      // poster salvato — inclusi preset applicati in precedenza. Logo
+      // default globali cosÃ¬ la preview (sempre esplicita) corrisponde al
+      // poster salvato â€” inclusi preset applicati in precedenza. Logo
       // selezionato e disabled intenzionale restano (congelati dal save e
       // ripassati per l'auto-fit della scala); shape ed episodeGroupId sono
       // preservati da resetPerTitleVisuals. Rotazioni/esclusioni/artwork
       // sotto: formato selezionato azzerato (pinned, come il payload che
       // omette le liste), altro formato riallineato al salvato (mai live
-      // unsaved). Il reload del mapping è già completato dentro
+      // unsaved). Il reload del mapping Ã¨ giÃ  completato dentro
       // saveCoverOnlyPost. Fallimento = edit conservati.
       if (shapeAtSave === "landscape") {
         setRotationBackdrops([])
@@ -2981,7 +2981,7 @@ export function usePictorium(): PictoriumCtx {
         setExcludedPosters(prev?.excludedPosters ?? [])
         setExcludedBackdrops(prev?.excludedBackdrops ?? [])
         // Portrait preservato dal salvato (mai preview unsaved): riallinea la
-        // preview all'identità salvata quando esiste.
+        // preview all'identitÃ  salvata quando esiste.
         if (prev) {
           const savedCustom = prev.customPosterUrl && isCustomPosterUrl(prev.customPosterUrl)
             ? prev.customPosterUrl
@@ -3017,8 +3017,8 @@ export function usePictorium(): PictoriumCtx {
           }
         } else if (selectedBackdrop && !prev?.backdropPath) {
           // Nessun backdrop salvato: la preview teneva un unsaved che il save
-          // portrait non ha persistito — azzera per corrispondere al salvato.
-          // (In portrait lo sfondo non è editabile: ogni valore live è unsaved.)
+          // portrait non ha persistito â€” azzera per corrispondere al salvato.
+          // (In portrait lo sfondo non Ã¨ editabile: ogni valore live Ã¨ unsaved.)
           setSelectedBackdrop(null)
         }
       }
@@ -3046,8 +3046,8 @@ export function usePictorium(): PictoriumCtx {
     }))
   }, [savePosterConfig, withSharedShapeStash, rotationBackdrops])
 
-  // Prefetch hover sui risultati di ricerca — implementazione in
-  // usePrefetchTitle.ts (stesse deps, stessa identità del callback).
+  // Prefetch hover sui risultati di ricerca â€” implementazione in
+  // usePrefetchTitle.ts (stesse deps, stessa identitÃ  del callback).
   const prefetchTitle = usePrefetchTitle({ tmdbKey, serverHasTmdbKey, lang, defaultRegion: editorCtx.defaultRegion })
 
   // Leaving the editor cancels the in-flight title load and invalidates it, so
@@ -3152,3 +3152,4 @@ export function usePictorium(): PictoriumCtx {
     rankingSourceMovie, rankingSourceSeries, rankSourceNonce, catalogsSyncNonce, localConfigToken, localConfigTokenStatus,
   ])
 }
+

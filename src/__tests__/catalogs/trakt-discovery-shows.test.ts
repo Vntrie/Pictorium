@@ -95,12 +95,12 @@ describe.each(["trending", "anticipated", "popular"] as const)(
   (kind) => {
     beforeEach(() => {
       vi.restoreAllMocks()
-      process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+      process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
       delete process.env.TRAKT_API_URL
     })
 
     afterEach(() => {
-      delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+      delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
       delete process.env.TRAKT_API_URL
       cacheInvalidate("custom_catalogs")
     })
@@ -190,3 +190,5 @@ describe.each(["trending", "anticipated", "popular"] as const)(
     })
   },
 )
+
+

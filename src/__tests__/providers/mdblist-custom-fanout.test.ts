@@ -98,3 +98,4 @@ describe("GET /api/mdblist/custom fan-out cap (v1.23.0)", () => {
     expect(vi.mocked(getDetails).mock.calls.length).toBeLessThanOrEqual(5)
   })
 })
+

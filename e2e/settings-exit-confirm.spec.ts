@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test"
+﻿import { test, expect, type Page } from "@playwright/test"
 
 // Exit-confirm modal acceptance (unit-covered in
 // src/__tests__/editor/components/settings-exit-confirm.test.tsx; this spec pins the
@@ -8,9 +8,9 @@ import { test, expect, type Page } from "@playwright/test"
 
 async function openSettings(page: Page) {
   await page.addInitScript(() => {
-    localStorage.setItem("pictorium_profile_id", "e2e-settings-exit-confirm")
-    localStorage.setItem("pictorium_profile_stateless", "1")
-    localStorage.setItem("pictorium_onboarding_done", "true")
+    localStorage.setItem("FLAMEFORGE_profile_id", "e2e-settings-exit-confirm")
+    localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+    localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
     localStorage.setItem("preferred_lang", "it")
     localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
   })
@@ -106,3 +106,4 @@ test.describe("settings exit-confirm centered modal", () => {
     await expect(panel).toBeVisible()
   })
 })
+

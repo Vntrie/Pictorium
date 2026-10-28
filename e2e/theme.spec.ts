@@ -1,10 +1,10 @@
-import { test, expect } from "@playwright/test"
+﻿import { test, expect } from "@playwright/test"
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
-    localStorage.setItem("pictorium_profile_id", "e2e")
-    localStorage.setItem("pictorium_profile_stateless", "1")
-    localStorage.setItem("pictorium_onboarding_done", "true")
+    localStorage.setItem("FLAMEFORGE_profile_id", "e2e")
+    localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+    localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
     localStorage.setItem("preferred_lang", "it")
   })
 })
@@ -34,8 +34,8 @@ for (const width of [390, 1280]) {
     expect(lightLogoBounds.height).toBeCloseTo(darkLogoBounds.height, 0)
     await expect(page.getByRole("radiogroup")).toHaveCount(0)
     expect(await page.locator("body").evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(242, 238, 231)")
-    expect(await page.evaluate(() => localStorage.getItem("pictorium_theme"))).toBe("dark")
-    expect(await page.evaluate(() => localStorage.getItem("pictorium_ui_theme"))).toBe("light")
+    expect(await page.evaluate(() => localStorage.getItem("FLAMEFORGE_theme"))).toBe("dark")
+    expect(await page.evaluate(() => localStorage.getItem("FLAMEFORGE_ui_theme"))).toBe("light")
     await page.screenshot({ path: `test-results/theme-light-${width}.png`, fullPage: true, animations: "disabled" })
     await page.reload()
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light")
@@ -63,7 +63,7 @@ test("light home with a key and poster editor", async ({ page }) => {
   })
   await page.addInitScript(() => {
     localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
-    localStorage.setItem("pictorium_ui_theme", "light")
+    localStorage.setItem("FLAMEFORGE_ui_theme", "light")
   })
   await page.goto("/")
   await expect(page.locator(".home-hero-title")).toBeVisible()
@@ -102,7 +102,7 @@ test("light home with a key and poster editor", async ({ page }) => {
   await expect(page.locator(".editor-stage").first()).toHaveCSS("background-color", "rgb(12, 12, 14)")
   await expect(page.locator(".editor-preview-fit")).toHaveCSS("background-color", "rgba(0, 0, 0, 0)")
   await expect(page.locator(".editor-preview-fit")).toHaveCSS("box-shadow", "none")
-  expect(await page.evaluate(() => localStorage.getItem("pictorium_theme"))).toBe("dark")
+  expect(await page.evaluate(() => localStorage.getItem("FLAMEFORGE_theme"))).toBe("dark")
   await page.screenshot({ path: "test-results/theme-editor-light.png", fullPage: true, animations: "disabled" })
   await page.getByRole("button", { name: "Orizzontale", exact: true }).click()
   await expect(page.locator(".editor-preview-fit-landscape")).toBeVisible()
@@ -120,10 +120,10 @@ test("light home with a key and poster editor", async ({ page }) => {
 for (const width of [390, 1280]) {
   test(`light settings text at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 })
-    await page.addInitScript(() => localStorage.setItem("pictorium_ui_theme", "light"))
+    await page.addInitScript(() => localStorage.setItem("FLAMEFORGE_ui_theme", "light"))
     await page.goto("/")
     const logo = page.locator(".header-logo-light:visible").first()
-    await expect(logo).toHaveAttribute("src", "/pictorium-light.svg")
+    await expect(logo).toHaveAttribute("src", "/FlameForge-light.svg")
     await expect.poll(() => logo.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true)
     await page.getByRole("button", { name: /Impostazioni/i }).click()
     for (const [tab, label] of [["badge", "Badge"], ["transform", "Trasforma"], ["prefs", "Preferenze"], ["data", "Dati & Cache"]]) {
@@ -149,12 +149,12 @@ for (const width of [390, 1280]) {
   test(`light Install Hub text at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 })
     await page.addInitScript(() => {
-      localStorage.setItem("pictorium_ui_theme", "light")
+      localStorage.setItem("FLAMEFORGE_ui_theme", "light")
       localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
     })
     await page.goto("/")
     await page.getByRole("button", { name: /Installa Hub|^Installa$/ }).click()
-    const dialog = page.getByRole("dialog", { name: "Collega Pictorium" })
+    const dialog = page.getByRole("dialog", { name: "Collega FlameForge" })
     await expect(dialog).toBeVisible()
     for (const tab of ["Stremio", "AIOMetadata", "Nuvio"]) {
       await dialog.getByRole("tab", { name: tab, exact: true }).click()
@@ -171,3 +171,4 @@ for (const width of [390, 1280]) {
     }
   })
 }
+

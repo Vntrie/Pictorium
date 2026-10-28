@@ -427,3 +427,4 @@ describe("settings Auto alignment (staged session)", () => {
     expect(result.current.result?.ok).toBe(false)
   })
 })
+

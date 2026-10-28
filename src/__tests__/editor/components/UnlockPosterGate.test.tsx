@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
-import { PictoriumRoot, usePSelector } from "@/lib/context"
+import { FlameForgeRoot, usePSelector } from "@/lib/context"
 import {
   __resetUnlockedUsersForTests,
   __resetUserCredentialsForTests,
@@ -84,9 +84,9 @@ afterEach(() => {
 describe("storia: login con password e secret stantio apre i poster senza refresh", () => {
   it("gate chiuso da ospite, OPEN dopo unlock (retry password + drop secret)", async () => {
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <GateProbe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     // Ospite: niente credenziali → gate chiuso.
     expect(await screen.findByTestId("poster-gate")).toHaveTextContent("CLOSED")
@@ -112,9 +112,9 @@ describe("storia: arrivo via gate (albero riusato) poi login apre i poster", () 
     // gate poster resterebbe chiuso fino al refresh.
     setUrl("/")
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <GateProbe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     expect(await screen.findByTestId("poster-gate")).toHaveTextContent("CLOSED")
 
@@ -127,3 +127,5 @@ describe("storia: arrivo via gate (albero riusato) poi login apre i poster", () 
     await waitFor(() => expect(screen.getByTestId("poster-gate")).toHaveTextContent("OPEN"))
   })
 })
+
+

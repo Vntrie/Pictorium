@@ -129,7 +129,7 @@ describe("platform FP-first (flixpatrol adapter)", () => {
   beforeEach(async () => {
     vi.restoreAllMocks()
     tmpDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "fp-first-"))
-    vi.stubEnv("PICTORIUM_DATA_DIR", tmpDataDir)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", tmpDataDir)
     vi.resetModules()
     fp = await import("@/lib/flixpatrol")
     cg = await import("@/lib/chart-generation")
@@ -295,7 +295,7 @@ describe("platform FP-first (renewal coherence)", () => {
   beforeEach(async () => {
     vi.restoreAllMocks()
     tmpDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "fp-first-renew-"))
-    vi.stubEnv("PICTORIUM_DATA_DIR", tmpDataDir)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", tmpDataDir)
     vi.resetModules()
     fp = await import("@/lib/flixpatrol")
     cg = await import("@/lib/chart-generation")
@@ -374,3 +374,5 @@ describe("platform FP-first (renewal coherence)", () => {
     expect(fpFetches).toBe(0)
   })
 })
+
+

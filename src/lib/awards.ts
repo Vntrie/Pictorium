@@ -1,8 +1,8 @@
-import { cacheGet, cacheGetShared, cacheSet } from "./cache"
+﻿import { cacheGet, cacheGetShared, cacheSet } from "./cache"
 import { getPersistedWikidata, setPersistedWikidata, WIKIDATA_PERSIST_FRESH_MS, type WikidataPersisted } from "./wikidata-cache"
 import { matchStudios, isValidWikidataQid } from "./badge-labels"
 
-// Re-export per compatibilità: le label pure vivono in badge-labels.ts
+// Re-export per compatibilitÃ : le label pure vivono in badge-labels.ts
 // (foglia client-safe); poster route, poster-badge e test continuano a
 // importarle da qui senza modifiche.
 export { matchTMDBStudios, getAwardBadgeLabel, getNominationBadgeLabel, isValidWikidataQid } from "./badge-labels"
@@ -33,18 +33,18 @@ const RULES: AwardRule[] = [
  * Oscar/Emmy/Golden Globe main-title badge from upstream evidence.
  *
  * Verified live 2026-10-22 via the Wikidata Action API (`wbgetentities`
- * labels) + enwiki `pageprops` identity (article → wikibase_item); full
+ * labels) + enwiki `pageprops` identity (article â†’ wikibase_item); full
  * provenance in `docs/awards-top-category-provenance.md`:
  *
  * - Oscar Best Picture: Q102427 ("Academy Award for Best Picture").
  * - Emmy Outstanding Drama Series: Q989438; Outstanding Comedy Series:
  *   Q2110156; Outstanding Limited Series: Q20714679 (current enwiki article
- *   "…Outstanding Limited or Anthology Series", label still the historical
- *   "…Outstanding Limited Miniseries" variant — same category item).
- * - Golden Globe film: Q1011509 (Best Motion Picture – Drama), Q670282 (Best
- *   Motion Picture – Musical or Comedy).
- * - Golden Globe TV: Q1255198 (Best Television Series – Drama), Q596294
- *   (Best Television Series – Musical or Comedy), Q265435 (Best Limited or
+ *   "â€¦Outstanding Limited or Anthology Series", label still the historical
+ *   "â€¦Outstanding Limited Miniseries" variant â€” same category item).
+ * - Golden Globe film: Q1011509 (Best Motion Picture â€“ Drama), Q670282 (Best
+ *   Motion Picture â€“ Musical or Comedy).
+ * - Golden Globe TV: Q1255198 (Best Television Series â€“ Drama), Q596294
+ *   (Best Television Series â€“ Musical or Comedy), Q265435 (Best Limited or
  *   Anthology Series or Television Film).
  *
  * Broad generic parents (Academy Awards Q19020, Primetime Emmy Awards
@@ -52,7 +52,7 @@ const RULES: AwardRule[] = [
  * (e.g. Best Actor Q103916) are REJECTED: without a demonstrated
  * main-category claim, no eligible main-award win/nomination is asserted.
  * No new network per request: filtering reuses the QIDs already fetched for
- * labels (REST claims) or projected in the same SPARQL query — category
+ * labels (REST claims) or projected in the same SPARQL query â€” category
  * evidence is filtered BEFORE the lossy generic string merge, never after.
  */
 const OSCAR_BEST_PICTURE_QIDS: ReadonlySet<string> = new Set(["Q102427"])
@@ -65,7 +65,7 @@ const STRICT_MAIN_ORGS: ReadonlySet<string> = new Set(["Oscar", "Emmy", "Golden 
 
 /**
  * Canonical main-title orgs for one upstream claim list (P166 wins or P1411
- * nominations — winners vs nominations stay distinct, never mixed).
+ * nominations â€” winners vs nominations stay distinct, never mixed).
  * Media-gated: Oscar Best Picture + Globe film are movie-only, Emmy
  * top-series + Globe TV are tv-only (movie/tv namespace isolation, same rule
  * as the curated lists in award-ids.ts).
@@ -96,9 +96,9 @@ export interface WikidataResult {
   studios: string[]
   director: string | null
   /**
-   * True quando il risultato è un fallback da fallimento upstream (negative
+   * True quando il risultato Ã¨ un fallback da fallimento upstream (negative
    * cache, breaker aperto, timeout, 5xx) invece di un esito accertato.
-   * Assente nei mock storici dei test → trattato come false dal chiamante.
+   * Assente nei mock storici dei test â†’ trattato come false dal chiamante.
    * Serve a non congelare in cache 24h un poster senza premi per un miss
    * transitorio (stesso pattern di qualityEphemeral nella route poster).
    */
@@ -107,7 +107,7 @@ export interface WikidataResult {
 
 // ---- Circuit breaker (Wikidata SPARQL) ----
 // Generic primitive in circuit-breaker.ts; same threshold/backoff as before
-// (5 failures → 60s backoff). Half-open semantics unchanged, see the factory.
+// (5 failures â†’ 60s backoff). Half-open semantics unchanged, see the factory.
 const wikidataBreaker = createCircuitBreaker({ name: "awards", failureThreshold: 5, backoffMs: 60_000 })
 
 /**
@@ -116,7 +116,7 @@ const wikidataBreaker = createCircuitBreaker({ name: "awards", failureThreshold:
  * Half-open: una volta raggiunta la soglia, la finestra di backoff viene
  * aperta al momento del fallimento (recordFailure). Alla scadenza della
  * finestra UNA sola richiesta di prova attraversa per verificare lo stato
- * dell'upstream; le altre restano rifiutate finché la prova non decide.
+ * dell'upstream; le altre restano rifiutate finchÃ© la prova non decide.
  * Prima il breaker restava aperto per sempre: nessuna richiesta usciva mai a
  * resettare i contatori, quindi allo scadere della finestra si riapriva.
  */
@@ -173,7 +173,7 @@ async function sparqlQuery(
   opts?: { noRetryOnAbort?: boolean },
 ): Promise<Record<string, { value: string; type: string }>[] | null> {
   if (isBreakerOpen()) return null
-  // R3: signal esterno già abortito → niente rete inutile.
+  // R3: signal esterno giÃ  abortito â†’ niente rete inutile.
   if (signal?.aborted) return null
 
   await acquire()
@@ -185,14 +185,14 @@ async function sparqlQuery(
     // Retry once with jitter on failure (but not on breaker)
     for (let attempt = 0; attempt < 2; attempt++) {
       // Stale-flow only (flag): a budget abort suppresses the retry here and
-      // records nothing locally — a real upstream timeout is counted exactly
+      // records nothing locally â€” a real upstream timeout is counted exactly
       // once by the stale-budget wrapper, while a caller abort counts
       // nothing. Without the flag the original retry + count is unchanged.
       if (signal?.aborted && opts?.noRetryOnAbort) return null
       const timeout = 5000 + Math.round(Math.random() * 1000)
       try {
         const res = await timedFetch(url, {
-          headers: { "User-Agent": "Pictorium/1.0" },
+          headers: { "User-Agent": "FlameForge/1.0" },
           signal: combineAbortSignals(signal, timeout),
         })
         if (res.status === 429) {
@@ -247,23 +247,23 @@ const DIRECTORS = [
   "Charles Chaplin", "Federico Fellini", "Ingmar Bergman", "Steven Spielberg",
   "Stanley Kubrick", "D.W. Griffith", "William Wyler", "Howard Hawks",
   "David Lean", "Martin Scorsese", "Jean Renoir", "Robert Bresson",
-  "Jean-Luc Godard", "Frank Capra", "Andrei Tarkovsky", "Luis Buñuel",
+  "Jean-Luc Godard", "Frank Capra", "Andrei Tarkovsky", "Luis BuÃ±uel",
   "Michael Powell", "John Huston", "Michael Curtiz", "Billy Wilder",
-  "Carl Theodor Dreyer", "Yasujirō Ozu", "Woody Allen", "Abel Gance",
+  "Carl Theodor Dreyer", "YasujirÅ Ozu", "Woody Allen", "Abel Gance",
   "Ernst Lubitsch", "Paul Thomas Anderson", "Francis Ford Coppola",
   "Michelangelo Antonioni", "Sergio Leone", "F.W. Murnau", "Ridley Scott",
   "David Lynch", "George Stevens", "Fritz Lang", "Roman Polanski",
-  "Miloš Forman", "James Cameron", "Tim Burton", "Elia Kazan",
-  "François Truffaut", "George Cukor", "Buster Keaton", "Werner Herzog",
+  "MiloÅ¡ Forman", "James Cameron", "Tim Burton", "Elia Kazan",
+  "FranÃ§ois Truffaut", "George Cukor", "Buster Keaton", "Werner Herzog",
   "Sergei Eisenstein", "Cecil B. DeMille", "Kenji Mizoguchi", "Nicholas Ray",
   "Tod Browning", "John Sturges", "Otto Preminger", "Victor Fleming",
   "Carol Reed", "Roberto Rossellini", "Fred Zinnemann", "Sidney Lumet",
-  "Marcel Carné", "Quentin Tarantino", "Raoul Walsh", "Henry King",
+  "Marcel CarnÃ©", "Quentin Tarantino", "Raoul Walsh", "Henry King",
   "Dziga Vertov", "Lewis Milestone", "Rex Ingram", "Christopher Nolan",
-  "Max Ophüls",
+  "Max OphÃ¼ls",
 ]
 
-/** Estrae "Q123" da un URI entità Wikidata (o da un QID già nudo). */
+/** Estrae "Q123" da un URI entitÃ  Wikidata (o da un QID giÃ  nudo). */
 function qidFromEntityUri(value: string | null | undefined): string | null {
   if (!value) return null
   const m = value.match(/(Q\d+)\s*$/)
@@ -276,15 +276,15 @@ const wikidataApiBase = () =>
   process.env.WIKIDATA_API_URL || "https://www.wikidata.org/w/api.php"
 
 /**
- * Titolo del sitelink enwiki di un item (es. Q25191 → "Christopher Nolan").
+ * Titolo del sitelink enwiki di un item (es. Q25191 â†’ "Christopher Nolan").
  * Fallback fail-open per item senza label: 1 chiamata API veloce con timeout
- * breve, MAI join sitelink in SPARQL (rende la query 10x più lenta).
+ * breve, MAI join sitelink in SPARQL (rende la query 10x piÃ¹ lenta).
  */
 async function enwikiTitle(qid: string, signal?: AbortSignal): Promise<string | null> {
   try {
     const url = `${wikidataApiBase()}?action=wbgetentities&ids=${encodeURIComponent(qid)}&props=sitelinks&sitefilter=enwiki&format=json`
     const res = await timedFetch(url, {
-      headers: { "User-Agent": "Pictorium/1.0" },
+      headers: { "User-Agent": "FlameForge/1.0" },
       signal: combineAbortSignals(signal, 4000),
     })
     if (!res.ok) return null
@@ -298,10 +298,10 @@ async function enwikiTitle(qid: string, signal?: AbortSignal): Promise<string | 
 
 /**
  * Nome canonico del regista se in allowlist, altrimenti null. Usato per lo
- * storage neutro in cache: la cache è per titolo, non per lingua, quindi non
- * può contenere label già rese (chi chiede per primo in una lingua
+ * storage neutro in cache: la cache Ã¨ per titolo, non per lingua, quindi non
+ * puÃ² contenere label giÃ  rese (chi chiede per primo in una lingua
  * avvelenerebbe le altre per 24h). La resa avviene con directorBadgeLabel
- * dove la locale è nota.
+ * dove la locale Ã¨ nota.
  */
 export function matchDirectorName(name: string | null): string | null {
   if (!name) return null
@@ -330,10 +330,10 @@ const WIKIDATA_CACHE_TTL = 7 * 24 * 60 * 60 * 1000
  *   inside the helper; the hot path stops waiting after 250ms and treats a
  *   stalled store as a miss (fail-open, late settlement ignored). A shared
  *   hit never waits for durable storage at all (returns first).
- * - STALE_UPSTREAM_BUDGET_MS: with a stale (≤30d) snapshot retained, slow
+ * - STALE_UPSTREAM_BUDGET_MS: with a stale (â‰¤30d) snapshot retained, slow
  *   upstream gets at most this long to deliver fresh data (further capped by
  *   STALE_TOTAL_BUDGET_MS below); on expiry the upstream is aborted and the
- *   stale is served degraded:true — a slow SPARQL with retries alone would
+ *   stale is served degraded:true â€” a slow SPARQL with retries alone would
  *   otherwise outlive the route's race and make the stale unreachable.
  */
 const PERSISTED_READ_BUDGET_MS = 250
@@ -367,7 +367,7 @@ function persistWikidataGoodAsync(tmdbId: number, mediaType: "movie" | "tv", res
 
 // Negative cache in-memory per i fallimenti transitori (breaker, timeout,
 // 5xx): senza, un outage SPARQL fa pagare la race da 2500ms a OGNI render.
-// Solo memoria locale (mai KV: durante un outage il KV è l'ultima cosa da
+// Solo memoria locale (mai KV: durante un outage il KV Ã¨ l'ultima cosa da
 // stressare), TTL 60s: al recovery i premi ricompaiono entro un minuto.
 const WIKIDATA_NEGATIVE_TTL_MS = 60_000
 const wikidataNegative = new Map<string, number>()
@@ -441,7 +441,7 @@ export async function fetchWikidataRest(
   try {
     const claimsUrl = `${wikidataApiBase()}?action=wbgetentities&ids=${encodeURIComponent(qid)}&props=claims&format=json`
     const claimsRes = await timedFetch(claimsUrl, {
-      headers: { "User-Agent": "Pictorium/1.0" },
+      headers: { "User-Agent": "FlameForge/1.0" },
       signal: combineAbortSignals(signal, 1000),
     })
     if (!claimsRes.ok) {
@@ -458,7 +458,7 @@ export async function fetchWikidataRest(
       awardQids: claimQids(claims, "P166"),
       nominationQids: claimQids(claims, "P1411"),
       directorQids: claimQids(claims, "P57"),
-      // P449 (network) ha senso solo per le serie: lo SPARQL lo chiede solo lì.
+      // P449 (network) ha senso solo per le serie: lo SPARQL lo chiede solo lÃ¬.
       networkQids: mediaType === "tv" ? claimQids(claims, "P449") : [],
     }
     const allQids = [...new Set([...parsed.awardQids, ...parsed.nominationQids, ...parsed.directorQids, ...parsed.networkQids])].slice(0, 50)
@@ -466,7 +466,7 @@ export async function fetchWikidataRest(
     if (allQids.length > 0) {
       const labelsUrl = `${wikidataApiBase()}?action=wbgetentities&ids=${encodeURIComponent(allQids.join("|"))}&props=labels&languages=en&format=json`
       const labelsRes = await timedFetch(labelsUrl, {
-        headers: { "User-Agent": "Pictorium/1.0" },
+        headers: { "User-Agent": "FlameForge/1.0" },
         signal: combineAbortSignals(signal, 800),
       })
       if (!labelsRes.ok) {
@@ -512,7 +512,7 @@ export async function fetchWikidataRest(
 export async function fetchAllWikidata(
   tmdbId: number,
   mediaType: "movie" | "tv",
-  // R3: signal esterno (es. deadline render) — senza, il fetch sopravvive al
+  // R3: signal esterno (es. deadline render) â€” senza, il fetch sopravvive al
   // watchdog come zombie anche dopo il 503.
   signal?: AbortSignal,
   opts?: { wikidataId?: string | null },
@@ -540,14 +540,14 @@ export async function fetchAllWikidata(
     (v) => v,
     () => null,
   )
-  // Shared L2 (L1 re-check + ≤1500ms KV cap when enabled; immediate miss
+  // Shared L2 (L1 re-check + â‰¤1500ms KV cap when enabled; immediate miss
   // when KV_CACHE=0/file mode). A shared HIT returns right away WITHOUT
   // waiting for the slower durable read: the prefetch is aborted (no orphan
   // disk read) instead of settling detached.
   const cached = await cacheGetShared<WikidataResult>(cacheKey, ["wikidata"])
   // Check shared cache first (typed, with TTL). L1 + L2 KV cross-istanza:
   // la prima istanza che riesce condivide con tutte (prima ogni istanza
-  // ritirava i dadi SPARQL per conto suo → lotteria badge multi-istanza).
+  // ritirava i dadi SPARQL per conto suo â†’ lotteria badge multi-istanza).
   if (cached) {
     persistedCtrl.abort()
     return cached
@@ -573,9 +573,9 @@ export async function fetchAllWikidata(
       if (timer !== undefined) clearTimeout(timer)
     }
   }
-  // Durable fresh (≤7d): repopulate the shared cache with the REMAINING
+  // Durable fresh (â‰¤7d): repopulate the shared cache with the REMAINING
   // fresh lifetime, never a fresh 7d from now (no sliding expiration past
-  // the absolute 7d age). Stale (≤30d) is retained as fail-open fallback
+  // the absolute 7d age). Stale (â‰¤30d) is retained as fail-open fallback
   // and never cached as fresh nor rewritten.
   let staleFallback: WikidataResult | null = null
   if (persisted) {
@@ -586,7 +586,7 @@ export async function fetchAllWikidata(
         cacheSet(cacheKey, fresh, ["wikidata"], remaining)
         return fresh
       }
-      // Clock moved past 7d since the read: still usable as stale (≤30d).
+      // Clock moved past 7d since the read: still usable as stale (â‰¤30d).
       staleFallback = { ...persisted.payload, degraded: true }
     } else {
       staleFallback = { ...persisted.payload, degraded: true }
@@ -613,15 +613,15 @@ export async function fetchAllWikidata(
     upstreamSignal?: AbortSignal,
     liveOpts?: { noRetryOnAbort?: boolean },
   ): Promise<WikidataResult | null> => {
-    // Fast-path REST a costo zero RTT TMDB (QID già in mano dalla route via
-    // append_to_response=external_ids). Successo → stessa cache condivisa 7d
-    // dello SPARQL; fallimento → fallback SPARQL sotto (QID null o assente
+    // Fast-path REST a costo zero RTT TMDB (QID giÃ  in mano dalla route via
+    // append_to_response=external_ids). Successo â†’ stessa cache condivisa 7d
+    // dello SPARQL; fallimento â†’ fallback SPARQL sotto (QID null o assente
     // compreso: TMDB lo restituisce null per una fetta reale di titoli).
     if (isValidWikidataQid(opts?.wikidataId)) {
       const rest = await fetchWikidataRest(opts.wikidataId, mediaType, upstreamSignal).catch(() => null)
       if (rest) {
-        // Osservabilità path (Dexter): con PICTORIUM_LOG_LEVEL=debug si vede se
-        // il badge è arrivato via REST veloce o via lotteria SPARQL.
+        // OsservabilitÃ  path (Dexter): con FLAMEFORGE_LOG_LEVEL=debug si vede se
+        // il badge Ã¨ arrivato via REST veloce o via lotteria SPARQL.
         log.debug("Wikidata fast-path REST hit", { mediaType, tmdbId, awards: rest.awards.length })
         const hit: WikidataResult = { ...rest, degraded: false }
         cacheSet(cacheKey, hit, ["wikidata"], WIKIDATA_CACHE_TTL)
@@ -650,8 +650,8 @@ export async function fetchAllWikidata(
       const bindings = await sparqlQuery(query, upstreamSignal, liveOpts)
       if (bindings === null) {
         // Fallimento transitorio (breaker, timeout, 5xx): non inquinare la cache 7d,
-        // ma registra la negativa breve così l'outage non tassa ogni render.
-        // Mai a breaker già aperto: lì sopprime già lui (stesso TTL), e la
+        // ma registra la negativa breve cosÃ¬ l'outage non tassa ogni render.
+        // Mai a breaker giÃ  aperto: lÃ¬ sopprime giÃ  lui (stesso TTL), e la
         // negativa non deve nascondere i fallimenti che il breaker deve contare.
         if (!isBreakerOpen()) wikidataNegativeSet(cacheKey)
         return null
@@ -722,11 +722,11 @@ export async function fetchAllWikidata(
   }
   // Stale retained: the upstream gets a bounded chance to refresh, within
   // the TOTAL stale deadline from function start (STALE_TOTAL_BUDGET_MS, a
-  // margin under the route's 2500ms race — worst case can no longer exceed
+  // margin under the route's 2500ms race â€” worst case can no longer exceed
   // it). On expiry the upstream is aborted (never orphaned: it respects the
   // signal, no retry after abort in this flow only) and the stale is served
   // degraded:true. A real upstream timeout counts EXACTLY ONCE as a breaker
-  // failure (outage, not caller abort — the caller-aborted case below counts
+  // failure (outage, not caller abort â€” the caller-aborted case below counts
   // nothing); the transient 60s negative is preserved unless the breaker is
   // already open. The stale itself is never cached as fresh. A late genuine
   // success still persists through the normal path (fail-open refresh);
@@ -763,3 +763,4 @@ export async function fetchAwards(tmdbId: number, mediaType: "movie" | "tv"): Pr
   const data = await fetchAllWikidata(tmdbId, mediaType)
   return data.awards
 }
+

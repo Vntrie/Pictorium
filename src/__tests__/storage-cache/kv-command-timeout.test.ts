@@ -57,13 +57,13 @@ const kvMock = vi.hoisted(() => {
 vi.mock("@vercel/kv", () => ({ kv: kvMock }))
 
 function clearEnv() {
-  delete process.env.PICTORIUM_REDIS_URL
-  delete process.env.POSTERIUM_REDIS_URL
+  delete process.env.FLAMEFORGE_REDIS_URL
+  delete process.env.FLAMEFORGE_REDIS_URL
   delete process.env.REDIS_URL
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
-  delete process.env.PICTORIUM_KV_COMMAND_TIMEOUT_MS
-  delete process.env.POSTERIUM_KV_COMMAND_TIMEOUT_MS
+  delete process.env.FLAMEFORGE_KV_COMMAND_TIMEOUT_MS
+  delete process.env.FLAMEFORGE_KV_COMMAND_TIMEOUT_MS
 }
 
 async function importKv() {
@@ -146,8 +146,8 @@ describe("kv adapter: central timeout on a hung backend", () => {
     }
   })
 
-  it("PICTORIUM_KV_COMMAND_TIMEOUT_MS override moves the cap (500: pending at 499, rejected at 500)", async () => {
-    process.env.PICTORIUM_KV_COMMAND_TIMEOUT_MS = "500"
+  it("FLAMEFORGE_KV_COMMAND_TIMEOUT_MS override moves the cap (500: pending at 499, rejected at 500)", async () => {
+    process.env.FLAMEFORGE_KV_COMMAND_TIMEOUT_MS = "500"
     process.env.KV_REST_API_URL = "https://example.upstash.io"
     process.env.KV_REST_API_TOKEN = "test-token"
     const kv = await importKv()
@@ -289,7 +289,7 @@ describe("kv adapter: central timeout on a hung backend", () => {
   })
 
   it("redis: hung sample (get/set/hgetall/incr/expire/scan/zrevrange) rejects with KvTimeoutError", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:9"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:9"
     const kv = await importKv()
     const client = kv.getKv()
     vi.useFakeTimers()
@@ -323,7 +323,7 @@ describe("kv adapter: central timeout on a hung backend", () => {
   })
 
   it("closeKvClient is not wrapped: resolves without KvTimeoutError", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:9"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:9"
     const kv = await importKv()
     kv.getKv()
     await expect(kv.closeKvClient()).resolves.toBeUndefined()
@@ -343,3 +343,5 @@ describe("kv adapter: central timeout on a hung backend", () => {
     }
   })
 })
+
+

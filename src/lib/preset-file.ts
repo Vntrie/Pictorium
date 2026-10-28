@@ -1,7 +1,7 @@
-/**
+﻿/**
  * Dedicated preset transfer file: "I miei preset" (server visual presets)
  * + custom gradient presets (local shortcuts). No Badge Lab, no built-ins,
- * no defaults/mappings/keys — see `parsePresetFileData` for the exact
+ * no defaults/mappings/keys â€” see `parsePresetFileData` for the exact
  * unknown-key rules (top/entry-level ignored, values-level strict).
  *
  * Client-safe: zod + visual-presets + gradient-presets constant only.
@@ -24,7 +24,7 @@ import {
   type GradientPresetValues,
 } from "./gradient-presets";
 
-export const PRESET_FILE_KIND = "pictorium-presets" as const;
+export const PRESET_FILE_KIND = "FlameForge-presets" as const;
 export const PRESET_FILE_FORMAT_VERSION = 1 as const;
 /** Client-side pre-check: never JSON.parse (or upload) a bigger payload. */
 export const MAX_PRESET_FILE_BYTES = 256 * 1024;
@@ -216,7 +216,7 @@ const gradientNameSchema = z.string().trim().min(1).max(24);
  * the entry) + `captureVisualPreset(values)` (stray secrets stripped,
  * preset preserved); gradient -> trimmed name + the 6 slider keys
  * (validated). Invalid entries are skipped. Builtins are NEVER
- * added here — the caller passes exactly what to export (all or one).
+ * added here â€” the caller passes exactly what to export (all or one).
  */
 export function buildPresetFile(input: BuildPresetFileInput = {}): PresetFileData {
   const visualPresets: VisualFileEntry[] = [];
@@ -359,7 +359,7 @@ export function planVisualImport(
 
 /**
  * Additive gradient import plan. Same collision rule; quota is 3 total
- * custom slots. Returned entries are id-less — the caller persists them
+ * custom slots. Returned entries are id-less â€” the caller persists them
  * via `addCustomGradientPreset(name, values)` (which mints ids).
  */
 export function planGradientImport(
@@ -368,3 +368,4 @@ export function planGradientImport(
 ): PresetImportPlan<GradientFileEntry> {
   return planImport(existing, incoming, MAX_PRESET_FILE_GRADIENT);
 }
+

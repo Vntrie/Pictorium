@@ -112,3 +112,4 @@ describe("near-white safeguard and unrelated styles", () => {
     expect(rank.svg).toContain('fill="rgba(0,0,0,0.88)"')
   })
 })
+

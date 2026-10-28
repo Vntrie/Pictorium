@@ -288,3 +288,4 @@ describe("settings exit-confirm guarded actions", () => {
     expect(installSpy).toHaveBeenCalledTimes(1)
   })
 })
+

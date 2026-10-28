@@ -595,3 +595,4 @@ describe("perf gating: region-decode budget on the render path", () => {
     expect(regionCalls()).toBeLessThanOrEqual(2)
   })
 })
+

@@ -553,3 +553,4 @@ describe("budget-aware helper signal args (backward compatible)", () => {
     expect(spy).not.toHaveBeenCalled()
   })
 })
+

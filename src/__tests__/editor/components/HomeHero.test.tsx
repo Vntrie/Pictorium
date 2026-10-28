@@ -147,3 +147,4 @@ describe("HomeStatusStrip", () => {
     window.history.replaceState({}, "", "/")
   })
 })
+

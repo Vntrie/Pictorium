@@ -28,33 +28,33 @@ function manifestCatalogIds(body: { catalogs: Array<{ id: string }> }): string[]
 
 describe("anime classification ids (never inferred)", () => {
   it("matches only the built-in anime catalogs + legacy aliases", () => {
-    expect(isAnimeBuiltinCatalogId("pictorium-anime")).toBe(true)
-    expect(isAnimeBuiltinCatalogId("pictorium-anime-movies")).toBe(true)
+    expect(isAnimeBuiltinCatalogId("FlameForge-anime")).toBe(true)
+    expect(isAnimeBuiltinCatalogId("FlameForge-anime-movies")).toBe(true)
     expect(isAnimeBuiltinCatalogId("posterium-anime")).toBe(true)
     expect(isAnimeBuiltinCatalogId("posterium-anime-movies")).toBe(true)
     // Never a provider/service/user guess: Crunchyroll rows, customs named
     // "Anime" and the general charts are NOT anime classification ids.
-    expect(isAnimeBuiltinCatalogId("pictorium-stream-crunchyroll-it-movies")).toBe(false)
-    expect(isAnimeBuiltinCatalogId("pictorium-stream2-crunchyroll--italy--movies--auto")).toBe(false)
-    expect(isAnimeBuiltinCatalogId("pictorium-custom-movie-abc")).toBe(false)
-    expect(isAnimeBuiltinCatalogId("pictorium-jw-movies")).toBe(false)
-    expect(isAnimeBuiltinCatalogId("pictorium-netflix-movies")).toBe(false)
+    expect(isAnimeBuiltinCatalogId("FlameForge-stream-crunchyroll-it-movies")).toBe(false)
+    expect(isAnimeBuiltinCatalogId("FlameForge-stream2-crunchyroll--italy--movies--auto")).toBe(false)
+    expect(isAnimeBuiltinCatalogId("FlameForge-custom-movie-abc")).toBe(false)
+    expect(isAnimeBuiltinCatalogId("FlameForge-jw-movies")).toBe(false)
+    expect(isAnimeBuiltinCatalogId("FlameForge-netflix-movies")).toBe(false)
   })
 
   it("partition is stable, duplicate-free and total", () => {
     const rows = [
-      { id: "pictorium-anime" },
-      { id: "pictorium-jw-movies" },
-      { id: "pictorium-custom-movie-x" },
-      { id: "pictorium-anime-movies" },
-      { id: "pictorium-stream-netflix-it-movies" },
+      { id: "FlameForge-anime" },
+      { id: "FlameForge-jw-movies" },
+      { id: "FlameForge-custom-movie-x" },
+      { id: "FlameForge-anime-movies" },
+      { id: "FlameForge-stream-netflix-it-movies" },
     ]
     expect(partitionAnimeCatalogsLast(rows).map((r) => r.id)).toEqual([
-      "pictorium-jw-movies",
-      "pictorium-custom-movie-x",
-      "pictorium-stream-netflix-it-movies",
-      "pictorium-anime",
-      "pictorium-anime-movies",
+      "FlameForge-jw-movies",
+      "FlameForge-custom-movie-x",
+      "FlameForge-stream-netflix-it-movies",
+      "FlameForge-anime",
+      "FlameForge-anime-movies",
     ])
   })
 })
@@ -76,35 +76,35 @@ describe("manifest emits anime last (catalogOrder superseded for anime only)", (
       catalogOrder: order,
       ...extra,
     })
-    const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+    const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
     const res = await buildManifestResponse(req, null, token)
     return (await res.json()) as { catalogs: Array<{ id: string; name: string }> }
   }
 
   it("shuffled order with anime first still emits anime last, others stable", async () => {
     const body = await emit([
-      "pictorium-anime",
-      "pictorium-jw-movies",
-      "pictorium-netflix-movies",
-      "pictorium-anime-movies",
+      "FlameForge-anime",
+      "FlameForge-jw-movies",
+      "FlameForge-netflix-movies",
+      "FlameForge-anime-movies",
     ])
     // Content catalogs only: search/people-search are a separate hub
     // section appended after, not charts.
-    const ids = manifestCatalogIds(body).filter((id) => !id.startsWith("pictorium-search"))
+    const ids = manifestCatalogIds(body).filter((id) => !id.startsWith("FlameForge-search"))
     // Non-anime keep their relative catalogOrder; anime sink to the end.
-    expect(ids.indexOf("pictorium-jw-movies")).toBeLessThan(ids.indexOf("pictorium-netflix-movies"))
-    expect(ids.slice(-2)).toEqual(["pictorium-anime", "pictorium-anime-movies"])
+    expect(ids.indexOf("FlameForge-jw-movies")).toBeLessThan(ids.indexOf("FlameForge-netflix-movies"))
+    expect(ids.slice(-2)).toEqual(["FlameForge-anime", "FlameForge-anime-movies"])
     expect(new Set(ids).size).toBe(ids.length)
   })
 
   it("legacy aliases normalize and sink too; disabled anime never resurrect", async () => {
     const body = await emit(
-      ["posterium-anime", "pictorium-jw-movies"],
-      { disabledCatalogIds: ["pictorium-anime-movies"] },
+      ["posterium-anime", "FlameForge-jw-movies"],
+      { disabledCatalogIds: ["FlameForge-anime-movies"] },
     )
-    const ids = manifestCatalogIds(body).filter((id) => !id.startsWith("pictorium-search"))
-    expect(ids[ids.length - 1]).toBe("pictorium-anime")
-    expect(ids).not.toContain("pictorium-anime-movies")
+    const ids = manifestCatalogIds(body).filter((id) => !id.startsWith("FlameForge-search"))
+    expect(ids[ids.length - 1]).toBe("FlameForge-anime")
+    expect(ids).not.toContain("FlameForge-anime-movies")
     expect(new Set(ids).size).toBe(ids.length)
   })
 })
@@ -116,7 +116,7 @@ describe("manager lists anime last (display projection, stored order untouched)"
 
   it("catalogOrder anime-first renders anime rows last", () => {
     renderWithCtx(<Harness />, {
-      catalogOrder: ["pictorium-anime-movies", "pictorium-anime", "pictorium-jw-movies"],
+      catalogOrder: ["FlameForge-anime-movies", "FlameForge-anime", "FlameForge-jw-movies"],
     })
     const rows = Array.from(document.querySelectorAll('[draggable="true"]'))
     // User order is preserved within the anime tail (movies before series).
@@ -128,3 +128,5 @@ describe("manager lists anime last (display projection, stored order untouched)"
     expect(first).toContain("Top 20 Italia")
   })
 })
+
+

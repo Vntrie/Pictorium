@@ -234,7 +234,7 @@ describe("GET accentmeta branch (same real handler)", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
     // Free (private) mode: the global setup simulates a public instance
-    // (POSTERIUM_PUBLIC_INSTANCE=1 → presets hardening would strip free-text
+    // (FLAMEFORGE_PUBLIC_INSTANCE=1 → presets hardening would strip free-text
     // `extra` and non-palette `ac`). These vectors need the raw query chain.
     vi.spyOn(hardening, "isPresetsPosterMode").mockReturnValue(false)
     vi.spyOn(hardening, "isPublicPosterInstance").mockReturnValue(false)
@@ -243,7 +243,7 @@ describe("GET accentmeta branch (same real handler)", () => {
     mockedGenerate.mockClear()
     vi.mocked(fetchCustomRatings).mockReset().mockResolvedValue([])
     vi.mocked(fetchAggregatedRating).mockReset().mockResolvedValue(null)
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -453,7 +453,7 @@ describe("GET accentmeta ignores stale sidecars (fresh-only guard)", () => {
     mockedGenerate.mockClear()
     vi.mocked(fetchCustomRatings).mockReset().mockResolvedValue([])
     vi.mocked(fetchAggregatedRating).mockReset().mockResolvedValue(null)
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -629,7 +629,7 @@ describe("GET image responses carry the accent header (primary transport)", () =
     mockedGenerate.mockClear()
     vi.mocked(fetchCustomRatings).mockReset().mockResolvedValue([])
     vi.mocked(fetchAggregatedRating).mockReset().mockResolvedValue(null)
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -783,3 +783,5 @@ describe("GET image responses carry the accent header (primary transport)", () =
     })
   })
 })
+
+

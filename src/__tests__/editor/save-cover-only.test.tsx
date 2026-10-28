@@ -866,3 +866,4 @@ describe("resetPerTitleVisuals", () => {
     expect(ed.selectedBackdrop?.file_path).toBe("/bd-saved.jpg")
   })
 })
+

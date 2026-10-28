@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { render, screen, act } from "@testing-library/react"
 import { useState, useMemo } from "react"
 import { TranslationProvider, useT } from "@/lib/contexts/TranslationContext"
-import type { PictoriumCtx } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { MOCK_CTX } from "@/__tests__/test-utils"
 
 describe("reactive translation switching without refresh", () => {
@@ -22,7 +22,7 @@ describe("reactive translation switching without refresh", () => {
         }
       }, [lang])
 
-      const ctxValue: PictoriumCtx = {
+      const ctxValue: FlameForgeCtx = {
         ...MOCK_CTX,
         lang,
         pickLang: setLang,
@@ -56,3 +56,5 @@ describe("reactive translation switching without refresh", () => {
     expect(screen.getByTestId("label").textContent).toBe("Todos")
   })
 })
+
+

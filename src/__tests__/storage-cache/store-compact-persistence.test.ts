@@ -49,19 +49,19 @@ const tempDirs: string[] = []
 
 async function freshStore() {
   await fsp.mkdir(SCRATCH_ROOT, { recursive: true })
-  const dir = await fsp.mkdtemp(path.join(SCRATCH_ROOT, "pictorium-compact-"))
+  const dir = await fsp.mkdtemp(path.join(SCRATCH_ROOT, "FlameForge-compact-"))
   tempDirs.push(dir)
-  // Canonical data dir first (PICTORIUM_* wins over POSTERIUM_* in
+  // Canonical data dir first (FLAMEFORGE_* wins over FLAMEFORGE_* in
   // envWithFallback): pin both to the same temp dir so the legacy value can
   // never shadow the canonical one.
-  vi.stubEnv("PICTORIUM_DATA_DIR", dir)
-  vi.stubEnv("POSTERIUM_DATA_DIR", dir)
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
   // Blank every KV backend selector read by src/lib/kv.ts (resolveRedisUrl:
-  // PICTORIUM/POSTERIUM/REDIS_URL; isKvConfigured: KV_REST_API_URL/TOKEN) so
+  // FlameForge/POSTERIUM/REDIS_URL; isKvConfigured: KV_REST_API_URL/TOKEN) so
   // getStorageMode() is "file" even when the runner env carries real
   // credentials. "" trims to unset for Redis and is falsy for KV.
-  vi.stubEnv("PICTORIUM_REDIS_URL", "")
-  vi.stubEnv("POSTERIUM_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
   vi.stubEnv("REDIS_URL", "")
   vi.stubEnv("KV_REST_API_URL", "")
   vi.stubEnv("KV_REST_API_TOKEN", "")
@@ -239,7 +239,7 @@ describe("store compact persistence (task4/point4)", () => {
     // only getStorageMode()/getStorageBackend() (pure selectors, no I/O) are
     // read — getKv() is never called, and the @vercel/kv mock above would
     // throw on any accidental network use.
-    vi.stubEnv("PICTORIUM_REDIS_URL", "redis://localhost:6379/0")
+    vi.stubEnv("FLAMEFORGE_REDIS_URL", "redis://localhost:6379/0")
     vi.stubEnv("KV_REST_API_URL", "https://example.upstash.io")
     vi.stubEnv("KV_REST_API_TOKEN", "test-token")
     const { store, dir } = await freshStore()
@@ -248,9 +248,9 @@ describe("store compact persistence (task4/point4)", () => {
     expect(kv.getStorageMode()).toBe("file")
     expect(kv.getStorageBackend()).toBeNull()
     // Canonical data-dir precedence: a legacy decoy must never shadow
-    // PICTORIUM_DATA_DIR.
+    // FLAMEFORGE_DATA_DIR.
     const decoy = path.join(dir, "decoy-legacy")
-    vi.stubEnv("POSTERIUM_DATA_DIR", decoy)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", decoy)
     vi.resetModules()
     const restubbed = await import("@/lib/store")
     expect(restubbed.getStorageMode()).toBe("file")
@@ -261,3 +261,5 @@ describe("store compact persistence (task4/point4)", () => {
     await expect(fsp.stat(path.join(decoy, "mappings.json"))).rejects.toMatchObject({ code: "ENOENT" })
   })
 })
+
+

@@ -181,7 +181,7 @@ describe("correction2: resolveLiveIdentities triplet + dedupe + no TMDB auto-att
   const realFetch = globalThis.fetch
   afterEach(() => {
     globalThis.fetch = realFetch
-    delete process.env.PICTORIUM_TMDB_KEY
+    delete process.env.FLAMEFORGE_TMDB_KEY
   })
 
   function sparqlResponse(rows: SparqlClaim[]): Response {
@@ -244,7 +244,7 @@ describe("correction2: resolveLiveIdentities triplet + dedupe + no TMDB auto-att
   })
 
   it("different QIDs with claims stay review-required; TMDB fallback skipped for ambiguous source", async () => {
-    process.env.PICTORIUM_TMDB_KEY = "dummy-key-never-logged"
+    process.env.FLAMEFORGE_TMDB_KEY = "dummy-key-never-logged"
     let tmdbCalled = 0
     globalThis.fetch = stubFetch(async (url) => {
       const u = String(url)
@@ -280,7 +280,7 @@ describe("correction2: resolveLiveIdentities triplet + dedupe + no TMDB auto-att
   })
 
   it("TMDB exact-single is diagnostic only: never auto-attaches, row stays pending", async () => {
-    process.env.PICTORIUM_TMDB_KEY = "dummy-key-never-logged"
+    process.env.FLAMEFORGE_TMDB_KEY = "dummy-key-never-logged"
     globalThis.fetch = stubFetch(async (url) => {
       const u = String(url)
       if (u.includes("query.wikidata.org")) return sparqlResponse([])
@@ -369,7 +369,7 @@ describe("correction2: shared bounded streaming reader (bytes, cancel, no partia
 
 describe("correction2: CLI-level mocked live collect (partial coverage honest, no throw)", () => {
   const realFetch = globalThis.fetch
-  afterEach(() => { globalThis.fetch = realFetch; delete process.env.PICTORIUM_TMDB_KEY })
+  afterEach(() => { globalThis.fetch = realFetch; delete process.env.FLAMEFORGE_TMDB_KEY })
 
   it("drama 200 fetched + comedy 404: drama rows parsed, comedy INCOMPLETE, no auto-attach without claims", async () => {
     const html = `<html><body><script type="application/ld+json">${dramaBlock}</script></body></html>`
@@ -431,3 +431,5 @@ describe("correction2: parseArgs bounds preserved", () => {
     expect(MAX_INPUT_ROWS).toBe(1000)
   })
 })
+
+

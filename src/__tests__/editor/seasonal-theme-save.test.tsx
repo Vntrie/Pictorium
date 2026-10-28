@@ -452,3 +452,4 @@ describe("SeasonalKeywordsSection co-mount (Settings + CatalogManager)", () => {
     expect(new Set(allIds).size).toBe(allIds.length)
   })
 })
+

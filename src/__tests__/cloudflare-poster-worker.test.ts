@@ -106,7 +106,7 @@ async function get(url: string, headers: Record<string, string> = {}, env: Recor
 
 describe("resolveOrigin", () => {
   it("keeps the configured default origin", () => {
-    expect(resolveOrigin(undefined)).toEqual({ ok: true, origin: "https://pictorium.duckdns.org" });
+    expect(resolveOrigin(undefined)).toEqual({ ok: true, origin: "https://flameforge.duckdns.org" });
   });
 
   it("rejects non-http(s) origins", () => {
@@ -155,7 +155,7 @@ describe("cacheKeyFor", () => {
     const target = new URL("https://origin.example/api/poster/movie/1?a=1");
     const webp = await cacheKeyFor(new Request(posterUrl("?a=1"), { headers: { accept: "image/webp" } }), target, "a=1");
     const generic = await cacheKeyFor(new Request(posterUrl("?a=1"), { headers: { accept: "*/*" } }), target, "a=1");
-    expect(webp.key.url).toContain("/.pictorium-poster-cache/v2/");
+    expect(webp.key.url).toContain("/.FlameForge-poster-cache/v2/");
     expect(new URL(webp.key.url).host).toBe("worker.example");
     expect(webp.key.url).not.toBe(generic.key.url);
     expect(webp.key.url).not.toContain("webp");
@@ -165,13 +165,13 @@ describe("cacheKeyFor", () => {
 describe("cold/hit behavior", () => {
   it("serves MISS then HIT with body and headers preserved", async () => {
     const first = await get(posterUrl("?a=1"));
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(first.headers.get("vary")).toBe("Accept");
     expect(await first.text()).toBe("bytes");
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     const second = await get(posterUrl("?a=1"));
-    expect(second.headers.get("x-pictorium-worker")).toBe("HIT");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("HIT");
     expect(second.headers.get("vary")).toBe("Accept");
     expect(await second.text()).toBe("bytes");
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -267,16 +267,16 @@ describe("bypass rules", () => {
     expect(bypassReason(new Request(posterUrl(query), { headers }), new URL(posterUrl(query)))).toBe(reason);
     const first = await get(posterUrl(`?b=1${query.replace("?", "&")}`), headers);
     const second = await get(posterUrl(`?b=1${query.replace("?", "&")}`), headers);
-    expect(first.headers.get("x-pictorium-worker")).toBe("BYPASS");
-    expect(second.headers.get("x-pictorium-worker")).toBe("BYPASS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("BYPASS");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("BYPASS");
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("bypasses non-poster routes and non-GET methods", async () => {
     const health = await worker.fetch(new Request(`${WORKER_HOST}/api/health`), ENV, ctxFactory.ctx);
-    expect(health.headers.get("x-pictorium-worker")).toBe("BYPASS");
+    expect(health.headers.get("x-FlameForge-worker")).toBe("BYPASS");
     const posted = await worker.fetch(new Request(posterUrl(), { method: "POST", body: "hi" }), ENV, ctxFactory.ctx);
-    expect(posted.headers.get("x-pictorium-worker")).toBe("BYPASS");
+    expect(posted.headers.get("x-FlameForge-worker")).toBe("BYPASS");
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
@@ -294,7 +294,7 @@ describe("bypass rules", () => {
     const res = await worker.fetch(new Request(posterUrl(), { method: "POST", body: "hi" }), ENV, ctxFactory.ctx);
     expect(res.status).toBe(302);
     expect(res.headers.get("location")).toBe("https://origin.example/x");
-    expect(res.headers.get("x-pictorium-worker")).toBe("BYPASS");
+    expect(res.headers.get("x-FlameForge-worker")).toBe("BYPASS");
     const [, init] = fetchMock.mock.calls[0];
     expect(init.redirect).toBe("manual");
     expect(init.body).toBeDefined();
@@ -353,7 +353,7 @@ describe("response cacheability", () => {
 
     fetchMock = installFetch(async (): Promise<Response> => new Response("nope", { status: 500 }));
     const res = await get(posterUrl("?e=1"));
-    expect(res.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(res.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(isCacheableResponse(new Response("x", { status: 500 }))).toBe(false);
   });
 
@@ -390,9 +390,9 @@ describe("next.js rsc vary", () => {
     const { store } = installCache();
     fetchMock = installFetch(async (): Promise<Response> => originResponse("bytes", { vary: NEXT_VARY }));
     const first = await get(posterUrl("?n=1"));
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(first.headers.get("vary")).toBe(NEXT_VARY);
-    expect(first.headers.get("x-pictorium-worker-origin-vary")).toBeNull();
+    expect(first.headers.get("x-FlameForge-worker-origin-vary")).toBeNull();
     expect(await first.text()).toBe("bytes");
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
@@ -401,12 +401,12 @@ describe("next.js rsc vary", () => {
     expect(stored).toBeDefined();
     if (!stored) throw new Error("expected a stored response");
     expect(stored.headers.get("vary")).toBeNull();
-    expect(stored.headers.get("x-pictorium-worker-origin-vary")).toBe(NEXT_VARY);
+    expect(stored.headers.get("x-FlameForge-worker-origin-vary")).toBe(NEXT_VARY);
 
     const second = await get(posterUrl("?n=1"));
-    expect(second.headers.get("x-pictorium-worker")).toBe("HIT");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("HIT");
     expect(second.headers.get("vary")).toBe(NEXT_VARY);
-    expect(second.headers.get("x-pictorium-worker-origin-vary")).toBeNull();
+    expect(second.headers.get("x-FlameForge-worker-origin-vary")).toBeNull();
     expect(await second.text()).toBe("bytes");
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -420,31 +420,31 @@ describe("next.js rsc vary", () => {
         }),
     );
     const first = await get(posterUrl("?n=2"));
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(first.headers.get("vary")).toBeNull();
     const second = await get(posterUrl("?n=2"));
-    expect(second.headers.get("x-pictorium-worker")).toBe("HIT");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("HIT");
     expect(second.headers.get("vary")).toBeNull();
-    expect(second.headers.get("x-pictorium-worker-origin-vary")).toBeNull();
+    expect(second.headers.get("x-FlameForge-worker-origin-vary")).toBeNull();
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("overwrites a spoofed internal header in the stored copy", async () => {
     const { store } = installCache();
     fetchMock = installFetch(
-      async (): Promise<Response> => originResponse("bytes", { vary: NEXT_VARY, "x-pictorium-worker-origin-vary": "spoof" }),
+      async (): Promise<Response> => originResponse("bytes", { vary: NEXT_VARY, "x-FlameForge-worker-origin-vary": "spoof" }),
     );
     const first = await get(posterUrl("?n=3"));
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(first.headers.get("vary")).toBe(NEXT_VARY);
     const stored = [...store.values()][0];
     expect(stored).toBeDefined();
     if (!stored) throw new Error("expected a stored response");
-    expect(stored.headers.get("x-pictorium-worker-origin-vary")).toBe(NEXT_VARY);
+    expect(stored.headers.get("x-FlameForge-worker-origin-vary")).toBe(NEXT_VARY);
     const second = await get(posterUrl("?n=3"));
-    expect(second.headers.get("x-pictorium-worker")).toBe("HIT");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("HIT");
     expect(second.headers.get("vary")).toBe(NEXT_VARY);
-    expect(second.headers.get("x-pictorium-worker-origin-vary")).toBeNull();
+    expect(second.headers.get("x-FlameForge-worker-origin-vary")).toBeNull();
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
@@ -489,7 +489,7 @@ describe("cache failure safety", () => {
     const res = await get(posterUrl("?f=1"));
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("bytes");
-    expect(warn).toHaveBeenCalledWith("[pictorium-worker] cache lookup failed");
+    expect(warn).toHaveBeenCalledWith("[FlameForge-worker] cache lookup failed");
   });
 
   it("serves MISS when async put fails without leaking secrets", async () => {
@@ -497,14 +497,14 @@ describe("cache failure safety", () => {
     const { cache } = installCache();
     cache.put.mockRejectedValue(new Error("down"));
     const res = await get(posterUrl("?g=1&api_key=zzz"));
-    expect(res.headers.get("x-pictorium-worker")).toBe("BYPASS");
+    expect(res.headers.get("x-FlameForge-worker")).toBe("BYPASS");
     const clean = await get(posterUrl("?g=2"));
-    expect(clean.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(clean.headers.get("x-FlameForge-worker")).toBe("MISS");
     for (const call of warn.mock.calls) {
       expect(call.join(" ")).not.toContain("zzz");
       expect(call.join(" ")).not.toContain("api_key");
     }
-    expect(warn).toHaveBeenCalledWith("[pictorium-worker] cache put failed");
+    expect(warn).toHaveBeenCalledWith("[FlameForge-worker] cache put failed");
   });
 
   it("serves MISS when put throws synchronously", async () => {
@@ -514,22 +514,22 @@ describe("cache failure safety", () => {
       throw new Error("sync down");
     });
     const first = await get(posterUrl("?g=3"));
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(await first.text()).toBe("bytes");
     const second = await get(posterUrl("?g=3"));
-    expect(second.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(warn).toHaveBeenCalledWith("[pictorium-worker] cache put failed");
+    expect(warn).toHaveBeenCalledWith("[FlameForge-worker] cache put failed");
   });
 
   it("works without waitUntil", async () => {
     const res = await worker.fetch(new Request(posterUrl("?h=1")), ENV, undefined);
     expect(res.status).toBe(200);
-    expect(res.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(res.headers.get("x-FlameForge-worker")).toBe("MISS");
   });
 });
 
-const TIER_ENV: Record<string, string> = { ORIGIN_URL: "https://origin.example", PICTORIUM_TIERED_CACHE: "1" };
+const TIER_ENV: Record<string, string> = { ORIGIN_URL: "https://origin.example", FLAMEFORGE_TIERED_CACHE: "1" };
 const NEXT_VARY =
   "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept";
 
@@ -549,17 +549,17 @@ describe("tiered opt-in", () => {
     expect(resolveTiered(undefined)).toBe(false);
     expect(resolveTiered(null)).toBe(false);
     expect(resolveTiered({})).toBe(false);
-    expect(resolveTiered({ PICTORIUM_TIERED_CACHE: "" })).toBe(false);
-    expect(resolveTiered({ PICTORIUM_TIERED_CACHE: "0" })).toBe(false);
-    expect(resolveTiered({ PICTORIUM_TIERED_CACHE: "false" })).toBe(false);
-    expect(resolveTiered({ PICTORIUM_TIERED_CACHE: "yes" })).toBe(false);
-    expect(resolveTiered({ PICTORIUM_TIERED_CACHE: "on" })).toBe(false);
+    expect(resolveTiered({ FLAMEFORGE_TIERED_CACHE: "" })).toBe(false);
+    expect(resolveTiered({ FLAMEFORGE_TIERED_CACHE: "0" })).toBe(false);
+    expect(resolveTiered({ FLAMEFORGE_TIERED_CACHE: "false" })).toBe(false);
+    expect(resolveTiered({ FLAMEFORGE_TIERED_CACHE: "yes" })).toBe(false);
+    expect(resolveTiered({ FLAMEFORGE_TIERED_CACHE: "on" })).toBe(false);
   });
 
   it("turns ON for 1/true (trimmed, case-insensitive)", () => {
-    expect(resolveTiered({ PICTORIUM_TIERED_CACHE: "1" })).toBe(true);
-    expect(resolveTiered({ PICTORIUM_TIERED_CACHE: "true" })).toBe(true);
-    expect(resolveTiered({ PICTORIUM_TIERED_CACHE: " TRUE " })).toBe(true);
+    expect(resolveTiered({ FLAMEFORGE_TIERED_CACHE: "1" })).toBe(true);
+    expect(resolveTiered({ FLAMEFORGE_TIERED_CACHE: "true" })).toBe(true);
+    expect(resolveTiered({ FLAMEFORGE_TIERED_CACHE: " TRUE " })).toBe(true);
   });
 
   it("never consults exports when the flag is off", async () => {
@@ -570,10 +570,10 @@ describe("tiered opt-in", () => {
     });
     const first = await worker.fetch(new Request(posterUrl("?t=1")), ENV, t.ctx);
     await t.flush();
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
     const second = await worker.fetch(new Request(posterUrl("?t=1")), ENV, t.ctx);
     await t.flush();
-    expect(second.headers.get("x-pictorium-worker")).toBe("HIT");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("HIT");
     expect(innerCalls).toBe(0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -582,12 +582,12 @@ describe("tiered opt-in", () => {
     const local = makeCtx();
     const first = await worker.fetch(new Request(posterUrl("?t=2")), TIER_ENV, local.ctx);
     await local.flush();
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
     const target = new URL(fetchMock.mock.calls[0][0]);
     expect(target.host).toBe("origin.example");
     const second = await worker.fetch(new Request(posterUrl("?t=2")), TIER_ENV, local.ctx);
     await local.flush();
-    expect(second.headers.get("x-pictorium-worker")).toBe("HIT");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("HIT");
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
@@ -599,11 +599,11 @@ describe("tiered opt-in", () => {
     const res = await worker.fetch(new Request(posterUrl("?t=3")), TIER_ENV, t.ctx);
     await t.flush();
     expect(res.status).toBe(200);
-    expect(res.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(res.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(await res.text()).toBe("bytes");
     const target = new URL(fetchMock.mock.calls[0][0]);
     expect(target.host).toBe("origin.example");
-    expect(warn).toHaveBeenCalledWith("[pictorium-worker] tier fetch failed");
+    expect(warn).toHaveBeenCalledWith("[FlameForge-worker] tier fetch failed");
   });
 });
 
@@ -622,7 +622,7 @@ describe("tiered gateway", () => {
       t.ctx,
     );
     await t.flush();
-    expect(res.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(res.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(res.headers.get("vary")).toBe(NEXT_VARY);
     expect(await res.text()).toBe("bytes");
     expect(seen).toHaveLength(1);
@@ -656,7 +656,7 @@ describe("tiered gateway", () => {
       t.ctx,
     );
     await t.flush();
-    expect(second.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(second.headers.get("vary")).toBe(NEXT_VARY);
     expect(store.size).toBe(0);
     expect(seen).toHaveLength(2);
@@ -691,8 +691,8 @@ describe("tiered gateway", () => {
       secret.ctx,
     );
     await secret.flush();
-    expect(first.headers.get("x-pictorium-worker")).toBe("BYPASS");
-    expect(second.headers.get("x-pictorium-worker")).toBe("BYPASS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("BYPASS");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("BYPASS");
     expect(innerCalls).toBe(4);
     // Credentials are forwarded untouched to the origin, never upward.
     const [target, init] = fetchMock.mock.calls[fetchMock.mock.calls.length - 1];
@@ -716,7 +716,7 @@ describe("tiered gateway", () => {
       });
       const res = await worker.fetch(new Request(posterUrl(query), { headers }), TIER_ENV, t.ctx);
       await t.flush();
-      expect(res.headers.get("x-pictorium-worker")).toBe("BYPASS");
+      expect(res.headers.get("x-FlameForge-worker")).toBe("BYPASS");
       expect(innerCalls).toBe(0);
     }
   });
@@ -731,12 +731,12 @@ describe("tiered gateway", () => {
     await t.flush();
     expect(res.status).toBe(302);
     expect(res.headers.get("location")).toBe("https://origin.example/x");
-    expect(res.headers.get("x-pictorium-worker")).toBe("BYPASS");
-    expect(res.headers.get("x-pictorium-tier-orig-cc")).toBeNull();
+    expect(res.headers.get("x-FlameForge-worker")).toBe("BYPASS");
+    expect(res.headers.get("x-FlameForge-tier-orig-cc")).toBeNull();
     expect(store.size).toBe(0);
     const second = await worker.fetch(new Request(posterUrl("?r=1")), TIER_ENV, t.ctx);
     await t.flush();
-    expect(second.headers.get("x-pictorium-worker")).toBe("BYPASS");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("BYPASS");
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
@@ -779,8 +779,8 @@ describe("serveTierInner", () => {
     // stale-on-error default defeated) with the exact origin policy
     // smuggled for gateway restore; full origin Vary untouched.
     expect(res.headers.get("cache-control")).toBe("public, max-age=60, stale-if-error=0");
-    expect(res.headers.get("x-pictorium-tier-edge-cc")).toBe("public, max-age=60");
-    expect(res.headers.get("x-pictorium-tier-orig-cc")).toBeNull();
+    expect(res.headers.get("x-FlameForge-tier-edge-cc")).toBe("public, max-age=60");
+    expect(res.headers.get("x-FlameForge-tier-orig-cc")).toBeNull();
     expect(res.headers.get("vary")).toBe(NEXT_VARY);
     const target = new URL(fetchMock.mock.calls[0][0]);
     expect(target.host).toBe("origin.example");
@@ -794,7 +794,7 @@ describe("serveTierInner", () => {
     // Raw inner response: not storable upstream, original smuggled inside.
     const raw = await serveTierInner(new Request(posterUrl("?i=2")), TIER_ENV);
     expect(raw.headers.get("cache-control")).toBe("no-store");
-    expect(raw.headers.get("x-pictorium-tier-orig-cc")).toBe("public, max-age=60");
+    expect(raw.headers.get("x-FlameForge-tier-orig-cc")).toBe("public, max-age=60");
     expect(raw.headers.get("vary")).toBe("Accept, Cookie");
 
     const t = tierCtx(async (req: Request): Promise<Response> => serveTierInner(req, TIER_ENV));
@@ -803,20 +803,20 @@ describe("serveTierInner", () => {
     // Client-visible: exact origin headers, marker MISS, no internal leak.
     expect(first.headers.get("cache-control")).toBe("public, max-age=60");
     expect(first.headers.get("vary")).toBe("Accept, Cookie");
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
-    expect(first.headers.get("x-pictorium-tier-orig-cc")).toBeNull();
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-tier-orig-cc")).toBeNull();
     expect(await first.text()).toBe("bytes");
     expect(store.size).toBe(0);
     const second = await worker.fetch(new Request(posterUrl("?i=2")), TIER_ENV, t.ctx);
     await t.flush();
-    expect(second.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
   it("strips a spoofed tier-internal header on pass-through", async () => {
     const { store } = installCache();
     fetchMock = installFetch(
-      async (): Promise<Response> => originResponse("bytes", { vary: NEXT_VARY, "x-pictorium-tier-orig-cc": "evil" }),
+      async (): Promise<Response> => originResponse("bytes", { vary: NEXT_VARY, "x-FlameForge-tier-orig-cc": "evil" }),
     );
     const t = tierCtx(async (req: Request): Promise<Response> => serveTierInner(req, TIER_ENV));
     const res = await worker.fetch(
@@ -827,9 +827,9 @@ describe("serveTierInner", () => {
     await t.flush();
     // Pass-through (gate passes): attacker header gone, real CC kept, no
     // neutralization signal, never duplicated into the manual cache.
-    expect(res.headers.get("x-pictorium-tier-orig-cc")).toBeNull();
+    expect(res.headers.get("x-FlameForge-tier-orig-cc")).toBeNull();
     expect(res.headers.get("cache-control")).toBe("public, max-age=60");
-    expect(res.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(res.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(store.size).toBe(0);
     const again = await worker.fetch(
       new Request(posterUrl("?i=3"), { headers: { accept: "image/webp" } }),
@@ -839,7 +839,7 @@ describe("serveTierInner", () => {
     await t.flush();
     // No manual copy exists, and this stub inner has no native cache, so
     // the repeat re-invokes inner (MISS, origin again) instead of hitting.
-    expect(again.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(again.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(again.headers.get("cache-control")).toBe("public, max-age=60");
     expect(store.size).toBe(0);
   });
@@ -848,7 +848,7 @@ describe("serveTierInner", () => {
     fetchMock = installFetch(async (): Promise<Response> => originResponse("bytes"));
     const res = await serveTierInner(new Request(posterUrl("?api_key=k")), TIER_ENV);
     expect(res.headers.get("cache-control")).toBe("no-store");
-    expect(res.headers.get("x-pictorium-tier-orig-cc")).toBe("public, max-age=60");
+    expect(res.headers.get("x-FlameForge-tier-orig-cc")).toBe("public, max-age=60");
     const target = new URL(fetchMock.mock.calls[0][0]);
     expect(target.searchParams.get("api_key")).toBe("k");
   });
@@ -936,7 +936,7 @@ describe("realistic upper tier (documented key + Vary semantics)", () => {
     const t = tierCtx(upper.fetch);
     const first = await worker.fetch(new Request(posterUrl("?k=1")), TIER_ENV, t.ctx);
     await t.flush();
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(upper.innerCalls()).toBe(1);
     // Same URL, only an UNLISTED tracked header differs: without proactive
     // digest keying the upper tier HITs here and serves the wrong raw class
@@ -944,7 +944,7 @@ describe("realistic upper tier (documented key + Vary semantics)", () => {
     // Vary return the same cached response).
     const second = await worker.fetch(new Request(posterUrl("?k=1"), { headers: { rsc: "1" } }), TIER_ENV, t.ctx);
     await t.flush();
-    expect(second.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(upper.innerCalls()).toBe(2);
     expect(upper.originCalls()).toBe(2);
     // The second response is unpartitionable upstream (present-but-uncovered
@@ -954,7 +954,7 @@ describe("realistic upper tier (documented key + Vary semantics)", () => {
     installCache();
     const third = await worker.fetch(new Request(posterUrl("?k=1"), { headers: { rsc: "1" } }), TIER_ENV, t.ctx);
     await t.flush();
-    expect(third.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(third.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(await third.text()).toBe("bytes");
     expect(upper.innerCalls()).toBe(3);
     expect(upper.originCalls()).toBe(3);
@@ -968,7 +968,7 @@ describe("realistic upper tier (documented key + Vary semantics)", () => {
     const headers = { accept: "image/webp", rsc: "1" };
     const first = await worker.fetch(new Request(posterUrl("?h=1"), { headers }), TIER_ENV, t.ctx);
     await t.flush();
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(upper.innerCalls()).toBe(1);
     // Repeat through a FRESH manual tier: the upper-tier HIT serves the
     // stored copy without invoking inner or the origin, with the exact
@@ -977,7 +977,7 @@ describe("realistic upper tier (documented key + Vary semantics)", () => {
     const { store: freshStore } = installCache();
     const second = await worker.fetch(new Request(posterUrl("?h=1"), { headers }), TIER_ENV, t.ctx);
     await t.flush();
-    expect(second.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(await second.text()).toBe("bytes");
     expect(second.headers.get("cache-control")).toBe("public, max-age=60");
     expect(second.headers.get("vary")).toBe(fullVary);
@@ -1001,7 +1001,7 @@ describe("realistic upper tier (documented key + Vary semantics)", () => {
     // the digest covers the origin. The upper store is intentionally shared
     // (one Worker/account), so a URL-only key would HIT here with origin-A
     // bytes for an origin-B request.
-    const envB: Record<string, string> = { ORIGIN_URL: "https://origin2.example", PICTORIUM_TIERED_CACHE: "1" };
+    const envB: Record<string, string> = { ORIGIN_URL: "https://origin2.example", FLAMEFORGE_TIERED_CACHE: "1" };
     const upperB = makeRealisticUpperTier(envB, shared);
     const tB = tierCtx(upperB.fetch);
     await worker.fetch(new Request(posterUrl("?k=2"), { headers: { accept: "image/webp" } }), envB, tB.ctx);
@@ -1018,7 +1018,7 @@ describe("realistic upper tier (documented key + Vary semantics)", () => {
     const t = tierCtx(upper.fetch);
     const target = new URL("https://origin.example/api/poster/movie/123");
     const reqA = new Request(posterUrl("?k=4"));
-    const expected = `pictorium-poster-tier:${await cacheDigestHex(reqA, target, "k=4")}`;
+    const expected = `FlameForge-poster-tier:${await cacheDigestHex(reqA, target, "k=4")}`;
     expect(cacheDigestInput(reqA, target, "k=4")).toContain('"accept":null');
     await worker.fetch(reqA, TIER_ENV, t.ctx);
     // Repeat through a FRESH lower tier: the upper tier serves the same
@@ -1029,7 +1029,7 @@ describe("realistic upper tier (documented key + Vary semantics)", () => {
     // Same raw class reuses one upper-tier key and one inner run.
     expect(upper.innerCalls()).toBe(1);
     expect(upper.seenKeys()).toEqual([expected, expected]);
-    expect(expected.startsWith("pictorium-poster-tier:")).toBe(true);
+    expect(expected.startsWith("FlameForge-poster-tier:")).toBe(true);
   });
 });
 
@@ -1061,8 +1061,8 @@ describe("upper-tier freshness (no added SWR)", () => {
       TIER_ENV,
     );
     expect(raw.headers.get("cache-control")).toBe("public, max-age=60, stale-if-error=0");
-    expect(raw.headers.get("x-pictorium-tier-edge-cc")).toBe(originCC);
-    expect(raw.headers.get("x-pictorium-tier-orig-cc")).toBeNull();
+    expect(raw.headers.get("x-FlameForge-tier-edge-cc")).toBe(originCC);
+    expect(raw.headers.get("x-FlameForge-tier-orig-cc")).toBeNull();
     expect(raw.headers.get("vary")).toBe(NEXT_VARY);
   });
 
@@ -1075,19 +1075,19 @@ describe("upper-tier freshness (no added SWR)", () => {
     // Defeats the documented indefinite stale-on-error default; the client
     // still sees the exact origin policy after gateway restore.
     expect(raw.headers.get("cache-control")).toBe("public, max-age=60, stale-if-error=0");
-    expect(raw.headers.get("x-pictorium-tier-edge-cc")).toBe("public, max-age=60");
+    expect(raw.headers.get("x-FlameForge-tier-edge-cc")).toBe("public, max-age=60");
   });
 
   it("strips a spoofed edge-policy header on pass-through", async () => {
     fetchMock = installFetch(
       async (): Promise<Response> =>
-        originResponse("bytes", { vary: NEXT_VARY, "x-pictorium-tier-edge-cc": "public, max-age=9999" }),
+        originResponse("bytes", { vary: NEXT_VARY, "x-FlameForge-tier-edge-cc": "public, max-age=9999" }),
     );
     const raw = await serveTierInner(
       new Request(posterUrl("?e=3"), { headers: { accept: "image/webp", rsc: "1" } }),
       TIER_ENV,
     );
-    expect(raw.headers.get("x-pictorium-tier-edge-cc")).toBe("public, max-age=60");
+    expect(raw.headers.get("x-FlameForge-tier-edge-cc")).toBe("public, max-age=60");
     expect(raw.headers.get("cache-control")).toContain("stale-if-error=0");
   });
 
@@ -1112,22 +1112,24 @@ describe("upper-tier freshness (no added SWR)", () => {
     expect(first.headers.get("cache-control")).toBe(originCC);
     expect(first.headers.get("age")).toBe("55");
     expect(first.headers.get("vary")).toBe(NEXT_VARY);
-    expect(first.headers.get("x-pictorium-tier-edge-cc")).toBeNull();
-    expect(first.headers.get("x-pictorium-tier-orig-cc")).toBeNull();
-    expect(first.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(first.headers.get("x-FlameForge-tier-edge-cc")).toBeNull();
+    expect(first.headers.get("x-FlameForge-tier-orig-cc")).toBeNull();
+    expect(first.headers.get("x-FlameForge-worker")).toBe("MISS");
     // The tier response is never duplicated into the manual cache, even
     // with `Age` present: repeats are served natively by the upper tier
     // (manual MISS) with identical headers, one inner run, one origin call.
     expect(store.size).toBe(0);
     const second = await worker.fetch(new Request(posterUrl("?e=4"), { headers }), TIER_ENV, t.ctx);
     await t.flush();
-    expect(second.headers.get("x-pictorium-worker")).toBe("MISS");
+    expect(second.headers.get("x-FlameForge-worker")).toBe("MISS");
     expect(second.headers.get("cache-control")).toBe(originCC);
     expect(second.headers.get("age")).toBe("55");
-    expect(second.headers.get("x-pictorium-tier-edge-cc")).toBeNull();
-    expect(second.headers.get("x-pictorium-tier-orig-cc")).toBeNull();
+    expect(second.headers.get("x-FlameForge-tier-edge-cc")).toBeNull();
+    expect(second.headers.get("x-FlameForge-tier-orig-cc")).toBeNull();
     expect(store.size).toBe(0);
     expect(upper.innerCalls()).toBe(1);
     expect(upper.originCalls()).toBe(1);
   });
 });
+
+

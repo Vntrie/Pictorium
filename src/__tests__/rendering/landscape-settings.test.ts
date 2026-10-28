@@ -146,3 +146,4 @@ describe("resolvePosterRenderConfig with landscape profile", () => {
     expect(r.logoScale).toBe(80)
   })
 })
+

@@ -16,7 +16,7 @@ import { TransformControls } from "@/components/TransformControls"
 import { TransformPanel } from "@/components/settings/TransformPanel"
 import { renderWithCtx, createWrapper } from "@/__tests__/test-utils"
 import { usePosterEditor, type PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
-import { PictoriumRoot, useP } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
 import { usePosterFit } from "@/lib/usePosterFit"
 import type { SearchResult, TMDBImage } from "@/lib/types"
 
@@ -27,13 +27,13 @@ import { saveDefaults } from "@/lib/save-defaults"
 import { isMappingDirty } from "@/lib/gradient-dirty"
 import { captureVisualPreset, normalizePresetExtraTuning, portraitPresetPatch } from "@/lib/visual-presets"
 import type { Mapping } from "@/lib/types"
-import type { PictoriumCtx } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
 }))
 
-function renderWithProbe(ui: ReactNode, overrides?: Partial<PictoriumCtx>) {
+function renderWithProbe(ui: ReactNode, overrides?: Partial<FlameForgeCtx>) {
   let ctx: PosterEditorCtx | null = null
   function Probe() {
     ctx = usePosterEditor()
@@ -843,7 +843,7 @@ describe("preview URL follows live extra state (defaults stay shadowed)", () => 
     }
   }
 
-  let rootCtx: PictoriumCtx | null = null
+  let rootCtx: FlameForgeCtx | null = null
   let rootEd: PosterEditorCtx | null = null
 
   function RootProbe() {
@@ -867,7 +867,7 @@ describe("preview URL follows live extra state (defaults stay shadowed)", () => 
   it("live extra tuning lands in the preview URL, defaults extra stays shadowed", async () => {
     seedDefaults({})
     render(
-      createElement(PictoriumRoot, null, createElement(RootProbe)),
+      createElement(FlameForgeRoot, null, createElement(RootProbe)),
     )
     await flush()
     expect(rootCtx, "provider context available").toBeTruthy()
@@ -898,3 +898,4 @@ describe("preview URL follows live extra state (defaults stay shadowed)", () => 
     expect(rootCtx!.previewUrl).not.toContain("exox")
   })
 })
+

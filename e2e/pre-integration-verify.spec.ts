@@ -1,6 +1,6 @@
-/**
+﻿/**
  * Pre-integration browser verification (verification-only, deterministic):
- * exercises the five implemented contracts against the mock-backed app —
+ * exercises the five implemented contracts against the mock-backed app â€”
  * TMDB age certifications (movie release_dates / tv content_ratings),
  * Trakt anticipated discovery, Hebrew RTL document + InstallModal bidi,
  * EditView footer 2x2 grid, Fresh/Card age + bottom tint.
@@ -157,14 +157,14 @@ test.describe("pre-integration: Hebrew RTL document + InstallModal bidi", () => 
   test.use({ viewport: { width: 390, height: 844 } })
 
   test("document RTL, modal punctuation/bidi/right alignment, LTR switch-back", async ({ page }) => {
-    // NOTE: set defaults only when absent — the LTR switch-back below
+    // NOTE: set defaults only when absent â€” the LTR switch-back below
     // overwrites preferred_lang then reloads, and init scripts re-run.
     await page.addInitScript(() => {
       try {
-        if (!localStorage.getItem("pictorium_profile_id")) {
-          localStorage.setItem("pictorium_profile_id", "e2e-preint-he")
-          localStorage.setItem("pictorium_profile_stateless", "1")
-          localStorage.setItem("pictorium_onboarding_done", "true")
+        if (!localStorage.getItem("FLAMEFORGE_profile_id")) {
+          localStorage.setItem("FLAMEFORGE_profile_id", "e2e-preint-he")
+          localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+          localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         }
         if (!localStorage.getItem("preferred_lang")) localStorage.setItem("preferred_lang", "he")
       } catch {}
@@ -173,24 +173,24 @@ test.describe("pre-integration: Hebrew RTL document + InstallModal bidi", () => 
     await expect.poll(() => page.evaluate(() => document.documentElement.dir)).toBe("rtl")
     expect(await page.evaluate(() => document.documentElement.lang)).toBe("he")
 
-    // Nav install button uses ui.install ("התקנה" in Hebrew; ui.installHub is
+    // Nav install button uses ui.install ("×”×ª×§× ×”" in Hebrew; ui.installHub is
     // the header pill label, not this button's accessible name).
-    await page.getByRole("button", { name: "התקנה", exact: true }).click()
+    await page.getByRole("button", { name: "×”×ª×§× ×”", exact: true }).click()
     const dialog = page.getByRole("dialog")
     await expect(dialog).toBeVisible({ timeout: 15_000 })
     // Exact reported punctuation, RTL base direction, URL template LTR.
-    await expect(dialog.locator("#install-mode-heading")).toHaveText("מה לכלול?")
+    await expect(dialog.locator("#install-mode-heading")).toHaveText("×ž×” ×œ×›×œ×•×œ?")
     await expect(dialog.locator("#install-mode-heading")).toHaveAttribute("dir", "auto")
     await expect(dialog.locator("#install-hub-title")).toHaveAttribute("dir", "auto")
 
     await dialog.getByRole("tab", { name: /aio/i }).click()
     const panel = dialog.locator("#install-panel-aio")
     const desc = panel.locator("p").first()
-    await expect(desc).toHaveText("יש להדביק את הקישור הזה ב-AIOMetadata תחת Art Providers ← Poster URL Pattern.")
+    await expect(desc).toHaveText("×™×© ×œ×”×“×‘×™×§ ××ª ×”×§×™×©×•×¨ ×”×–×” ×‘-AIOMetadata ×ª×—×ª Art Providers â† Poster URL Pattern.")
     await expect(desc).toHaveAttribute("dir", "auto")
     const runs = await panel.locator("bdi").allTextContents()
     expect(runs).toContain("AIOMetadata")
-    expect(runs).toContain("Art Providers ← Poster URL Pattern")
+    expect(runs).toContain("Art Providers â† Poster URL Pattern")
     const input = panel.locator("input[type='text']").first()
     await expect(input).toHaveAttribute("dir", "ltr")
     // Right alignment: dialog content flows RTL at mobile width, no sideways overflow.
@@ -218,16 +218,16 @@ test.describe("pre-integration: Hebrew RTL document + InstallModal bidi", () => 
     await page.addInitScript(() => {
       try {
         localStorage.clear()
-        localStorage.setItem("pictorium_profile_id", "e2e-preint-he-footer")
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", "e2e-preint-he-footer")
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", "he")
         localStorage.setItem("tmdb_key", "e2e-mock-key-00000000000000000000000000000001")
       } catch {}
     })
     await page.goto("/")
     await expect.poll(() => page.evaluate(() => document.documentElement.dir)).toBe("rtl")
-    const search = page.getByPlaceholder(/חיפוש/)
+    const search = page.getByPlaceholder(/×—×™×¤×•×©/)
     await expect(search).toBeVisible({ timeout: 30_000 })
     await search.fill("Avatar")
     // The search result is a dedicated button; the demo carousel headings
@@ -253,9 +253,9 @@ test.describe("pre-integration: EditView footer 2x2 equal rows", () => {
     await page.addInitScript(() => {
       try {
         localStorage.clear()
-        localStorage.setItem("pictorium_profile_id", "e2e-preint-footer")
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", "e2e-preint-footer")
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", "it")
         localStorage.setItem("tmdb_key", "e2e-mock-key-00000000000000000000000000000001")
       } catch {}
@@ -290,7 +290,7 @@ test.describe("pre-integration: EditView footer 2x2 equal rows", () => {
         overflowX: document.documentElement.scrollWidth - window.innerWidth,
       }
     })
-    // 500px > 420px breakpoint → 2 columns; items-stretch + auto-rows-fr.
+    // 500px > 420px breakpoint â†’ 2 columns; items-stretch + auto-rows-fr.
     expect(geo.columns).toBe(2)
     expect(geo.align).toBe("stretch")
     // Tailwind auto-rows-fr compiles to minmax(0, 1fr): assert the 1fr track.
@@ -315,3 +315,4 @@ test.describe("pre-integration: EditView footer 2x2 equal rows", () => {
     await grid.screenshot({ path: "test-results/preint-footer-2x2.png" })
   })
 })
+

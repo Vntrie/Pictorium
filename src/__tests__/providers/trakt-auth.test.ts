@@ -27,21 +27,21 @@ const ACCESS_B = "test-access-token-beta-fedcba9876543210"
 const REFRESH_B = "test-refresh-token-beta-fedcba9876543210"
 
 const CLIENT_ID = "test-trakt-client-id"
-const REDIRECT_DUCK = "https://pictorium.duckdns.org/api/trakt/callback"
-const REDIRECT_ELF = "https://pictorium.elfhosted.com/api/trakt/callback"
+const REDIRECT_DUCK = "https://FlameForge.duckdns.org/api/trakt/callback"
+const REDIRECT_ELF = "https://FlameForge.elfhosted.com/api/trakt/callback"
 
 const ENV_KEYS = [
-  "PICTORIUM_DATA_DIR",
+  "FLAMEFORGE_DATA_DIR",
   "PROFILE_ENCRYPTION_KEY",
-  "PICTORIUM_TRAKT_CLIENT_ID",
-  "POSTERIUM_TRAKT_CLIENT_ID",
+  "FLAMEFORGE_TRAKT_CLIENT_ID",
+  "FLAMEFORGE_TRAKT_CLIENT_ID",
   "TRAKT_CLIENT_ID",
   // PKCE ignores any secret env, but save/restore hygiene still covers the
   // leftover pre-PKCE variables so tests never leak them.
-  "PICTORIUM_TRAKT_CLIENT_SECRET",
-  "POSTERIUM_TRAKT_CLIENT_SECRET",
-  "PICTORIUM_TRAKT_REDIRECT_URI",
-  "POSTERIUM_TRAKT_REDIRECT_URI",
+  "FLAMEFORGE_TRAKT_CLIENT_SECRET",
+  "FLAMEFORGE_TRAKT_CLIENT_SECRET",
+  "FLAMEFORGE_TRAKT_REDIRECT_URI",
+  "FLAMEFORGE_TRAKT_REDIRECT_URI",
   "KV_REST_API_URL",
   "KV_REST_API_TOKEN",
 ] as const
@@ -55,16 +55,16 @@ function testSecret(): string {
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-traktauth-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-traktauth-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
   process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
-  delete process.env.PICTORIUM_TRAKT_CLIENT_ID
-  delete process.env.POSTERIUM_TRAKT_CLIENT_ID
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
   delete process.env.TRAKT_CLIENT_ID
-  delete process.env.PICTORIUM_TRAKT_CLIENT_SECRET
-  delete process.env.POSTERIUM_TRAKT_CLIENT_SECRET
-  delete process.env.PICTORIUM_TRAKT_REDIRECT_URI
-  delete process.env.POSTERIUM_TRAKT_REDIRECT_URI
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
+  delete process.env.FLAMEFORGE_TRAKT_REDIRECT_URI
+  delete process.env.FLAMEFORGE_TRAKT_REDIRECT_URI
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
   kvStore.clear()
@@ -88,8 +88,8 @@ async function loadTrakt() {
 }
 
 function setValidConfig(redirect = REDIRECT_DUCK) {
-  process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
-  process.env.PICTORIUM_TRAKT_REDIRECT_URI = redirect
+  process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
+  process.env.FLAMEFORGE_TRAKT_REDIRECT_URI = redirect
 }
 
 function tokenInput(expiresAt = Date.now() + 3600_000) {
@@ -121,13 +121,13 @@ describe("trakt OAuth config (fail-closed, PKCE — no secret)", () => {
     // Garbage, whitespace, even absurd values: the secret is not part of the
     // config anymore, so none of these can break or influence it.
     for (const leftover of ["has space inside", "   ", "", "x".repeat(600)]) {
-      process.env.PICTORIUM_TRAKT_CLIENT_SECRET = leftover
+      process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET = leftover
       const reloaded = await loadTrakt()
       expect(reloaded.isTraktOAuthConfigured(), JSON.stringify(leftover)).toBe(true)
       expect(reloaded.getTraktOAuthConfig()).toEqual({ clientId: CLIENT_ID, redirectUri: REDIRECT_DUCK })
     }
-    delete process.env.PICTORIUM_TRAKT_CLIENT_SECRET
-    process.env.POSTERIUM_TRAKT_CLIENT_SECRET = "legacy-leftover"
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
+    process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET = "legacy-leftover"
     expect((await loadTrakt()).isTraktOAuthConfigured()).toBe(true)
   })
 
@@ -146,7 +146,7 @@ describe("trakt OAuth config (fail-closed, PKCE — no secret)", () => {
     }
 
     // Client ID alone is one half: redirect still missing (no secret step).
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     expect((await loadTrakt()).getTraktOAuthStatus()).toEqual({ configured: false, reason: "missing_redirect_uri" })
     try {
       ;(await loadTrakt()).getTraktOAuthConfig()
@@ -161,11 +161,11 @@ describe("trakt OAuth config (fail-closed, PKCE — no secret)", () => {
   it("invalid client id rejected without leaking values", async () => {
     setValidConfig()
     // Empty client ID (whitespace) → invalid, not missing.
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = "   "
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = "   "
     let trakt = await loadTrakt()
     expect(trakt.getTraktOAuthStatus()).toEqual({ configured: false, reason: "invalid_client_id" })
     // Whitespace inside / oversize → invalid.
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = "has space"
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = "has space"
     trakt = await loadTrakt()
     expect(trakt.getTraktOAuthStatus()).toEqual({ configured: false, reason: "invalid_client_id" })
     try {
@@ -174,12 +174,12 @@ describe("trakt OAuth config (fail-closed, PKCE — no secret)", () => {
     } catch (e) {
       expect((e as Error).message).not.toContain("has space")
     }
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     expect((await loadTrakt()).isTraktOAuthConfigured()).toBe(true)
   })
 
   it("redirect matrix: https + exact callback path only, never request-derived", async () => {
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     const cases: Array<[string, boolean]> = [
       ["not a url", false],
       // PKCE rule: https only — plain http is rejected even on loopback
@@ -200,7 +200,7 @@ describe("trakt OAuth config (fail-closed, PKCE — no secret)", () => {
       ["http://evil.com/api/trakt/callback", false],
     ]
     for (const [uri, valid] of cases) {
-      process.env.PICTORIUM_TRAKT_REDIRECT_URI = uri
+      process.env.FLAMEFORGE_TRAKT_REDIRECT_URI = uri
       const trakt = await loadTrakt()
       expect(trakt.isTraktOAuthConfigured(), uri).toBe(valid)
       if (!valid) {
@@ -212,22 +212,22 @@ describe("trakt OAuth config (fail-closed, PKCE — no secret)", () => {
   it("env conventions: canonical wins, legacy + raw fallbacks kept (secret ignored)", async () => {
     // Raw TRAKT_CLIENT_ID fallback (same as public-list client).
     process.env.TRAKT_CLIENT_ID = "raw-client-id"
-    process.env.PICTORIUM_TRAKT_REDIRECT_URI = REDIRECT_DUCK
+    process.env.FLAMEFORGE_TRAKT_REDIRECT_URI = REDIRECT_DUCK
     let trakt = await loadTrakt()
     expect(trakt.getTraktOAuthConfig().clientId).toBe("raw-client-id")
     // Canonical wins over raw.
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     trakt = await loadTrakt()
     expect(trakt.getTraktOAuthConfig().clientId).toBe(CLIENT_ID)
-    // Legacy POSTERIUM_* fallback for the redirect URI (the secret was never
+    // Legacy FLAMEFORGE_* fallback for the redirect URI (the secret was never
     // part of the PKCE config — only the redirect keeps its fallback).
-    delete process.env.PICTORIUM_TRAKT_REDIRECT_URI
-    process.env.POSTERIUM_TRAKT_CLIENT_SECRET = testSecret()
-    process.env.POSTERIUM_TRAKT_REDIRECT_URI = REDIRECT_ELF
+    delete process.env.FLAMEFORGE_TRAKT_REDIRECT_URI
+    process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET = testSecret()
+    process.env.FLAMEFORGE_TRAKT_REDIRECT_URI = REDIRECT_ELF
     trakt = await loadTrakt()
     expect(trakt.getTraktOAuthConfig().redirectUri).toBe(REDIRECT_ELF)
     // Canonical wins over legacy; the ignored secret never surfaces.
-    process.env.PICTORIUM_TRAKT_REDIRECT_URI = REDIRECT_DUCK
+    process.env.FLAMEFORGE_TRAKT_REDIRECT_URI = REDIRECT_DUCK
     trakt = await loadTrakt()
     expect(trakt.getTraktOAuthConfig()).toEqual({ clientId: CLIENT_ID, redirectUri: REDIRECT_DUCK })
   })
@@ -527,3 +527,5 @@ describe("trakt-auth server boundary (no token spread to clients)", () => {
     }
   })
 })
+
+

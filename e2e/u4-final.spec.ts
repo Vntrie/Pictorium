@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test"
+﻿import { test, expect, type Page } from "@playwright/test"
 import { putDefaultsWithRetry, withDefaultsRetry } from "./defaults-retry"
 import sharp from "sharp"
 import { cornerAnchoredLeft } from "../src/lib/poster-service"
@@ -18,7 +18,7 @@ import { snapshotMissingLandscape, SHAPE_FLAT_TO_LANDSCAPE } from "../src/lib/vi
 // - U3 Number baseline: API mirror/tox semantics + the -20 default slider
 //   mapping (edit stores the adjustment, other styles read raw).
 // Transport-level only (preview query params + backend defaults JSON +
-// poster bytes/debug JSON): pixel baselines live in pictorium-visual.spec.ts.
+// poster bytes/debug JSON): pixel baselines live in FlameForge-visual.spec.ts.
 // External APIs come from the mock server.
 
 const DEMO_PROFILE = "e2e-u4-final"
@@ -45,7 +45,7 @@ function isDefaultsPreviewUrl(u: URL): boolean {
 
 function collectRequests(page: Page, seen: Seen) {
   // Dialog stream only (resourceType xhr): the settings dialog also mounts
-  // the preset-gallery thumbnails (plain <img> on the same preview path —
+  // the preset-gallery thumbnails (plain <img> on the same preview path â€”
   // 7 image rows per open in-trace). URL-only matching mixes the streams;
   // the dialog XHR blob is the arranged-state owner.
   page.on("request", (req) => {
@@ -108,7 +108,7 @@ async function nextPreview(
  * The dialog preview fires once at open and never refetches without an edit
  * (staged session, no autosave): a from-now poll with a noop action waits for
  * a request that will never come (proven 30s timeout on an already-correct
- * arranged rs=pill XHR). This asserts the arranged state that already fired —
+ * arranged rs=pill XHR). This asserts the arranged state that already fired â€”
  * use only BEFORE any edit (after edits stale rows would win; nextPreview
  * from-n is the post-edit gate).
  */
@@ -135,9 +135,9 @@ async function seed(page: Page, profile: string, tmdbKey = "") {
     ({ p, key }: { p: string; key: string }) => {
       try {
         localStorage.clear()
-        localStorage.setItem("pictorium_profile_id", p)
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", p)
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", "it")
         localStorage.setItem("tmdb_key", key)
       } catch {}
@@ -159,7 +159,7 @@ async function getDefaults(page: Page): Promise<Record<string, unknown>> {
   // Teardown/settle GETs share the `defaults` rate-limit bucket with PUTs:
   // under serial-sweep load a 429 here is runtime-expected, not an app bug.
   // Retry bounded with the server Retry-After (same rule as the PUT helper);
-  // any other status — or an exhausted budget — still throws, never a
+  // any other status â€” or an exhausted budget â€” still throws, never a
   // silent pass, so the restore verification below stays strict.
   const attempt = await withDefaultsRetry(
     () =>
@@ -196,7 +196,7 @@ test.afterEach(async ({ page }) => {
   // Settle trailing debounced UI autosaves BEFORE the restore PUT: poll the
   // server state until two consecutive reads are identical (600ms apart), so
   // a pending 500ms-debounce flush lands before we overwrite it. Bounded and
-  // effect-observed — never an arbitrary fixed sleep.
+  // effect-observed â€” never an arbitrary fixed sleep.
   let pre: Record<string, unknown> | null = null
   try {
     let prev = JSON.stringify(await getDefaults(page))
@@ -215,7 +215,7 @@ test.afterEach(async ({ page }) => {
   const preLand = ((pre.landscape ?? {}) as Record<string, unknown>) ?? {}
   // Model the precise server merge for the RESET PUT below (mirrors
   // backfillLandscapeOnFlatEdit in the defaults route, reusing the shared
-  // snapshot helper — no forked math): only keys present in the RESET body
+  // snapshot helper â€” no forked math): only keys present in the RESET body
   // AND missing in stored+patch freeze the pre-merge effective flats.
   const resetRec = RESET_PAYLOAD as unknown as Record<string, unknown>
   const resetLandPatch = ((resetRec.landscape ?? {}) as Record<string, unknown>) ?? {}
@@ -336,7 +336,7 @@ test.describe("U4 U1 ribbon Standard/Colorato (defaults)", () => {
     // on a fresh page the first preview can fire pre-hydration with factory
     // rs=default under load; the settled URL must carry the RESET pill.
     // From-0 gate (not from-now): the open burst already fired exactly once
-    // and never refetches without an edit — a noop from-now poll would wait
+    // and never refetches without an edit â€” a noop from-now poll would wait
     // 30s for a request that never comes.
     let p = await waitPreview(seen, (u) => u.searchParams.get("shape") === "poster" && u.searchParams.get("rs") === "pill")
     expect(p.get("ribbon")).toBe("1")
@@ -380,7 +380,7 @@ test.describe("U4 U1 ribbon Standard/Colorato (defaults)", () => {
     expect(land.rankingBadgeStyle).toBe("pill")
 
     // Orizzontale replays the isolated profile (netflix never written there,
-    // so the inherited pill shows — no portrait leak by construction).
+    // so the inherited pill shows â€” no portrait leak by construction).
     p = await nextPreview(
       seen,
       async () => {
@@ -514,7 +514,7 @@ test.describe("U4 U2 contextual preview (defaults)", () => {
     // lands AFTER the first staged edit trips the by-design external-conflict
     // guard (Save disabled, draft preserved). The RESET pill+ribbon URL can
     // only fire post-hydration (factory previews carry rs=default), so this
-    // proves the baseline is RESET before anything stages — no edit, no
+    // proves the baseline is RESET before anything stages â€” no edit, no
     // timing change, just the file's own settled-preview pattern.
     p = await waitPreview(
       seen,
@@ -682,7 +682,7 @@ test.describe("U4 U3 number baseline (pixel regression)", () => {
     // Pixel lock for the Number style baseline (snapshots alone cannot hold
     // it: maxDiffPixelRatio 0.10 absorbs a 20px numeral shift).
     // Ground truth (shared helpers, never forked math):
-    // - portrait canvas CW = 500 (STD_W × STD_H), badge pw = 500
+    // - portrait canvas CW = 500 (STD_W Ã— STD_H), badge pw = 500
     //   (portrait badgePw = CW), historic corner margin on ref 380.
     // - bitmap left L comes from cornerAnchoredLeft + the stored tox
     //   adjustment + NUMBER_BADGE_BASE_OFFSET_X; the numeral ink starts at
@@ -729,7 +729,7 @@ test.describe("U4 U3 number baseline (pixel regression)", () => {
       const digits = String(c.params.rank)
       const numW = buildRankingNumberSvg(Number(digits), PW).w
       // Expected bitmap edge from the shared anchor + stored adjustment (0)
-      // + style baseline: the ONLY -20 in the pipeline (single application —
+      // + style baseline: the ONLY -20 in the pipeline (single application â€”
       // preview/Stremio URLs carry the raw tox).
       const expectedLeft = cornerAnchoredLeft({
         canvasW: CW,
@@ -858,7 +858,7 @@ test.describe("U4 U3 number baseline (transport + slider)", () => {
     await expect(xSlider).toHaveValue("-10")
 
     // Other styles read the raw value (baseline 0): back to Classifiche,
-    // select a centered Badge variant — the stored +10 shows unshifted.
+    // select a centered Badge variant â€” the stored +10 shows unshifted.
     await dialog.getByRole("tab", { name: "Classifiche", exact: true }).click()
     const badgeBack = dialog.getByRole("tabpanel", { name: "Badge", exact: true })
     await expect(badgeBack).toBeVisible()
@@ -875,3 +875,4 @@ test.describe("U4 U3 number baseline (transport + slider)", () => {
     await expect(topCard2.getByRole("slider", { name: "X" })).toHaveValue("10")
   })
 })
+

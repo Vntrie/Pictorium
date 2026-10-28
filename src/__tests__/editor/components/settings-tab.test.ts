@@ -41,3 +41,4 @@ describe("settings-tab Lab retirement", () => {
     expect(consumeSettingsTab()).toBeNull()
   })
 })
+

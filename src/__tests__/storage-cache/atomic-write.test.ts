@@ -10,7 +10,7 @@ afterEach(async () => {
 })
 
 async function freshDir(): Promise<string> {
-  const d = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-atomic-"))
+  const d = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-atomic-"))
   dirs.push(d)
   return d
 }
@@ -37,3 +37,5 @@ describe("atomicWriteFile", () => {
     expect(st.mode & 0o777).toBe(0o600)
   })
 })
+
+

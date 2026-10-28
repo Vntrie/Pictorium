@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { fireEvent, render, screen, waitFor, act } from "@testing-library/react"
 import { UserUnlockModal } from "@/components/UserUnlockModal"
 import { MOCK_CTX } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import {
   __resetUnlockedUsersForTests,
@@ -44,12 +44,12 @@ function Host({ initialT }: { initialT: TFn }) {
   const [t, setT] = useState<TFn>(() => initialT)
   return (
     <PosterEditorProvider>
-      <PictoriumProvider value={{ ...MOCK_CTX, t }}>
+      <FlameForgeProvider value={{ ...MOCK_CTX, t }}>
         <button data-testid="swap-t" onClick={() => setT(() => ((key: string) => `b:${key}`) as TFn)}>
           swap
         </button>
         <UserUnlockModal />
-      </PictoriumProvider>
+      </FlameForgeProvider>
     </PosterEditorProvider>
   )
 }
@@ -208,3 +208,5 @@ describe("fetchWithUserAuthRetry", () => {
     expect(getStoredUserToken(UUID)).toBe("stale-secret")
   })
 })
+
+

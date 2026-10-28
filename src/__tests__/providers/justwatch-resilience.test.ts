@@ -210,3 +210,4 @@ describe("JustWatch resilience & anti-bot", () => {
     expect(results[0].title).toBe("Film Survivor")
   })
 })
+

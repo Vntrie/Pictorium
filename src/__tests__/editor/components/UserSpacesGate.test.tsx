@@ -71,7 +71,7 @@ afterEach(() => {
   global.fetch = realFetch
   __resetUnlockedUsersForTests()
   __resetUserCredentialsForTests()
-  window.sessionStorage.removeItem("pictorium_active_space")
+  window.sessionStorage.removeItem("FLAMEFORGE_active_space")
   setUrl("/")
   vi.restoreAllMocks()
 })
@@ -99,7 +99,7 @@ describe("UserSpacesList gate crea/entri (zero memoria)", () => {
     await waitFor(() => expect(isUserUnlocked(UUID)).toBe(true))
     expect(getStoredUserPassword(UUID)).toBe("new-password-1")
     // Il secret resta sul dispositivo (sempre copiabile), niente lista spazi.
-    expect(localStore[`pictorium-user-token:${UUID.toLowerCase()}`]).toBe("new-secret-1")
+    expect(localStore[`FlameForge-user-token:${UUID.toLowerCase()}`]).toBe("new-secret-1")
     expectNoTrustedMemory()
   })
 
@@ -121,7 +121,7 @@ describe("UserSpacesList gate crea/entri (zero memoria)", () => {
   })
 
   it("shortcut: spazio attivo sbloccato mostra banner e naviga", async () => {
-    window.sessionStorage.setItem("pictorium_active_space", UUID)
+    window.sessionStorage.setItem("FLAMEFORGE_active_space", UUID)
     window.dispatchEvent(new CustomEvent(USER_UNLOCK_EVENT, { detail: { uuid: UUID } }))
     renderWithCtx(<UserSpacesList />)
     // Banner con UUID + pulsante: niente ridigitazione.
@@ -133,7 +133,7 @@ describe("UserSpacesList gate crea/entri (zero memoria)", () => {
   })
 
   it("shortcut: spazio attivo bloccato non mostra banner ma precompila il login", async () => {
-    window.sessionStorage.setItem("pictorium_active_space", UUID)
+    window.sessionStorage.setItem("FLAMEFORGE_active_space", UUID)
     renderWithCtx(<UserSpacesList />)
     await screen.findByText("ui.userSpaceOr")
     // Niente banner senza unlock: solo prefill del campo UUID.
@@ -158,3 +158,5 @@ describe("UserSpacesList gate crea/entri (zero memoria)", () => {
     expect(screen.queryByText("new-secret-1")).not.toBeInTheDocument()
   })
 })
+
+

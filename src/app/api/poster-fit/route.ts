@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 import { rateLimit, rateLimitKey, rateLimitResponse } from "@/lib/rate-limit"
 import { selectAcceptedPosterPath } from "@/lib/poster-fit-adjust"
 import { rankBestFitPosters, selectAutoFitCandidates } from "@/lib/poster-auto-fit"
@@ -56,7 +56,7 @@ interface PosterFitResponse {
 }
 
 async function fetchImage(url: string, signal: AbortSignal): Promise<Buffer> {
-  // Byte-LRU (F3): a parità di URL (logo + candidati per toggle) niente
+  // Byte-LRU (F3): a paritÃ  di URL (logo + candidati per toggle) niente
   // re-download; il check <100 resta dentro, invariato. Il signal viaggia
   // anche come waiter coalesced (stesso fix di fetchImg): un candidato lento
   // del leader non trattiene gli altri oltre i loro 5s.
@@ -95,10 +95,10 @@ export async function POST(req: NextRequest) {
   // S10: endpoint CPU/network-heavy (fetch di fino a 17 immagini + analisi
   // sharp). Protetto come le altre route admin: senza auth un attaccante lo
   // userebbe come amplificatore di richieste verso image.tmdb.org e consumo
-  // CPU. Su istanza pubblica (PICTORIUM_PUBLIC_INSTANCE=1) resta aperto per
+  // CPU. Su istanza pubblica (FLAMEFORGE_PUBLIC_INSTANCE=1) resta aperto per
   // l'editor; con ADMIN_TOKEN configurato richiede il token. Su istanza
   // multi-user il proprietario dello spazio (`?u=` + secret/password) passa
-  // dal ramo scoped senza bisogno del flag public né del token globale.
+  // dal ramo scoped senza bisogno del flag public nÃ© del token globale.
   if (scoped) {
     if (!(await checkUserAuth(req, scoped))) return userAuthResponse()
     if (!isSameOrigin(req)) return originMismatchResponse()
@@ -107,14 +107,14 @@ export async function POST(req: NextRequest) {
     if (!isSameOrigin(req)) return originMismatchResponse()
   }
 
-  // Override globale dell'istanza (PICTORIUM_BEST_FIT_ENABLED): se disabilitato
-  // il best-fit non viene nemmeno calcolato — risposta vuota con flag.
+  // Override globale dell'istanza (FLAMEFORGE_BEST_FIT_ENABLED): se disabilitato
+  // il best-fit non viene nemmeno calcolato â€” risposta vuota con flag.
   if (BEST_FIT_GLOBAL === "off") {
     return Response.json({ ranked: [], bestPosterPath: null, total: 0, failed: 0, disabled: true })
   }
 
   // HF Spaces 512MB: cap sharp come la route poster (concurrency/memoria),
-  // altrimenti libvips parte a ncore thread sui 16 candidati → OOM.
+  // altrimenti libvips parte a ncore thread sui 16 candidati â†’ OOM.
   initSharp()
 
   const contentLength = Number(req.headers.get("content-length") || "0")
@@ -130,9 +130,9 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  // Fix L5: validazione STRUTTURALE del body — prima `body.posterPaths?.length`
+  // Fix L5: validazione STRUTTURALE del body â€” prima `body.posterPaths?.length`
 // passava anche per valori non-array con `.length` (es. una stringa) e il
-// successivo `.map` schiantava con TypeError → 500 generico.
+// successivo `.map` schiantava con TypeError â†’ 500 generico.
 const isValidPosterPath = (p: unknown): p is string => typeof p === "string" && p.startsWith("/") && p.length > 1 && p.length <= 300
 if (!Array.isArray(body.posterPaths) || body.posterPaths.length === 0 || !body.posterPaths.every(isValidPosterPath)) {
   return Response.json({ error: "posterPaths must be a non-empty array of absolute poster paths" }, { status: 400 })
@@ -269,3 +269,4 @@ if (!body.logoPath.startsWith("/")) {
 
   return Response.json(response)
 }
+

@@ -4,8 +4,8 @@ import { DesktopCommunityLinks, MobileCommunityLinks } from "@/components/Header
 import { renderWithCtx } from "@/__tests__/test-utils"
 import { resetGuestGuardForTests } from "@/lib/guest-guard"
 
-const DESKTOP_KEY = "pictorium_elfhosted_minimized_desktop"
-const MOBILE_KEY = "pictorium_elfhosted_minimized_mobile"
+const DESKTOP_KEY = "FLAMEFORGE_elfhosted_minimized_desktop"
+const MOBILE_KEY = "FLAMEFORGE_elfhosted_minimized_mobile"
 
 function mockApi(hostedBy: string | null) {
   global.fetch = (async (url: unknown) => {
@@ -51,7 +51,7 @@ describe("ElfHostedMenu (desktop)", () => {
     const deployRow = screen.getByText(/crea la tua istanza privata/i)
     const deployLink = deployRow.closest("a")
     expect(deployLink).not.toBeNull()
-    expect(deployLink).toHaveAttribute("href", expect.stringMatching(/^https:\/\/store\.elfhosted\.com\/product\/pictorium\//))
+    expect(deployLink).toHaveAttribute("href", expect.stringMatching(/^https:\/\/store\.elfhosted\.com\/product\/FlameForge\//))
     expect(deployLink).toHaveAttribute("target", "_blank")
   })
 
@@ -104,3 +104,5 @@ describe("ElfHostedMenu (mobile)", () => {
     expect(window.sessionStorage?.getItem(MOBILE_KEY)).toBeNull()
   })
 })
+
+

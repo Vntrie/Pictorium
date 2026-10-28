@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { createContext, useContext, useState, useMemo, useCallback, useRef } from "react"
 import type { TMDBImage, NetworkLogoPosition, PosterLayout, PosterFreshScope, PosterShape, LandscapeSettings } from "@/lib/types"
@@ -22,15 +22,15 @@ import { resolveNetworkEffectiveView } from "@/lib/network-follow"
 import { cloneShapeDraft, type ShapeDraftShape } from "@/lib/shape-draft"
 
 /**
- * PosterEditorCtx — possiede il proprio stato di editing (badge defaults,
+ * PosterEditorCtx â€” possiede il proprio stato di editing (badge defaults,
  * posizionamento logo/backdrop, rotazione, esclusioni).
- * È il SINGLE SOURCE OF TRUTH per tutti i campi editor.
+ * Ãˆ il SINGLE SOURCE OF TRUTH per tutti i campi editor.
  *
  * I consumer che usano SOLO usePosterEditor() (es. BadgeControls, TransformControls)
  * NON ri-renderizzano quando cambia trending/search/navigation.
  */
 /**
- * Profilo sfumatura/blur landscape (sezione Trasforma · Orizzontale).
+ * Profilo sfumatura/blur landscape (sezione Trasforma Â· Orizzontale).
  * Sottoinsieme dei campi di LandscapeSettings (sfumatura completa, non badge:
  * quelli restano flat + stash al cambio formato). Valori sempre concreti,
  * inizializzati all'apertura titolo.
@@ -107,21 +107,21 @@ export interface PosterEditorCtx {
   setBadgeRating: (v: boolean | ((prev: boolean) => boolean)) => void
   badgeQuality: boolean
   setBadgeQuality: (v: boolean | ((prev: boolean) => boolean)) => void
-  /** Badge età per-titolo del poster in editing (default OFF). */
+  /** Badge etÃ  per-titolo del poster in editing (default OFF). */
   ageBadge: boolean
   setAgeBadge: (v: boolean | ((prev: boolean) => boolean)) => void
-  /** Paese della classificazione età per-titolo ("IT" = resa storica). */
+  /** Paese della classificazione etÃ  per-titolo ("IT" = resa storica). */
   ageCountry: string
   setAgeCountry: (v: string | ((prev: string) => string)) => void
-  /** Stile della pill età per-titolo ("standard" = resa storica). */
+  /** Stile della pill etÃ  per-titolo ("standard" = resa storica). */
   ageBadgeStyle: AgeBadgeStyle
   setAgeBadgeStyle: (v: AgeBadgeStyle | ((prev: AgeBadgeStyle) => AgeBadgeStyle)) => void
-  /** Riga rating custom provider (default ON quando il provider è configurato). */
+  /** Riga rating custom provider (default ON quando il provider Ã¨ configurato). */
   customRatings: boolean
   setCustomRatings: (v: boolean | ((prev: boolean) => boolean)) => void
   ratingSources: string[]
   setRatingSources: (v: string[] | ((prev: string[]) => string[])) => void
-  /** Colonna rating separati a destra (sostituisce la media ★, default OFF). */
+  /** Colonna rating separati a destra (sostituisce la media â˜…, default OFF). */
   separateRatings: boolean
   setSeparateRatings: (v: boolean | ((prev: boolean) => boolean)) => void
   /** Layout dei rating separati del poster in editing ("column" = colonna storica). */
@@ -151,7 +151,7 @@ export interface PosterEditorCtx {
   /** Font dei testi badge del poster in editing ("inter" = resa storica). */
   badgeFont: BadgeFont
   setBadgeFont: (v: BadgeFont | ((prev: BadgeFont) => BadgeFont)) => void
-  /** Stile icone del badge qualità del poster in editing. */
+  /** Stile icone del badge qualitÃ  del poster in editing. */
   qualityBadgeStyle: QualityBadgeStyle
   setQualityBadgeStyle: (v: QualityBadgeStyle | ((prev: QualityBadgeStyle) => QualityBadgeStyle)) => void
   /** Formati A/V del poster in editing. */
@@ -197,7 +197,7 @@ export interface PosterEditorCtx {
   defaultBadgeFont: BadgeFont
   setDefaultBadgeFont: (v: BadgeFont | ((prev: BadgeFont) => BadgeFont)) => void
 
-  /** Stile icone del badge qualità di default. */
+  /** Stile icone del badge qualitÃ  di default. */
   defaultQualityBadgeStyle: QualityBadgeStyle
   setDefaultQualityBadgeStyle: (v: QualityBadgeStyle | ((prev: QualityBadgeStyle) => QualityBadgeStyle)) => void
   /** Formati A/V di default. */
@@ -277,13 +277,13 @@ export interface PosterEditorCtx {
   setDefaultBadgeRating: (v: boolean | ((prev: boolean) => boolean)) => void
   defaultBadgeQuality: boolean
   setDefaultBadgeQuality: (v: boolean | ((prev: boolean) => boolean)) => void
-  /** Badge età testuale di default (default OFF). */
+  /** Badge etÃ  testuale di default (default OFF). */
   defaultAgeBadge: boolean
   setDefaultAgeBadge: (v: boolean | ((prev: boolean) => boolean)) => void
-  /** Paese classificazione età di default ("IT"). Globale, mai auto-cambiato. */
+  /** Paese classificazione etÃ  di default ("IT"). Globale, mai auto-cambiato. */
   defaultAgeCountry: string
   setDefaultAgeCountry: (v: string | ((prev: string) => string)) => void
-  /** Stile pill età di default ("standard" = resa storica). Globale, mai auto-cambiato. */
+  /** Stile pill etÃ  di default ("standard" = resa storica). Globale, mai auto-cambiato. */
   defaultAgeBadgeStyle: AgeBadgeStyle
   setDefaultAgeBadgeStyle: (v: AgeBadgeStyle | ((prev: AgeBadgeStyle) => AgeBadgeStyle)) => void
   defaultCustomRatings: boolean
@@ -355,7 +355,7 @@ export interface PosterEditorCtx {
   defaultPosterShape: PosterShape
   setDefaultPosterShape: (v: PosterShape | ((prev: PosterShape) => PosterShape)) => void
   /**
-   * Profilo default landscape (Impostazioni · Orizzontale): chiavi assenti
+   * Profilo default landscape (Impostazioni Â· Orizzontale): chiavi assenti
    * seguono i flat (portrait). Patch parziale; reset = segui tutto.
    */
   landscape: LandscapeServerDefaults
@@ -385,16 +385,16 @@ export interface PosterEditorCtx {
   blurIntensity: number
   setBlurIntensity: (v: number | ((prev: number) => number)) => void
   /**
-   * Sfumatura/blur del profilo landscape (sezione Trasforma · Orizzontale):
+   * Sfumatura/blur del profilo landscape (sezione Trasforma Â· Orizzontale):
    * valori live indipendenti dai flat (profilo portrait). Inizializzati
    * all'apertura titolo da mapping.landscape > default di formato.
    */
   landscapeBlur: LandscapeBlurState
   setLandscapeBlur: (patch: Partial<LandscapeBlurState>) => void
   resetLandscapeBlur: (values: LandscapeBlurState) => void
-  /** True se la sezione Orizzontale è stata toccata nella sessione (guida il save). */
+  /** True se la sezione Orizzontale Ã¨ stata toccata nella sessione (guida il save). */
   landscapeBlurDirty: boolean
-  /** Intensità tinta di scena 0-100 (default 20). */
+  /** IntensitÃ  tinta di scena 0-100 (default 20). */
   tintStrength: number
   setTintStrength: (v: number | ((prev: number) => number)) => void
   /** Ombra lineare superiore 0-100 in editing (solo per-titolo, default 50). */
@@ -444,7 +444,7 @@ export interface PosterEditorCtx {
   genreBadgeOffsetY: number
   setGenreBadgeOffsetY: (v: number | ((prev: number) => number)) => void
 
-  // ---- Badge qualità streaming ----
+  // ---- Badge qualitÃ  streaming ----
   qualityBadgeScale: number
   setQualityBadgeScale: (v: number | ((prev: number) => number)) => void
   qualityBadgeOffsetX: number
@@ -477,8 +477,8 @@ export interface PosterEditorCtx {
    * lo congela, rank/scope/layout non lo toccano mai); false = auto (preview
    * emette il sentinel `scale=0` e il server risolve Fresh-100 vs aspect
    * Standard, il save scrive null, solo gli auto si ricalcolano al
-   * rank-arrival/change, ranking on/off, scope ranked↔all e reset/switch).
-   * Un 100 automatico non è mai un 100 esplicito: toggle/reset non lo
+   * rank-arrival/change, ranking on/off, scope rankedâ†”all e reset/switch).
+   * Un 100 automatico non Ã¨ mai un 100 esplicito: toggle/reset non lo
    * promuovono a Standard baked.
    */
   logoScaleExplicit: boolean
@@ -523,7 +523,7 @@ export interface PosterEditorCtx {
    * single owner keyed by `perTitleDraftKey(userId, mediaType, id)`. EditView
    * mirrors its shape-switch stash here; normal Save passes its local stash
    * explicitly (wins) while exclusion autosaves resolve the shared draft via
-   * `useSharedShapeStash` — same `otherShapeStash` save boundary. Per
+   * `useSharedShapeStash` â€” same `otherShapeStash` save boundary. Per
    * provider instance (refs, never module-global): nothing leaks across
    * sessions. Key mismatch reads null; a new key claim drops the old entry,
    * so a new title identity never consumes the previous title's draft.
@@ -545,8 +545,8 @@ export function usePosterEditor() {
 }
 
 /**
- * PosterEditorProvider — ORA possiede il proprio stato.
- * Non dipende più da PictoriumCtx.
+ * PosterEditorProvider â€” ORA possiede il proprio stato.
+ * Non dipende piÃ¹ da FlameForgeCtx.
  * Crea useDefaults() internamente per badge/blur/gradient defaults persistenti,
  * e useState per logo/backdrop/rotazione/editing.
  */
@@ -594,7 +594,7 @@ export function PosterEditorProvider({
 
   // Shared per-title other-shape draft stash (boundary documented in
   // `src/lib/shape-draft.ts`): single owner + per-shape staged drafts, refs
-  // only (no re-render on stash — readers pull synchronously at save time).
+  // only (no re-render on stash â€” readers pull synchronously at save time).
   const shapeDraftOwnerRef = useRef<string | null>(null)
   const shapeDraftsRef = useRef(new Map<ShapeDraftShape, LandscapeSettings>())
   const stashShapeDraft = useCallback(
@@ -621,15 +621,15 @@ export function PosterEditorProvider({
   // ---- Custom badge ----
   const [customBadge, setCustomBadge] = useState<string | null>(null)
 
-  // Badge età per-titolo (stesso pattern dei visuali un tempo condivisi
-  // sopra: stato live per-titolo, mai nei default persistiti — i default
+  // Badge etÃ  per-titolo (stesso pattern dei visuali un tempo condivisi
+  // sopra: stato live per-titolo, mai nei default persistiti â€” i default
   // restano i `defaultAge*`, con legacy alias bare `ageBadge*` intatti).
   // Iniziali = resa storica (l'apertura titolo li riallinea sempre a
   // mapping-effettivo > default di forma, mai colori/valori stantii).
   const [ageBadge, setAgeBadgeState] = useState<boolean>(false)
   const [ageCountry, setAgeCountryState] = useState<string>(DEFAULT_AGE_COUNTRY)
   const [ageBadgeStyle, setAgeBadgeStyleState] = useState<AgeBadgeStyle>(DEFAULT_AGE_BADGE_STYLE)
-  // Cornice stagionale per-titolo: stato live dedicato (come l'età sopra),
+  // Cornice stagionale per-titolo: stato live dedicato (come l'etÃ  sopra),
   // null = Automatico (segue la lista di origine). Iniziale = Automatico
   // (l'apertura titolo lo riallinea sempre al mapping salvato, mai valori
   // stantii del titolo precedente).
@@ -701,9 +701,9 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(badgeQuality) : v
       update({ badgeQuality: next })
     }, [badgeQuality, update])
-  // Badge età per-titolo: stato live dedicato (vedi sopra), mai `update()`
+  // Badge etÃ  per-titolo: stato live dedicato (vedi sopra), mai `update()`
   // sui default. Paese/stile validati fail-closed come il server (mai
-  // GLOBAL/spazzatura nel live — il render li normalizza comunque).
+  // GLOBAL/spazzatura nel live â€” il render li normalizza comunque).
   const setAgeBadge = useCallback(
     (v: boolean | ((prev: boolean) => boolean)) => {
       setAgeBadgeState((prev) => (typeof v === "function" ? v(prev) : v))
@@ -740,8 +740,8 @@ export function PosterEditorProvider({
   const setSeparateRatingsStyle = useCallback(
     (v: SeparateRatingsStyle | ((prev: SeparateRatingsStyle) => SeparateRatingsStyle)) => {
       const next = typeof v === "function" ? v(separateRatingsStyle) : v
-      // Solo azione esplicita di cambio stile: se la scala è ancora al
-      // default del vecchio stile segue il default del nuovo (bar → 130),
+      // Solo azione esplicita di cambio stile: se la scala Ã¨ ancora al
+      // default del vecchio stile segue il default del nuovo (bar â†’ 130),
       // altrimenti il custom (es. 120) si preserva. Setter scala invariato.
       update(separateBadgeScale === getSeparateBadgeDefaultScale(separateRatingsStyle)
         ? { separateRatingsStyle: next, separateBadgeScale: getSeparateBadgeDefaultScale(next) }
@@ -749,13 +749,13 @@ export function PosterEditorProvider({
     }, [separateRatingsStyle, separateBadgeScale, update])
   // Graphical poster layout in editing: scelta esplicita per formato, mai
   // migrazione degli altri visuali (tornando a standard badge/logo/transform
-  // restano intatti — il layout non li tocca).
+  // restano intatti â€” il layout non li tocca).
   const setPosterLayout = useCallback(
     (v: PosterLayout | ((prev: PosterLayout) => PosterLayout)) => {
       const next = typeof v === "function" ? v(posterLayout) : v
       update({ posterLayout: next })
     }, [posterLayout, update])
-  // Fresh apply scope in editing: scelta esplicita indipendente dal layout —
+  // Fresh apply scope in editing: scelta esplicita indipendente dal layout â€”
   // selezionare Standard conserva la preferenza (tornando a Fresh si ritrova).
   const setPosterFreshScope = useCallback(
     (v: PosterFreshScope | ((prev: PosterFreshScope) => PosterFreshScope)) => {
@@ -763,7 +763,7 @@ export function PosterEditorProvider({
       update({ posterFreshScope: next })
     }, [posterFreshScope, update])
   // Cornice stagionale per-titolo: stato live dedicato (mai `update()` sui
-  // default — non esiste un default globale). Null = Automatico (segue la
+  // default â€” non esiste un default globale). Null = Automatico (segue la
   // lista); valori non validi normalizzati ad Automatico (fail-closed come
   // il server, mai spazzatura nel live).
   const setSeasonalTheme = useCallback(
@@ -992,7 +992,7 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(blurEnabled) : v
       update({ blurEnabled: next })
     }, [blurEnabled, update])
-  // Profilo sfumatura landscape (Trasforma · Orizzontale): stato per-titolo
+  // Profilo sfumatura landscape (Trasforma Â· Orizzontale): stato per-titolo
   // indipendente dai flat (profilo portrait). Ogni patch utente alza il flag
   // dirty (guida il save); resetLandscapeBlur lo reinizializza (apertura titolo).
   const [landscapeBlur, setLandscapeBlurState] = useState<LandscapeBlurState>(LANDSCAPE_BLUR_DEFAULTS)
@@ -1253,10 +1253,10 @@ export function PosterEditorProvider({
       const next = typeof v === "function" ? v(defaultBadgeQuality) : v
       update({ defaultBadgeQuality: next })
     }, [defaultBadgeQuality, update])
-  // Setter età portrait: prima della PRIMA modifica congelano nel profilo
+  // Setter etÃ  portrait: prima della PRIMA modifica congelano nel profilo
   // landscape il valore flat corrente (snapshot esplicito, mai reseed dopo
-  // l'update) così un portrait ON non attiva un landscape mai configurato. Il
-  // profilo già esplicito (incluso `false`) non si tocca mai.
+  // l'update) cosÃ¬ un portrait ON non attiva un landscape mai configurato. Il
+  // profilo giÃ  esplicito (incluso `false`) non si tocca mai.
   const setDefaultAgeBadge = useCallback(
     (v: boolean | ((prev: boolean) => boolean)) => {
       const next = typeof v === "function" ? v(defaultAgeBadge) : v
@@ -1397,7 +1397,7 @@ export function PosterEditorProvider({
       update({ defaultPosterShape: next })
     }, [defaultPosterShape, update])
   // Profilo default landscape: patch parziale (chiavi assenti = segui i flat),
-  // reset = svuota (torna a seguire tutto). Passa da update → auto-persist +
+  // reset = svuota (torna a seguire tutto). Passa da update â†’ auto-persist +
   // sync server come gli altri default. Un edit classifica materializza prima
   // l'extra indipendente precedente (stesse regole dei flat); i sync che
   // ripristinano valori passano { materialize: false }.
@@ -1452,8 +1452,8 @@ export function PosterEditorProvider({
     () => {
       // Reset per-shape (task 3B1): indipendente e shape-appropriate, mai
       // clear-to-follow. Congela l'effettivo portrait corrente per ogni chiave
-      // (stessi pixel del follow, poi scollegato), qualità ai canonici 0/0
-      // landscape e trio età ai default originali OFF/IT/standard (un flat ON
+      // (stessi pixel del follow, poi scollegato), qualitÃ  ai canonici 0/0
+      // landscape e trio etÃ  ai default originali OFF/IT/standard (un flat ON
       // non riattiva mai il landscape resettato). Singolo update atomico.
       update((prev) => ({
         landscape: independentLandscapeDefaults(
@@ -1570,14 +1570,14 @@ export function PosterEditorProvider({
     if (projection.logo.scale !== undefined) {
       // Explicit number = exact (explicit); null = documented auto-fit request
       // on the CURRENT title's logo (correzione c1: Fresh EFFETTIVO via
-      // logoEffectiveAutoScale con rank ignoto qui — scope "all" = 100, ranked
-      // = aspect conservativo riallineato dal rank-effect in context — mai 100
+      // logoEffectiveAutoScale con rank ignoto qui â€” scope "all" = 100, ranked
+      // = aspect conservativo riallineato dal rank-effect in context â€” mai 100
       // baked; Standard = single source logoDefaultScale, fallback 75).
       // Never preserve the live scale. Auto marks provenance (preview
       // sentinel, save null); explicit marks explicit.
       // The auto scale resolves against the APPLIED layout/scope (the staged
       // bare values when the preset owns them), never the live pre-apply
-      // pair — otherwise applying Fresh to a Standard title (or back) would
+      // pair â€” otherwise applying Fresh to a Standard title (or back) would
       // bake the outgoing look's scale while the staged recipe says otherwise.
       if (projection.logo.scale === null) {
         const appliedLayout = typeof projection.bare.posterLayout === "string"
@@ -1604,9 +1604,9 @@ export function PosterEditorProvider({
   // Reset post-"solo copertina": un solo merge atomico dei bare visuali ai
   // default EFFETTIVI di formato (stessa `effectiveDefaultsForShape` del
   // server: in landscape il profilo Orizzontale vince sui flat chiave per
-  // chiave, mai i flat grezzi — altrimenti preview=100 e salvato=140).
+  // chiave, mai i flat grezzi â€” altrimenti preview=100 e salvato=140).
   // Extra: esplicito effettivo (profilo ?? globale, null = fallback legacy
-  // preservato con check undefined — mai sempre-null); videoFormats:
+  // preservato con check undefined â€” mai sempre-null); videoFormats:
   // effettivo esplicito (profilo ?? globale, null eredita il globale via
   // ??). Network follow/offset via `resolveNetworkEffectiveView` (stessa
   // semantica server: un flat fixed portrait non leakka assoluti in
@@ -1621,7 +1621,7 @@ export function PosterEditorProvider({
     const isLandReset = posterShape === "landscape"
     const land = isLandReset ? (landscapeDefaults ?? null) : null
     // Effective network view (server semantics, mapping assente: solo default
-    // globali + profilo — mai leak di assoluti portrait in landscape).
+    // globali + profilo â€” mai leak di assoluti portrait in landscape).
     const netResetView = resolveNetworkEffectiveView(
       null,
       {
@@ -1688,7 +1688,7 @@ export function PosterEditorProvider({
     const isLand = posterShape === "landscape"
     // Scala titolo: default effettivi di formato (espliciti, anche 75/200) >
     // auto EFFETTIVO sul logo mantenuto (correzione c1: scope "all" + fresh =
-    // 100, ranked + rank ignoto = aspect conservativo — mai 75/100 baked come
+    // 100, ranked + rank ignoto = aspect conservativo â€” mai 75/100 baked come
     // esplicito; il rank-effect in context riallinea i soli auto al rank noto).
     // Espliciti sempre preservati; gli auto marcano provenance (save null).
     const resetLayout = (isLand ? landscapeDefaults?.posterLayout : undefined) ?? defaultPosterLayout
@@ -1708,14 +1708,14 @@ export function PosterEditorProvider({
     setBackdropOffsetX(0)
     setBackdropOffsetY(0)
     setCustomBadge(null)
-    // Badge età per-titolo: default effettivi di forma (mai il live del
-    // titolo precedente — stesso isolamento degli altri visuali; i setter
+    // Badge etÃ  per-titolo: default effettivi di forma (mai il live del
+    // titolo precedente â€” stesso isolamento degli altri visuali; i setter
     // validano fail-closed come il server).
     setAgeBadge(isLandReset ? (land?.ageBadge ?? defaultAgeBadge) : defaultAgeBadge)
     setAgeCountry(isLandReset ? (land?.ageCountry ?? defaultAgeCountry) : defaultAgeCountry)
     setAgeBadgeStyle(isLandReset ? (land?.ageBadgeStyle ?? defaultAgeBadgeStyle) : defaultAgeBadgeStyle)
     // Cornice stagionale per-titolo: il save "solo copertina" azzera la
-    // scelta (Automatico = segue la lista) come gli altri visuali custom —
+    // scelta (Automatico = segue la lista) come gli altri visuali custom â€”
     // il mapping congelato contiene solo cover/logo/metadati.
     setSeasonalTheme(null)
     resetLandscapeBlur({
@@ -2000,7 +2000,7 @@ export function PosterEditorProvider({
       genreBadgeOffsetY,
       setGenreBadgeOffsetY,
 
-      // Badge qualità
+      // Badge qualitÃ 
       qualityBadgeScale,
       setQualityBadgeScale,
       qualityBadgeOffsetX,
@@ -2220,7 +2220,7 @@ export function PosterEditorProvider({
       genreBadgeOffsetX, setGenreBadgeOffsetX,
       genreBadgeOffsetY, setGenreBadgeOffsetY,
 
-      // Badge qualità
+      // Badge qualitÃ 
       qualityBadgeScale, setQualityBadgeScale,
       qualityBadgeOffsetX, setQualityBadgeOffsetX,
       qualityBadgeOffsetY, setQualityBadgeOffsetY,
@@ -2285,3 +2285,4 @@ export function PosterEditorValueOverride({
   const merged = useMemo(() => ({ ...outer, ...value }), [outer, value])
   return <Ctx.Provider value={merged}>{children}</Ctx.Provider>
 }
+

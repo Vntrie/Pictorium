@@ -62,7 +62,7 @@ function storageSnapshot(): string {
   const out: Record<string, string | null> = {}
   for (let i = 0; i < localStorage.length; i += 1) {
     const k = localStorage.key(i)!
-    if (k.includes("badgeDefaults") || k.includes("pictorium")) out[k] = localStorage.getItem(k)
+    if (k.includes("badgeDefaults") || k.includes("FlameForge")) out[k] = localStorage.getItem(k)
   }
   return JSON.stringify(out)
 }
@@ -346,7 +346,7 @@ describe("SettingsPanel dirty-guard close paths", () => {
     expect(screen.getByTestId("settings-dirty-dialog")).toBeInTheDocument()
     fireEvent.click(screen.getByTestId("settings-dirty-continue"))
     // External toolbar toggle path (shell event, never a direct unmount).
-    act(() => { window.dispatchEvent(new CustomEvent("pictorium:settings-close-request")) })
+    act(() => { window.dispatchEvent(new CustomEvent("FlameForge:settings-close-request")) })
     expect(screen.getByTestId("settings-dirty-dialog")).toBeInTheDocument()
     // Confirmed discard closes exactly once with no PUT.
     fireEvent.click(screen.getByTestId("settings-dirty-discard"))
@@ -669,3 +669,5 @@ describe("SettingsPanel prefs/data panels", () => {
     expect(screen.getByText("ui.pinSecurityDesc")).toBeInTheDocument()
   })
 })
+
+

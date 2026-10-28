@@ -173,3 +173,4 @@ describe("SimklCard onRemove (single-list trash)", () => {
     expect(screen.getByRole("button", { name: "ui.remove" })).toBeTruthy()
   })
 })
+

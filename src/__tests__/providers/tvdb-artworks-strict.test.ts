@@ -74,11 +74,11 @@ function installLibRouter(opts: LibRouterOpts = {}) {
 }
 
 beforeEach(() => {
-  process.env.PICTORIUM_TVDB_API_KEY = GOOD_KEY
-  process.env.PICTORIUM_TMDB_KEY = "test-tmdb-key"
-  delete process.env.PICTORIUM_MULTI_USER
-  delete process.env.POSTERIUM_MULTI_USER_ALLOW_ENV_FALLBACK
-  delete process.env.PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK
+  process.env.FLAMEFORGE_TVDB_API_KEY = GOOD_KEY
+  process.env.FLAMEFORGE_TMDB_KEY = "test-tmdb-key"
+  delete process.env.FLAMEFORGE_MULTI_USER
+  delete process.env.FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK
+  delete process.env.FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK
   clearTvdbCache()
   __clearTMDBCache()
   cacheClear()
@@ -481,3 +481,5 @@ describe("GET /api/tvdb/[id]/artworks strict correctness", () => {
     }
   })
 })
+
+

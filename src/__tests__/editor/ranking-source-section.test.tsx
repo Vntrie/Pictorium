@@ -143,3 +143,4 @@ describe("RankingSourceSection", () => {
     expect(screen.getByText("ui.rankingSourceIncompatible")).toBeInTheDocument()
   })
 })
+

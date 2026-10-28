@@ -1,10 +1,10 @@
-import { test, expect } from "@playwright/test"
+﻿import { test, expect } from "@playwright/test"
 
-// Catalog / Meta / Manifest API tests — no TMDB key needed (mock server)
+// Catalog / Meta / Manifest API tests â€” no TMDB key needed (mock server)
 
 test.describe("catalog API", () => {
-  test("pictorium-jw-movies returns metas with resolvable ids (tt preferred, tmdb: fallback)", async ({ request }) => {
-    const res = await request.get("/catalog/movie/pictorium-jw-movies.json", {
+  test("FlameForge-jw-movies returns metas with resolvable ids (tt preferred, tmdb: fallback)", async ({ request }) => {
+    const res = await request.get("/catalog/movie/FlameForge-jw-movies.json", {
       headers: { "x-api-key": "e2e-key" },
     })
     expect(res.ok()).toBeTruthy()
@@ -31,7 +31,7 @@ test.describe("catalog API", () => {
   })
 
   test("first catalog id resolves through /meta (catalog -> meta round trip)", async ({ request }) => {
-    const res = await request.get("/catalog/movie/pictorium-jw-movies.json", {
+    const res = await request.get("/catalog/movie/FlameForge-jw-movies.json", {
       headers: { "x-api-key": "e2e-key" },
     })
     expect(res.ok()).toBeTruthy()
@@ -48,7 +48,7 @@ test.describe("catalog API", () => {
   })
 
   test("search catalog with query returns results", async ({ request }) => {
-    const res = await request.get("/catalog/movie/pictorium-search-movies.json?search=Avatar", {
+    const res = await request.get("/catalog/movie/FlameForge-search-movies.json?search=Avatar", {
       headers: { "x-api-key": "e2e-key" },
     })
     expect(res.ok()).toBeTruthy()
@@ -63,7 +63,7 @@ test.describe("catalog API", () => {
   })
 
   test("search metas carry rating, background, genres and description like AIOMetadata", async ({ request }) => {
-    const res = await request.get("/catalog/movie/pictorium-search-movies.json?search=Avatar", {
+    const res = await request.get("/catalog/movie/FlameForge-search-movies.json?search=Avatar", {
       headers: { "x-api-key": "e2e-key" },
     })
     expect(res.ok()).toBeTruthy()
@@ -77,10 +77,10 @@ test.describe("catalog API", () => {
   })
 
   test("platform catalog pagination skip returns fewer-or-empty", async ({ request }) => {
-    const res1 = await request.get("/catalog/movie/pictorium-netflix-movies.json", {
+    const res1 = await request.get("/catalog/movie/FlameForge-netflix-movies.json", {
       headers: { "x-api-key": "e2e-key" },
     })
-    const res2 = await request.get("/catalog/movie/pictorium-netflix-movies.json?skip=1", {
+    const res2 = await request.get("/catalog/movie/FlameForge-netflix-movies.json?skip=1", {
       headers: { "x-api-key": "e2e-key" },
     })
     expect(res1.ok() && res2.ok()).toBeTruthy()
@@ -94,7 +94,7 @@ test.describe("catalog API", () => {
   })
 
   test("genre filter via query param", async ({ request }) => {
-    const res = await request.get("/catalog/movie/pictorium-jw-movies.json?genre=Azione", {
+    const res = await request.get("/catalog/movie/FlameForge-jw-movies.json?genre=Azione", {
       headers: { "x-api-key": "e2e-key" },
     })
     expect(res.ok()).toBeTruthy()
@@ -103,14 +103,14 @@ test.describe("catalog API", () => {
   })
 
   test("without api key returns no real metas (notice only)", async ({ request }) => {
-    const res = await request.get("/catalog/movie/pictorium-jw-movies.json")
+    const res = await request.get("/catalog/movie/FlameForge-jw-movies.json")
     expect(res.ok()).toBeTruthy()
     const body = await res.json()
-    // Senza chiave: niente contenuti reali — solo la notice card esplicativa
-    // (buildNoticeMeta, id `pictorium:notice:*`), mai titoli veri.
+    // Senza chiave: niente contenuti reali â€” solo la notice card esplicativa
+    // (buildNoticeMeta, id `FlameForge:notice:*`), mai titoli veri.
     expect(Array.isArray(body.metas)).toBeTruthy()
     for (const m of body.metas) {
-      expect(String(m.id)).toMatch(/^pictorium:notice:/)
+      expect(String(m.id)).toMatch(/^FlameForge:notice:/)
     }
   })
 })
@@ -138,7 +138,7 @@ test.describe("meta API", () => {
   })
 
   test("series meta with episodeGroupId returns grouped videos", async ({ request }) => {
-    // Create a mapping with episodeGroupId to trigger group path — via meta cache key includes group
+    // Create a mapping with episodeGroupId to trigger group path â€” via meta cache key includes group
     // Just test that plain tv details still works (group endpoint mocked)
     const res = await request.get("/meta/series/tmdb:19995.json", {
       headers: { "x-api-key": "e2e-key" },
@@ -152,7 +152,7 @@ test.describe("manifest API", () => {
     const res = await request.get("/manifest.json")
     expect(res.ok()).toBeTruthy()
     const body = await res.json()
-    expect(body.id.startsWith("org.pictorium")).toBeTruthy()
+    expect(body.id.startsWith("org.FlameForge")).toBeTruthy()
     expect(body.catalogs.length).toBeGreaterThan(10)
     expect(body.resources.map((r: string | { name: string }) => typeof r === "string" ? r : r.name)).toEqual(["catalog", "meta"])
   })
@@ -161,14 +161,14 @@ test.describe("manifest API", () => {
     const res = await request.get("/manifest.json?mode=search")
     expect(res.ok()).toBeTruthy()
     const body = await res.json()
-    expect(body.catalogs.every((c: { id: string }) => c.id.startsWith("pictorium-search-"))).toBeTruthy()
+    expect(body.catalogs.every((c: { id: string }) => c.id.startsWith("FlameForge-search-"))).toBeTruthy()
   })
 
   test("manifest mode=catalogs excludes search catalogs", async ({ request }) => {
     const res = await request.get("/manifest.json?mode=catalogs")
     expect(res.ok()).toBeTruthy()
     const body = await res.json()
-    expect(body.catalogs.every((c: { id: string }) => !c.id.startsWith("pictorium-search-"))).toBeTruthy()
+    expect(body.catalogs.every((c: { id: string }) => !c.id.startsWith("FlameForge-search-"))).toBeTruthy()
   })
 
   test("manifest extra includes genre and skip", async ({ request }) => {
@@ -179,3 +179,4 @@ test.describe("manifest API", () => {
     expect(first.extra.some((e: { name: string }) => e.name === "skip")).toBeTruthy()
   })
 })
+

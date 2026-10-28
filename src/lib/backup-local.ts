@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { isSupportedUiLang } from "./regions"
 import { sanitizeCustomPresets } from "./gradient-presets"
@@ -54,15 +54,15 @@ export type PersonalKeysBackup = Partial<Record<(typeof DEVICE_KEY_KINDS)[number
 const RAW_CAPS: Record<string, number> = {
   badgeDefaults: 65_536,
   gradientPresets: 16_384,
-  pictorium_custom_catalogs: 65_536,
-  pictorium_disabled_catalogs: 8_192,
-  pictorium_home_disabled_catalogs: 8_192,
-  pictorium_catalog_order: 16_384,
-  pictorium_catalog_renames: 16_384,
-  pictorium_catalog_shapes: 16_384,
-  pictorium_ranking_source_movie: 128,
-  pictorium_ranking_source_series: 128,
-  pictorium_collections: 65_536,
+  FLAMEFORGE_custom_catalogs: 65_536,
+  FLAMEFORGE_disabled_catalogs: 8_192,
+  FLAMEFORGE_home_disabled_catalogs: 8_192,
+  FLAMEFORGE_catalog_order: 16_384,
+  FLAMEFORGE_catalog_renames: 16_384,
+  FLAMEFORGE_catalog_shapes: 16_384,
+  FLAMEFORGE_ranking_source_movie: 128,
+  FLAMEFORGE_ranking_source_series: 128,
+  FLAMEFORGE_collections: 65_536,
   recent_searches: 8_192,
 }
 
@@ -101,7 +101,7 @@ export function collectLocalBackup(storage: MinimalStorage, uuid: string | null)
     if (lang && isSupportedUiLang(lang.trim())) out.lang = lang.trim().toLowerCase()
   } catch { /* voce saltata */ }
   try {
-    const theme = readRaw(storage, "pictorium_theme")
+    const theme = readRaw(storage, "FLAMEFORGE_theme")
     if (theme === "light" || theme === "dark") out.theme = theme
   } catch { /* voce saltata */ }
   try {
@@ -128,12 +128,12 @@ export function collectLocalBackup(storage: MinimalStorage, uuid: string | null)
   try {
     const catalogs: Record<string, unknown> = {}
     const defs: Array<[string, string, (v: unknown) => boolean]> = [
-      ["custom", "pictorium_custom_catalogs", Array.isArray],
-      ["disabled", "pictorium_disabled_catalogs", Array.isArray],
-      ["homeDisabled", "pictorium_home_disabled_catalogs", Array.isArray],
-      ["order", "pictorium_catalog_order", Array.isArray],
-      ["renames", "pictorium_catalog_renames", (v) => typeof v === "object" && v !== null && !Array.isArray(v)],
-      ["shapes", "pictorium_catalog_shapes", (v) => typeof v === "object" && v !== null && !Array.isArray(v)],
+      ["custom", "FLAMEFORGE_custom_catalogs", Array.isArray],
+      ["disabled", "FLAMEFORGE_disabled_catalogs", Array.isArray],
+      ["homeDisabled", "FLAMEFORGE_home_disabled_catalogs", Array.isArray],
+      ["order", "FLAMEFORGE_catalog_order", Array.isArray],
+      ["renames", "FLAMEFORGE_catalog_renames", (v) => typeof v === "object" && v !== null && !Array.isArray(v)],
+      ["shapes", "FLAMEFORGE_catalog_shapes", (v) => typeof v === "object" && v !== null && !Array.isArray(v)],
     ]
     for (const [name, key, ok] of defs) {
       const raw = readRaw(storage, key)
@@ -151,10 +151,10 @@ export function collectLocalBackup(storage: MinimalStorage, uuid: string | null)
     if (Object.keys(catalogs).length > 0) out.catalogs = catalogs
   } catch { /* voce saltata */ }
   try {
-    // Lettura diretta (non readRaw: la stringa vuota è un override JW
+    // Lettura diretta (non readRaw: la stringa vuota Ã¨ un override JW
     // esplicito valido e va preservata, non scartata come assente).
     const sources: { movie?: string; series?: string } = {}
-    for (const [field, key] of [["movie", "pictorium_ranking_source_movie"], ["series", "pictorium_ranking_source_series"]] as const) {
+    for (const [field, key] of [["movie", "FLAMEFORGE_ranking_source_movie"], ["series", "FLAMEFORGE_ranking_source_series"]] as const) {
       let raw: string | null = null
       try {
         raw = storage.getItem(key)
@@ -164,7 +164,7 @@ export function collectLocalBackup(storage: MinimalStorage, uuid: string | null)
     if (sources.movie !== undefined || sources.series !== undefined) out.rankingSources = sources
   } catch { /* voce saltata */ }
   try {
-    const raw = readRaw(storage, "pictorium_collections")
+    const raw = readRaw(storage, "FLAMEFORGE_collections")
     if (raw) {
       const v: unknown = JSON.parse(raw)
       if (Array.isArray(v)) out.collections = v
@@ -209,7 +209,7 @@ export function applyLocalBackup(
     write("lang", "preferred_lang", src.lang.trim().toLowerCase(), 8)
   } else if (src.lang !== undefined) skipped.push("lang")
   if (src.theme === "light" || src.theme === "dark") {
-    write("theme", "pictorium_theme", src.theme, 8)
+    write("theme", "FLAMEFORGE_theme", src.theme, 8)
   } else if (src.theme !== undefined) skipped.push("theme")
   if (Array.isArray(src.recentSearches)) {
     const clean = src.recentSearches
@@ -217,7 +217,7 @@ export function applyLocalBackup(
       .map((s) => s.slice(0, 200))
       .slice(0, 20)
     // Lista svuotata dal sanitize = spazzatura, non "cancella tutto":
-    // l'import è additivo, mai distruttivo.
+    // l'import Ã¨ additivo, mai distruttivo.
     if (clean.length > 0) write("recentSearches", "recent_searches", JSON.stringify(clean), RAW_CAPS.recent_searches)
     else skipped.push("recentSearches")
   } else if (src.recentSearches !== undefined) skipped.push("recentSearches")
@@ -235,12 +235,12 @@ export function applyLocalBackup(
   if (typeof src.catalogs === "object" && src.catalogs !== null && !Array.isArray(src.catalogs)) {
     const cats = src.catalogs as Record<string, unknown>
     const defs: Array<[string, string, (v: unknown) => boolean]> = [
-      ["custom", "pictorium_custom_catalogs", Array.isArray],
-      ["disabled", "pictorium_disabled_catalogs", Array.isArray],
-      ["homeDisabled", "pictorium_home_disabled_catalogs", Array.isArray],
-      ["order", "pictorium_catalog_order", Array.isArray],
-      ["renames", "pictorium_catalog_renames", (v) => typeof v === "object" && v !== null && !Array.isArray(v)],
-      ["shapes", "pictorium_catalog_shapes", (v) => typeof v === "object" && v !== null && !Array.isArray(v)],
+      ["custom", "FLAMEFORGE_custom_catalogs", Array.isArray],
+      ["disabled", "FLAMEFORGE_disabled_catalogs", Array.isArray],
+      ["homeDisabled", "FLAMEFORGE_home_disabled_catalogs", Array.isArray],
+      ["order", "FLAMEFORGE_catalog_order", Array.isArray],
+      ["renames", "FLAMEFORGE_catalog_renames", (v) => typeof v === "object" && v !== null && !Array.isArray(v)],
+      ["shapes", "FLAMEFORGE_catalog_shapes", (v) => typeof v === "object" && v !== null && !Array.isArray(v)],
     ]
     for (const [name, key, ok] of defs) {
       const v = cats[name]
@@ -269,14 +269,14 @@ export function applyLocalBackup(
   if (Array.isArray(src.collections)) {
     // Import additivo: una lista vuota non cancella le collezioni esistenti.
     if (src.collections.length > 0) {
-      write("collections", "pictorium_collections", JSON.stringify(src.collections), RAW_CAPS.pictorium_collections)
+      write("collections", "FLAMEFORGE_collections", JSON.stringify(src.collections), RAW_CAPS.FLAMEFORGE_collections)
     } else skipped.push("collections")
   } else if (src.collections !== undefined) skipped.push("collections")
   if (typeof src.rankingSources === "object" && src.rankingSources !== null && !Array.isArray(src.rankingSources)) {
     const sel = src.rankingSources as Record<string, unknown>
     const pairs: Array<[string, string, unknown]> = [
-      ["rankingSources.movie", "pictorium_ranking_source_movie", sel.movie],
-      ["rankingSources.series", "pictorium_ranking_source_series", sel.series],
+      ["rankingSources.movie", "FLAMEFORGE_ranking_source_movie", sel.movie],
+      ["rankingSources.series", "FLAMEFORGE_ranking_source_series", sel.series],
     ]
     for (const [name, key, v] of pairs) {
       if (v === undefined) continue
@@ -311,8 +311,8 @@ function isValidIncomingKey(value: string): boolean {
 
 /**
  * Restores a `personalKeys` section onto this device. Fixed allowlist: only
- * the five known kinds are read (everything else — tokens, PINs, unknown
- * props, prototype members — is ignored). Null/empty/invalid values never
+ * the five known kinds are read (everything else â€” tokens, PINs, unknown
+ * props, prototype members â€” is ignored). Null/empty/invalid values never
  * wipe: they are skipped. An already-stored value (even unprovenanced) is
  * kept unless `overwrite` is true. Written keys go through
  * `writePersonalDeviceKey`, gaining a personal marker. Never throws.
@@ -375,3 +375,4 @@ export function stripLocalPersonalKeys(body: unknown): unknown {
   delete localCopy.personalKeys
   return { ...record, local: localCopy }
 }
+

@@ -3,7 +3,7 @@ import { useState } from "react"
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import { CataloghiView } from "@/components/CataloghiView"
 import { MOCK_CTX, renderWithCtx } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import { userFetch } from "@/lib/http"
@@ -189,10 +189,10 @@ describe("CataloghiView ranking-source names", () => {
     return (
       <ThemeProvider>
         <PosterEditorProvider>
-          <PictoriumProvider value={ctx}>
+          <FlameForgeProvider value={ctx}>
             <button type="button" onClick={() => setMovieSrc("jw:popular")}>switch-movie-source</button>
             <CataloghiView />
-          </PictoriumProvider>
+          </FlameForgeProvider>
         </PosterEditorProvider>
       </ThemeProvider>
     )
@@ -229,7 +229,7 @@ describe("CataloghiView ranking-source names", () => {
       trending: trendingBoth,
       customCatalogs: [custom],
       rankingSourceMovie: "mylist",
-      catalogRenames: { "pictorium-jw-series": "Le mie serie" },
+      catalogRenames: { "FlameForge-jw-series": "Le mie serie" },
     })
     expect((await screen.findAllByText("La mia lista")).length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText("Le mie serie")).toBeInTheDocument()
@@ -249,10 +249,10 @@ describe("CataloghiView ranking-source names", () => {
     const itRegion = getRegionDef("IT")
     const selection = { rankingSourceMovie: "jw:popular", rankingSourceSeries: "jw:trending" }
     // Canonical/export names (manager + manifest) carry the flag with emoji ON.
-    expect(rankingSourceCatalogName("pictorium-jw-movies", "movie", selection, itRegion)).toBe(
+    expect(rankingSourceCatalogName("FlameForge-jw-movies", "movie", selection, itRegion)).toBe(
       "🇮🇹 I più popolari — Film",
     )
-    expect(rankingSourceCatalogName("pictorium-jw-series", "series", selection, itRegion)).toBe(
+    expect(rankingSourceCatalogName("FlameForge-jw-series", "series", selection, itRegion)).toBe(
       "🇮🇹 In tendenza — Serie TV",
     )
     // Browsing rows/expanded grids suppress it under the very same preference.
@@ -287,7 +287,7 @@ describe("CataloghiView ranking-source names", () => {
       trending: trendingBoth,
       catalogShowEmojis: false,
       rankingSourceMovie: "jw:popular",
-      catalogRenames: { "pictorium-jw-series": "🚀 Le mie serie" },
+      catalogRenames: { "FlameForge-jw-series": "🚀 Le mie serie" },
     })
     expect(await screen.findByText("I più popolari — Film")).toBeInTheDocument()
     expect(screen.getByText("Le mie serie")).toBeInTheDocument()
@@ -295,3 +295,5 @@ describe("CataloghiView ranking-source names", () => {
     view.unmount()
   })
 })
+
+

@@ -116,3 +116,4 @@ describe("poster cache separates resolved shapes", () => {
     expect(placeholder).not.toBe(keyFor("shape=landscape&lang=it"))
   })
 })
+

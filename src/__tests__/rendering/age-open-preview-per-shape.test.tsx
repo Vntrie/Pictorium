@@ -17,14 +17,14 @@
  * `effectiveDefaultsForShape`) to the same trio (preview/Stremio parity with
  * production builders, never hand-built BadgeParams).
  *
- * Drives the REAL provider (PictoriumRoot) with deferred network, exactly
+ * Drives the REAL provider (FlameForgeRoot) with deferred network, exactly
  * like fresh-landscape-defaults / poster-layout-correction.
  */
 import { useEffect } from "react"
 import { render, act } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import type { SearchResult, TMDBImage } from "@/lib/types"
@@ -33,7 +33,7 @@ import { effectiveDefaultsForShape } from "@/lib/server-defaults"
 import type { ServerDefaults, LandscapeServerDefaults } from "@/lib/server-defaults"
 import { resolveAgeBadgeRequest } from "@/lib/poster-config"
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -257,9 +257,9 @@ async function renderRoot() {
   ctx = null
   ed = null
   render(
-    <PictoriumRoot>
+    <FlameForgeRoot>
       <Probe />
-    </PictoriumRoot>,
+    </FlameForgeRoot>,
   )
   await flush()
   expect(ctx, "provider context available").toBeTruthy()
@@ -443,3 +443,5 @@ describe("open-title age follows the selected shape (portrait OFF / landscape ON
     expectServerParity(SD_B)
   })
 })
+
+

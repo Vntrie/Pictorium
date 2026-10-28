@@ -1,7 +1,7 @@
 // Test della grazia zombie (R5). Env a module level PRIMA del dynamic import:
 // un solo slot e grazia minima (1000ms, floor del clamp) — test deterministici.
-process.env.PICTORIUM_MAX_CONCURRENT_RENDERS = "1"
-process.env.PICTORIUM_ZOMBIE_GRACE_MS = "1000"
+process.env.FLAMEFORGE_MAX_CONCURRENT_RENDERS = "1"
+process.env.FLAMEFORGE_ZOMBIE_GRACE_MS = "1000"
 
 import { afterEach, describe, expect, it } from "vitest"
 
@@ -124,3 +124,5 @@ describe("zombie render grace (R5)", () => {
     }
   })
 })
+
+

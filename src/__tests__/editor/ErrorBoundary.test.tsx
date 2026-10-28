@@ -84,3 +84,4 @@ describe("ErrorBoundary", () => {
     expect(screen.getByText("Ricarica")).toBeTruthy()
   })
 })
+

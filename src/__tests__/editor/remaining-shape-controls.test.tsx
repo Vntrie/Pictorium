@@ -653,3 +653,4 @@ describe("remaining visual inventory (3B2)", () => {
     expect("networkLogoFollowTitle" in adds).toBe(false)
   })
 })
+

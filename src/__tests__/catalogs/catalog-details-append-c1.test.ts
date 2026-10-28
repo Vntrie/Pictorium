@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { NextRequest } from "next/server"
-import { pictoriumCatalog } from "@/lib/catalog-handler"
+import { FlameForgeCatalog } from "@/lib/catalog-handler"
 import { encodeConfig } from "@/lib/config-token"
 import { __clearTMDBCache } from "@/lib/tmdb"
 import { __clearImdbCache } from "@/lib/imdb-cache"
@@ -143,9 +143,9 @@ function customToken(cid: string, url: string, type: "movie" | "series" | "mixed
 
 async function getCustom(cid: string, token: string, stType: "movie" | "series", extra = "") {
   const req = new NextRequest(
-    `https://example.com/catalog/${stType}/pictorium-custom-${stType}-${cid}.json?api_key=test-key${extra}`,
+    `https://example.com/catalog/${stType}/FlameForge-custom-${stType}-${cid}.json?api_key=test-key${extra}`,
   )
-  const res = await pictoriumCatalog(req, stType, `pictorium-custom-${stType}-${cid}`, null, token)
+  const res = await FlameForgeCatalog(req, stType, `FlameForge-custom-${stType}-${cid}`, null, token)
   expect(res.status).toBe(200)
   return (await res.json()) as { metas: Array<{ id: string; name: string }> }
 }
@@ -267,9 +267,9 @@ describe("catalog details+external_ids aggregation (C1, actual handler)", () => 
     setProviderItems([{ tmdb: 141, imdb: "tt1000141", title: "Keyless", year: 2024 }])
     installRouter({ counters })
     const req = new NextRequest(
-      `https://example.com/catalog/movie/pictorium-custom-movie-c1keyless.json?config=${customToken("c1keyless", "https://mdblist.com/lists/u/c1keyless")}`,
+      `https://example.com/catalog/movie/FlameForge-custom-movie-c1keyless.json?config=${customToken("c1keyless", "https://mdblist.com/lists/u/c1keyless")}`,
     )
-    const res = await pictoriumCatalog(req, "movie", "pictorium-custom-movie-c1keyless", null, null)
+    const res = await FlameForgeCatalog(req, "movie", "FlameForge-custom-movie-c1keyless", null, null)
     expect(res.status).toBe(200)
     expect(counters.detailsPlain + counters.detailsAppend + counters.external + counters.find).toBe(0)
   })
@@ -285,8 +285,8 @@ describe("catalog details+external_ids aggregation (C1, actual handler)", () => 
       appendMap: { 202: "tt1000202" },
       externalMap: { 202: "tt1000202" },
     })
-    const req = new NextRequest("https://example.com/catalog/movie/pictorium-anime-movies.json?api_key=test-key")
-    const res = await pictoriumCatalog(req, "movie", "pictorium-anime-movies", null, null)
+    const req = new NextRequest("https://example.com/catalog/movie/FlameForge-anime-movies.json?api_key=test-key")
+    const res = await FlameForgeCatalog(req, "movie", "FlameForge-anime-movies", null, null)
     expect(res.status).toBe(200)
     const body = (await res.json()) as { metas: Array<{ id: string; name: string }> }
     expect(body.metas.map((m) => m.id)).toEqual(["tt1000201", "tt1000202"])
@@ -305,8 +305,8 @@ describe("catalog details+external_ids aggregation (C1, actual handler)", () => 
       appendMap: { 211: "junk" },
       externalMap: { 211: "tt1000211" },
     })
-    const req = new NextRequest("https://example.com/catalog/series/pictorium-anime.json?api_key=test-key")
-    const res = await pictoriumCatalog(req, "series", "pictorium-anime", null, null)
+    const req = new NextRequest("https://example.com/catalog/series/FlameForge-anime.json?api_key=test-key")
+    const res = await FlameForgeCatalog(req, "series", "FlameForge-anime", null, null)
     expect(res.status).toBe(200)
     const body = (await res.json()) as { metas: Array<{ id: string }> }
     expect(body.metas.map((m) => m.id)).toEqual(["tt1000211"])
@@ -388,9 +388,9 @@ describe("catalog details+external_ids aggregation (C1, actual handler)", () => 
       return Response.json({}, { status: 404 })
     })
     const req = new NextRequest(
-      "https://example.com/catalog/movie/pictorium-netflix-movies.json?api_key=test-key&skip=1",
+      "https://example.com/catalog/movie/FlameForge-netflix-movies.json?api_key=test-key&skip=1",
     )
-    const pending = pictoriumCatalog(req, "movie", "pictorium-netflix-movies", null, null)
+    const pending = FlameForgeCatalog(req, "movie", "FlameForge-netflix-movies", null, null)
     // The standalone external_ids lookup must fire while details are still
     // gated — sequential-after-settle code could never satisfy this.
     const deadline = Date.now() + 1500
@@ -433,9 +433,9 @@ describe("catalog details+external_ids aggregation (C1, actual handler)", () => 
       failDetails: [311],
     })
     const req = new NextRequest(
-      "https://example.com/catalog/series/pictorium-netflix-series.json?api_key=test-key&skip=1",
+      "https://example.com/catalog/series/FlameForge-netflix-series.json?api_key=test-key&skip=1",
     )
-    const res = await pictoriumCatalog(req, "series", "pictorium-netflix-series", null, null)
+    const res = await FlameForgeCatalog(req, "series", "FlameForge-netflix-series", null, null)
     expect(res.status).toBe(200)
     const body = (await res.json()) as { metas: Array<{ id: string; name: string }> }
     expect(body.metas.map((m) => m.id)).toEqual(["tt1000311", "tt1000312"])
@@ -489,3 +489,5 @@ describe("catalog details+external_ids aggregation (C1, actual handler)", () => 
     ])
   })
 })
+
+

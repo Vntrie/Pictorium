@@ -110,3 +110,4 @@ describe("PosterPreview", () => {
     expect(container.querySelector('img[src="https://example.com/b.jpg"]')).toBeTruthy()
   })
 })
+

@@ -1,4 +1,4 @@
-# Provenance — vercel-react-best-practices (Pictorium local copy)
+﻿# Provenance â€” vercel-react-best-practices (FlameForge local copy)
 
 - Upstream source: https://github.com/vercel-labs/agent-skills
 - Pinned commit: `063bee94c3f4df8453406c830b0a7df0f2860278`
@@ -12,7 +12,7 @@
   executed; the `skills/web-design-guidelines.zip` build artifact was
   intentionally not installed.
 - Local adaptation: ONLY the `SKILL.md` entrypoint gained a clearly marked
-  "Pictorium integration guard" blockquote directly after the frontmatter
+  "FlameForge integration guard" blockquote directly after the frontmatter
   (frontmatter untouched). Every other file is byte-identical to upstream
   (verified file-by-file against the pinned-commit tarball).
 
@@ -23,3 +23,4 @@ SHA-256 (installed files, guard included where noted):
 - `AGENTS.md`: `FC93E7421177BBF869CCE892BC60A6C83A4517D974BC3BF65C4E2C1E58A6CCF6`
 - `README.md`: `9EAFB2123D3B8B2AEF41FBA0DB2648A3F4F49996F8C7C8BB2C86263BEFD8B48A`
 - `metadata.json`: `C4E18BAC3290FBE1B471A605867D4DF68B03144EA26B8BEFDBE8F9D8FD124354`
+

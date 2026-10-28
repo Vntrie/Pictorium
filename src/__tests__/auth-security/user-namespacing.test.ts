@@ -8,17 +8,17 @@ import type { Mapping } from "@/lib/types"
 const UUID_A = "11111111-1111-4111-8111-111111111111"
 const UUID_B = "22222222-2222-4222-8222-222222222222"
 
-const ENV_KEYS = ["PICTORIUM_DATA_DIR", "PICTORIUM_MULTI_USER", "PICTORIUM_MAX_MAPPINGS_PER_USER"] as const
+const ENV_KEYS = ["FLAMEFORGE_DATA_DIR", "FLAMEFORGE_MULTI_USER", "FLAMEFORGE_MAX_MAPPINGS_PER_USER"] as const
 let savedEnv: Record<string, string | undefined> = {}
 let tempDir: string | undefined
 
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-multiuser-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
-  process.env.PICTORIUM_MULTI_USER = "1"
-  delete process.env.PICTORIUM_MAX_MAPPINGS_PER_USER
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-multiuser-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
+  process.env.FLAMEFORGE_MULTI_USER = "1"
+  delete process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER
 })
 
 afterEach(async () => {
@@ -56,7 +56,7 @@ describe("user-auth", () => {
   })
 
   it("getScopedUserId è null con flag OFF (default-off byte-identico)", async () => {
-    delete process.env.PICTORIUM_MULTI_USER
+    delete process.env.FLAMEFORGE_MULTI_USER
     vi.resetModules()
     const auth = await import("@/lib/user-auth")
     expect(auth.isMultiUserEnabled()).toBe(false)
@@ -116,7 +116,7 @@ describe("store namespaced", () => {
   })
 
   it("quota: oltre il cap → QuotaExceededError, update esistente ok", async () => {
-    process.env.PICTORIUM_MAX_MAPPINGS_PER_USER = "2"
+    process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER = "2"
     vi.resetModules()
     const store = await import("@/lib/store")
     await store.upsert(makeMapping(1, "Uno"), UUID_A)
@@ -160,3 +160,5 @@ describe("catalog-epoch namespaced", () => {
     expect(nextA2).not.toBe(nextA)
   })
 })
+
+

@@ -21,15 +21,15 @@ const UUID_A = "11111111-1111-4111-8111-111111111111"
 const NS_TMDB_KEY = "nstmdbkey1234567890"
 
 const ENV_KEYS = [
-  "PICTORIUM_DATA_DIR",
-  "PICTORIUM_MULTI_USER",
-  "PICTORIUM_MAX_MAPPINGS_PER_USER",
+  "FLAMEFORGE_DATA_DIR",
+  "FLAMEFORGE_MULTI_USER",
+  "FLAMEFORGE_MAX_MAPPINGS_PER_USER",
   "PROFILE_ENCRYPTION_KEY",
-  "PICTORIUM_TMDB_KEY",
+  "FLAMEFORGE_TMDB_KEY",
   "TMDB_KEY",
   "TMDB_API_KEY",
-  "PICTORIUM_FANART_KEY",
-  "POSTERIUM_FANART_KEY",
+  "FLAMEFORGE_FANART_KEY",
+  "FLAMEFORGE_FANART_KEY",
 ] as const
 let savedEnv: Record<string, string | undefined> = {}
 let tempDir: string | undefined
@@ -37,16 +37,16 @@ let tempDir: string | undefined
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-userkeys-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
-  process.env.PICTORIUM_MULTI_USER = "1"
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-userkeys-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
+  process.env.FLAMEFORGE_MULTI_USER = "1"
   process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
-  delete process.env.PICTORIUM_MAX_MAPPINGS_PER_USER
-  delete process.env.PICTORIUM_TMDB_KEY
+  delete process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER
+  delete process.env.FLAMEFORGE_TMDB_KEY
   delete process.env.TMDB_KEY
   delete process.env.TMDB_API_KEY
-  delete process.env.PICTORIUM_FANART_KEY
-  delete process.env.POSTERIUM_FANART_KEY
+  delete process.env.FLAMEFORGE_FANART_KEY
+  delete process.env.FLAMEFORGE_FANART_KEY
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
   kvStore.clear()
@@ -176,12 +176,12 @@ describe("resolveUserApiKeys", () => {
     expect(r).toEqual({ key: NS_TMDB_KEY, source: "namespace" })
 
     // Env come ultima spiaggia.
-    process.env.PICTORIUM_TMDB_KEY = "env-key"
+    process.env.FLAMEFORGE_TMDB_KEY = "env-key"
     r = await tmdb.resolveUserApiKey(nextReq("http://x/"), null, "tmdb")
     expect(r).toEqual({ key: "env-key", source: "env" })
 
     // Niente da nessuna parte.
-    delete process.env.PICTORIUM_TMDB_KEY
+    delete process.env.FLAMEFORGE_TMDB_KEY
     r = await tmdb.resolveUserApiKey(nextReq("http://x/"), null, "tmdb")
     expect(r).toEqual({ key: undefined, source: "none" })
   })
@@ -229,11 +229,11 @@ describe("resolveUserApiKeys", () => {
     r = await tmdb.resolveUserApiKey(nextReq(`http://x/?u=${UUID_A}`), UUID_A, "fanart")
     expect(r).toEqual({ key: "ns-fanart", source: "namespace" })
     // Env come ultima spiaggia.
-    process.env.PICTORIUM_FANART_KEY = "env-fan"
+    process.env.FLAMEFORGE_FANART_KEY = "env-fan"
     r = await tmdb.resolveUserApiKey(nextReq("http://x/"), null, "fanart")
     expect(r).toEqual({ key: "env-fan", source: "env" })
     // Niente da nessuna parte.
-    delete process.env.PICTORIUM_FANART_KEY
+    delete process.env.FLAMEFORGE_FANART_KEY
     r = await tmdb.resolveUserApiKey(nextReq("http://x/"), null, "fanart")
     expect(r).toEqual({ key: undefined, source: "none" })
   })
@@ -377,7 +377,7 @@ describe("keys reveal route", () => {
   })
 
   it("404 con flag OFF", async () => {
-    delete process.env.PICTORIUM_MULTI_USER
+    delete process.env.FLAMEFORGE_MULTI_USER
     vi.resetModules()
     const route = await import("@/app/api/users/[uuid]/keys/reveal/route")
     const res = await route.POST(
@@ -439,8 +439,8 @@ describe("catalog con chiave namespace (fatal-block fix)", () => {
       .mockResolvedValueOnce(tmdbDetailsResponse(94997))
       .mockResolvedValueOnce(tmdbImagesResponse(94997))
 
-    const req = nextReq(`http://localhost:3000/catalog/series/pictorium-jw-series.json?u=${created.uuid}`)
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series" }) })
+    const req = nextReq(`http://localhost:3000/catalog/series/FlameForge-jw-series.json?u=${created.uuid}`)
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series" }) })
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.metas).toHaveLength(1)
@@ -458,13 +458,13 @@ describe("catalog con chiave namespace (fatal-block fix)", () => {
     const { __resetJWRankingsCache } = await import("@/lib/justwatch")
     __resetJWRankingsCache()
     const { GET } = await import("@/app/catalog/[type]/[id]/route")
-    const req = nextReq(`http://localhost:3000/catalog/series/pictorium-jw-series.json?u=${UUID_A}`)
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series" }) })
+    const req = nextReq(`http://localhost:3000/catalog/series/FlameForge-jw-series.json?u=${UUID_A}`)
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series" }) })
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.metas).toHaveLength(1)
-    expect(body.metas[0].id.startsWith("pictorium:notice:")).toBe(true)
-    expect(body.metas[0].poster).toContain("/pictorium.png")
+    expect(body.metas[0].id.startsWith("FlameForge:notice:")).toBe(true)
+    expect(body.metas[0].poster).toContain("/FlameForge.png")
   })
 })
 
@@ -487,3 +487,5 @@ describe("user-keys KV backend (Redis/Upstash via lib/kv)", () => {
     expect(await reloaded.getUserKeys(UUID_A)).toMatchObject({ tmdb: NS_TMDB_KEY })
   })
 })
+
+

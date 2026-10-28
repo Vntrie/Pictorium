@@ -48,8 +48,8 @@ describe("rateLimit con store KV condiviso (KV_REST_API_URL/TOKEN configurati)",
   afterEach(() => {
     delete process.env.KV_REST_API_URL
     delete process.env.KV_REST_API_TOKEN
-    delete process.env.PICTORIUM_REDIS_URL
-    delete process.env.POSTERIUM_RATELIMIT_KV
+    delete process.env.FLAMEFORGE_REDIS_URL
+    delete process.env.FLAMEFORGE_RATELIMIT_KV
     redisCounters.clear()
     redisExpireCalls.length = 0
   })
@@ -81,8 +81,8 @@ describe("rateLimit con store KV condiviso (KV_REST_API_URL/TOKEN configurati)",
     expect(keys.some((k) => k.startsWith("rl:poster:client-b:"))).toBe(true)
   })
 
-  it("POSTERIUM_RATELIMIT_KV=0 forza lo store in-memory (zero chiamate KV)", async () => {
-    process.env.POSTERIUM_RATELIMIT_KV = "0"
+  it("FLAMEFORGE_RATELIMIT_KV=0 forza lo store in-memory (zero chiamate KV)", async () => {
+    process.env.FLAMEFORGE_RATELIMIT_KV = "0"
     const { rateLimit } = await importRateLimit()
     expect(await rateLimit("client-c", "warmup").then((r) => r.ok)).toBe(true)
     expect(kvMock.incr).not.toHaveBeenCalled()
@@ -100,7 +100,7 @@ describe("rateLimit con store KV condiviso (KV_REST_API_URL/TOKEN configurati)",
   })
 
   it("backend Redis nativo: fixed-window condiviso con TTL 2x finestra", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     const { rateLimit } = await importRateLimit()
     for (let i = 0; i < 5; i++) {
       expect(await rateLimit("client-e", "warmup")).toEqual({ ok: true, retAfter: 0 })
@@ -117,3 +117,4 @@ describe("rateLimit con store KV condiviso (KV_REST_API_URL/TOKEN configurati)",
     expect(kvMock.incr).not.toHaveBeenCalled()
   })
 })
+

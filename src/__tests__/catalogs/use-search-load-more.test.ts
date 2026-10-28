@@ -117,3 +117,4 @@ describe("useSearch loadMore", () => {
     expect(result.current.searchPage).toBe(3)
   })
 })
+

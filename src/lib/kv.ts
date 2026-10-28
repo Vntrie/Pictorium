@@ -1,4 +1,4 @@
-import { envWithFallback } from "@/lib/env-compat"
+﻿import { envWithFallback } from "@/lib/env-compat"
 import { createLogger } from "@/lib/logger"
 
 const log = createLogger("kv")
@@ -25,7 +25,7 @@ export class KvTimeoutError extends Error {
  *
  * The timeout does not cancel the underlying operation: no abort is sent,
  * the original promise keeps running and its late outcome is ignored. A
- * write that times out may still complete, so its result is uncertain —
+ * write that times out may still complete, so its result is uncertain â€”
  * this helper does not retry.
  */
 export function withKvTimeout<T>(promise: Promise<T>, ms = KV_COMMAND_TIMEOUT_MS): Promise<T> {
@@ -88,18 +88,18 @@ let upstashTimed: KvClient | null = null
  * Storage Key-Value unificato (Step 1: solo definizione + selezione backend).
  *
  * Nessun consumer migrato in questo step: i moduli esistenti continuano a
- * importare `@vercel/kv` direttamente. Questo modulo è usato solo dal suo
- * unit test finché lo Step 2 non migra il primo consumer (`catalog-epoch`).
+ * importare `@vercel/kv` direttamente. Questo modulo Ã¨ usato solo dal suo
+ * unit test finchÃ© lo Step 2 non migra il primo consumer (`catalog-epoch`).
  *
  * Backend (precedenza):
- *  1. Redis nativo (`PICTORIUM_REDIS_URL`, fallback `POSTERIUM_REDIS_URL`,
+ *  1. Redis nativo (`FLAMEFORGE_REDIS_URL`, fallback `FLAMEFORGE_REDIS_URL`,
  *     fallback `REDIS_URL` nudo per ElfHosted) via `ioredis` (TCP).
  *  2. Vercel KV / Upstash (`KV_REST_API_URL` + `KV_REST_API_TOKEN`) via REST.
  *  3. Altrimenti filesystem locale (i caller usano il ramo file esistente).
  *
  * `getStorageMode()` resta rigorosamente `"kv" | "file"` (contratto di
  * `store.ts`/`health/route.ts`): Redis conta come `"kv"`. La distinzione
- * redis-vs-upstash è solo diagnostica (`getStorageBackend()`).
+ * redis-vs-upstash Ã¨ solo diagnostica (`getStorageBackend()`).
  */
 
 export interface KvClient {
@@ -132,7 +132,7 @@ export interface KvClient {
   eval<T = unknown>(script: string, keys: string[], args: string[]): Promise<T>
 }
 
-/** URL Redis: canonico PICTORIUM > legacy POSTERIUM > nudo (ElfHosted). */
+/** URL Redis: canonico FlameForge > legacy POSTERIUM > nudo (ElfHosted). */
 export function resolveRedisUrl(): string | undefined {
   const configured = envWithFallback("REDIS_URL") ?? process.env.REDIS_URL
   const trimmed = configured?.trim()
@@ -152,7 +152,7 @@ export function getStorageMode(): "kv" | "file" {
   return isRedisConfigured() || isKvConfigured() ? "kv" : "file"
 }
 
-/** Diagnostica (solo health): quale backend KV è attivo, se uno lo è. */
+/** Diagnostica (solo health): quale backend KV Ã¨ attivo, se uno lo Ã¨. */
 export function getStorageBackend(): "redis" | "upstash" | null {
   if (isRedisConfigured()) return "redis"
   if (isKvConfigured()) return "upstash"
@@ -169,7 +169,7 @@ function warnBothConfiguredOnce(): void {
   )
 }
 
-/** Ritorna il backend attivo (Redis vince su KV). Throw se nessuno è configurato. */
+/** Ritorna il backend attivo (Redis vince su KV). Throw se nessuno Ã¨ configurato. */
 export function getKv(): KvClient {
   if (isRedisConfigured()) {
     if (isKvConfigured()) warnBothConfiguredOnce()
@@ -180,14 +180,14 @@ export function getKv(): KvClient {
     upstashTimed ??= wrapKvWithTimeout(upstashKv)
     return upstashTimed
   }
-  throw new Error("No KV backend configured (set PICTORIUM_REDIS_URL or KV_REST_API_URL/KV_REST_API_TOKEN)")
+  throw new Error("No KV backend configured (set FLAMEFORGE_REDIS_URL or KV_REST_API_URL/KV_REST_API_TOKEN)")
 }
 
-// ---- Serializzazione (parità Upstash) ----
+// ---- Serializzazione (paritÃ  Upstash) ----
 // Upstash preserva i tipi nativamente; ioredis tratta solo stringhe.
 // Regola: stringhe pass-through raw, resto JSON.stringify; in lettura
 // JSON.parse tentato con fallback alla raw.
-// Edge noto e accettato: una stringa che È JSON valido (es. "123") ritorna
+// Edge noto e accettato: una stringa che Ãˆ JSON valido (es. "123") ritorna
 // parsata. Nessun caller attuale memorizza tali valori via set (epoch =
 // base36 con lettere, activity/L2 = object-string gestiti dai rami
 // string|object dei caller, defaults/auth/keys = oggetti).
@@ -342,7 +342,7 @@ export async function closeKvClient(): Promise<void> {
   try {
     await client.quit()
   } catch {
-    // Chiavi in mano: il quit su connessione mai aperta o già caduta non deve mai lanciare.
+    // Chiavi in mano: il quit su connessione mai aperta o giÃ  caduta non deve mai lanciare.
   }
 }
 
@@ -428,3 +428,4 @@ const redisKv: KvClient = {
     return (await ensureRedis()).eval(script, keys.length, ...keys, ...args) as Promise<T>
   },
 }
+

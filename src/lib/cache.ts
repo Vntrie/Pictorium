@@ -1,4 +1,4 @@
-import crypto from "node:crypto"
+﻿import crypto from "node:crypto"
 import { envWithFallback } from "@/lib/env-compat"
 import { getKv, getStorageMode, withKvTimeout } from "@/lib/kv"
 
@@ -20,7 +20,7 @@ export type CacheStatus = {
   readonly untaggedEntries: number
   /**
    * Stima dei payload delle entry attive (significato storico, invariato).
-   * Come gli altri contatori byte è una stima dei payload, non la memoria
+   * Come gli altri contatori byte Ã¨ una stima dei payload, non la memoria
    * complessiva del processo (esclude l'overhead delle strutture).
    */
   readonly totalBytes: number
@@ -40,16 +40,16 @@ const store = new Map<string, CacheEntry<unknown>>()
 // cambia nulla (stesso pattern di store.ts).
 // Solo JSON piccoli (<=64KB, mai Buffer): i poster/badge PNG resterebbero
 // locali comunque (base64 +33%, limiti di valore e costi KV, latenza sul path
-// caldo). Il premio è per i body catalogo/meta: su multi-istanza la seconda
+// caldo). Il premio Ã¨ per i body catalogo/meta: su multi-istanza la seconda
 // istanza serve dalla KV invece di rifare ~60 upstream.
-// Chiavi auto-invalidanti: epoch/versioni sono già dentro le cache key
-// (catalog-epoch, RENDER_VERSION, mapVersion) → le entry KV orfane scadono
+// Chiavi auto-invalidanti: epoch/versioni sono giÃ  dentro le cache key
+// (catalog-epoch, RENDER_VERSION, mapVersion) â†’ le entry KV orfane scadono
 // via EX, nessuna invalidazione per-tag necessaria su KV.
 // Scrittura fire-and-forget (mai latenza sul path caldo); lettura solo su
 // miss L1 (quando comunque si farebbe upstream lento). Errori KV = miss.
 // ---------------------------------------------------------------------------
 // Lettura live (mai a module level): i test mutano le env + resetModules.
-// PICTORIUM_KV_CACHE=0 (or false/off/no) keeps the response cache in process
+// FLAMEFORGE_KV_CACHE=0 (or false/off/no) keeps the response cache in process
 // memory only while state (users, mappings, settings, epochs) stays in KV.
 // On a public instance write-through lets anonymous requests grow KV: every
 // JSON cacheSet is written, and keys carry caller-controlled parts (api_key
@@ -61,7 +61,7 @@ function isKvL2(): boolean {
   if (flag === "0" || flag === "false" || flag === "off" || flag === "no") return false
   return getStorageMode() === "kv"
 }
-const KV_L2_PREFIX = "pictorium:cache:"
+const KV_L2_PREFIX = "FlameForge:cache:"
 const KV_L2_MAX_BYTES = 64 * 1024
 
 function secondsUntilScheduledRefresh(): number {
@@ -75,7 +75,7 @@ function toKvPayload(data: unknown): string | null {
     const json = JSON.stringify(data)
     if (json.length > KV_L2_MAX_BYTES) return null
     // Buffer annidati serializzerebbero come {type:"Buffer",data:[...]} con
-    // bloat e revive mancato → solo JSON puro in L2.
+    // bloat e revive mancato â†’ solo JSON puro in L2.
     if (json.includes('"type":"Buffer"')) return null
     return json
   } catch {
@@ -90,13 +90,13 @@ function kvWriteThrough(key: string, data: unknown, ttlMs?: number, tags: string
     ? Math.max(60, Math.round(ttlMs / 1000))
     : (isScheduledRefresh(tags) !== null ? secondsUntilScheduledRefresh() : Math.round(MAX_TTL / 1000));
   // Envelope con scadenza assoluta: generazione + TTL esplicito viaggiano con
-  // il payload così il ripopolamento L1 su un'altra istanza conserva la
+  // il payload cosÃ¬ il ripopolamento L1 su un'altra istanza conserva la
   // scadenza originale invece di ripartire da un'ora intera (no sliding
   // expiration: la read path non riscrive mai la KV).
   let envelope: string
   try {
     envelope = JSON.stringify({
-      __pictoriumKv: 1,
+      __FlameForgeKv: 1,
       d: data,
       t: timestamp,
       ...(ttlMs !== undefined ? { ttl: ttlMs } : {}),
@@ -114,9 +114,9 @@ function kvWriteThrough(key: string, data: unknown, ttlMs?: number, tags: string
   })()
 }
 
-/** Envelope KV→L1: payload + metadati di scadenza assoluta. */
+/** Envelope KVâ†’L1: payload + metadati di scadenza assoluta. */
 interface KvEnvelope<T> {
-  __pictoriumKv: 1
+  __FlameForgeKv: 1
   d: T
   /** Generazione (ms epoch, = timestamp L1 dell'istanza scrittrice). */
   t: number
@@ -127,14 +127,14 @@ interface KvEnvelope<T> {
 function isKvEnvelope(raw: unknown): raw is KvEnvelope<unknown> {
   if (typeof raw !== "object" || raw === null) return false
   const rec = raw as Record<string, unknown>
-  return rec.__pictoriumKv === 1 && "d" in rec && typeof rec.t === "number"
+  return rec.__FlameForgeKv === 1 && "d" in rec && typeof rec.t === "number"
 }
 
 async function kvReadThrough<T>(key: string): Promise<T | null> {
   try {
-    // Tetto perentorio: una L2 stallata è un miss, mai un hang della route.
+    // Tetto perentorio: una L2 stallata Ã¨ un miss, mai un hang della route.
     const raw: unknown = await withKvTimeout(getKv().get(`${KV_L2_PREFIX}${key}`), 1500)
-    // C1: il client KV può restituire la stringa così com'è o già parsata
+    // C1: il client KV puÃ² restituire la stringa cosÃ¬ com'Ã¨ o giÃ  parsata
     // (deserializzazione automatica Upstash / decode `kv.ts` su Redis):
     // accetta entrambi, scarta il resto.
     if (typeof raw === "string") return JSON.parse(raw) as T
@@ -148,12 +148,12 @@ async function kvReadThrough<T>(key: string): Promise<T | null> {
 /** Miss L1 + hit L2: ripopola la L1 con gli stessi tag (stesse regole TTL).
  *  Ritorna null se L2 disabilitata/miss/errore.
  *  `ttlMs`: per i payload legacy senza envelope (che non trasportano metadati
- *  di scadenza) — senza un TTL esplicito la L1 ripopolata ricadrebbe nelle
+ *  di scadenza) â€” senza un TTL esplicito la L1 ripopolata ricadrebbe nelle
  *  regole scheduled/MAX_TTL invece del TTL originale (es. catalogo non-vuoto
- *  1h → refresh giornaliero). Accetta il valore o un selettore sul dato (es.
+ *  1h â†’ refresh giornaliero). Accetta il valore o un selettore sul dato (es.
  *  pieno/vuoto). Default undefined = comportamento storico per gli altri
  *  chiamanti. Gli envelope correnti vincono sul selettore (timestamp+TTL
- *  originali) e il ripopolamento è solo locale: mai rewrite KV, mai sliding
+ *  originali) e il ripopolamento Ã¨ solo locale: mai rewrite KV, mai sliding
  *  expiration. */
 export async function cacheGetShared<T>(key: string, tags: string[] = [], ttlMs?: number | ((data: T) => number | undefined)): Promise<T | null> {
   const local = cacheGet<T>(key)
@@ -161,15 +161,15 @@ export async function cacheGetShared<T>(key: string, tags: string[] = [], ttlMs?
   if (!isKvL2()) return null
   const raw = await kvReadThrough<unknown>(key)
   if (raw === null) return null
-  // Stessi tag dell'originale → stesse regole (MAX_TTL/scheduled); la
+  // Stessi tag dell'originale â†’ stesse regole (MAX_TTL/scheduled); la
   // scadenza assoluta resta garantita dall'EX della entry KV.
   const data = (isKvEnvelope(raw) ? raw.d : raw) as T
   const envelopeTtl = isKvEnvelope(raw) ? raw.ttl : undefined
   const repopulateTtl = envelopeTtl ?? (typeof ttlMs === "function" ? ttlMs(data) : ttlMs)
   const timestamp = isKvEnvelope(raw) ? raw.t : Date.now()
   cacheSetLocalOnly(key, data, tags, repopulateTtl, timestamp)
-  // Rilettura tramite cacheGet: se il residuo è già esaurito (es. envelope
-  // letto oltre la scadenza originale) isExpired la scarta → miss.
+  // Rilettura tramite cacheGet: se il residuo Ã¨ giÃ  esaurito (es. envelope
+  // letto oltre la scadenza originale) isExpired la scarta â†’ miss.
   return cacheGet<T>(key)
 }
 
@@ -208,7 +208,7 @@ function ttlForTags(tags: string[]): number {
 }
 
 function isExpired(entry: CacheEntry<unknown>): boolean {
-  // D3: Date.now() hoisted — prima veniva chiamato due volte per ogni
+  // D3: Date.now() hoisted â€” prima veniva chiamato due volte per ogni
   // isExpired (refresh branch + fallback TTL). isExpired gira su ogni
   // cacheGet e nel cleanup: un solo clock read per controllo.
   const now = Date.now()
@@ -240,7 +240,7 @@ function startCleanup() {
   cleanupActive = true
   cleanupTimer = setInterval(() => {
     if (store.size === 0) {
-      // Cache empty — stop the timer until next use
+      // Cache empty â€” stop the timer until next use
       if (cleanupTimer) {
         clearInterval(cleanupTimer)
         cleanupTimer = null
@@ -266,8 +266,8 @@ function startCleanup() {
  * Stima la dimensione in bytes di un valore per il memory tracking.
  *
  * Ricorsiva: somma `byteLength` dei Buffer figli. Prima si usava
- * JSON.stringify — per oggetti con Buffer annidati (es. badge `{png, w, h}`)
- * la stima era 2-6× il peso reale → makeSpace evictava poster/badge troppo
+ * JSON.stringify â€” per oggetti con Buffer annidati (es. badge `{png, w, h}`)
+ * la stima era 2-6Ã— il peso reale â†’ makeSpace evictava poster/badge troppo
  * presto e la cache restava sotto-utilizzata rispetto al byte-limit reale.
  */
 function estimateBytes(data: unknown): number {
@@ -300,7 +300,7 @@ function makeSpace(count: number, incomingBytes: number = 0, excludeKey?: string
     // limite E byte sotto il target. Il vecchio blocco su entryLimit lasciava
     // la cache sopra MAX_BYTES quando una singola entry pesava molto (poster grandi).
     if (totalBytes <= byteTarget && store.size + count <= MAX_ENTRIES) break
-    // La chiave in sostituzione non è mai evitta: il suo peso è già stato
+    // La chiave in sostituzione non Ã¨ mai evitta: il suo peso Ã¨ giÃ  stato
     // rilasciato dal chiamante, evitta significherebbe doppia sottrazione.
     if (excludeKey !== undefined && key === excludeKey) continue
     const entry = store.get(key)
@@ -347,7 +347,7 @@ export function cacheGetStale<T>(key: string): { data: T | null; stale: boolean 
  *
  * Task D (poster freshness cap): volatile source facts (rankings, release
  * availability) must bound the poster TTL by their own remaining lifetime.
- * This reads the existing timestamp/TTL mechanics — never `now + TTL` on a
+ * This reads the existing timestamp/TTL mechanics â€” never `now + TTL` on a
  * cache hit (no sliding renewal: reads never rewrite the timestamp) and no
  * second freshness map. Entries without an explicit TTL (scheduled-refresh
  * policy like the poster tag) return null: their policy is not a knowable
@@ -393,7 +393,7 @@ function secondsUntilScheduledRefreshFrom(nowMs: number): number {
 }
 
 /**
- * Inserimento solo-L1 (mai write-through KV): la read path KV→L1 lo usa per
+ * Inserimento solo-L1 (mai write-through KV): la read path KVâ†’L1 lo usa per
  * ripopolare la memoria senza rinnovare la scadenza della entry KV condivisa
  * (no sliding expiration) e con il timestamp originale per conservare la
  * scadenza assoluta anche in locale.
@@ -409,10 +409,10 @@ function cacheSetLocalOnly<T>(key: string, data: T, tags: string[], ttlMs: numbe
   if (!existing) {
     makeSpace(1, incomingBytes)
   } else {
-    // Sostituzione: rilascia prima il peso precedente così l'evizione LRU
+    // Sostituzione: rilascia prima il peso precedente cosÃ¬ l'evizione LRU
     // valuta solo la crescita netta e il totale stimato non supera mai
-    // MAX_BYTES. La chiave sostituita è esclusa dall'evizione (il suo peso
-    // è già stato sottratto una sola volta qui). `store.set` su chiave
+    // MAX_BYTES. La chiave sostituita Ã¨ esclusa dall'evizione (il suo peso
+    // Ã¨ giÃ  stato sottratto una sola volta qui). `store.set` su chiave
     // esistente conserva la posizione d'inserzione: l'ordine LRU resta quello
     // storico (solo la lettura promuove a most-recently-used).
     totalBytes -= estimateBytes(existing.data)
@@ -466,7 +466,7 @@ export function cacheInvalidatePosterData(): void {
 
 /**
  * Invalida solo la cache relativa a un mapping specifico (poster + badge).
- * Più mirato di cacheInvalidatePosterData() che svuota tutto.
+ * PiÃ¹ mirato di cacheInvalidatePosterData() che svuota tutto.
  */
 export function cacheInvalidatePosterDataFor(type: string, tmdbId: number): void {
   const mappingTag = `poster:${type}:${tmdbId}`
@@ -490,10 +490,10 @@ export function userTagFragment(userId: string): string {
 
 /**
  * Frammento utente per le CACHE KEY (catalog/meta/poster): sha256-16, mai
- * l'UUID in chiaro. I vecchi 32-bit collidono al ~1% già a 10k utenti
+ * l'UUID in chiaro. I vecchi 32-bit collidono al ~1% giÃ  a 10k utenti
  * (birthday bound) e una collisione serve a B il render cachato di A
  * (mapping/default altrui = leak visivo). I tag restano a userTagFragment
- * (lì una collisione causa solo over-invalidazione, direzione sicura).
+ * (lÃ¬ una collisione causa solo over-invalidazione, direzione sicura).
  */
 export function hashUserFragment(userId: string): string {
   return crypto.createHash("sha256").update(userId).digest("hex").slice(0, 16)
@@ -559,3 +559,4 @@ export function cacheClear(): void {
   }
   cleanupActive = false
 }
+

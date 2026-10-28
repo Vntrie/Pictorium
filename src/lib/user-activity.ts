@@ -1,4 +1,4 @@
-import crypto from "node:crypto"
+﻿import crypto from "node:crypto"
 import fsp from "node:fs/promises"
 import path from "node:path"
 import { DATA_DIR } from "@/lib/data-dir"
@@ -21,10 +21,10 @@ function assertValidUserId(userId: string): void {
   if (!/^[0-9a-f-]{36}$/i.test(userId)) throw new Error("Invalid user id")
 }
 
-// ── lastAccess throttled (1/die) ─────────────────────────────────────────
-// Traccia l'attività di lettura (catalog/meta/poster) per il cleanup degli
+// â”€â”€ lastAccess throttled (1/die) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Traccia l'attivitÃ  di lettura (catalog/meta/poster) per il cleanup degli
 // inattivi. Throttle in memoria: al massimo una scrittura al giorno per
-// utente, fire-and-forget (mai latenza né hard-fail sul path di lettura).
+// utente, fire-and-forget (mai latenza nÃ© hard-fail sul path di lettura).
 
 const TOUCH_INTERVAL_MS = 24 * 60 * 60 * 1000
 const TOUCH_CAP = 1000
@@ -45,7 +45,7 @@ async function persistActivity(userId: string, now: number): Promise<void> {
   const payload = JSON.stringify({ lastAccess: new Date(now).toISOString() })
   if (isKvMode()) {
     // TTL = finestra retention (v1.23.0): oltre, il cleanup rimuoverebbe
-    // comunque lo spazio — la chiave si auto-estingue senza cron. Con
+    // comunque lo spazio â€” la chiave si auto-estingue senza cron. Con
     // retention disabilitata (0) cap a 1 anno: i dati restano utili allo
     // status ma smettono di accumularsi per sempre.
     await getKv().set(activityKvKey(userId), payload, { ex: activityTtlSec() })
@@ -55,7 +55,7 @@ async function persistActivity(userId: string, now: number): Promise<void> {
   await atomicWriteFile(activityFile(userId), payload)
 }
 
-/** Registra attività di lettura (non bloccante, throttled 1/die). */
+/** Registra attivitÃ  di lettura (non bloccante, throttled 1/die). */
 export function touchUserActivity(userId: string): void {
   try {
     const now = Date.now()
@@ -72,7 +72,7 @@ export function touchUserActivity(userId: string): void {
   }
 }
 
-// ── Inventario utenti ─────────────────────────────────────────────────────
+// â”€â”€ Inventario utenti â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface UserInfo {
   uuid: string
@@ -88,7 +88,7 @@ export const USER_ACTIVE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000
 /**
  * Quanti spazi sono attivi (lastAccess valido entro la finestra rispetto a
  * Date.now()). Stessa semantica inclusiva del cleanup (`>= cutoff`): senza
- * lastAccess noto o con data illeggibile lo spazio è dormiente, mai attivo.
+ * lastAccess noto o con data illeggibile lo spazio Ã¨ dormiente, mai attivo.
  */
 export function countActiveUsers(users: readonly UserInfo[], windowMs: number = USER_ACTIVE_WINDOW_MS): number {
   const cutoff = Date.now() - windowMs
@@ -129,7 +129,7 @@ async function readLastAccessFile(userId: string): Promise<string | null> {
   } catch {
     /* assente o illeggibile */
   }
-  // Fallback: mtime di auth.json (creazione utente) come ultima attività nota.
+  // Fallback: mtime di auth.json (creazione utente) come ultima attivitÃ  nota.
   try {
     const st = await fsp.stat(path.join(userDir(userId), "auth.json"))
     return st.mtime.toISOString()
@@ -199,7 +199,7 @@ async function listUsersKv(): Promise<UserInfo[]> {
   }
 }
 
-// ── Wipe account (GDPR) ───────────────────────────────────────────────────
+// â”€â”€ Wipe account (GDPR) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const USER_KV_KEYS = ["auth", "keys", "activity", "trakt"] as const
 
@@ -218,7 +218,7 @@ export async function deleteUser(userId: string): Promise<number> {
   // before its network round-trip) aborts at the storage boundary instead
   // of recreating the namespace. Then serialize the actual deletes under
   // the profile lock when free (best-effort: contention or a lock outage
-  // must never fail the wipe — fencing already protects the writers).
+  // must never fail the wipe â€” fencing already protects the writers).
   const { acquireTraktProfileLock, bumpTraktGeneration, clearTraktGeneration } = await import(
     "@/lib/trakt-profile-lock"
   )
@@ -270,7 +270,7 @@ export async function deleteUser(userId: string): Promise<number> {
     // the documented manual procedure (service stopped), KV orphans expire
     // via TTL. A post-wipe save is still stopped by the existence check +
     // the no-mkdir write rule (same-UUID recreation is impossible in
-    // practice — createUser mints a fresh randomUUID).
+    // practice â€” createUser mints a fresh randomUUID).
     await clearTraktGeneration(userId)
     lastTouch.delete(userId)
     expireUserCache(userId)
@@ -283,7 +283,7 @@ export async function deleteUser(userId: string): Promise<number> {
 
 /**
  * Scade le entry di cache in-process del namespace (catalog/meta `:u<sha1>` +
- * poster `:u<md5>`). La L2 KV (quando attiva) resta fino a EX — residuo
+ * poster `:u<md5>`). La L2 KV (quando attiva) resta fino a EX â€” residuo
  * documentato: le URL scadono comunque verso render senza mapping (no leak).
  */
 export function expireUserCache(userId: string): number {
@@ -292,7 +292,7 @@ export function expireUserCache(userId: string): number {
   return cacheExpire(`:u${sha1}`) + cacheExpire(`:u${md5}`)
 }
 
-// ── Cleanup inattivi ──────────────────────────────────────────────────────
+// â”€â”€ Cleanup inattivi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function getUserRetentionDays(): number {
   const raw = envWithFallback("USER_RETENTION_DAYS")
@@ -315,9 +315,9 @@ export interface CleanupResult {
 }
 
 /**
- * Rimuove i namespace senza attività da più di `retentionDays` (default 180,
- * env PICTORIUM_USER_RETENTION_DAYS, `0` = mai). Senza lastAccess noto il
- * namespace è tenuto (safe). Solo log aggregati + uuid rimossi.
+ * Rimuove i namespace senza attivitÃ  da piÃ¹ di `retentionDays` (default 180,
+ * env FLAMEFORGE_USER_RETENTION_DAYS, `0` = mai). Senza lastAccess noto il
+ * namespace Ã¨ tenuto (safe). Solo log aggregati + uuid rimossi.
  */
 export async function cleanupInactiveUsers(retentionDays = getUserRetentionDays()): Promise<CleanupResult> {
   if (!retentionDays || retentionDays <= 0) {
@@ -347,3 +347,4 @@ export async function cleanupInactiveUsers(retentionDays = getUserRetentionDays(
   log.info("User cleanup done", { removed, kept, retentionDays })
   return { removed, kept, disabled: false, freedBytes }
 }
+

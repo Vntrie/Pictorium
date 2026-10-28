@@ -1,4 +1,4 @@
-import type { NextRequest } from "next/server"
+﻿import type { NextRequest } from "next/server"
 import { cacheGet, cacheGetStale, cacheRemainingMs, cacheSet } from "@/lib/cache"
 import { createLogger } from "@/lib/logger"
 import { envWithFallback } from "@/lib/env-compat"
@@ -23,7 +23,7 @@ export const POSTER_REFRESH_PARAM = "__poster_refresh"
 const POSTER_CACHE_CONTROL = "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800"
 const POSTER_IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, s-maxage=31536000, immutable"
 const PREVIEW_CACHE_CONTROL = "no-cache, no-store, must-revalidate, max-age=0"
-// Segui-spazio (`live=1`): rivalidazione obbligatoria, niente freshness né SWR.
+// Segui-spazio (`live=1`): rivalidazione obbligatoria, niente freshness nÃ© SWR.
 // Conserva l'immagine e rivalida via ETag (mai no-store: a ETag invariato vale il 304).
 const LIVE_CACHE_CONTROL = "public, no-cache, max-age=0, must-revalidate"
 const LIVE_SURROGATE_CONTROL = "max-age=0, must-revalidate"
@@ -39,12 +39,12 @@ export interface PosterCachePayload {
    * extending it. Undefined = scheduled-policy entry (mapped, uncapped).
    */
   readonly expiresAt?: number
-  /** Task D: capped by a volatile-fact deadline — never immutable, never SWR past it. */
+  /** Task D: capped by a volatile-fact deadline â€” never immutable, never SWR past it. */
   readonly factCapped?: boolean
   /**
    * Effective-accent sidecar (display sync, `?accentmeta=1`): the fills the
    * render actually painted, captured via `GenerationInput.onAccentMeta`.
-   * Additive optional — old entries read as undefined (honest unknown).
+   * Additive optional â€” old entries read as undefined (honest unknown).
    * Rides the same entry with the same TTL/tags (written inside the headers
    * record below); never trusted without its bytes entry.
    */
@@ -54,12 +54,12 @@ export interface PosterCachePayload {
 // TTL dei poster dinamici (non-mappati, composti al volo): default 6h.
 // Sovrascrivibile via env a module level (un cambio richiede restart).
 // Gli header Cache-Control/Surrogate derivano dallo STESSO valore del TTL di
-// storage: l'header HTTP non può mentire rispetto a quanto resta in cache
+// storage: l'header HTTP non puÃ² mentire rispetto a quanto resta in cache
 // (coerente con fix M3).
 const DYNAMIC_POSTER_TTL_SEC = (() => {
   const raw = envWithFallback("DYNAMIC_POSTER_TTL_MS")
   const n = raw ? parseInt(raw, 10) : 6 * 60 * 60 * 1000
-  // Clamp 5min–24h: sotto i 5 minuti la CDN martellerebbe il render pipeline,
+  // Clamp 5minâ€“24h: sotto i 5 minuti la CDN martellerebbe il render pipeline,
   // sopra le 24h i dati dinamici (rank, IMDb Top 250) diventano troppo stantii.
   return Number.isFinite(n) && n >= 5 * 60 * 1000 && n <= 24 * 60 * 60 * 1000
     ? Math.round(n / 1000)
@@ -68,13 +68,13 @@ const DYNAMIC_POSTER_TTL_SEC = (() => {
 const DYNAMIC_POSTER_TTL_MS = DYNAMIC_POSTER_TTL_SEC * 1000
 
 // Jitter deterministico anti-thundering-herd (Milestone A): il TTL dinamico
-// varia ±10% in base all'hash FNV-1a della cache key. Deterministico: stessa
-// key → stesso TTL su tutte le istanze (mai Math.random, che frammenterebbe
+// varia Â±10% in base all'hash FNV-1a della cache key. Deterministico: stessa
+// key â†’ stesso TTL su tutte le istanze (mai Math.random, che frammenterebbe
 // la scadenza tra processi). Su un warmup bulk spalma le scadenze su ~72min
 // invece di farle collassare tutte nello stesso secondo.
 const DYNAMIC_TTL_JITTER_PCT = 10
 
-/** TTL di storage (ms) per una entry dinamica: base ±10% deterministico. */
+/** TTL di storage (ms) per una entry dinamica: base Â±10% deterministico. */
 export function dynamicPosterTtlMs(cacheKey: string): number {
   let h = 0x811c9dc5
   for (let i = 0; i < cacheKey.length; i++) {
@@ -86,7 +86,7 @@ export function dynamicPosterTtlMs(cacheKey: string): number {
 }
 
 /** TTL dinamico in secondi (per gli header HTTP): deriva dallo stesso valore
- *  dello storage — l'header non mente mai rispetto alla cache (M3). */
+ *  dello storage â€” l'header non mente mai rispetto alla cache (M3). */
 export function dynamicPosterTtlSec(cacheKey: string): number {
   return Math.round(dynamicPosterTtlMs(cacheKey) / 1000)
 }
@@ -117,14 +117,14 @@ const INFLIGHT_TIMEOUT_MS = 60_000
 
 export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSearchParams {
   // Allowlist rigida anti cache-busting (v1.23.0): solo i parametri noti
-  // entrano nella chiave — ?x=$RANDOM collassa invece di missare. I repeat
+  // entrano nella chiave â€” ?x=$RANDOM collassa invece di missare. I repeat
   // multipli della stessa chiave sono preservati come prima.
   const params = new URLSearchParams()
   const seen = new Set<string>()
   for (const [key, value] of searchParams) {
     if (!POSTER_CACHE_ALLOWLIST.has(key)) continue
     // Dedup al primo valore (v1.23.0): il render legge .get() (prima
-    // occorrenza), ma la serializzazione includerebbe i repeat —
+    // occorrenza), ma la serializzazione includerebbe i repeat â€”
     // ?blur=20&blur=20 sarebbe una chiave diversa a render identico.
     if (seen.has(key)) continue
     seen.add(key)
@@ -172,7 +172,7 @@ export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSe
     params.delete("rs")
   }
   // xbs: present-but-invalid behaves as absent (the resolver falls through
-  // the chain), so drop it from the key — same render, one key. The explicit
+  // the chain), so drop it from the key â€” same render, one key. The explicit
   // "follow-rank" sentinel is a distinct render (own-rank vs inherited flat)
   // and keeps its own key (never collapsed with absent/invalid).
   const xbs = params.get("xbs")
@@ -181,7 +181,7 @@ export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSe
   }
   // sepstyle: fail-closed con distinzione dall'assenza (come bfont sopra):
   // un valore presente ma non valido (garbage o vuoto) rende come column,
-  // mentre l'assenza può ereditare bottom da mapping/default. Cancellarlo
+  // mentre l'assenza puÃ² ereditare bottom da mapping/default. Cancellarlo
   // collasserebbe le due chiavi e la prima richiesta avvelenerebbe le
   // successive (stessa chiave, immagini diverse). Canonical lowercase come
   // il resolver (query case-insensitive, un'unica policy ovunque).
@@ -192,12 +192,12 @@ export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSe
   }
   // layout: stessa distinzione fail-closed presente/assente di sepstyle
   // sopra: un valore presente ma non valido (garbage o vuoto) rende come
-  // standard, mentre l'assenza può ereditare fresh da mapping/default.
+  // standard, mentre l'assenza puÃ² ereditare fresh da mapping/default.
   // Cancellarlo collasserebbe le due chiavi e la prima richiesta
   // avvelenerebbe le successive (stessa chiave, immagini diverse).
   // Canonical lowercase come il resolver (query case-insensitive, un'unica
   // policy ovunque). `standard` esplicito e assenza restano chiavi distinte:
-  // solo così lo standard esplicito può prevalere su un fresh ereditato.
+  // solo cosÃ¬ lo standard esplicito puÃ² prevalere su un fresh ereditato.
   const layout = params.get("layout")
   if (layout !== null) {
     const v = layout.toLowerCase()
@@ -205,13 +205,13 @@ export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSe
   }
   // freshScope: stessa distinzione fail-closed presente/assente di layout
   // sopra: un valore presente ma non valido (garbage o vuoto) rende come
-  // ranked (default condiviso), mentre l'assenza può ereditare all da
+  // ranked (default condiviso), mentre l'assenza puÃ² ereditare all da
   // mapping/default.
   // Cancellarlo collasserebbe le due chiavi e la prima richiesta
   // avvelenerebbe le successive (stessa chiave, immagini diverse).
   // Canonical lowercase come il resolver (query case-insensitive, un'unica
   // policy ovunque). `all` esplicito e assenza restano chiavi distinte:
-  // solo così l'all esplicito può prevalere su un ranked ereditato.
+  // solo cosÃ¬ l'all esplicito puÃ² prevalere su un ranked ereditato.
   const freshScope = params.get("freshScope")
   if (freshScope !== null) {
     const v = freshScope.toLowerCase()
@@ -220,14 +220,14 @@ export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSe
   const bfont = params.get("bfont")
   if (bfont !== null && !isBadgeFont(bfont)) {
     // Fail-closed con distinzione dall'assenza: un valore invalido rende come
-    // Inter, mentre l'assenza può ereditare un altro font da mapping/default.
+    // Inter, mentre l'assenza puÃ² ereditare un altro font da mapping/default.
     // Cancellarlo collasserebbe le due chiavi e la prima richiesta
     // avvelenerebbe le successive (stessa chiave, immagini diverse).
     params.set("bfont", "inter")
   }
   // agecountry: territorio ISO-2 maiuscolo, GLOBAL escluso (vedi
   // normalizeCertificationCountry). Presente-ma-invalido (garbage, vuoto,
-  // GLOBAL, non ISO-2) → delete: il resolver cade sul default di spazio
+  // GLOBAL, non ISO-2) â†’ delete: il resolver cade sul default di spazio
   // esattamente come con l'assenza (stesso render, un'unica chiave).
   // Canonical uppercase come il resolver (query case-insensitive, un'unica
   // policy ovunque: `?agecountry=us` e `?agecountry=US` condividono la key).
@@ -239,19 +239,19 @@ export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSe
   }
   // agebs: age pill style ("standard" historic look / "knockout" white tag
   // with cut-out transparent glyphs, age ONLY).
-  // Presente-ma-invalido → "standard" esplicito (fail-closed, come bfont):
-  // l'assenza può ereditare knockout da token/defaults, il garbage rende
-  // standard — cancellarlo collasserebbe le chiavi avvelenando i render.
+  // Presente-ma-invalido â†’ "standard" esplicito (fail-closed, come bfont):
+  // l'assenza puÃ² ereditare knockout da token/defaults, il garbage rende
+  // standard â€” cancellarlo collasserebbe le chiavi avvelenando i render.
   const agebs = params.get("agebs")
   if (agebs !== null) {
     params.set("agebs", isAgeBadgeStyle(agebs) ? agebs : "standard")
   }
   // theme: cornice stagionale effimera (temi canonici `halloween` /
-  // `christmas`, su entrambi i canvas col proprio asset). Presente-ma-invalido → delete: il
-  // resolver lo ignora esattamente come l'assenza (stesso render unframed, un'unica chiave — niente
-  // distinzione presente/assente qui perché non esiste ereditarietà da
+  // `christmas`, su entrambi i canvas col proprio asset). Presente-ma-invalido â†’ delete: il
+  // resolver lo ignora esattamente come l'assenza (stesso render unframed, un'unica chiave â€” niente
+  // distinzione presente/assente qui perchÃ© non esiste ereditarietÃ  da
   // mapping/config/defaults). Canonical lowercase come il resolver.
-  // La forma canvas (`shape`) viaggia in chiave a sé: stesso tema su
+  // La forma canvas (`shape`) viaggia in chiave a sÃ©: stesso tema su
   // portrait e landscape = chiavi distinte (asset diversi).
   const theme = params.get("theme")
   if (theme !== null) {
@@ -260,12 +260,12 @@ export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSe
     else params.delete("theme")
   }
   // Space-wide automatic exclusions (`dct` content tags, `dnet` network
-  // marks): canonical sorted allowlist IDs (order-insensitive convergence —
+  // marks): canonical sorted allowlist IDs (order-insensitive convergence â€”
   // `?dct=a,b` and `?dct=b,a` share one key). Fail-closed with explicit-empty
   // distinction (same pattern as sepstyle/layout/freshScope above): a PRESENT
   // value that sanitizes to empty (explicit `dct=`, all-garbage `dct=bogus`)
   // means "no exclusions" and keeps its own `dct=` key, while an ABSENT param
-  // may inherit disabled defaults from config/token — deleting the present
+  // may inherit disabled defaults from config/token â€” deleting the present
   // value would collapse both keys and poison the cache (a no-exclusion
   // render served where inherited defaults should apply, or vice versa).
   // Sanitized again at render time (same leaf functions).
@@ -281,7 +281,7 @@ export function normalizePosterCacheParams(searchParams: URLSearchParams): URLSe
   }
 
   // Removed Badge Lab params (`bp`/`bpf`/`bpt`): the custom badge library is
-  // retired — legacy values are already dropped by the allowlist above, and
+  // retired â€” legacy values are already dropped by the allowlist above, and
   // the route never emits them, so old URLs collapse onto the native key.
   // Belts-and-suspenders deletes (e.g. direct callers bypassing the list):
   params.delete("bp")
@@ -300,7 +300,7 @@ export function isPosterRefreshRequest(searchParams: URLSearchParams): boolean {
 
 /**
  * Percorso "Segui il mio spazio" (`live=1`): politica di aggiornamento, non
- * richiesta di rigenerazione — non bypassa la cache interna né forza il render.
+ * richiesta di rigenerazione â€” non bypassa la cache interna nÃ© forza il render.
  */
 export function isLivePosterRequest(searchParams: URLSearchParams): boolean {
   return searchParams.get("live") === "1"
@@ -308,11 +308,11 @@ export function isLivePosterRequest(searchParams: URLSearchParams): boolean {
 
 /**
  * Un mapping salvato con `rv`+`mv` NON garantisce da solo un'immagine
- * immutabile: ranking live, rating aggregati, qualità streaming, premi,
- * disponibilità/pre-release, finestre temporali e default fuori URL possono
- * cambiare i byte a URL identico (audit freschezza, problemi 3–4). Dimostrare
- * staticità completa richiederebbe una nuova architettura, quindi la scelta
- * conservativa è non concedere mai l'immutable annuale: la cache interna
+ * immutabile: ranking live, rating aggregati, qualitÃ  streaming, premi,
+ * disponibilitÃ /pre-release, finestre temporali e default fuori URL possono
+ * cambiare i byte a URL identico (audit freschezza, problemi 3â€“4). Dimostrare
+ * staticitÃ  completa richiederebbe una nuova architettura, quindi la scelta
+ * conservativa Ã¨ non concedere mai l'immutable annuale: la cache interna
  * (24h mappati / ~6h dinamici / effimera 120s) resta il riuso veloce, gli
  * header restano finiti. Parametro `state` conservato per la firma.
  */
@@ -332,12 +332,12 @@ const FORMAT_MIME_TYPES: Record<PosterImageFormat, string> = {
 }
 
 // Formato servito ai client che non dichiarano preferenze (Accept generico
-// `*/*` o assente — quasi tutti i client Stremio nativi). Default `webp`
-// (~25-30% più leggero del jpeg a pari qualità); `PICTORIUM_IMAGE_FORMAT=jpeg`
+// `*/*` o assente â€” quasi tutti i client Stremio nativi). Default `webp`
+// (~25-30% piÃ¹ leggero del jpeg a pari qualitÃ ); `FLAMEFORGE_IMAGE_FORMAT=jpeg`
 // torna al jpeg universale per istanze con client datati. Lettura a module
 // level: cambio = restart. `?fmt=` resta override esplicito in entrambi i sensi
-// (via di fuga). Solo `jpeg` è accettato come alternativa: qualsiasi altro
-// valore (incluso `avif`, che costa 3-5× in encode) ricade sul default webp.
+// (via di fuga). Solo `jpeg` Ã¨ accettato come alternativa: qualsiasi altro
+// valore (incluso `avif`, che costa 3-5Ã— in encode) ricade sul default webp.
 export const DEFAULT_IMAGE_FORMAT: Exclude<PosterImageFormat, "avif"> = (() => {
   const raw = envWithFallback("IMAGE_FORMAT")
   return raw && raw.trim().toLowerCase() === "jpeg" ? "jpeg" : "webp"
@@ -349,7 +349,7 @@ export function resolveImageFormat(acceptHeader?: string | null, queryFmt?: stri
     if (q === "webp") return "webp"
     // C3: ?fmt=avif esplicito resta onorato (render dedicato legacy); via
     // Accept l'avif mappa a webp (tutti i client avif accettano anche webp,
-    // l'encode avif costa 3-5× e triplicherebbe render+cache).
+    // l'encode avif costa 3-5Ã— e triplicherebbe render+cache).
     if (q === "avif") return "avif"
     if (q === "jpeg" || q === "jpg") return "jpeg"
   }
@@ -359,19 +359,19 @@ export function resolveImageFormat(acceptHeader?: string | null, queryFmt?: stri
   return DEFAULT_IMAGE_FORMAT
 }
 
-// C3: conversione jpeg canonico → webp on-the-fly. Stesse opzioni
+// C3: conversione jpeg canonico â†’ webp on-the-fly. Stesse opzioni
 // dell'encode webp diretto in poster-service (q85, effort 2): byte non
-// identici al render diretto (doppia compressione), ma stessa qualità
-// percepita — il webp esiste solo come variante di risposta, mai come chiave
+// identici al render diretto (doppia compressione), ma stessa qualitÃ 
+// percepita â€” il webp esiste solo come variante di risposta, mai come chiave
 // di render. ~20-50ms contro ~2-8s di re-render completo.
-// Con PICTORIUM_IMAGE_FORMAT=webp il verso si inverte (canonico webp,
+// Con FLAMEFORGE_IMAGE_FORMAT=webp il verso si inverte (canonico webp,
 // variante jpeg): vedi convertToJpeg sotto.
 export async function convertPosterFormat(jpeg: Buffer): Promise<Buffer> {
   const sharp = (await import("sharp")).default
   return sharp(jpeg).webp({ quality: 85, effort: 2 }).toBuffer()
 }
 
-/** Conversione inversa (canonico webp → variante jpeg): stesse opzioni
+/** Conversione inversa (canonico webp â†’ variante jpeg): stesse opzioni
  *  dell'encode jpeg diretto in poster-service (q82 + mozjpeg). */
 export async function convertToJpeg(webp: Buffer): Promise<Buffer> {
   const sharp = (await import("sharp")).default
@@ -380,7 +380,7 @@ export async function convertToJpeg(webp: Buffer): Promise<Buffer> {
 
 /** ETag deterministico della variante derivato da quello canonico. Il default
  *  `webp` conserva gli etag storici byte-identici; le varianti jpeg usano
- *  suffisso proprio (mai collisione col canonico né tra varianti). */
+ *  suffisso proprio (mai collisione col canonico nÃ© tra varianti). */
 export function variantEtagFor(canonicalEtag: string, variant: Exclude<PosterImageFormat, "avif"> = "webp"): string {
   let h = 0x811c9dc5
   const s = `${canonicalEtag}:${variant}`
@@ -396,16 +396,16 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "*",
   // The accent display-sync header rides the image response itself: remote
   // previews (and any cross-origin XHR reader) need it exposed explicitly.
-  // Additive only — ETag/Cache-Control exposure is unchanged.
+  // Additive only â€” ETag/Cache-Control exposure is unchanged.
   "Access-Control-Expose-Headers": `ETag, Cache-Control, ${ACCENT_META_HEADER}`,
   "Vary": "Accept",
 }
 
 /**
  * Additive accent display-sync headers for a poster response. Returns the
- * compact validated `X-Pictorium-Accent` entry, or an empty object when there
+ * compact validated `X-FlameForge-Accent` entry, or an empty object when there
  * is nothing honest to send (legacy entries without meta stay header-absent
- * → honest unknown downstream, never a guessed color).
+ * â†’ honest unknown downstream, never a guessed color).
  */
 function accentMetaHeaders(meta: EffectiveAccentMeta | null | undefined): Record<string, string> {
   const encoded = encodeEffectiveAccentHeader(meta ?? null)
@@ -438,15 +438,15 @@ export function posterHeaders(etag: string, immutable: boolean, isPreview: boole
     }
   }
   // TTL reale della entry (con jitter) o base quando omesso: header e storage
-  // restano sincronizzati per costruzione (M3) — entrambi derivano da
+  // restano sincronizzati per costruzione (M3) â€” entrambi derivano da
   // dynamicPosterTtlSec(cacheKey) nel chiamante. Un TTL ESPLICITO (entry
   // effimera 120s, cut di rotazione) restringe sempre la policy, anche per i
   // mappati: la copia degradata non deve mai uscire con max-age pieno solo
-  // perché il flag dynamic è falso (audit, problema 4).
+  // perchÃ© il flag dynamic Ã¨ falso (audit, problema 4).
   const dynSec = dynamicTtlSec ?? DYNAMIC_POSTER_TTL_SEC
   const explicitTtl = dynamicTtlSec !== undefined
   // Task D cycle2: fact-capped entries must NEVER carry SWR/stale-if-error on
-  // any CDN/Surrogate header — the CDN could otherwise serve the poster past
+  // any CDN/Surrogate header â€” the CDN could otherwise serve the poster past
   // the fact deadline despite the internal no-SWR guard. Capped policy is
   // exact-remaining + must-revalidate; expired (0) is no-cache/max-age=0.
   // Uncapped keeps the historical SWR policy byte-identical.
@@ -471,7 +471,7 @@ export function posterHeaders(etag: string, immutable: boolean, isPreview: boole
   }
   const dynamicCacheControl = `public, max-age=${dynSec}, s-maxage=${dynSec}, stale-while-revalidate=86400`
   const dynamicSurrogate = `max-age=${dynSec}, stale-while-revalidate=86400`
-  // Task D: a fact-capped entry must NEVER advertise the 1y immutable policy —
+  // Task D: a fact-capped entry must NEVER advertise the 1y immutable policy â€”
   // the fact deadline owns the lifetime, even when the request looked static.
   const effectiveImmutable = immutable && !factCapped
   const cacheControl = effectiveImmutable ? POSTER_IMMUTABLE_CACHE_CONTROL : (dynamic || explicitTtl) ? dynamicCacheControl : POSTER_CACHE_CONTROL
@@ -489,7 +489,7 @@ export function posterHeaders(etag: string, immutable: boolean, isPreview: boole
 }
 
 export function posterNotModifiedHeaders(etag: string, immutable: boolean, dynamic: boolean = false, dynamicTtlSec?: number, live: boolean = false, accentMeta?: EffectiveAccentMeta | null, factCapped?: boolean): PosterHeaders {
-  // Percorso live: stessa politica del 200 — il client deve rivalidare sempre.
+  // Percorso live: stessa politica del 200 â€” il client deve rivalidare sempre.
   if (live) {
     return {
       ...CORS_HEADERS,
@@ -502,7 +502,7 @@ export function posterNotModifiedHeaders(etag: string, immutable: boolean, dynam
   }
   // Come posterHeaders: un TTL esplicito restringe sempre (audit problema 4).
   // Task D: fact-capped never immutable (see posterHeaders).
-  // Task D cycle2: capped 304 mirrors the capped 200 — no SWR anywhere.
+  // Task D cycle2: capped 304 mirrors the capped 200 â€” no SWR anywhere.
   if (factCapped) {
     const cappedSec = Math.max(0, Math.floor(dynamicTtlSec ?? DYNAMIC_POSTER_TTL_SEC))
     const cappedCacheControl =
@@ -548,7 +548,7 @@ export interface ServerTimingEntry {
 /**
  * Valore `Server-Timing` per le risposte poster (`fetch;dur=123, total;dur=456`,
  * `cache;desc="HIT", total;dur=4`). Diagnostica per-request senza righe di log
- * aggiuntive: la scomposizione fetch/prep/composite vive già nel log
+ * aggiuntive: la scomposizione fetch/prep/composite vive giÃ  nel log
  * "Poster rendered". Solo esposizione, mai raccolta di dati personali.
  */
 export function serverTimingValue(entries: readonly ServerTimingEntry[]): string {
@@ -564,7 +564,7 @@ export function serverTimingValue(entries: readonly ServerTimingEntry[]): string
 export function posterResponse(payload: PosterCachePayload, immutable: boolean, isPreview: boolean = false, dynamic: boolean = false, format: PosterImageFormat = "jpeg", dynamicTtlSec?: number, serverTiming?: string, live: boolean = false, factCapped?: boolean): Response {
   // The accent display-sync header rides the SAME bytes the editor XHR loads:
   // every HIT/SWR/stale/coalesced 200 carries the meta of the payload it
-  // serves (legacy payloads without meta stay header-absent → honest
+  // serves (legacy payloads without meta stay header-absent â†’ honest
   // unknown). ETag/Content-Type/Cache-Control behavior is unchanged.
   // Task D: factCapped flows to posterHeaders so a capped entry never emits
   // the 1y immutable policy (payload flag wins when the explicit arg is omitted).
@@ -583,16 +583,16 @@ export interface PosterHeadersRecord {
   readonly expiresAt?: number
   /** Accent sidecar slot (same TTL/tags as the bytes entry, never KV-alone). */
   readonly accentMeta?: EffectiveAccentMeta | null
-  /** Task D: entry capped by a volatile-fact deadline — never SWR-served past it. */
+  /** Task D: entry capped by a volatile-fact deadline â€” never SWR-served past it. */
   readonly factCapped?: boolean
 }
 
 /**
- * Task D — HTTP must advertise REMAINING, never the original full TTL.
+ * Task D â€” HTTP must advertise REMAINING, never the original full TTL.
  * Floor (never round up: a 5.9s remaining must not become max-age=6 past the
- * fact), and never a max(1,…) floor past the deadline (remaining <= 0 → 0,
+ * fact), and never a max(1,â€¦) floor past the deadline (remaining <= 0 â†’ 0,
  * the caller treats it as stale/revalidate, not as a fresh 1s renewal).
- * Null/undefined remaining = unknown (legacy/scheduled entry) → fallback.
+ * Null/undefined remaining = unknown (legacy/scheduled entry) â†’ fallback.
  */
 export function httpRemainingSec(
   remainingMs: number | null | undefined,
@@ -629,8 +629,8 @@ export function readCachedPoster(cacheKey: string, nowMs: number = Date.now()): 
   const cachedHeaders = cacheGetStale<PosterHeadersRecord>(`${cacheKey}:headers`)
   if (!cached.data || !cachedHeaders.data) return { payload: null, stale: false, remainingMs: null }
   // The sidecar is valid only with its bytes entry (required above): headers
-  // alone — e.g. a KV-served record after a restart — never prove a render.
-  // Legacy entries carry no meta (undefined → honest unknown downstream).
+  // alone â€” e.g. a KV-served record after a restart â€” never prove a render.
+  // Legacy entries carry no meta (undefined â†’ honest unknown downstream).
   const sidecar = sanitizeEffectiveAccentMeta(cachedHeaders.data.accentMeta ?? null)
   const rec = cachedHeaders.data
   const remainingMs = rec.factCapped
@@ -659,7 +659,7 @@ export function readCachedPoster(cacheKey: string, nowMs: number = Date.now()): 
 }
 
 /**
- * Task D: una entry fact-capped scaduta NON viene servita stale/SWR — oltre
+ * Task D: una entry fact-capped scaduta NON viene servita stale/SWR â€” oltre
  * la scadenza del fatto volatile i byte potrebbero descrivere un mondo
  * cambiato (nuovo rank, badge temporale flippato), quindi si rivalida invece
  * di servire + refresh in background. Le entry di policy (non capped)
@@ -673,22 +673,22 @@ export function canServePosterStaleHit(read: {
 }
 
 // Poster non-mappati (composti al volo con dati dinamici): TTL esplicito
-// (fix M3). Prima writeCachedPoster non passava alcun TTL → il tag "poster"
+// (fix M3). Prima writeCachedPoster non passava alcun TTL â†’ il tag "poster"
 // finiva nel refresh schedulato giornaliero alle 3 UTC (cache.ts) e l'header
 // HTTP dynamic (6h) mentiva: in memoria il payload restava fino al refresh
 // delle 3, con rank/IMDb Top 250 potenzialmente stantii per un giorno intero.
-// DYNAMIC_POSTER_TTL_MS è definito in testa al modulo (env-parametrizzato);
-// dynamicPosterTtlMs aggiunge il jitter deterministico ±10% per key e gli
-// header dynamic derivano dallo stesso dynamicPosterTtlSec, così header e
+// DYNAMIC_POSTER_TTL_MS Ã¨ definito in testa al modulo (env-parametrizzato);
+// dynamicPosterTtlMs aggiunge il jitter deterministico Â±10% per key e gli
+// header dynamic derivano dallo stesso dynamicPosterTtlSec, cosÃ¬ header e
 // storage restano sincronizzati.
 
 export interface WriteCachedPosterOpts {
-  /** TTL esplicito in ms (es. qualità effimera): vince su default mapping/dinamico. */
+  /** TTL esplicito in ms (es. qualitÃ  effimera): vince su default mapping/dinamico. */
   readonly ttlMs?: number
   /** Flag immutable effettivo della risposta: persistito per le HIT (M3). */
   readonly immutable?: boolean
   /**
-   * Task D: la entry è limitata dalla scadenza reale di un fatto volatile
+   * Task D: la entry Ã¨ limitata dalla scadenza reale di un fatto volatile
    * (ranking/release), non dal flat TTL di policy. Persistito nel record:
    * oltre la scadenza la entry NON viene servita stale/SWR (sarebbe oltre
    * il deadline del fatto) ma rivalidata. Interno, mai esposto in HTTP.
@@ -700,16 +700,16 @@ export function writeCachedPoster(cacheKey: string, payload: PosterCachePayload,
   const tags = mappingTag ? ["poster", mappingTag] : ["poster"]
   // TTL esplicito solo per i non-mappati: per i mappati resta il refresh
   // schedulato giornaliero (invalidazione per tag dopo i salvataggi).
-  // Jitter deterministico anti-herd: stessa key → stesso TTL ovunque (M3
-  // garantito perché gli header derivano dallo stesso dynamicPosterTtlSec).
-  // opts.ttlMs (es. qualità effimera dopo timeout upstream) vince su tutto,
+  // Jitter deterministico anti-herd: stessa key â†’ stesso TTL ovunque (M3
+  // garantito perchÃ© gli header derivano dallo stesso dynamicPosterTtlSec).
+  // opts.ttlMs (es. qualitÃ  effimera dopo timeout upstream) vince su tutto,
   // anche sul path mappato: un render degradato non deve mai restare 24h.
   const explicitTtlMs = opts?.ttlMs
   const ttl = explicitTtlMs ?? (mappingTag ? undefined : dynamicPosterTtlMs(cacheKey))
   // ttlSec/immutable nel record header: le HIT riusano gli stessi valori dello
   // storage (M3) invece di sovrastimare max-age/immutable con i default di
-  // richiesta su entry effimere. Record vecchi senza campi → fallback invariato.
-  // Task D: absolute expiresAt sidecar — HTTP advertises REMAINING (floor),
+  // richiesta su entry effimere. Record vecchi senza campi â†’ fallback invariato.
+  // Task D: absolute expiresAt sidecar â€” HTTP advertises REMAINING (floor),
   // never the original full TTL. Payload-carried expiresAt wins (same clock
   // as the waiter path); otherwise now + storage TTL. Scheduled entries stay
   // undefined (historical mapped policy, honest unknown).
@@ -730,7 +730,7 @@ export function writeCachedPoster(cacheKey: string, payload: PosterCachePayload,
     immutable: opts?.immutable,
     ...(expiresAt !== undefined ? { expiresAt } : {}),
     ...(opts?.factCapped || payload.factCapped ? { factCapped: true as const } : {}),
-    // Accent sidecar: same two-key write, same TTL/tags — no parallel policy.
+    // Accent sidecar: same two-key write, same TTL/tags â€” no parallel policy.
     // Sanitized + cloned (callers keep no mutable alias into the store).
     ...(payload.accentMeta ? { accentMeta: sanitizeEffectiveAccentMeta(payload.accentMeta) ?? undefined } : {}),
   }
@@ -783,7 +783,7 @@ export function getPendingPoster(cacheKey: string): Promise<PosterCachePayload |
 // Completed accent records (effective-accent display sync, `?accentmeta=1`).
 // ---------------------------------------------------------------------------
 // The editor preview (`preview=1`) is no-store by contract and the inflight
-// entry is deleted on completion — a metadata fetch arriving AFTER the
+// entry is deleted on completion â€” a metadata fetch arriving AFTER the
 // `<img>` render settles would otherwise find nothing and stay disabled for
 // a legitimate success. This bounded memory-only map retains the ~250-byte
 // validated meta (never image bytes, never KV) for a short window keyed by
@@ -821,7 +821,7 @@ export function recordCompletedAccent(cacheKey: string, meta: EffectiveAccentMet
 
 /**
  * Late-subscriber read: a fresh clone, or null when absent/expired (lazy
- * expiry, no timers). Cloned per call — callers never share mutable state
+ * expiry, no timers). Cloned per call â€” callers never share mutable state
  * across requests.
  */
 export function readCompletedAccent(cacheKey: string): EffectiveAccentMeta | null {
@@ -842,9 +842,9 @@ export function __resetCompletedAccentForTests(): void {
 export function beginPosterRender(
   cacheKey: string,
 ): (payload: PosterCachePayload | null, keepEntry?: boolean) => void {
-  // Race guard: non sovrascrivere un render già in corso. (Il tratto
-  // getPendingPoster→begin nella route non ha await in mezzo, quindi in Node
-  // è atomico: questa guardia è difensiva, non il meccanismo primario.)
+  // Race guard: non sovrascrivere un render giÃ  in corso. (Il tratto
+  // getPendingPosterâ†’begin nella route non ha await in mezzo, quindi in Node
+  // Ã¨ atomico: questa guardia Ã¨ difensiva, non il meccanismo primario.)
   if (inflight.has(cacheKey)) return () => {}
 
   let resolveRender: (payload: PosterCachePayload | null) => void = () => {}
@@ -859,12 +859,12 @@ export function beginPosterRender(
   inflight.set(cacheKey, promise)
   return (payload, keepEntry = false) => {
     // R4: al watchdog (keepEntry=true) i waiter vengono risolti con null MA
-    // l'entry resta prenotata allo zombie finché finisce (o fino al timeout
+    // l'entry resta prenotata allo zombie finchÃ© finisce (o fino al timeout
     // 60s sopra). Prima l'entry veniva cancellata subito: ogni richiesta
     // successiva con la stessa key non trovava inflight e duplicava l'intero
-    // render proprio con upstream lento — moltiplicatore di carico invece di
-    // coalescing. I nuovi arrivati si attaccano alla promise già risolta con
-    // null → 503 immediato, zero lavoro duplicato.
+    // render proprio con upstream lento â€” moltiplicatore di carico invece di
+    // coalescing. I nuovi arrivati si attaccano alla promise giÃ  risolta con
+    // null â†’ 503 immediato, zero lavoro duplicato.
     if (!keepEntry) clearTimeout(timer)
     resolveRender(payload)
     if (!keepEntry && inflight.get(cacheKey) === promise) inflight.delete(cacheKey)
@@ -873,14 +873,14 @@ export function beginPosterRender(
 
 export function schedulePosterRefresh(req: NextRequest, isPreview: boolean = false): void {
   // Le preview (`preview=1`) non vengono servite alle CDN: rigenerarle in
-  // background è inutile. Il refresh serve solo per riscaldare la cache edge.
+  // background Ã¨ inutile. Il refresh serve solo per riscaldare la cache edge.
   if (isPreview) return
   if (process.env.VERCEL) return // Serverless: nessun self-fetch in background
   const internalOrigin = `http://127.0.0.1:${process.env.PORT || "3000"}`
   const searchParams = new URLSearchParams(req.nextUrl.searchParams)
-  // Fix M1: non inoltrare api_key in chiaro nell'URL di loopback — la chiave
-  // viene passata via header x-api-key (come già fa il warmup dei cataloghi).
-  // route.ts:167 rimuove già api_key dal cacheKey per non tenerla in memoria.
+  // Fix M1: non inoltrare api_key in chiaro nell'URL di loopback â€” la chiave
+  // viene passata via header x-api-key (come giÃ  fa il warmup dei cataloghi).
+  // route.ts:167 rimuove giÃ  api_key dal cacheKey per non tenerla in memoria.
   const apiKeyForRefresh = searchParams.get("api_key") || req.headers.get("x-api-key") || undefined
   searchParams.delete("api_key")
   searchParams.delete("x-api-key")
@@ -890,7 +890,7 @@ export function schedulePosterRefresh(req: NextRequest, isPreview: boolean = fal
   // Dedup: non avviare due refresh concorrenti per la stessa URL.
   if (refreshInFlight.has(key)) return
   // Min-interval: evita che un titolo sotto attacco (o una catena di stale hit)
-  // generi un self-fetch a ogni richiesta — la cache locale viene comunque
+  // generi un self-fetch a ogni richiesta â€” la cache locale viene comunque
   // rigenerata dalla prima richiesta che arriva con il param di refresh.
   const now = Date.now()
   const last = lastRefreshAt.get(key)
@@ -921,7 +921,7 @@ export function schedulePosterRefresh(req: NextRequest, isPreview: boolean = fal
 // Un cache-miss tiene in memoria poster originali + logo + backdrop + buffer
 // RGBA e i risultati delle composizioni sharp (decine di MB per richiesta).
 // Su istanze con heap limitato (Docker: --max-old-space-size=384) un burst di
-// miss su titoli diversi può portare a OOM senza backpressure. Questo limiter
+// miss su titoli diversi puÃ² portare a OOM senza backpressure. Questo limiter
 // serializza i render costosi: le richieste in eccesso attendono un posto per
 // un tempo limitato, poi ricevono 503 invece di accodarsi all'infinito.
 
@@ -935,17 +935,17 @@ const MAX_CONCURRENT_RENDERS = (() => {
 // Default 15000: le griglie catalogo (Stremio/AIOMetadata) richiedono ~20 poster
 // in parallelo su cache fredda; con 4 slot e 5s molti ricevevano 503 (poster
 // mancanti). I waiter non tengono buffer immagini (i fetch avvengono dentro lo
-// slot), quindi allungare l'attesa è memory-neutral.
+// slot), quindi allungare l'attesa Ã¨ memory-neutral.
 export const RENDER_SLOT_WAIT_MS = (() => {
   const raw = envWithFallback("RENDER_SLOT_WAIT_MS")
-  // Vercel Hobby: 10s di limite funzione — con 15s di attesa la piattaforma
+  // Vercel Hobby: 10s di limite funzione â€” con 15s di attesa la piattaforma
   // chiuderebbe con 504 prima del nostro 503. Default hobby-safe SOLO se
   // l'utente non ha impostato un valore esplicito (su Pro vale il default).
   const fallback = process.env.VERCEL && raw === undefined ? 7500 : 15000
   const n = raw ? parseInt(raw, 10) : fallback
   return Number.isFinite(n) && n >= 500 && n <= 60000 ? n : fallback
 })()
-// Coda bounded (opzionale): con 0 il comportamento è attuale (i waiter oltre i
+// Coda bounded (opzionale): con 0 il comportamento Ã¨ attuale (i waiter oltre i
 // posti attendono fino a RENDER_SLOT_WAIT_MS). Con N>0 i waiter oltre N
 // ricevono 503 immediato invece di accodarsi: backpressure senza code infinite.
 const RENDER_QUEUE_LIMIT = (() => {
@@ -957,20 +957,20 @@ const RENDER_QUEUE_LIMIT = (() => {
 let activeRenders = 0
 let zombieRenders = 0
 // Picchi cumulativi da avvio processo (telemetria bench/produzione): il
-// polling esterno di /api/cache/status può mancare slot brevi, questi
+// polling esterno di /api/cache/status puÃ² mancare slot brevi, questi
 // contatori no (due interi, costo zero). Vedi getPosterStats().
 let peakActiveRenders = 0
 let peakQueuedRenders = 0
 const renderWaiters: Array<() => void> = []
-// Quante volte uno zombie ha superato la grazia ed è stato sganciato dal
+// Quante volte uno zombie ha superato la grazia ed Ã¨ stato sganciato dal
 // budget slot (metrica cumulativa, esposta in getPosterStats).
 let zombieGraceExpired = 0
 
 // Tetto di grazia per i render abbandonati dal watchdog (R5): oltre questo
 // tempo lo zombie smette di occupare budget slot. Senza, N zombie = N slot
-// bruciati con active=0 → 503 a catena anche a pipeline scarica (deadlock
+// bruciati con active=0 â†’ 503 a catena anche a pipeline scarica (deadlock
 // morbido sotto upstream lento). Lo zombie continua comunque in background
-// fino al settle (la sua cleanup è guarded) — si libera solo il conteggio,
+// fino al settle (la sua cleanup Ã¨ guarded) â€” si libera solo il conteggio,
 // con un warn per distinguere "zombie veloci" (post-R3: abort immediato dei
 // fetch) da quelli patologici (sharp appeso).
 const ZOMBIE_GRACE_MS = (() => {
@@ -992,7 +992,7 @@ function releaseRenderSlot(): void {
   pumpWaiters()
 }
 
-/** Notifica al limiter che un render è stato abbandonato dalla deadline ma continua in background */
+/** Notifica al limiter che un render Ã¨ stato abbandonato dalla deadline ma continua in background */
 export function recordZombieRenderStart(label?: string): () => void {
   zombieRenders++
   let settled = false
@@ -1008,7 +1008,7 @@ export function recordZombieRenderStart(label?: string): () => void {
     settled = true
     zombieRenders = Math.max(0, zombieRenders - 1)
     zombieGraceExpired++
-    log.warn("Zombie render grace expired — slot force-released", label ? { zombies: zombieRenders, render: label } : { zombies: zombieRenders })
+    log.warn("Zombie render grace expired â€” slot force-released", label ? { zombies: zombieRenders, render: label } : { zombies: zombieRenders })
     pumpWaiters()
   }, ZOMBIE_GRACE_MS)
   if (typeof grace.unref === "function") grace.unref()
@@ -1154,11 +1154,11 @@ export function __resetPosterStatsForTest(): void {
 // Poster latency diagnostics (rolling per-process observations, cached vs NEW)
 // ---------------------------------------------------------------------------
 // Two buckets, separated by what the request actually cost the pipeline:
-// - "cached": served WITHOUT running the render pipeline — fresh cache hits
+// - "cached": served WITHOUT running the render pipeline â€” fresh cache hits
 //   (canonical + variant-conversion hits), stale/SWR serves (the scheduled
 //   background refresh re-renders separately and records its own "render"
 //   sample), and 304s answered from a cached entry.
-// - "render": the full render pipeline ran for this response — canonical and
+// - "render": the full render pipeline ran for this response â€” canonical and
 //   variant renders alike, preview (`preview=1`) renders, background-refresh
 //   renders, and revalidation renders (stale/expired + conditional that
 //   re-rendered instead of answering 304).
@@ -1171,12 +1171,12 @@ export function __resetPosterStatsForTest(): void {
 // - diagnostic JSON branches (`?accentmeta=1`, `?netgeo=1` debug): not poster
 //   bytes, and they never touch the request counters either.
 // - variant conversion encode: INCLUDED in whichever bucket served the
-//   response — "cached" conversions dominate their sample honestly, and
+//   response â€” "cached" conversions dominate their sample honestly, and
 //   "render" is recorded at terminal success (after conversion), so a failed
 //   conversion (500/503) never counts as a served render.
 // No PII/telemetry: only {ms, at} numbers. Bounded fixed memory (capacity
-// × 2 buckets), rolling window expiry, quantiles computed on diagnostic read
-// (getPosterStats, served by the admin-only /api/cache/status) — never sorted
+// Ã— 2 buckets), rolling window expiry, quantiles computed on diagnostic read
+// (getPosterStats, served by the admin-only /api/cache/status) â€” never sorted
 // or aggregated on the per-request path. Single-process scope: other
 // instances/CDN-cold answer from their own window, never merged.
 
@@ -1184,7 +1184,7 @@ export type PosterLatencyKind = "cached" | "render"
 
 /** Rolling observation window (15min): samples older than this are pruned. */
 export const POSTER_LATENCY_WINDOW_MS = 15 * 60 * 1000
-/** Max retained samples PER bucket (fixed memory: 2 × capacity entries). */
+/** Max retained samples PER bucket (fixed memory: 2 Ã— capacity entries). */
 export const POSTER_LATENCY_MAX_SAMPLES = 1024
 
 interface PosterLatencySample {
@@ -1226,8 +1226,8 @@ export function recordPosterLatency(
 
 /**
  * Quantile by linear interpolation on SORTED values (R-7 / numpy "linear":
- * rank = q * (n - 1), interpolate between adjacent ranks). Single value →
- * itself; empty → null (honest no-data, never zero).
+ * rank = q * (n - 1), interpolate between adjacent ranks). Single value â†’
+ * itself; empty â†’ null (honest no-data, never zero).
  */
 export function posterLatencyQuantile(sorted: readonly number[], q: number): number | null {
   if (sorted.length === 0) return null
@@ -1313,3 +1313,4 @@ export function getPosterStats() {
     maxConcurrent: MAX_CONCURRENT_RENDERS,
   }
 }
+

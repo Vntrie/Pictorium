@@ -1,4 +1,4 @@
-import type { NextRequest } from "next/server"
+﻿import type { NextRequest } from "next/server"
 import { getDomain } from "@/lib/utils"
 import { envWithFallback } from "@/lib/env-compat"
 
@@ -14,7 +14,7 @@ function cleanBaseUrl(value: string | undefined): string | null {
 }
 
 function hostnameOf(value: string): string | null {
-  // X-Forwarded-Host può essere una lista separata da virgole
+  // X-Forwarded-Host puÃ² essere una lista separata da virgole
   const first = value.split(",")[0].trim()
   try {
     return new URL(`https://${first}`).hostname.toLowerCase()
@@ -23,7 +23,7 @@ function hostnameOf(value: string): string | null {
   }
 }
 
-/** Allowlist opzionale di hostname pubblici ammessi (PICTORIUM_ALLOWED_HOSTS). */
+/** Allowlist opzionale di hostname pubblici ammessi (FLAMEFORGE_ALLOWED_HOSTS). */
 function isAllowedHostname(hostname: string): boolean {
   const raw = envWithFallback("ALLOWED_HOSTS")
   if (!raw) return false
@@ -35,10 +35,10 @@ function isAllowedHostname(hostname: string): boolean {
  * Extract the public origin from a request, accounting for reverse proxies
  * (Koyeb, HF Spaces, etc.) that forward via internal IPs.
  *
- * X-Forwarded-Host è fidato solo se combacia con l'Host header originale
- * (o è in PICTORIUM_ALLOWED_HOSTS): in caso contrario un client può far
+ * X-Forwarded-Host Ã¨ fidato solo se combacia con l'Host header originale
+ * (o Ã¨ in FLAMEFORGE_ALLOWED_HOSTS): in caso contrario un client puÃ² far
  * generare URL poster che puntano a un dominio arbitrario (host header
- * injection). Su HF Spaces / proxy fidati XFH == Host → nessun cambiamento
+ * injection). Su HF Spaces / proxy fidati XFH == Host â†’ nessun cambiamento
  * di comportamento.
  */
 export function getOriginFromRequest(req: NextRequest): string {
@@ -51,7 +51,7 @@ export function getOriginFromRequest(req: NextRequest): string {
       const firstHost = forwardedHost.split(",")[0].trim()
       return `${forwardedProto}://${firstHost}`
     }
-    // XFH non fidato → fallback all'origin derivato dall'URL della richiesta.
+    // XFH non fidato â†’ fallback all'origin derivato dall'URL della richiesta.
     return req.nextUrl.origin
   }
   return req.nextUrl.origin
@@ -72,3 +72,4 @@ export function buildPosterPublicUrl(path: string, input: PosterBaseUrlInput = {
   if (baseUrl) return new URL(path, `${baseUrl}/`)
   return new URL(path, "http://localhost")
 }
+

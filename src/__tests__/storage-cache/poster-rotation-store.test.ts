@@ -713,3 +713,4 @@ describe("dynamic GET across the day cut (unmapped, logo + 2 clean posters)", ()
     expect(cc2).toContain(`max-age=${secondsUntilDynamicRotationCut(T2)}`)
   })
 })
+

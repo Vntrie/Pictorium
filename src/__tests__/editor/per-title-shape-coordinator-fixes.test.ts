@@ -159,3 +159,4 @@ describe("coordinator bug 2: owned sentinel styles win over defaults/token", () 
     expect(direct.badgeFont).toBe(viaQuery.badgeFont)
   })
 })
+

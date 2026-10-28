@@ -9,7 +9,7 @@
  * ribbon/badges/ranking/… but never `preRelease`, so the per-title live flag
  * (which feeds the editor `pre=` param) never followed the default.
  *
- * - Provider part (PictoriumRoot, real context): fresh unmapped title open,
+ * - Provider part (FlameForgeRoot, real context): fresh unmapped title open,
  *   outer default toggle → per-title flag + outgoing `previewUrl` flip
  *   pre=1↔pre=0 in the same render cycle (debounce only), no reload, both
  *   directions, portrait flat + landscape `land ?? flat` precedence.
@@ -20,8 +20,8 @@
 import { useEffect } from "react"
 import { render, act, fireEvent, screen } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor, PosterEditorValueOverride } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { useSettingsSession } from "@/components/settings/useSettingsSession"
@@ -75,10 +75,10 @@ const IMAGES_9001 = {
 }
 
 // ---------------------------------------------------------------------------
-// Part 1: provider default→live propagation (PictoriumRoot, deferred network)
+// Part 1: provider default→live propagation (FlameForgeRoot, deferred network)
 // ---------------------------------------------------------------------------
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -174,9 +174,9 @@ async function renderRoot() {
   ctx = null
   ed = null
   render(
-    <PictoriumRoot>
+    <FlameForgeRoot>
       <Probe />
-    </PictoriumRoot>,
+    </FlameForgeRoot>,
   )
   await flush()
   expect(ctx, "provider context available").toBeTruthy()
@@ -409,3 +409,5 @@ describe("pre-digital staged reactivity (settings draft, no save)", () => {
     expect(lastStagedPreviewParams().get("pre")).toBe("0")
   })
 })
+
+

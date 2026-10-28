@@ -6,13 +6,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { NextRequest } from "next/server"
 
 const ENV_KEYS = [
-  "PICTORIUM_DATA_DIR",
-  "PICTORIUM_MULTI_USER",
+  "FLAMEFORGE_DATA_DIR",
+  "FLAMEFORGE_MULTI_USER",
   "PROFILE_ENCRYPTION_KEY",
-  "PICTORIUM_TMDB_KEY",
+  "FLAMEFORGE_TMDB_KEY",
   "TMDB_KEY",
   "TMDB_API_KEY",
-  "PICTORIUM_MDBLIST_KEY",
+  "FLAMEFORGE_MDBLIST_KEY",
   "MDBLIST_KEY",
   "MDBLIST_API_KEY",
 ] as const
@@ -24,9 +24,9 @@ const NS_TMDB_KEY = "ns-tmdb-key-12345"
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-nskeys-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
-  process.env.PICTORIUM_MULTI_USER = "1"
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-nskeys-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
+  process.env.FLAMEFORGE_MULTI_USER = "1"
   process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
 })
 
@@ -108,3 +108,5 @@ describe("chiavi namespace sulle route proxy (?u=)", () => {
     expect(spy).not.toHaveBeenCalled()
   })
 })
+
+

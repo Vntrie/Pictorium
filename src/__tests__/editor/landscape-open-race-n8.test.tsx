@@ -14,15 +14,15 @@
  * landscape re-initializes from B's real list: exactly the reported
  * "only portrait→landscape fixes it" workaround.
  *
- * Drives the REAL provider (PictoriumRoot) + the REAL EditView with deferred
+ * Drives the REAL provider (FlameForgeRoot) + the REAL EditView with deferred
  * network and unique per-title fixture paths — never a mocked loader — so the
  * stale pick, when present, is observable as a real state value.
  */
 import { useEffect } from "react"
 import { render, act } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import EditView from "@/components/EditView"
@@ -32,7 +32,7 @@ import type { SearchResult, TMDBImage } from "@/lib/types"
 vi.mock("@/lib/usePosterFit", () => ({ usePosterFit: vi.fn() }))
 vi.mocked(usePosterFit).mockReturnValue({ bestFitPath: null, results: [], loading: false, error: null })
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -166,10 +166,10 @@ async function renderRoot() {
   ctx = null
   ed = null
   render(
-    <PictoriumRoot>
+    <FlameForgeRoot>
       <Probe />
       <EditView />
-    </PictoriumRoot>,
+    </FlameForgeRoot>,
   )
   await flush()
   expect(ctx, "provider context available").toBeTruthy()
@@ -231,3 +231,5 @@ describe("N8 direct landscape A→B open (stale collection race)", () => {
     expect(ed!.selectedBackdrop?.file_path).toBe("/bd-b1.jpg")
   })
 })
+
+

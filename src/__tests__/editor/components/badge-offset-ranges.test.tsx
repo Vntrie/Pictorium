@@ -471,3 +471,4 @@ describe("LandscapeDefaultsSection offset ranges", () => {
     expect(ctx().defaultTopBadgeOffsetX).toBe(0)
   })
 })
+

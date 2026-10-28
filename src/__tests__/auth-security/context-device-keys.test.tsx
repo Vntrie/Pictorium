@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { renderHook, waitFor } from "@testing-library/react"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
-import { usePictorium } from "@/lib/context"
+import { useFlameForge } from "@/lib/context"
 import { http, userFetch } from "@/lib/http"
 import { readPersonalDeviceKey, writePersonalDeviceKey } from "@/lib/device-keys"
 
@@ -67,14 +67,14 @@ afterEach(() => {
   window.history.replaceState({}, "", "/")
 })
 
-describe("usePictorium device key init (fail-closed provenance)", () => {
+describe("useFlameForge device key init (fail-closed provenance)", () => {
   it("instance serverKeys populate memory only: storage untouched, no marker", async () => {
     // Device tmdb/mdblist empty so the instance branch runs; legacy tvdb of
     // unknown origin plus one explicit personal key.
     window.localStorage.setItem("tvdb_key", "legacy-tvdb-copy")
     expect(writePersonalDeviceKey(window.localStorage, "simkl", "my-personal-simkl")).toBe(true)
 
-    const { result } = renderHook(() => usePictorium(), { wrapper: Wrapper })
+    const { result } = renderHook(() => useFlameForge(), { wrapper: Wrapper })
 
     // The init branch ran: instance keys are live in memory…
     await waitFor(() => {
@@ -98,3 +98,5 @@ describe("usePictorium device key init (fail-closed provenance)", () => {
     }
   })
 })
+
+

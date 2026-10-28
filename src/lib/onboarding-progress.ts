@@ -1,28 +1,28 @@
-"use client"
+﻿"use client"
 
 /**
- * First-use onboarding progress — persisted checklist state for the
+ * First-use onboarding progress â€” persisted checklist state for the
  * action-based OnboardingTour.
  *
  * Namespace isolation: progress lives under
- * `pictorium_onboarding_progress:<uuid|local>`, so each space tracks its own
+ * `FLAMEFORGE_onboarding_progress:<uuid|local>`, so each space tracks its own
  * real actions (installation opened). Key presence and saved posters are
  * derived live from app state and are NEVER persisted here.
  *
  * Namespaced dismissal: `dismissOnboarding` writes ONLY the per-namespace
- * progress key. The legacy global `pictorium_onboarding_done` is honored
+ * progress key. The legacy global `FLAMEFORGE_onboarding_done` is honored
  * read-only (users dismissed under the old slide-based tour never replay)
- * but is never written by new dismissals — one space skipping must not
+ * but is never written by new dismissals â€” one space skipping must not
  * suppress onboarding in every other space.
  *
- * Privacy: booleans only — no keys, tokens, URLs or secrets ever enter
+ * Privacy: booleans only â€” no keys, tokens, URLs or secrets ever enter
  * progress, URLs or logs.
  */
 
-export const ONBOARDING_DONE_KEY = "pictorium_onboarding_done"
+export const ONBOARDING_DONE_KEY = "FLAMEFORGE_onboarding_done"
 
 /** Window event fired when the install modal actually opens (real action). */
-export const ONBOARDING_INSTALL_OPENED_EVENT = "pictorium:install-opened"
+export const ONBOARDING_INSTALL_OPENED_EVENT = "FlameForge:install-opened"
 
 /**
  * Window event fired by the explicit "Repeat guided setup" action. Carries
@@ -31,17 +31,17 @@ export const ONBOARDING_INSTALL_OPENED_EVENT = "pictorium:install-opened"
  * pending/active replay in React state, so a page reload never auto-replays.
  * No keys, posters, settings or progress are touched by the request itself.
  */
-export const ONBOARDING_REPLAY_EVENT = "pictorium:replay-onboarding"
+export const ONBOARDING_REPLAY_EVENT = "FlameForge:replay-onboarding"
 
 export function requestOnboardingReplay(userId: string | null): void {
   try {
     window.dispatchEvent(new CustomEvent(ONBOARDING_REPLAY_EVENT, { detail: { userId } }))
   } catch {
-    // No window (SSR) — the repeat button never renders there anyway.
+    // No window (SSR) â€” the repeat button never renders there anyway.
   }
 }
 
-const PROGRESS_PREFIX = "pictorium_onboarding_progress:"
+const PROGRESS_PREFIX = "FLAMEFORGE_onboarding_progress:"
 
 export interface OnboardingProgress {
   v: 1
@@ -88,7 +88,7 @@ export function writeOnboardingProgress(
     if (patch.installOpened === true) next.installOpened = true
     localStorage.setItem(onboardingProgressKey(userId), JSON.stringify(next))
   } catch {
-    // localStorage unavailable (SSR, private mode) — progress stays session-only.
+    // localStorage unavailable (SSR, private mode) â€” progress stays session-only.
   }
 }
 
@@ -108,3 +108,4 @@ export function hasLegacyOnboardingDismissal(): boolean {
     return false
   }
 }
+

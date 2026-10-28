@@ -6,7 +6,7 @@ import { NextRequest } from "next/server"
 afterEach(() => {
   cacheClear()
   delete process.env.ADMIN_TOKEN
-  delete process.env.PICTORIUM_ADMIN_TOKEN
+  delete process.env.FLAMEFORGE_ADMIN_TOKEN
 })
 
 describe("cacheExpire unit logic", () => {
@@ -120,3 +120,5 @@ describe("POST /api/cache/expire", () => {
     expect(cacheGetStale("poster:movie:950001").stale).toBe(true)
   })
 })
+
+

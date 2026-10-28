@@ -528,3 +528,4 @@ describe("network logo position", () => {
     expect(bright(330, 482, 18, 100)).toBeLessThan(100)
   })
 })
+

@@ -151,3 +151,4 @@ describe("useDefaults age persistence", () => {
     expect(stored.ageCountry).toBe("IT")
   })
 })
+

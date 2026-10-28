@@ -125,3 +125,4 @@ describe("BadgeStyleSelector preview contract", () => {
     expect(btn.textContent).not.toContain("Aa")
   })
 })
+

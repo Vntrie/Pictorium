@@ -40,9 +40,9 @@ describe("vitest collection scope", () => {
     // Next/Turbopack chunks must never be collected as suites.
     const generated = [
       ".next-verify/standalone/e2e/theme.spec.ts",
-      ".next-verify/standalone/e2e/pictorium-streaming-catalogs.spec.ts",
+      ".next-verify/standalone/e2e/FlameForge-streaming-catalogs.spec.ts",
       ".next-verify/static/chunks/0c44jgug7qywa.js",
-      "e2e/pictorium-visual.spec.ts",
+      "e2e/FlameForge-visual.spec.ts",
     ]
     for (const sample of generated) {
       expect(
@@ -67,3 +67,5 @@ describe("vitest collection scope", () => {
     }
   })
 })
+
+

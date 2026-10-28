@@ -11,7 +11,7 @@ import { buildStremioPosterSearchParams } from "@/lib/stremio-poster-params"
 import { buildStremioPosterUrl } from "@/lib/stremio-poster-url"
 import { buildPreviewUrl } from "@/lib/poster-url"
 import type { Mapping } from "@/lib/types"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 
 function baseMapping(overrides: Partial<Mapping> = {}): Mapping {
   return {
@@ -31,7 +31,7 @@ function resolveConfig(
   searchParams: URLSearchParams,
   opts: {
     mapping?: Mapping | null
-    configOverride?: PictoriumUserConfig | null
+    configOverride?: FlameForgeUserConfig | null
     sd?: PosterRenderConfigInput["sd"]
     finalRank?: number | null
   } = {},
@@ -246,3 +246,5 @@ describe("preview URL ribbon param (WYSIWYG)", () => {
     expect(buildPreviewUrl(posterState, { ...badgeParams, ribbonEnabled: false })).toContain("ribbon=0")
   })
 })
+
+

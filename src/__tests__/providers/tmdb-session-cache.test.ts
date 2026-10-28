@@ -94,3 +94,4 @@ describe("TMDB session cache (F6, language-isolated)", () => {
     expect(getTMDBSessionCache("movie", 2, "it")).toBeNull()
   })
 })
+

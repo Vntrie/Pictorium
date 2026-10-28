@@ -1,36 +1,36 @@
-services:
-  pictorium:
+﻿services:
+  FlameForge:
     build:
       context: .
       dockerfile: Dockerfile
-    image: eful97/pictorium:latest
-    container_name: pictorium
+    image: eful97/FlameForge:latest
+    container_name: FlameForge
     restart: unless-stopped
     ports:
       # Host bind/porta configurabili (default 0.0.0.0:8080). La porta interna
       # resta 8080 (PORT/HOSTNAME sotto + healthcheck): cambia solo l'esposizione.
-      - "${PICTORIUM_BIND_IP:-0.0.0.0}:${PICTORIUM_HOST_PORT:-8080}:8080"
+      - "${FLAMEFORGE_BIND_IP:-0.0.0.0}:${FLAMEFORGE_HOST_PORT:-8080}:8080"
     environment:
-      # ── Chiavi API ──
-      # Priorità: header `x-api-key` > query `api_key`/`mdblist_key` > fallback
+      # â”€â”€ Chiavi API â”€â”€
+      # PrioritÃ : header `x-api-key` > query `api_key`/`mdblist_key` > fallback
       # d'istanza qui sotto (opt-in, vedi resolveRequestApiKey in src/lib/tmdb.ts).
-      # Il fallback d'istanza è per deploy personali single-user; su istanze
+      # Il fallback d'istanza Ã¨ per deploy personali single-user; su istanze
       # pubbliche multi-utente NON impostarlo (ogni richiesta porta la sua chiave).
       # Consigliato per integratori: TMDB per-utente + MDBList d'istanza
-      # (il mdblist_key per-richiesta frammenta la cache poster) — docs/INTEGRATION.md.
-      - PICTORIUM_TMDB_KEY=${PICTORIUM_TMDB_KEY:-${POSTERIUM_TMDB_KEY:-}}
-      - PICTORIUM_MDBLIST_KEY=${PICTORIUM_MDBLIST_KEY:-${POSTERIUM_MDBLIST_KEY:-}}
-      - PICTORIUM_TVDB_API_KEY=${PICTORIUM_TVDB_API_KEY:-${POSTERIUM_TVDB_API_KEY:-}}
-      # ── Custom Rating Provider ──
+      # (il mdblist_key per-richiesta frammenta la cache poster) â€” docs/INTEGRATION.md.
+      - FLAMEFORGE_TMDB_KEY=${FLAMEFORGE_TMDB_KEY:-${FLAMEFORGE_TMDB_KEY:-}}
+      - FLAMEFORGE_MDBLIST_KEY=${FLAMEFORGE_MDBLIST_KEY:-${FLAMEFORGE_MDBLIST_KEY:-}}
+      - FLAMEFORGE_TVDB_API_KEY=${FLAMEFORGE_TVDB_API_KEY:-${FLAMEFORGE_TVDB_API_KEY:-}}
+      # â”€â”€ Custom Rating Provider â”€â”€
       # Endpoint/header configurabili anche dall'editor (vince sul qui sotto);
       # la chiave resta SEMPRE env (mai in UI/token/URL).
-      - PICTORIUM_CUSTOM_RATING_ENABLED=${PICTORIUM_CUSTOM_RATING_ENABLED:-${POSTERIUM_CUSTOM_RATING_ENABLED:-}}
-      - PICTORIUM_CUSTOM_RATING_ENDPOINT=${PICTORIUM_CUSTOM_RATING_ENDPOINT:-${POSTERIUM_CUSTOM_RATING_ENDPOINT:-}}
-      - PICTORIUM_CUSTOM_RATING_API_KEY=${PICTORIUM_CUSTOM_RATING_API_KEY:-${POSTERIUM_CUSTOM_RATING_API_KEY:-}}
-      - PICTORIUM_CUSTOM_RATING_API_KEY_HEADER=${PICTORIUM_CUSTOM_RATING_API_KEY_HEADER:-${POSTERIUM_CUSTOM_RATING_API_KEY_HEADER:-}}
-      - PICTORIUM_CUSTOM_RATINGS=${PICTORIUM_CUSTOM_RATINGS:-${POSTERIUM_CUSTOM_RATINGS:-}}
-      # ── Opzionali — Multi-utente (istanza pubblica per-UUID) ──
-      # PICTORIUM_MULTI_USER=1 abilita mapping/default/chiavi per UUID
+      - FLAMEFORGE_CUSTOM_RATING_ENABLED=${FLAMEFORGE_CUSTOM_RATING_ENABLED:-${FLAMEFORGE_CUSTOM_RATING_ENABLED:-}}
+      - FLAMEFORGE_CUSTOM_RATING_ENDPOINT=${FLAMEFORGE_CUSTOM_RATING_ENDPOINT:-${FLAMEFORGE_CUSTOM_RATING_ENDPOINT:-}}
+      - FLAMEFORGE_CUSTOM_RATING_API_KEY=${FLAMEFORGE_CUSTOM_RATING_API_KEY:-${FLAMEFORGE_CUSTOM_RATING_API_KEY:-}}
+      - FLAMEFORGE_CUSTOM_RATING_API_KEY_HEADER=${FLAMEFORGE_CUSTOM_RATING_API_KEY_HEADER:-${FLAMEFORGE_CUSTOM_RATING_API_KEY_HEADER:-}}
+      - FLAMEFORGE_CUSTOM_RATINGS=${FLAMEFORGE_CUSTOM_RATINGS:-${FLAMEFORGE_CUSTOM_RATINGS:-}}
+      # â”€â”€ Opzionali â€” Multi-utente (istanza pubblica per-UUID) â”€â”€
+      # FLAMEFORGE_MULTI_USER=1 abilita mapping/default/chiavi per UUID
       # (POST /api/users, gestione su /u/<uuid>/configure). Default off =
       # single-user invariato. PROFILE_ENCRYPTION_KEY obbligatoria con flag
       # ON (fail-closed sul salvataggio chiavi); retention cleanup inattivi
@@ -38,95 +38,95 @@ services:
       # MAX_USERS. Con flag ON le richieste scoped (?u=) NON usano le chiavi
       # d'istanza (mai open-proxy sulla quota operatore) salvo
       # MULTI_USER_ALLOW_ENV_FALLBACK=1.
-      - PICTORIUM_MULTI_USER=${PICTORIUM_MULTI_USER:-}
-      - PICTORIUM_MAX_MAPPINGS_PER_USER=${PICTORIUM_MAX_MAPPINGS_PER_USER:-}
-      - PICTORIUM_MAX_USERS=${PICTORIUM_MAX_USERS:-}
-      - PICTORIUM_PUBLIC_STATS=${PICTORIUM_PUBLIC_STATS:-}
-      - PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK=${PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK:-}
-      - PICTORIUM_USER_RETENTION_DAYS=${PICTORIUM_USER_RETENTION_DAYS:-}
-      # ── Opzionali — Admin & Sicurezza ──
+      - FLAMEFORGE_MULTI_USER=${FLAMEFORGE_MULTI_USER:-}
+      - FLAMEFORGE_MAX_MAPPINGS_PER_USER=${FLAMEFORGE_MAX_MAPPINGS_PER_USER:-}
+      - FLAMEFORGE_MAX_USERS=${FLAMEFORGE_MAX_USERS:-}
+      - FLAMEFORGE_PUBLIC_STATS=${FLAMEFORGE_PUBLIC_STATS:-}
+      - FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK=${FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK:-}
+      - FLAMEFORGE_USER_RETENTION_DAYS=${FLAMEFORGE_USER_RETENTION_DAYS:-}
+      # â”€â”€ Opzionali â€” Admin & Sicurezza â”€â”€
       # PUBLIC_INSTANCE=1: route admin aperte senza token (LAN fidata/demo).
       # Su istanze esposte lascia vuoto/0 + ADMIN_TOKEN, poi incolla il token
-      # in Impostazioni → Token admin (solo sessione) per usare la UI.
+      # in Impostazioni â†’ Token admin (solo sessione) per usare la UI.
       # Senza entrambi, l'editor resta chiuso (fail-closed); gli endpoint
       # poster/cataloghi restano sempre aperti.
-      - PICTORIUM_PUBLIC_INSTANCE=${PICTORIUM_PUBLIC_INSTANCE:-}
-      - PICTORIUM_ADMIN_TOKEN=${PICTORIUM_ADMIN_TOKEN:-${POSTERIUM_ADMIN_TOKEN:-}}
-      - POSTERIUM_ADMIN_TOKEN=${POSTERIUM_ADMIN_TOKEN:-}
-      # Token warmup: l'app/entrypoint leggono PICTORIUM_/POSTERIUM_WARMUP_TOKEN
-      # (il vecchio WARMUP_TOKEN senza prefisso non è mai letto).
-      - PICTORIUM_WARMUP_TOKEN=${PICTORIUM_WARMUP_TOKEN:-${POSTERIUM_WARMUP_TOKEN:-}}
-      - POSTERIUM_WARMUP_TOKEN=${POSTERIUM_WARMUP_TOKEN:-}
+      - FLAMEFORGE_PUBLIC_INSTANCE=${FLAMEFORGE_PUBLIC_INSTANCE:-}
+      - FLAMEFORGE_ADMIN_TOKEN=${FLAMEFORGE_ADMIN_TOKEN:-${FLAMEFORGE_ADMIN_TOKEN:-}}
+      - FLAMEFORGE_ADMIN_TOKEN=${FLAMEFORGE_ADMIN_TOKEN:-}
+      # Token warmup: l'app/entrypoint leggono FLAMEFORGE_/FLAMEFORGE_WARMUP_TOKEN
+      # (il vecchio WARMUP_TOKEN senza prefisso non Ã¨ mai letto).
+      - FLAMEFORGE_WARMUP_TOKEN=${FLAMEFORGE_WARMUP_TOKEN:-${FLAMEFORGE_WARMUP_TOKEN:-}}
+      - FLAMEFORGE_WARMUP_TOKEN=${FLAMEFORGE_WARMUP_TOKEN:-}
       # Firma dei config token URL (CONFIG_HMAC_SECRET). Senza, i token non sono firmati.
       - CONFIG_HMAC_SECRET=${CONFIG_HMAC_SECRET:-}
       # Cifratura AES-256-GCM delle apiKeys dei profili cloud (openssl rand -hex 32).
       # Senza, le chiavi dei profili restano in chiaro a riposo (warning in prod).
       - PROFILE_ENCRYPTION_KEY=${PROFILE_ENCRYPTION_KEY:-}
       # Proxy fidato (dietro Cloudflare/Caddy/Nginx) e allowlist host pubblici
-      - PICTORIUM_TRUST_PROXY=${PICTORIUM_TRUST_PROXY:-${POSTERIUM_TRUST_PROXY:-}}
-      - PICTORIUM_CLIENT_IP_HEADER=${PICTORIUM_CLIENT_IP_HEADER:-}
-      - PICTORIUM_ALLOWED_HOSTS=${PICTORIUM_ALLOWED_HOSTS:-${POSTERIUM_ALLOWED_HOSTS:-}}
+      - FLAMEFORGE_TRUST_PROXY=${FLAMEFORGE_TRUST_PROXY:-${FLAMEFORGE_TRUST_PROXY:-}}
+      - FLAMEFORGE_CLIENT_IP_HEADER=${FLAMEFORGE_CLIENT_IP_HEADER:-}
+      - FLAMEFORGE_ALLOWED_HOSTS=${FLAMEFORGE_ALLOWED_HOSTS:-${FLAMEFORGE_ALLOWED_HOSTS:-}}
       # Banner sponsor hosting pubblico (es. "elfhosted"; vuoto = nessun banner).
-      - PICTORIUM_HOSTED_BY=${PICTORIUM_HOSTED_BY:-}
+      - FLAMEFORGE_HOSTED_BY=${FLAMEFORGE_HOSTED_BY:-}
 
-      # ── Opzionali — Persistenza distribuita ──
-      # Redis nativo (TCP) per HA multi-replica senza /data: PICTORIUM_REDIS_URL
+      # â”€â”€ Opzionali â€” Persistenza distribuita â”€â”€
+      # Redis nativo (TCP) per HA multi-replica senza /data: FLAMEFORGE_REDIS_URL
       # vince su KV_REST_* (log warn, nessuna migrazione automatica). Su ElfHosted
       # basta REDIS_URL (fallback nudo supportato). Senza nessuno dei due resta il
       # volume /data sotto.
-      - PICTORIUM_REDIS_URL=${PICTORIUM_REDIS_URL:-${REDIS_URL:-}}
+      - FLAMEFORGE_REDIS_URL=${FLAMEFORGE_REDIS_URL:-${REDIS_URL:-}}
       - KV_REST_API_URL=${KV_REST_API_URL:-}
       - KV_REST_API_TOKEN=${KV_REST_API_TOKEN:-}
-      - PICTORIUM_KV_CACHE=${PICTORIUM_KV_CACHE:-}
+      - FLAMEFORGE_KV_CACHE=${FLAMEFORGE_KV_CACHE:-}
 
-      # ── Opzionali — Cache ──
-      - PICTORIUM_CACHE_MAX=${PICTORIUM_CACHE_MAX:-${POSTERIUM_CACHE_MAX:-2000}}
-      - POSTERIUM_CACHE_MAX=${POSTERIUM_CACHE_MAX:-2000}
-      - PICTORIUM_CACHE_MAX_MB=${PICTORIUM_CACHE_MAX_MB:-${POSTERIUM_CACHE_MAX_MB:-150}}
-      - POSTERIUM_CACHE_MAX_MB=${POSTERIUM_CACHE_MAX_MB:-150}
-      - PICTORIUM_CACHE_REFRESH_HOUR=${PICTORIUM_CACHE_REFRESH_HOUR:-${POSTERIUM_CACHE_REFRESH_HOUR:-3}}
-      - POSTERIUM_CACHE_REFRESH_HOUR=${POSTERIUM_CACHE_REFRESH_HOUR:-3}
+      # â”€â”€ Opzionali â€” Cache â”€â”€
+      - FLAMEFORGE_CACHE_MAX=${FLAMEFORGE_CACHE_MAX:-${FLAMEFORGE_CACHE_MAX:-2000}}
+      - FLAMEFORGE_CACHE_MAX=${FLAMEFORGE_CACHE_MAX:-2000}
+      - FLAMEFORGE_CACHE_MAX_MB=${FLAMEFORGE_CACHE_MAX_MB:-${FLAMEFORGE_CACHE_MAX_MB:-150}}
+      - FLAMEFORGE_CACHE_MAX_MB=${FLAMEFORGE_CACHE_MAX_MB:-150}
+      - FLAMEFORGE_CACHE_REFRESH_HOUR=${FLAMEFORGE_CACHE_REFRESH_HOUR:-${FLAMEFORGE_CACHE_REFRESH_HOUR:-3}}
+      - FLAMEFORGE_CACHE_REFRESH_HOUR=${FLAMEFORGE_CACHE_REFRESH_HOUR:-3}
       # Byte-cache immagini TMDB e attesa rating: vuoti = default del codice
       # (32MB / 1500ms). Su VPS con RAM alzare IMG a 128.
-      - PICTORIUM_IMG_CACHE_MB=${PICTORIUM_IMG_CACHE_MB:-}
-      - PICTORIUM_RATING_WAIT_MS=${PICTORIUM_RATING_WAIT_MS:-}
+      - FLAMEFORGE_IMG_CACHE_MB=${FLAMEFORGE_IMG_CACHE_MB:-}
+      - FLAMEFORGE_RATING_WAIT_MS=${FLAMEFORGE_RATING_WAIT_MS:-}
       # Candidati clean del best-fit: vuoto = 16 (default del codice).
-      - PICTORIUM_AUTO_FIT_CANDIDATE_COUNT=${PICTORIUM_AUTO_FIT_CANDIDATE_COUNT:-}
+      - FLAMEFORGE_AUTO_FIT_CANDIDATE_COUNT=${FLAMEFORGE_AUTO_FIT_CANDIDATE_COUNT:-}
 
-      # ── Opzionali — Render pipeline (tuning performance) ──
-      # Default tarati per il limite 512MB sotto. Su istanze con più RAM alza
-      # PICTORIUM_MAX_CONCURRENT_RENDERS (es. 8) e la cache per più poster/s
-      # sulle griglie fredde — vedi README "Tuning performance".
-      - PICTORIUM_MAX_CONCURRENT_RENDERS=${PICTORIUM_MAX_CONCURRENT_RENDERS:-${POSTERIUM_MAX_CONCURRENT_RENDERS:-4}}
-      - POSTERIUM_MAX_CONCURRENT_RENDERS=${POSTERIUM_MAX_CONCURRENT_RENDERS:-4}
-      - PICTORIUM_RENDER_SLOT_WAIT_MS=${PICTORIUM_RENDER_SLOT_WAIT_MS:-${POSTERIUM_RENDER_SLOT_WAIT_MS:-15000}}
-      - POSTERIUM_RENDER_SLOT_WAIT_MS=${POSTERIUM_RENDER_SLOT_WAIT_MS:-15000}
-      - PICTORIUM_RENDER_TIMEOUT_MS=${PICTORIUM_RENDER_TIMEOUT_MS:-${POSTERIUM_RENDER_TIMEOUT_MS:-30000}}
-      - POSTERIUM_RENDER_TIMEOUT_MS=${POSTERIUM_RENDER_TIMEOUT_MS:-30000}
+      # â”€â”€ Opzionali â€” Render pipeline (tuning performance) â”€â”€
+      # Default tarati per il limite 512MB sotto. Su istanze con piÃ¹ RAM alza
+      # FLAMEFORGE_MAX_CONCURRENT_RENDERS (es. 8) e la cache per piÃ¹ poster/s
+      # sulle griglie fredde â€” vedi README "Tuning performance".
+      - FLAMEFORGE_MAX_CONCURRENT_RENDERS=${FLAMEFORGE_MAX_CONCURRENT_RENDERS:-${FLAMEFORGE_MAX_CONCURRENT_RENDERS:-4}}
+      - FLAMEFORGE_MAX_CONCURRENT_RENDERS=${FLAMEFORGE_MAX_CONCURRENT_RENDERS:-4}
+      - FLAMEFORGE_RENDER_SLOT_WAIT_MS=${FLAMEFORGE_RENDER_SLOT_WAIT_MS:-${FLAMEFORGE_RENDER_SLOT_WAIT_MS:-15000}}
+      - FLAMEFORGE_RENDER_SLOT_WAIT_MS=${FLAMEFORGE_RENDER_SLOT_WAIT_MS:-15000}
+      - FLAMEFORGE_RENDER_TIMEOUT_MS=${FLAMEFORGE_RENDER_TIMEOUT_MS:-${FLAMEFORGE_RENDER_TIMEOUT_MS:-30000}}
+      - FLAMEFORGE_RENDER_TIMEOUT_MS=${FLAMEFORGE_RENDER_TIMEOUT_MS:-30000}
 
-      # ── Opzionali — Sharp (ottimizzazione CPU/RAM) ──
+      # â”€â”€ Opzionali â€” Sharp (ottimizzazione CPU/RAM) â”€â”€
       - SHARP_CONCURRENCY=${SHARP_CONCURRENCY:-2}
       - SHARP_CACHE_MEMORY_MB=${SHARP_CACHE_MEMORY_MB:-64}
 
-      # ── Opzionali — Logging ──
-      - PICTORIUM_LOG_LEVEL=${PICTORIUM_LOG_LEVEL:-${POSTERIUM_LOG_LEVEL:-info}}
-      - POSTERIUM_LOG_LEVEL=${POSTERIUM_LOG_LEVEL:-info}
-      - PICTORIUM_LOG_FORMAT=${PICTORIUM_LOG_FORMAT:-${POSTERIUM_LOG_FORMAT:-}}
-      - POSTERIUM_LOG_FORMAT=${POSTERIUM_LOG_FORMAT:-}
+      # â”€â”€ Opzionali â€” Logging â”€â”€
+      - FLAMEFORGE_LOG_LEVEL=${FLAMEFORGE_LOG_LEVEL:-${FLAMEFORGE_LOG_LEVEL:-info}}
+      - FLAMEFORGE_LOG_LEVEL=${FLAMEFORGE_LOG_LEVEL:-info}
+      - FLAMEFORGE_LOG_FORMAT=${FLAMEFORGE_LOG_FORMAT:-${FLAMEFORGE_LOG_FORMAT:-}}
+      - FLAMEFORGE_LOG_FORMAT=${FLAMEFORGE_LOG_FORMAT:-}
 
-      # ── Opzionali — CDN ──
+      # â”€â”€ Opzionali â€” CDN â”€â”€
       - POSTER_CDN_URL=${POSTER_CDN_URL:-}
       - NEXT_PUBLIC_POSTER_CDN_URL=${NEXT_PUBLIC_POSTER_CDN_URL:-}
 
-      # ── Runtime ──
+      # â”€â”€ Runtime â”€â”€
       - NODE_ENV=production
       # Heap JS: default 384 (tarato per il limite 512MB sotto). Su VPS con
-      # più RAM alzarlo via PICTORIUM_NODE_OLD_SPACE (es. 2048 con limite 3g).
-      - NODE_OPTIONS=--max-old-space-size=${PICTORIUM_NODE_OLD_SPACE:-384}
+      # piÃ¹ RAM alzarlo via FLAMEFORGE_NODE_OLD_SPACE (es. 2048 con limite 3g).
+      - NODE_OPTIONS=--max-old-space-size=${FLAMEFORGE_NODE_OLD_SPACE:-384}
       - PORT=8080
       - HOSTNAME=0.0.0.0
       # Self-warmup post-boot (default 1): 0 per saltarlo.
-      - PICTORIUM_SELF_WARMUP=${PICTORIUM_SELF_WARMUP:-${POSTERIUM_SELF_WARMUP:-}}
+      - FLAMEFORGE_SELF_WARMUP=${FLAMEFORGE_SELF_WARMUP:-${FLAMEFORGE_SELF_WARMUP:-}}
     # Hardening: il container gira come utente non-root (uid 1000) e senza
     # capability aggiuntive; niente escalation di privilegi.
     cap_drop:
@@ -154,10 +154,11 @@ services:
     deploy:
       resources:
         limits:
-          memory: ${PICTORIUM_MEM_LIMIT:-512M}
+          memory: ${FLAMEFORGE_MEM_LIMIT:-512M}
         reservations:
-          memory: ${PICTORIUM_MEM_RESERVATION:-256M}
+          memory: ${FLAMEFORGE_MEM_RESERVATION:-256M}
 
 volumes:
   posterium-data:
     driver: local
+

@@ -126,3 +126,4 @@ describe("evaluateGate (soglia secca binaria)", () => {
     expect(g.scoringJustified).toBe(false)
   })
 })
+

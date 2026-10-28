@@ -231,7 +231,7 @@ describe("GET /api/poster age badge (mocked production route)", () => {
     __resetImageBytesForTest()
     vi.spyOn(posterService, "generatePosterBuffer")
     vi.mocked(fetchCustomRatings).mockReset().mockResolvedValue([])
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
     armEmptyUpstream()
     const posterBuf = await imageBuffer("#101010", 500, 750)
     vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response(new Uint8Array(posterBuf), {
@@ -472,3 +472,5 @@ describe("GET /api/poster age badge (mocked production route)", () => {
     expect(mockedGetReleaseDates).toHaveBeenCalled()
   })
 })
+
+

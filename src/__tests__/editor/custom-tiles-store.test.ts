@@ -19,7 +19,7 @@ describe("custom-tiles-store", () => {
 
   it("scarta voci malformate e non-URL", () => {
     localStorage.setItem(
-      "pictorium_custom_posters_550",
+      "FLAMEFORGE_custom_posters_550",
       JSON.stringify([tile("https://i.imgur.com/a.jpg"), { file_path: "/abc.jpg" }, null, "nope"]),
     )
     expect(loadCustomTiles(550)).toEqual([tile("https://i.imgur.com/a.jpg")])
@@ -30,7 +30,7 @@ describe("custom-tiles-store", () => {
     storeCustomTiles(550, many)
     expect(loadCustomTiles(550)).toHaveLength(20)
     storeCustomTiles(550, [])
-    expect(localStorage.getItem("pictorium_custom_posters_550")).toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_custom_posters_550")).toBeNull()
   })
 
   it("id nullo = no-op senza eccezioni", () => {
@@ -73,6 +73,8 @@ describe("custom logo tiles store (title key includes media type)", () => {
   it("empty list removes the namespaced key", () => {
     storeCustomLogoTiles("movie:550", [tile("https://i.imgur.com/a.jpg")])
     storeCustomLogoTiles("movie:550", [])
-    expect(localStorage.getItem("pictorium_custom_logos_movie:550")).toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_custom_logos_movie:550")).toBeNull()
   })
 })
+
+

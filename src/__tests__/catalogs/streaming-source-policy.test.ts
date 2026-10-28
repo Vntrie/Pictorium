@@ -5,10 +5,10 @@
  * Parent independently inspected `getStreamingAvailability` and demonstrated
  * acceptance violations despite green helper tests:
  *  1. `?source=flixpatrol|justwatch` still concatenates the legacy auto
- *     builder (legacy `pictorium-stream-*` ids leak into strict responses,
+ *     builder (legacy `FlameForge-stream-*` ids leak into strict responses,
  *     cross potentials leak: justwatch potentials under flixpatrol-only and
  *     vice versa). Strict responses must carry ONLY requested-policy encoded
- *     ids (`pictorium-stream2-*--<source>[--variant]`), never legacy auto ids.
+ *     ids (`FlameForge-stream2-*--<source>[--variant]`), never legacy auto ids.
  *  2. Variant-only index sections (non-empty variant arrays, e.g.
  *     `italy.rai.series: ["it"]` — the real country doc carries only
  *     `rai.series-it`, no `rai.series` base) emit a fictitious base choice.
@@ -71,7 +71,7 @@ const POLICY_DOC = {
 };
 
 const isLegacyAutoId = (id: string) =>
-  id.startsWith("pictorium-stream-") && !id.startsWith("pictorium-stream2-");
+  id.startsWith("FlameForge-stream-") && !id.startsWith("FlameForge-stream2-");
 
 beforeEach(() => {
   __clearStreamingAvailabilityCache();
@@ -182,8 +182,8 @@ describe("public endpoint strict source filtering (RED-before)", () => {
     // matrix-verified, so both sections appear with justwatch policy ids.
     const jwOnly = await (await availabilityGET(req("justwatch", "&service=now&country=GB"))).json();
     expect(jwOnly.choices.map((c: { catalogId: string }) => c.catalogId).sort()).toEqual([
-      "pictorium-stream2-now--united-kingdom--movies--justwatch",
-      "pictorium-stream2-now--united-kingdom--series--justwatch",
+      "FlameForge-stream2-now--united-kingdom--movies--justwatch",
+      "FlameForge-stream2-now--united-kingdom--series--justwatch",
     ]);
     for (const c of jwOnly.choices) {
       expect(c).toMatchObject({ service: "now", chartSlug: "united-kingdom", potential: "justwatch", fpChart: false });
@@ -200,8 +200,8 @@ describe("public endpoint strict source filtering (RED-before)", () => {
     const jwOnly = await (await availabilityGET(req("justwatch", "&service=now&country=GB"))).json();
     expect(jwOnly.indexStatus).toBe("error");
     expect(jwOnly.choices.map((c: { catalogId: string }) => c.catalogId).sort()).toEqual([
-      "pictorium-stream2-now--united-kingdom--movies--justwatch",
-      "pictorium-stream2-now--united-kingdom--series--justwatch",
+      "FlameForge-stream2-now--united-kingdom--movies--justwatch",
+      "FlameForge-stream2-now--united-kingdom--series--justwatch",
     ]);
     for (const c of jwOnly.choices) {
       expect(c).toMatchObject({ potential: "justwatch", fpChart: "unknown" });
@@ -215,8 +215,8 @@ describe("variant-only exact charts (RED-before)", () => {
     const auto = await (await availabilityGET(req("auto", "&service=rai&country=IT"))).json();
     const ids = auto.choices.map((c: { catalogId: string }) => c.catalogId);
     // Exact variant choice only: no fictitious base series alongside the variant.
-    expect(ids).toContain("pictorium-stream2-rai--italy--series--auto--it");
-    expect(ids).not.toContain("pictorium-stream2-rai--italy--series--auto");
+    expect(ids).toContain("FlameForge-stream2-rai--italy--series--auto--it");
+    expect(ids).not.toContain("FlameForge-stream2-rai--italy--series--auto");
     // The variant carries the FP chart (real chart, not a guess).
     expect(
       auto.choices.find((c: { variant: string | null }) => c.variant === "it"),
@@ -224,7 +224,7 @@ describe("variant-only exact charts (RED-before)", () => {
     // flixpatrol-only serves the variant with zero JW fallback.
     const fpOnly = await (await availabilityGET(req("flixpatrol", "&service=rai&country=IT"))).json();
     expect(fpOnly.choices.map((c: { catalogId: string }) => c.catalogId)).toContain(
-      "pictorium-stream2-rai--italy--series--flixpatrol--it",
+      "FlameForge-stream2-rai--italy--series--flixpatrol--it",
     );
     expect(fpOnly.choices.some((c: { potential: string }) => c.potential === "justwatch")).toBe(false);
     // justwatch-only omits Rai entirely (no verified own-brand JW pair).
@@ -237,8 +237,8 @@ describe("variant-only exact charts (RED-before)", () => {
     const auto = await (await availabilityGET(req("auto", "&service=crave&country=CA"))).json();
     const ids = auto.choices.map((c: { catalogId: string }) => c.catalogId);
     // One exact variant `all` (real chart), never base+variant duplicates at equal meaning.
-    expect(ids).toContain("pictorium-stream2-crave--canada--all--auto--amazon-channels");
-    expect(ids).not.toContain("pictorium-stream2-crave--canada--all--auto");
+    expect(ids).toContain("FlameForge-stream2-crave--canada--all--auto--amazon-channels");
+    expect(ids).not.toContain("FlameForge-stream2-crave--canada--all--auto");
     // movies/series stay explicitly unavailable with the overallOnly capability (never split).
     for (const section of ["movies", "series"]) {
       const entry = auto.choices.find((c: { section: string }) => c.section === section);
@@ -346,10 +346,10 @@ describe("live universe evidence (offline real capture, no network)", () => {
       ),
     ).toBe(true);
     expect(fpOnly.choices.map((c: { catalogId: string }) => c.catalogId)).toContain(
-      "pictorium-stream2-rai--italy--series--flixpatrol--it",
+      "FlameForge-stream2-rai--italy--series--flixpatrol--it",
     );
     expect(fpOnly.choices.map((c: { catalogId: string }) => c.catalogId)).not.toContain(
-      "pictorium-stream2-rai--italy--series--flixpatrol",
+      "FlameForge-stream2-rai--italy--series--flixpatrol",
     );
     // No fictitious base alongside any variant section of the live universe.
     const parsed = parseAvailabilityIndex(doc)!;
@@ -358,10 +358,12 @@ describe("live universe evidence (offline real capture, no network)", () => {
         for (const section of ["movies", "series"] as const) {
           const list = vars[section];
           if (list.length === 0) continue;
-          const baseId = `pictorium-stream2-${service}--${slug}--${section}--flixpatrol`;
+          const baseId = `FlameForge-stream2-${service}--${slug}--${section}--flixpatrol`;
           expect(fpOnly.choices.map((c: { catalogId: string }) => c.catalogId)).not.toContain(baseId);
         }
       }
     }
   });
 });
+
+

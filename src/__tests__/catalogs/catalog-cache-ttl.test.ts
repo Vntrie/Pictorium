@@ -102,7 +102,7 @@ describe("catalog response TTL (1h non-vuoto / 60s vuoto)", () => {
     for (let i = 0; i < 20; i++) await Promise.resolve()
     expect(kvMock.set).toHaveBeenCalledTimes(1)
     const [key, json, opts] = kvMock.set.mock.calls[0] as [string, string, { ex: number }]
-    expect(key).toBe("pictorium:cache:cat:kv:full")
+    expect(key).toBe("FlameForge:cache:cat:kv:full")
     // Envelope KV: payload + scadenza assoluta (generazione + TTL originale).
     const env = JSON.parse(json)
     expect(env.d).toEqual(nonEmptyBody())
@@ -226,3 +226,5 @@ describe("catalog response TTL (1h non-vuoto / 60s vuoto)", () => {
     expect(kvMock.set).not.toHaveBeenCalled()
   })
 })
+
+

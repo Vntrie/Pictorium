@@ -240,3 +240,4 @@ describe("config token roundtrip with number", () => {
     expect(r.rankingBadgeStyle).toBe("number")
   })
 })
+

@@ -1,6 +1,6 @@
----
-title: Pictorium
-emoji: 🖼️
+﻿---
+title: FlameForge
+emoji: ðŸ–¼ï¸
 colorFrom: indigo
 colorTo: purple
 sdk: docker
@@ -9,13 +9,13 @@ pinned: false
 ---
 
 <p align="center">
-  <img src="public/pictorium.png" alt="Pictorium" width="380" />
+  <img src="public/FlameForge.png" alt="FlameForge" width="380" />
 </p>
 
 <h3 align="center">Dynamic Movie & TV Poster Generator for Stremio & Media Centers</h3>
 
 <p align="center">
-  <a href="README.md"><b>🇬🇧 Read in English</b></a> • <a href="README.it.md"><b>🇮🇹 Leggi in Italiano</b></a>
+  <a href="README.md"><b>ðŸ‡¬ðŸ‡§ Read in English</b></a> â€¢ <a href="README.it.md"><b>ðŸ‡®ðŸ‡¹ Leggi in Italiano</b></a>
 </p>
 
 <p align="center">
@@ -24,61 +24,61 @@ pinned: false
 
 <p align="center">
   <a href="https://discord.gg/sYfWyXYVUp"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord Community" /></a>
-  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FEful97%2FPictorium"><img src="https://vercel.com/button" alt="Deploy with Vercel" /></a>
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FEful97%2FFlameForge"><img src="https://vercel.com/button" alt="Deploy with Vercel" /></a>
   <a href="#-docker--compose"><img src="https://img.shields.io/badge/Docker-Supported-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker" /></a>
   <img src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js&logoColor=white" alt="Next.js 16" />
   <img src="https://img.shields.io/badge/Node.js-%3E%3D22-green?style=flat-square&logo=node.js&logoColor=white" alt="Node.js" />
   <img src="https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat-square" alt="License AGPLv3" />
-  <a href="https://github.com/Eful97/Pictorium/actions/workflows/ci.yml"><img src="https://github.com/Eful97/Pictorium/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/Eful97/FlameForge/actions/workflows/ci.yml"><img src="https://github.com/Eful97/FlameForge/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
 </p>
 
 > [!TIP]
-> 🚀 **Free public instances**: create your personal space with your TMDB key on **[pictorium.duckdns.org](https://pictorium.duckdns.org)** (community VPS) or on **[pictorium.elfhosted.com](https://pictorium.elfhosted.com/)** (ElfHosted).  
-> 🧝 **Hosted private instance**: deploy your own dedicated instance 1-click on **[ElfHosted](https://store.elfhosted.com/product/pictorium/)**.  
-> 💬 **Join the community on [Discord](https://discord.gg/sYfWyXYVUp)** for support, updates, bug reports, and feature requests.  
-> ☕ Support the project on [Ko-fi](https://ko-fi.com/eful97) to help keep the public VPS running.
+> ðŸš€ **Free public instances**: create your personal space with your TMDB key on **[FlameForge.duckdns.org](https://FlameForge.duckdns.org)** (community VPS) or on **[FlameForge.elfhosted.com](https://FlameForge.elfhosted.com/)** (ElfHosted).  
+> ðŸ§ **Hosted private instance**: deploy your own dedicated instance 1-click on **[ElfHosted](https://store.elfhosted.com/product/FlameForge/)**.  
+> ðŸ’¬ **Join the community on [Discord](https://discord.gg/sYfWyXYVUp)** for support, updates, bug reports, and feature requests.  
+> â˜• Support the project on [Ko-fi](https://ko-fi.com/eful97) to help keep the public VPS running.
 
 ---
 
-## 🚀 Start here
+## ðŸš€ Start here
 
-New to Pictorium? The fastest path uses a public instance — no install needed:
+New to FlameForge? The fastest path uses a public instance â€” no install needed:
 
-1. **Open a public instance** (see links at the top) and **create your personal space** — each space has its own `/u/<uuid>/configure` URL with separate settings and API keys.
-2. **Obtain your free TMDB API key (v3 auth)** from **Settings → API** on [themoviedb.org](https://www.themoviedb.org/signup), then paste it into Pictorium settings.
+1. **Open a public instance** (see links at the top) and **create your personal space** â€” each space has its own `/u/<uuid>/configure` URL with separate settings and API keys.
+2. **Obtain your free TMDB API key (v3 auth)** from **Settings â†’ API** on [themoviedb.org](https://www.themoviedb.org/signup), then paste it into FlameForge settings.
 3. **Pick a title and customize it** in the WYSIWYG editor with live preview.
-4. **Save the poster**, then **Install to Stremio** — or copy the **Follow my space** template (`live=1`) into a supported external catalog client such as Nuvio or AIOMetadata. Saved changes then apply without replacing the link; **Fixed settings in the link** stays available under advanced options.
+4. **Save the poster**, then **Install to Stremio** â€” or copy the **Follow my space** template (`live=1`) into a supported external catalog client such as Nuvio or AIOMetadata. Saved changes then apply without replacing the link; **Fixed settings in the link** stays available under advanced options.
 5. **Updates are revalidated, not pushed**: follow links revalidate on every request, so a new render is served when the client asks again. Copies already cached elsewhere refresh on that client's schedule.
 
-Want to self-host instead? See [Quick Deploy](#-quick-deploy): [Vercel](#-vercel-recommended) · [Docker & Compose](#-docker--compose). Reference: [Environment Variables](#-environment-variables).
+Want to self-host instead? See [Quick Deploy](#-quick-deploy): [Vercel](#-vercel-recommended) Â· [Docker & Compose](#-docker--compose). Reference: [Environment Variables](#-environment-variables).
 
-**Detailed setup guides:** step-by-step English guides, suited for sharing as Markdown files and Discord attachments — [setup guides index](docs/setup-guides.md) · [Stremio addon](docs/discord-stremio-addon-guide.md) · [AIOMetadata](docs/discord-aiometadata-guide.md) · [Nuvio](docs/discord-nuvio-guide.md).
+**Detailed setup guides:** step-by-step English guides, suited for sharing as Markdown files and Discord attachments â€” [setup guides index](docs/setup-guides.md) Â· [Stremio addon](docs/discord-stremio-addon-guide.md) Â· [AIOMetadata](docs/discord-aiometadata-guide.md) Â· [Nuvio](docs/discord-nuvio-guide.md).
 
 ---
 
-## 📸 Preview
+## ðŸ“¸ Preview
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/home.png" alt="Pictorium Home" width="100%" style="border-radius: 8px; margin-bottom: 8px;" />
+  <img src="https://raw.githubusercontent.com/Eful97/FlameForge/master/public/Screen/home.png" alt="FlameForge Home" width="100%" style="border-radius: 8px; margin-bottom: 8px;" />
 </div>
 
 <table align="center" width="100%">
   <tr>
-    <td width="50%"><img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/editor.png" alt="Pictorium Editor" style="border-radius: 6px;" /></td>
-    <td width="50%"><img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/myposters.png" alt="Pictorium My Posters" style="border-radius: 6px;" /></td>
+    <td width="50%"><img src="https://raw.githubusercontent.com/Eful97/FlameForge/master/public/Screen/editor.png" alt="FlameForge Editor" style="border-radius: 6px;" /></td>
+    <td width="50%"><img src="https://raw.githubusercontent.com/Eful97/FlameForge/master/public/Screen/myposters.png" alt="FlameForge My Posters" style="border-radius: 6px;" /></td>
   </tr>
   <tr>
     <td align="center"><em>WYSIWYG Editor & Live Preview</em></td>
     <td align="center"><em>My Posters & Personal Library</em></td>
   </tr>
   <tr>
-    <td colspan="2"><img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/catalogs.png" alt="Pictorium Catalogs" style="border-radius: 6px; margin-top: 8px;" /></td>
+    <td colspan="2"><img src="https://raw.githubusercontent.com/Eful97/FlameForge/master/public/Screen/catalogs.png" alt="FlameForge Catalogs" style="border-radius: 6px; margin-top: 8px;" /></td>
   </tr>
   <tr>
     <td align="center" colspan="2"><em>Dynamic Catalogs & JustWatch Streaming Charts</em></td>
   </tr>
   <tr>
-    <td colspan="2"><img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/landscape-editor.png" alt="Landscape 16:9 Editor — Ted Lasso" style="border-radius: 6px; margin-top: 8px;" /></td>
+    <td colspan="2"><img src="https://raw.githubusercontent.com/Eful97/FlameForge/master/public/Screen/landscape-editor.png" alt="Landscape 16:9 Editor â€” Ted Lasso" style="border-radius: 6px; margin-top: 8px;" /></td>
   </tr>
   <tr>
     <td align="center" colspan="2"><em>Landscape 16:9 Editor: backdrops, baked-in logo & Live Preview</em></td>
@@ -86,43 +86,43 @@ Want to self-host instead? See [Quick Deploy](#-quick-deploy): [Vercel](#-vercel
 </table>
 
 <div align="center" style="margin-top: 12px;">
-  <img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/1405.jpg" alt="Poster Demo — Dexter" width="31%" style="border-radius: 6px; margin: 1%;" />
-  <img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/155.jpg" alt="Poster Demo — The Dark Knight" width="31%" style="border-radius: 6px; margin: 1%;" />
-  <img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/66732.jpg" alt="Poster Demo — Stranger Things" width="31%" style="border-radius: 6px; margin: 1%;" />
+  <img src="https://raw.githubusercontent.com/Eful97/FlameForge/master/public/Screen/1405.jpg" alt="Poster Demo â€” Dexter" width="31%" style="border-radius: 6px; margin: 1%;" />
+  <img src="https://raw.githubusercontent.com/Eful97/FlameForge/master/public/Screen/155.jpg" alt="Poster Demo â€” The Dark Knight" width="31%" style="border-radius: 6px; margin: 1%;" />
+  <img src="https://raw.githubusercontent.com/Eful97/FlameForge/master/public/Screen/66732.jpg" alt="Poster Demo â€” Stranger Things" width="31%" style="border-radius: 6px; margin: 1%;" />
 </div>
 
 <div align="center" style="margin-top: 8px;">
-  <img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/landscape.jpg" alt="Landscape 16:9 Poster Demo — Lanterns (HBO)" width="64%" style="border-radius: 6px;" />
+  <img src="https://raw.githubusercontent.com/Eful97/FlameForge/master/public/Screen/landscape.jpg" alt="Landscape 16:9 Poster Demo â€” Lanterns (HBO)" width="64%" style="border-radius: 6px;" />
   <br />
   <em>16:9 landscape poster with baked-in logo, top-10 outline number, genre/rating and network badge</em>
 </div>
 
 <div align="center" style="margin-top: 8px;">
-  <img src="https://raw.githubusercontent.com/Eful97/Pictorium/master/public/Screen/1368337.jpg" alt="Pre-Digital Effect — Coming Soon" width="31%" style="border-radius: 6px;" />
+  <img src="https://raw.githubusercontent.com/Eful97/FlameForge/master/public/Screen/1368337.jpg" alt="Pre-Digital Effect â€” Coming Soon" width="31%" style="border-radius: 6px;" />
   <br />
   <em>Pre-Digital Effect: dark veil + "Coming Soon" ribbon on movies not yet streaming</em>
 </div>
 
 ---
 
-## ⚡ Key Features
+## âš¡ Key Features
 
 | Feature | Description |
 |---|---|
-| 🎯 **WYSIWYG Graphics Engine** | A single endpoint (`/api/poster/{type}/{id}`) powered by Sharp C++ and SVG serves both the real-time web preview and the final poster on Stremio, Nuvio, and media centers with pixel-perfect sync. |
-| 📦 **100% Standalone Addon** | Directly delivers rich metadata cards, multilingual synopses, transparent logos, 4K backdrops, YouTube trailers, and full seasons with thumbnails and translated episodes to Stremio. |
-| 📺 **Smart Parts & Anime Splitting** | Automatically detects **Original Parts** (*Money Heist*, *Lupin*) and splits giant single-season anime entries on TMDB (*Re:ZERO*, *Jujutsu Kaisen*) into their true release seasons. |
-| 🏷️ **Quality Badges & Ratings** | Real-time video resolution detection (4K/FHD/HD), aggregated ratings from over 16 sources (IMDb, TMDB, Rotten Tomatoes, Letterboxd, MAL), Academy/Cannes awards, and Netflix Top 10 ribbons. |
-| 🌐 **Custom Catalogs & Lists** | Import watchlists and custom lists from **Letterboxd, Trakt, TMDb, TheTVDB (your API key), MDBList**, plus official IMDb CSV exports, along with real-time trending charts via JustWatch GraphQL. |
-| 🌍 **Dynamic Multilingual UI** | Interface available in 18 languages with real-time language switching without page refresh. |
-| 🔒 **PIN Protection & User Spaces** | PIN code lock protection for single instances, or full multi-user support with isolated spaces, AES-256-GCM encryption, and full-space backup/restore. Stremio manifests and posters remain permanently functional. |
-| ⚡ **Versioned Cache Updates** | Deterministic versioning with automated `RENDER_VERSION` and `APP_VERSION`. Follow-space links (`live=1`) revalidate on every request, so clients pick up new renders when they re-request; copies already cached elsewhere refresh on that client's schedule. |
+| ðŸŽ¯ **WYSIWYG Graphics Engine** | A single endpoint (`/api/poster/{type}/{id}`) powered by Sharp C++ and SVG serves both the real-time web preview and the final poster on Stremio, Nuvio, and media centers with pixel-perfect sync. |
+| ðŸ“¦ **100% Standalone Addon** | Directly delivers rich metadata cards, multilingual synopses, transparent logos, 4K backdrops, YouTube trailers, and full seasons with thumbnails and translated episodes to Stremio. |
+| ðŸ“º **Smart Parts & Anime Splitting** | Automatically detects **Original Parts** (*Money Heist*, *Lupin*) and splits giant single-season anime entries on TMDB (*Re:ZERO*, *Jujutsu Kaisen*) into their true release seasons. |
+| ðŸ·ï¸ **Quality Badges & Ratings** | Real-time video resolution detection (4K/FHD/HD), aggregated ratings from over 16 sources (IMDb, TMDB, Rotten Tomatoes, Letterboxd, MAL), Academy/Cannes awards, and Netflix Top 10 ribbons. |
+| ðŸŒ **Custom Catalogs & Lists** | Import watchlists and custom lists from **Letterboxd, Trakt, TMDb, TheTVDB (your API key), MDBList**, plus official IMDb CSV exports, along with real-time trending charts via JustWatch GraphQL. |
+| ðŸŒ **Dynamic Multilingual UI** | Interface available in 18 languages with real-time language switching without page refresh. |
+| ðŸ”’ **PIN Protection & User Spaces** | PIN code lock protection for single instances, or full multi-user support with isolated spaces, AES-256-GCM encryption, and full-space backup/restore. Stremio manifests and posters remain permanently functional. |
+| âš¡ **Versioned Cache Updates** | Deterministic versioning with automated `RENDER_VERSION` and `APP_VERSION`. Follow-space links (`live=1`) revalidate on every request, so clients pick up new renders when they re-request; copies already cached elsewhere refresh on that client's schedule. |
 
 ---
 
-## 🛠️ Detailed Features
+## ðŸ› ï¸ Detailed Features
 
-### 🖼️ Posters, Logos & Graphics
+### ðŸ–¼ï¸ Posters, Logos & Graphics
 * **Clean Poster Selection**: Select textless posters with one click from official TMDB candidates (`iso_639_1 === null`).
 * **Custom Poster URL Import**: Import any artwork via direct URL, Pinterest, Imgur, or Reddit with live preview, tile management, and persistent custom artwork.
 * **Smart Best-Fit Algorithm**: Analyzes brightness and empty space to automatically scale and position logos without obscuring faces.
@@ -130,242 +130,242 @@ Want to self-host instead? See [Quick Deploy](#-quick-deploy): [Vercel](#-vercel
 * **24h Auto-Rotation**: Automatically rotates through multiple saved clean posters daily for the same title.
 * **Official Network Logos**: Automatic detection and embedding for Netflix, Prime Video, Disney+, Apple TV+, HBO Max, Paramount+, Sky/NOW, Crunchyroll, Rai, Mediaset and 30+ studios (Marvel, Pixar, Ghibli, Warner Bros, A24).
 
-### 🏷️ Badges, Ratings & Accolades
-* **✨ Streaming Quality (4K / FHD / HD / SD)**: Detected live from Stremio video streams with automatic fallback to JustWatch.
+### ðŸ·ï¸ Badges, Ratings & Accolades
+* **âœ¨ Streaming Quality (4K / FHD / HD / SD)**: Detected live from Stremio video streams with automatic fallback to JustWatch.
 * **7 Genre & Rating Badge Styles**: *Shadow, Pill, Bar, Colored, Border, Glass, Minimal* (`Genre | Rating | Year`) with adaptive palette matching the poster.
 * **Vertical Netflix Top 10 Ribbon**: The iconic red side ribbon with live rank position (dedicated support for Anime series).
 * **Film Awards & Accolades**: Automatic recognition of Oscars, Cannes, BAFTA, Emmy, and the *"Absolute Cinema"* badge for IMDb Top 250 titles.
 * **Always-in-Sync Charts**: Top 10/20 badges track live charts; if a title leaves the ranking, its badge updates automatically.
-* **✨ Pre-Digital Effect (Coming Soon)**: For movies out in theaters but not yet streaming (detected via JustWatch/TMDB): darkened poster with a red "Coming Soon" corner ribbon.
-* **🔌 Custom Rating Provider**: Display external ratings from any HTTP(S) API (via IMDb ID) with dedicated pills. See [docs/custom-rating.md](docs/custom-rating.md).
+* **âœ¨ Pre-Digital Effect (Coming Soon)**: For movies out in theaters but not yet streaming (detected via JustWatch/TMDB): darkened poster with a red "Coming Soon" corner ribbon.
+* **ðŸ”Œ Custom Rating Provider**: Display external ratings from any HTTP(S) API (via IMDb ID) with dedicated pills. See [docs/custom-rating.md](docs/custom-rating.md).
 
-### 📺 Seasons, Episodes & Anime
-* **✨ Smart Parts Detection**: Automatically detects split-part series like *Money Heist* (5 parts) or *Lupin* (4 parts).
-* **🌀 Anime Season Unpacking**: Fixes TMDB's compression of multi-season anime into a single season, restoring official seasons (S1, S2, S3, S4 + Specials in S0).
+### ðŸ“º Seasons, Episodes & Anime
+* **âœ¨ Smart Parts Detection**: Automatically detects split-part series like *Money Heist* (5 parts) or *Lupin* (4 parts).
+* **ðŸŒ€ Anime Season Unpacking**: Fixes TMDB's compression of multi-season anime into a single season, restoring official seasons (S1, S2, S3, S4 + Specials in S0).
 * **TVDB & AniZip Support**: Manually select alternate ordering from TheTVDB (*Aired, DVD, Absolute, Alternate*) or AniZip (*AniList / AniDB*).
 * **Live Episode Preview**: See exactly how seasons, episode titles, and thumbnails will appear on Stremio before saving.
  
-### 🗂️ Library, Automation & Backups
+### ðŸ—‚ï¸ Library, Automation & Backups
 * **Batch Poster Management**: Multi-select saved posters in "My Posters" to perform batch deletions and keep your collection tidy.
 * **Full Space Backup & Restore**: One-click export and import of your entire space configuration, saved posters, custom presets, and preferences.
 * **Nuvio & AIOMetadata Auto URL**: Dedicated poster template URLs for external catalog managers (e.g. Nuvio and AIOMetadata) with automatic TMDB ID resolution.
   User spaces default to **Follow my space**: copy the new template once to use saved changes without replacing the link again. **Fixed settings in the link** remains available under advanced options and existing templates keep their explicit overrides. The automatic Nuvio variant still lets the client choose the image shape.
   Follow links (`live=1`) require HTTP revalidation and reuse fresh internal renders. AIOMetadata and other image proxies must honor that policy; refresh any previously cached image using the controls available in your installed version. New headers cannot purge existing external copies, and an already displayed poster updates only when the client requests it again. Live rankings and other upstream data retain their internal refresh schedules.
 
-### 🔒 Security: PIN & Multi-User Spaces
+### ðŸ”’ Security: PIN & Multi-User Spaces
 
 #### PIN Lock (Single / Personal Instances)
 * **Lock on Launch & Refresh**: Password prompt appears on app launch and page reload (F5) to protect your settings and saved posters.
 * **Quick Setup**: Configure your PIN code in seconds during Step 3 of the setup wizard, or manage it anytime in Settings.
 * **Zero Stremio Impact**: PIN only protects the web editor; Stremio endpoints (`/manifest.json`, `/api/poster/*`, `/catalog/*`) remain open and functional.
-* **Rotation**: when a PIN is set using an admin token, rotating `PICTORIUM_ADMIN_TOKEN` automatically invalidates it (cryptographic binding against persistence). After rotating the token, simply set a new PIN if desired.
+* **Rotation**: when a PIN is set using an admin token, rotating `FLAMEFORGE_ADMIN_TOKEN` automatically invalidates it (cryptographic binding against persistence). After rotating the token, simply set a new PIN if desired.
 
 #### Multi-User Spaces (Public / Shared Instances)
-When `PICTORIUM_MULTI_USER=1` is enabled, multiple users can share a single server with complete isolation:
+When `FLAMEFORGE_MULTI_USER=1` is enabled, multiple users can share a single server with complete isolation:
 * **Personal Space via UUID**: Each user has their own URL (`/u/<uuid>/configure`) with separate mappings, preferences, and API keys (TMDB, MDBList, TVDB, Simkl, Fanart.tv).
 * **Encrypted at Rest**: User API keys are stored encrypted on disk using AES-256-GCM via `PROFILE_ENCRYPTION_KEY`.
 * **Authentication & Recovery**:
   * **Session Password**: Required on each visit to unlock the editor (never stored permanently in the browser).
-  * **Recovery Key (Secret)**: Shown once at account creation — save it now. It stays valid to recover access or rotate credentials until you rotate it.
+  * **Recovery Key (Secret)**: Shown once at account creation â€” save it now. It stays valid to recover access or rotate credentials until you rotate it.
 * **Anti-Brute-Force Protection**: Automatic rate limiting on incorrect password attempts to prevent attacks.
 
-> 📢 To report vulnerabilities privately (never via public issues), see [SECURITY.md](SECURITY.md).
+> ðŸ“¢ To report vulnerabilities privately (never via public issues), see [SECURITY.md](SECURITY.md).
 
 ---
 
-## 🚀 Quick Deploy
+## ðŸš€ Quick Deploy
 
 | Platform | Cost | Type | Persistence | Best For |
 |---|---|---|---|---|
-| [▲ **Vercel**](#-vercel-recommended) | **Free** | Serverless | Upstash Redis (KV) | **Recommended**: 1-click, zero maintenance, global CDN ([📺 Video Guide](https://www.youtube.com/watch?v=FP6VJ2vGYiY)) |
-| [🐳 **Docker Compose**](#-docker--compose) | **Free** | Container | Local Volume (`/data`) | NAS, Home Server, mini-PC (Unraid, TrueNAS, CasaOS) |
-| [🤗 **Hugging Face**](#-other-installation-methods) | **Free** | Docker (16GB RAM) | Storage Bucket | Great free RAM for shared instances |
-| [🦾 **Oracle Cloud**](#-other-installation-methods) | **Free** | VPS ARM (24GB RAM) | Local Disk | Dedicated free always-on cloud server |
+| [â–² **Vercel**](#-vercel-recommended) | **Free** | Serverless | Upstash Redis (KV) | **Recommended**: 1-click, zero maintenance, global CDN ([ðŸ“º Video Guide](https://www.youtube.com/watch?v=FP6VJ2vGYiY)) |
+| [ðŸ³ **Docker Compose**](#-docker--compose) | **Free** | Container | Local Volume (`/data`) | NAS, Home Server, mini-PC (Unraid, TrueNAS, CasaOS) |
+| [ðŸ¤— **Hugging Face**](#-other-installation-methods) | **Free** | Docker (16GB RAM) | Storage Bucket | Great free RAM for shared instances |
+| [ðŸ¦¾ **Oracle Cloud**](#-other-installation-methods) | **Free** | VPS ARM (24GB RAM) | Local Disk | Dedicated free always-on cloud server |
 
 ---
 
-### ▲ Vercel (Recommended)
+### â–² Vercel (Recommended)
 
 [![YouTube Video Guide](https://img.shields.io/badge/YouTube-Setup_Video_Guide-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=FP6VJ2vGYiY)
 
-> 📺 **Video Tutorial**: Follow the [step-by-step YouTube guide](https://www.youtube.com/watch?v=FP6VJ2vGYiY) to complete setup in under 2 minutes.
+> ðŸ“º **Video Tutorial**: Follow the [step-by-step YouTube guide](https://www.youtube.com/watch?v=FP6VJ2vGYiY) to complete setup in under 2 minutes.
 
 1. **Get your free TMDB API Key**:
-   * Sign up at [themoviedb.org](https://www.themoviedb.org/signup) and head to **Settings → API**.
+   * Sign up at [themoviedb.org](https://www.themoviedb.org/signup) and head to **Settings â†’ API**.
    * Copy the **API Key (v3 auth)** (32-character string).
 2. **Fork the repository**:
-   * Click **Fork** at the top right of [github.com/Eful97/Pictorium](https://github.com/Eful97/Pictorium).
+   * Click **Fork** at the top right of [github.com/Eful97/FlameForge](https://github.com/Eful97/FlameForge).
 3. **Import to Vercel**:
-   * Sign in to [vercel.com](https://vercel.com) and click **Add New… → Project**.
-   * Import your Pictorium fork and configure Environment Variables:
-     * `PICTORIUM_TMDB_KEY` = *your TMDB v3 key*
-     * `PICTORIUM_PUBLIC_INSTANCE` = `1`
+   * Sign in to [vercel.com](https://vercel.com) and click **Add Newâ€¦ â†’ Project**.
+   * Import your FlameForge fork and configure Environment Variables:
+     * `FLAMEFORGE_TMDB_KEY` = *your TMDB v3 key*
+     * `FLAMEFORGE_PUBLIC_INSTANCE` = `1`
    * Click **Deploy**.
 4. **Connect Upstash Redis Database (Free)**:
    * Once deployed, open the project dashboard on Vercel.
-   * Go to **Storage → Connect Store → Upstash (Redis)** and click Create & Connect.
+   * Go to **Storage â†’ Connect Store â†’ Upstash (Redis)** and click Create & Connect.
 5. **Redeploy**:
-   * Under the **Deployments** tab, click the three dots (**⋯**) on the latest deployment and select **Redeploy**.
+   * Under the **Deployments** tab, click the three dots (**â‹¯**) on the latest deployment and select **Redeploy**.
 6. **Install on Stremio**:
-   * Open your instance URL (e.g. `https://your-pictorium.vercel.app`), complete the initial setup wizard, and click **Install to Stremio**!
+   * Open your instance URL (e.g. `https://your-FlameForge.vercel.app`), complete the initial setup wizard, and click **Install to Stremio**!
 
-> **Future Updates**: To update your instance, simply open your GitHub fork and click **Sync fork → Update branch**. Vercel will automatically redeploy in 60 seconds while preserving your database and settings.
+> **Future Updates**: To update your instance, simply open your GitHub fork and click **Sync fork â†’ Update branch**. Vercel will automatically redeploy in 60 seconds while preserving your database and settings.
 
 ---
 
-### 🐳 Docker & Compose
+### ðŸ³ Docker & Compose
 
-Use the `docker-compose.yml` already included in the repo (hardening, healthcheck and persistent `posterium-data` volume preconfigured) — no need to write one by hand:
+Use the `docker-compose.yml` already included in the repo (hardening, healthcheck and persistent `posterium-data` volume preconfigured) â€” no need to write one by hand:
 
 ```bash
-git clone https://github.com/Eful97/Pictorium && cd Pictorium
+git clone https://github.com/Eful97/FlameForge && cd FlameForge
 cp .env.example .env
 ```
 
-Fill in at least `PICTORIUM_TMDB_KEY` and `PICTORIUM_ADMIN_TOKEN` (a long secret of your choice) in `.env`, then:
+Fill in at least `FLAMEFORGE_TMDB_KEY` and `FLAMEFORGE_ADMIN_TOKEN` (a long secret of your choice) in `.env`, then:
 
 ```bash
 docker compose up -d
 ```
 
-> The first start builds the image locally (a few minutes, longer on ARM). To start immediately with the prebuilt image: `docker compose pull pictorium && docker compose up -d --no-build`. Admin routes are closed by default: paste the token in **Settings → Admin token** (session only) to use warmup, cache and saves from the UI. Only on a trusted LAN you may use `PICTORIUM_PUBLIC_INSTANCE=1` instead of the token.
+> The first start builds the image locally (a few minutes, longer on ARM). To start immediately with the prebuilt image: `docker compose pull FlameForge && docker compose up -d --no-build`. Admin routes are closed by default: paste the token in **Settings â†’ Admin token** (session only) to use warmup, cache and saves from the UI. Only on a trusted LAN you may use `FLAMEFORGE_PUBLIC_INSTANCE=1` instead of the token.
 >
-> If you came from the old example with a `pictorium-data` volume and already have saves, copy them before switching to the repo compose: `docker run --rm -v pictorium-data:/from -v posterium-data:/to alpine cp -a /from/. /to/`
+> If you came from the old example with a `FlameForge-data` volume and already have saves, copy them before switching to the repo compose: `docker run --rm -v FlameForge-data:/from -v posterium-data:/to alpine cp -a /from/. /to/`
 
 Your instance and Stremio manifest will be accessible at `http://<SERVER-IP>:8080`.
 
 ---
 
 <details>
-<summary><strong>👉 Other installation methods (ElfHosted, Hugging Face, Oracle Cloud, VPS Caddy, Termux)</strong></summary>
+<summary><strong>ðŸ‘‰ Other installation methods (ElfHosted, Hugging Face, Oracle Cloud, VPS Caddy, Termux)</strong></summary>
 
-#### 🧝 ElfHosted (Managed 1-Click / Hosted App)
-For users who prefer not to manage servers, ports, or Docker: launch a private, hosted Pictorium instance on Kubernetes directly from [ElfHosted](https://store.elfhosted.com/product/pictorium/), with automatic HTTPS, persistent storage, and zero-maintenance updates.
+#### ðŸ§ ElfHosted (Managed 1-Click / Hosted App)
+For users who prefer not to manage servers, ports, or Docker: launch a private, hosted FlameForge instance on Kubernetes directly from [ElfHosted](https://store.elfhosted.com/product/FlameForge/), with automatic HTTPS, persistent storage, and zero-maintenance updates.
 
-#### 🤗 Hugging Face Spaces
-1. Create a Space on Hugging Face using the **Docker** SDK pointing to `Eful97/Pictorium`.
-2. Under **Settings → Variables and secrets**:
+#### ðŸ¤— Hugging Face Spaces
+1. Create a Space on Hugging Face using the **Docker** SDK pointing to `Eful97/FlameForge`.
+2. Under **Settings â†’ Variables and secrets**:
    * `NODE_OPTIONS` = `--max-old-space-size=1024`
-   * `PICTORIUM_PUBLIC_INSTANCE` = `1`
-   * `PICTORIUM_TMDB_KEY` = *your TMDB key*
-3. Under **Settings → Storage**, attach a Storage Bucket mounted to `/data`.
+   * `FLAMEFORGE_PUBLIC_INSTANCE` = `1`
+   * `FLAMEFORGE_TMDB_KEY` = *your TMDB key*
+3. Under **Settings â†’ Storage**, attach a Storage Bucket mounted to `/data`.
 
-#### 🦾 Oracle Cloud Always Free (ARM Ampere)
+#### ðŸ¦¾ Oracle Cloud Always Free (ARM Ampere)
 ```bash
 sudo apt update && sudo apt install -y docker.io docker-compose-v2
-git clone https://github.com/Eful97/Pictorium && cd Pictorium
+git clone https://github.com/Eful97/FlameForge && cd FlameForge
 cp .env.example .env
 ```
-Fill in `PICTORIUM_TMDB_KEY` and `PICTORIUM_ADMIN_TOKEN` in `.env`, then `sudo docker compose up -d` (uses the repo compose). Then paste the token in **Settings → Admin token** (session only). On an exposed instance do not use `PICTORIUM_PUBLIC_INSTANCE=1`.
+Fill in `FLAMEFORGE_TMDB_KEY` and `FLAMEFORGE_ADMIN_TOKEN` in `.env`, then `sudo docker compose up -d` (uses the repo compose). Then paste the token in **Settings â†’ Admin token** (session only). On an exposed instance do not use `FLAMEFORGE_PUBLIC_INSTANCE=1`.
 
-#### 🖥️ VPS + Caddy (Automatic HTTPS)
+#### ðŸ–¥ï¸ VPS + Caddy (Automatic HTTPS)
 ```caddyfile
 yourdomain.com {
-    reverse_proxy pictorium:8080
+    reverse_proxy FlameForge:8080
 }
 ```
-On a public domain protect the editor with `PICTORIUM_ADMIN_TOKEN` (unlock in Settings → Admin token), not with `PICTORIUM_PUBLIC_INSTANCE=1`.
+On a public domain protect the editor with `FLAMEFORGE_ADMIN_TOKEN` (unlock in Settings â†’ Admin token), not with `FLAMEFORGE_PUBLIC_INSTANCE=1`.
 
-#### 📱 Termux (Android)
+#### ðŸ“± Termux (Android)
 ```bash
 pkg update && pkg install nodejs git -y
-git clone https://github.com/Eful97/Pictorium && cd Pictorium
+git clone https://github.com/Eful97/FlameForge && cd FlameForge
 npm install --ignore-scripts && npm run build && npm start
 ```
 </details>
 
 ---
 
-## 🔑 Environment Variables
+## ðŸ”‘ Environment Variables
 
 ### Core Variables
 
 | Variable | Default | Description |
 |---|:---:|---|
-| `PICTORIUM_PUBLIC_INSTANCE` | `0` | Set `1` to leave admin routes open without a token (trusted LAN, public demos). On exposed instances keep `0` and use the token below. |
-| `PICTORIUM_ADMIN_TOKEN` | *(optional)* | Secret for private instances (`PUBLIC_INSTANCE=0`): paste it in Settings → Admin token (session only, dies with the tab) to enable warmup, cache clear and saves from the UI. |
-| `PICTORIUM_TMDB_KEY` | *(optional)* | Server-side TMDB API key to render posters and catalogs without client keys. |
-| `PICTORIUM_TVDB_API_KEY` | *(optional)* | TheTVDB key for alternate season ordering, episode descriptions, and TheTVDB custom lists (BYOK: request header, `tvdb_key` query, or user profile key win over this). |
-| `PICTORIUM_MDBLIST_KEY` | *(optional)* | MDBList key for custom lists and anime catalogs. |
-| `PICTORIUM_RATING_MIN_VOTES` | `10` | Per-source minimum vote count for MDBList aggregated ratings (typed `api.mdblist.com` media API): sources with a known `votes` count below this are excluded; `0` disables the filter. Null/missing/malformed counts are always kept, RogerEbert is exempt. The MDBList daily quota is per account (shared across keys/apps); keyless ratings calls are skipped (Cinemeta/native fallbacks remain). |
-| `PICTORIUM_FANART_KEY` | *(optional)* | Fanart.tv project key for the vertical-posters section in the editor (server-only, never exposed to the browser). Without it the section explains it is not configured. |
-| `PICTORIUM_TRAKT_CLIENT_ID` | *(optional)* | Trakt API client ID (single Pictorium app registration) for public Trakt lists as custom catalogs. Public lists only, no OAuth. Same app covers per-space OAuth (PKCE, no secret). |
-| `PICTORIUM_TRAKT_REDIRECT_URI` | *(optional)* | Exact OAuth redirect URI registered in the Trakt app dashboard (path is always `/api/trakt/callback`, e.g. `https://your-instance/api/trakt/callback`). HTTPS only (PKCE requires `https://` redirects; test locally through an HTTPS tunnel serving the whole UI origin). One instance may serve both registered domains; never derived from the request. |
-| `PICTORIUM_REGION` | `IT` | Default country for streaming charts and availability (`IT`, `US`, `GB`, `FR`, `DE`, `ES`, etc.). |
-| `PICTORIUM_DATA_DIR` | `./data` | Directory path for persisting settings and saved posters on disk. In Docker it must point at a persistent volume (`/data`, `posterium-data` volume, writable by uid 1000): the data file is created on first save, so "not found" with 0 posters on a fresh install is normal. |
-| `PICTORIUM_REDIS_URL` | *(empty)* | Native Redis (TCP) for multi-replica HA without a `/data` volume: mappings, defaults, profiles, epochs and rate limits become shared across replicas. Wins over `KV_REST_*` when both are set (no automatic migration). On ElfHosted/K8s plain `REDIS_URL` is enough (read as fallback). |
+| `FLAMEFORGE_PUBLIC_INSTANCE` | `0` | Set `1` to leave admin routes open without a token (trusted LAN, public demos). On exposed instances keep `0` and use the token below. |
+| `FLAMEFORGE_ADMIN_TOKEN` | *(optional)* | Secret for private instances (`PUBLIC_INSTANCE=0`): paste it in Settings â†’ Admin token (session only, dies with the tab) to enable warmup, cache clear and saves from the UI. |
+| `FLAMEFORGE_TMDB_KEY` | *(optional)* | Server-side TMDB API key to render posters and catalogs without client keys. |
+| `FLAMEFORGE_TVDB_API_KEY` | *(optional)* | TheTVDB key for alternate season ordering, episode descriptions, and TheTVDB custom lists (BYOK: request header, `tvdb_key` query, or user profile key win over this). |
+| `FLAMEFORGE_MDBLIST_KEY` | *(optional)* | MDBList key for custom lists and anime catalogs. |
+| `FLAMEFORGE_RATING_MIN_VOTES` | `10` | Per-source minimum vote count for MDBList aggregated ratings (typed `api.mdblist.com` media API): sources with a known `votes` count below this are excluded; `0` disables the filter. Null/missing/malformed counts are always kept, RogerEbert is exempt. The MDBList daily quota is per account (shared across keys/apps); keyless ratings calls are skipped (Cinemeta/native fallbacks remain). |
+| `FLAMEFORGE_FANART_KEY` | *(optional)* | Fanart.tv project key for the vertical-posters section in the editor (server-only, never exposed to the browser). Without it the section explains it is not configured. |
+| `FLAMEFORGE_TRAKT_CLIENT_ID` | *(optional)* | Trakt API client ID (single FlameForge app registration) for public Trakt lists as custom catalogs. Public lists only, no OAuth. Same app covers per-space OAuth (PKCE, no secret). |
+| `FLAMEFORGE_TRAKT_REDIRECT_URI` | *(optional)* | Exact OAuth redirect URI registered in the Trakt app dashboard (path is always `/api/trakt/callback`, e.g. `https://your-instance/api/trakt/callback`). HTTPS only (PKCE requires `https://` redirects; test locally through an HTTPS tunnel serving the whole UI origin). One instance may serve both registered domains; never derived from the request. |
+| `FLAMEFORGE_REGION` | `IT` | Default country for streaming charts and availability (`IT`, `US`, `GB`, `FR`, `DE`, `ES`, etc.). |
+| `FLAMEFORGE_DATA_DIR` | `./data` | Directory path for persisting settings and saved posters on disk. In Docker it must point at a persistent volume (`/data`, `posterium-data` volume, writable by uid 1000): the data file is created on first save, so "not found" with 0 posters on a fresh install is normal. |
+| `FLAMEFORGE_REDIS_URL` | *(empty)* | Native Redis (TCP) for multi-replica HA without a `/data` volume: mappings, defaults, profiles, epochs and rate limits become shared across replicas. Wins over `KV_REST_*` when both are set (no automatic migration). On ElfHosted/K8s plain `REDIS_URL` is enough (read as fallback). |
 | `KV_REST_API_URL` / `TOKEN` | *(empty)* | Upstash Redis credentials for Vercel serverless deployments. |
-| `PICTORIUM_KV_CACHE` | *(on with KV)* | With Redis/KV, set `0` to keep the response cache in memory only (state stays in KV). Useful on public instances, where cache keys include caller-controlled parts; each replica then fetches upstream on its own. Not recommended on Vercel/serverless. |
-| `PICTORIUM_HOSTED_BY` | *(empty)* | Public hosting sponsor: `elfhosted` shows the ElfHosted banner on the home page (auto-detected from an `elfhosted.com` host as fallback). Empty = no banner. |
-| `PICTORIUM_POSTER_PARAMS` | *(auto)* | Poster cache-busting hardening: `presets` restricts non-preview requests to a finite render set (cache-key allowlist, coarse 5/10/5px numeric steps, palette-only `ac`, no anonymous free-text/keyless overrides), `free` is the historic behavior. Auto-`presets` on public instances (`PUBLIC_INSTANCE=1`, `HOSTED_BY=elfhosted` or `MULTI_USER=1`); the WYSIWYG preview stays live for user spaces and unlocked sessions. |
-| `PICTORIUM_PREVIEW_AUTH` | *(auto)* | Preview hardening: on public instances anonymous previews (`preview=1` without a space or session) are downgraded and cached like normal requests (no bot bypass). Existing user spaces and unlocked sessions stay live. Auto-on on public instances (`PUBLIC_INSTANCE=1`, `HOSTED_BY=elfhosted`, `MULTI_USER=1`); `0` forces OFF, `1` forces ON. |
-| `PICTORIUM_FRAME_ANCESTORS` | *(HF default)* | Overrides the CSP `frame-ancestors` (default is HF Spaces compatible). E.g. `'self'` for public instances that should never be embedded. |
-| `PICTORIUM_IMAGE_FORMAT` | `webp` | Poster format for clients that declare no preference (generic `Accept`, almost all native Stremio apps): `webp` (~25–30% lighter at equal quality) or `jpeg` (universal, for instances with dated clients that cannot decode webp). `?fmt=` remains a per-request override in both directions. Requires restart; switching invalidates the cache once. |
+| `FLAMEFORGE_KV_CACHE` | *(on with KV)* | With Redis/KV, set `0` to keep the response cache in memory only (state stays in KV). Useful on public instances, where cache keys include caller-controlled parts; each replica then fetches upstream on its own. Not recommended on Vercel/serverless. |
+| `FLAMEFORGE_HOSTED_BY` | *(empty)* | Public hosting sponsor: `elfhosted` shows the ElfHosted banner on the home page (auto-detected from an `elfhosted.com` host as fallback). Empty = no banner. |
+| `FLAMEFORGE_POSTER_PARAMS` | *(auto)* | Poster cache-busting hardening: `presets` restricts non-preview requests to a finite render set (cache-key allowlist, coarse 5/10/5px numeric steps, palette-only `ac`, no anonymous free-text/keyless overrides), `free` is the historic behavior. Auto-`presets` on public instances (`PUBLIC_INSTANCE=1`, `HOSTED_BY=elfhosted` or `MULTI_USER=1`); the WYSIWYG preview stays live for user spaces and unlocked sessions. |
+| `FLAMEFORGE_PREVIEW_AUTH` | *(auto)* | Preview hardening: on public instances anonymous previews (`preview=1` without a space or session) are downgraded and cached like normal requests (no bot bypass). Existing user spaces and unlocked sessions stay live. Auto-on on public instances (`PUBLIC_INSTANCE=1`, `HOSTED_BY=elfhosted`, `MULTI_USER=1`); `0` forces OFF, `1` forces ON. |
+| `FLAMEFORGE_FRAME_ANCESTORS` | *(HF default)* | Overrides the CSP `frame-ancestors` (default is HF Spaces compatible). E.g. `'self'` for public instances that should never be embedded. |
+| `FLAMEFORGE_IMAGE_FORMAT` | `webp` | Poster format for clients that declare no preference (generic `Accept`, almost all native Stremio apps): `webp` (~25â€“30% lighter at equal quality) or `jpeg` (universal, for instances with dated clients that cannot decode webp). `?fmt=` remains a per-request override in both directions. Requires restart; switching invalidates the cache once. |
 
 ### Multi-User Mode
 
 | Variable | Default | Description |
 |---|:---:|---|
-| `PICTORIUM_MULTI_USER` | `0` | Set `1` to enable isolated user spaces on `/u/<uuid>/configure`. |
+| `FLAMEFORGE_MULTI_USER` | `0` | Set `1` to enable isolated user spaces on `/u/<uuid>/configure`. |
 | `PROFILE_ENCRYPTION_KEY` | *(empty)* | **Required** when `MULTI_USER=1`. 64-character hex key (AES-256-GCM, generate via `openssl rand -hex 32`). Set once and keep it: rotating it makes stored API keys and Trakt tokens unreadable until re-entered, so never rotate it gratuitously. |
-| `PICTORIUM_MAX_MAPPINGS_PER_USER` | `500` | Maximum number of saved posters allowed per user space. |
-| `PICTORIUM_MAX_USERS` | *(unlimited)* | Maximum number of user spaces that can be created. |
-| `PICTORIUM_PUBLIC_STATS` | `1` | Set `0` to return user counts from `/api/status` only to admins (the home "spaces" strip is then hidden for visitors). |
+| `FLAMEFORGE_MAX_MAPPINGS_PER_USER` | `500` | Maximum number of saved posters allowed per user space. |
+| `FLAMEFORGE_MAX_USERS` | *(unlimited)* | Maximum number of user spaces that can be created. |
+| `FLAMEFORGE_PUBLIC_STATS` | `1` | Set `0` to return user counts from `/api/status` only to admins (the home "spaces" strip is then hidden for visitors). |
 
-Trakt OAuth notes (multi-user): one Trakt app registration per instance (client ID + redirect URI above — NO client secret: new Trakt apps sign users in with PKCE and receive no secret; a `PICTORIUM_TRAKT_CLIENT_SECRET` variable left over from an earlier version is ignored, remove it). Users connect their own Trakt account from Settings → Space; Pictorium imports only the watchlist and private standard lists, read-only (no writes, no history, Smart Lists unsupported — the app simply performs no writes). The redirect URI must be `https://` (PKCE rule): for local development register the HTTPS tunnel URL that serves the whole UI origin (both HTTPS callback URIs may stay registered). Never edit the live env file to rotate keys: set variables before start and restart. OAuth tokens are encrypted with `PROFILE_ENCRYPTION_KEY` on persistent storage (disk `/data` volume or KV); without persistence, connections are lost on restart. Disconnect deletes the local tokens (verified, fenced); the upstream revocation call is best-effort and currently unverified against official docs, so to guarantee the Trakt-side authorization is gone also remove the app under Trakt Settings → Applications (https://trakt.tv/settings/apps). If a file-backend lock is left orphaned, recover only with the service stopped — never delete a live lock.
+Trakt OAuth notes (multi-user): one Trakt app registration per instance (client ID + redirect URI above â€” NO client secret: new Trakt apps sign users in with PKCE and receive no secret; a `FLAMEFORGE_TRAKT_CLIENT_SECRET` variable left over from an earlier version is ignored, remove it). Users connect their own Trakt account from Settings â†’ Space; FlameForge imports only the watchlist and private standard lists, read-only (no writes, no history, Smart Lists unsupported â€” the app simply performs no writes). The redirect URI must be `https://` (PKCE rule): for local development register the HTTPS tunnel URL that serves the whole UI origin (both HTTPS callback URIs may stay registered). Never edit the live env file to rotate keys: set variables before start and restart. OAuth tokens are encrypted with `PROFILE_ENCRYPTION_KEY` on persistent storage (disk `/data` volume or KV); without persistence, connections are lost on restart. Disconnect deletes the local tokens (verified, fenced); the upstream revocation call is best-effort and currently unverified against official docs, so to guarantee the Trakt-side authorization is gone also remove the app under Trakt Settings â†’ Applications (https://trakt.tv/settings/apps). If a file-backend lock is left orphaned, recover only with the service stopped â€” never delete a live lock.
 
 <details>
-<summary><strong>⚙️ Advanced Variables, Default Styles & Performance Pipeline</strong></summary>
+<summary><strong>âš™ï¸ Advanced Variables, Default Styles & Performance Pipeline</strong></summary>
 
 ### Catalog Render Styles
 | Variable | Default | Description |
 |---|:---:|---|
-| `PICTORIUM_BADGE_STYLE` | `shadow` | Genre & rating badge style (`shadow`, `pill`, `bar`, `colored`, `bordo`, `vetro`). |
-| `PICTORIUM_RANKING_BADGE_STYLE` | `default` | Ranking badge style (`default`, `bar`, `colored`, `pill`, `netflix`). |
-| `PICTORIUM_RIBBON_SIDE` | `left` | Netflix Top 10 ribbon side (`left` / `right`). |
-| `PICTORIUM_RIBBON_ENABLED` | `1` | Netflix-style corner ribbon (`1` = corner ribbon, `0` = centered rank badge). |
-| `PICTORIUM_BLUR_ENABLED` | `1` | Enable or disable cinematic background blur. |
-| `PICTORIUM_TINT_STRENGTH` | `20` | Scene tint strength for background blur (0–100). |
-| `PICTORIUM_TOP_SHADE` | `50` | Top linear shade strength (0–100, 0 = off; covers the upper 25% by default, adjustable via `PICTORIUM_TOP_SHADE_HEIGHT`). |
-| `PICTORIUM_TOP_SHADE_HEIGHT` | `25` | Top linear shade height as % of the poster canvas (0–100, 0 = off). |
-| `PICTORIUM_BADGE_QUALITY` | `1` | Show or hide video streaming resolution badges (4K/FHD). |
-| `PICTORIUM_AGE_BADGE` | `0` | Show or hide the regional age-certification text badge below the quality stack (original country label, no conversion). |
-| `PICTORIUM_AGE_COUNTRY` | `IT` | Certification country for the age badge (ISO-2, e.g. `US`, `FR`; `GLOBAL` is rejected). Independent from UI language and streaming region. |
-| `PICTORIUM_QUALITY_SOURCE` | `justwatch` | Live streaming quality source: `justwatch` (JW only, default) or `none` (no live provider; local DB still applies). The legacy value `torrentio` (and any unknown value) is normalized to `justwatch` and never triggers a live Torrentio call. Torrentio data is used ONLY to expand/update the local DB (`av-specs.json`) via the operator-invoked offline scripts (`scripts/torrentio-av-import.mjs`, `scripts/torrentio-series-sample.mjs`) — never at runtime. Poster chain: explicit `quality` param > local DB > live source. |
-| `PICTORIUM_NETWORK_LOGO` | `1` | Show or hide production network/studio logos. |
-| `PICTORIUM_PRE_RELEASE` | `0` | Dark veil + "Coming Soon" ribbon for movies not yet streaming. |
-| `PICTORIUM_GRADIENT_HEIGHT` | `65` | Percentage height of the bottom dark gradient. |
+| `FLAMEFORGE_BADGE_STYLE` | `shadow` | Genre & rating badge style (`shadow`, `pill`, `bar`, `colored`, `bordo`, `vetro`). |
+| `FLAMEFORGE_RANKING_BADGE_STYLE` | `default` | Ranking badge style (`default`, `bar`, `colored`, `pill`, `netflix`). |
+| `FLAMEFORGE_RIBBON_SIDE` | `left` | Netflix Top 10 ribbon side (`left` / `right`). |
+| `FLAMEFORGE_RIBBON_ENABLED` | `1` | Netflix-style corner ribbon (`1` = corner ribbon, `0` = centered rank badge). |
+| `FLAMEFORGE_BLUR_ENABLED` | `1` | Enable or disable cinematic background blur. |
+| `FLAMEFORGE_TINT_STRENGTH` | `20` | Scene tint strength for background blur (0â€“100). |
+| `FLAMEFORGE_TOP_SHADE` | `50` | Top linear shade strength (0â€“100, 0 = off; covers the upper 25% by default, adjustable via `FLAMEFORGE_TOP_SHADE_HEIGHT`). |
+| `FLAMEFORGE_TOP_SHADE_HEIGHT` | `25` | Top linear shade height as % of the poster canvas (0â€“100, 0 = off). |
+| `FLAMEFORGE_BADGE_QUALITY` | `1` | Show or hide video streaming resolution badges (4K/FHD). |
+| `FLAMEFORGE_AGE_BADGE` | `0` | Show or hide the regional age-certification text badge below the quality stack (original country label, no conversion). |
+| `FLAMEFORGE_AGE_COUNTRY` | `IT` | Certification country for the age badge (ISO-2, e.g. `US`, `FR`; `GLOBAL` is rejected). Independent from UI language and streaming region. |
+| `FLAMEFORGE_QUALITY_SOURCE` | `justwatch` | Live streaming quality source: `justwatch` (JW only, default) or `none` (no live provider; local DB still applies). The legacy value `torrentio` (and any unknown value) is normalized to `justwatch` and never triggers a live Torrentio call. Torrentio data is used ONLY to expand/update the local DB (`av-specs.json`) via the operator-invoked offline scripts (`scripts/torrentio-av-import.mjs`, `scripts/torrentio-series-sample.mjs`) â€” never at runtime. Poster chain: explicit `quality` param > local DB > live source. |
+| `FLAMEFORGE_NETWORK_LOGO` | `1` | Show or hide production network/studio logos. |
+| `FLAMEFORGE_PRE_RELEASE` | `0` | Dark veil + "Coming Soon" ribbon for movies not yet streaming. |
+| `FLAMEFORGE_GRADIENT_HEIGHT` | `65` | Percentage height of the bottom dark gradient. |
 
 ### Concurrency & Performance
 | Variable | Default | Description |
 |---|:---:|---|
-| `PICTORIUM_MAX_CONCURRENT_RENDERS` | `4` | Max concurrent Sharp renders to prevent OOM. |
-| `PICTORIUM_RENDER_TIMEOUT_MS` | `30000` | Max render deadline before the original caller gets a bounded 503 with `Retry-After` (ms). Past the deadline the late job never caches a poster and never double-counts the 503. |
-| `PICTORIUM_CACHE_MAX_MB` | `150` | Maximum RAM allocated for in-memory image cache. |
-| `PICTORIUM_SELF_WARMUP` | `1` | Automatically pre-warm core catalogs on server start. |
+| `FLAMEFORGE_MAX_CONCURRENT_RENDERS` | `4` | Max concurrent Sharp renders to prevent OOM. |
+| `FLAMEFORGE_RENDER_TIMEOUT_MS` | `30000` | Max render deadline before the original caller gets a bounded 503 with `Retry-After` (ms). Past the deadline the late job never caches a poster and never double-counts the 503. |
+| `FLAMEFORGE_CACHE_MAX_MB` | `150` | Maximum RAM allocated for in-memory image cache. |
+| `FLAMEFORGE_SELF_WARMUP` | `1` | Automatically pre-warm core catalogs on server start. |
 </details>
 
 ---
 
-## ⚠️ Known Limitations
+## âš ï¸ Known Limitations
 
 Deliberate architectural choices, not bugs:
 
-* **In-process poster JPEG cache** (RAM/disk, 32 MB default via `PICTORIUM_IMG_CACHE_MB`): never in Redis/KV, which holds only lightweight metadata and catalogs. Pushing JPEG binaries into KV would bloat RAM and saturate internal bandwidth.
-* **Wikidata awards persistence** (7d fresh / 30d stale, disk or KV): successful lookups — including genuine empties, explicitly non-degraded — are additionally stored per title (`DATA_DIR/wikidata`, soft file cap ~2000 enforced by a throttled prune between scans, or KV with 30-day expiry when a backend is configured), so restarts and upstream outages serve recent data instead of refetching. Fresh records (≤7 days) repopulate the shared cache with their remaining lifetime (never extended); records up to 30 days old are served degraded on upstream failure, then ignored. Failures are never persisted; durable reads are bounded (250ms additional budget after a shared miss, upstream refresh capped at min(1500ms, 2250ms total stale deadline from request start) under the 2500ms poster race) and fail open.
-* **MDBList raw ratings persistence** (24h default / 7d old movies, disk or KV): successful raw provider responses — keyed by IMDb ID plus API-key hash, never plaintext — are additionally stored (`DATA_DIR/mdblist-raw`, one JSON per identity, ≤2000 entries / ≤16MiB enforced per process by a write-triggered background prune, or the existing shared KV L2 envelope when a Redis/KV backend is configured), so restarts serve recent ratings without refetching. Disk records repopulate the in-memory cache with their remaining lifetime (never extended); misses, errors, and aborted requests are never persisted; writes are fire-and-forget off the hot path with bounded concurrency (excess writes drop fail-open), reads are single-file async probes owned by the shared fetch operation (a slow read with no remaining callers never starts an upstream fetch), and all I/O is fail-open. Retention converges per process; concurrent writers can transiently exceed the caps until each process's next prune. Disk persistence requires explicitly configured durable storage (`PICTORIUM_DATA_DIR` set — always true in Docker via the entrypoint default `/data`); with the bare `./data` default or in KV mode the disk is never read, written, or scanned.
-* **JustWatch pagination**: the upstream GraphQL only pages via `$first` — the server overfetches (max 60) + slices locally. Deep `skip` may cost more than one upstream fetch.
+* **In-process poster JPEG cache** (RAM/disk, 32 MB default via `FLAMEFORGE_IMG_CACHE_MB`): never in Redis/KV, which holds only lightweight metadata and catalogs. Pushing JPEG binaries into KV would bloat RAM and saturate internal bandwidth.
+* **Wikidata awards persistence** (7d fresh / 30d stale, disk or KV): successful lookups â€” including genuine empties, explicitly non-degraded â€” are additionally stored per title (`DATA_DIR/wikidata`, soft file cap ~2000 enforced by a throttled prune between scans, or KV with 30-day expiry when a backend is configured), so restarts and upstream outages serve recent data instead of refetching. Fresh records (â‰¤7 days) repopulate the shared cache with their remaining lifetime (never extended); records up to 30 days old are served degraded on upstream failure, then ignored. Failures are never persisted; durable reads are bounded (250ms additional budget after a shared miss, upstream refresh capped at min(1500ms, 2250ms total stale deadline from request start) under the 2500ms poster race) and fail open.
+* **MDBList raw ratings persistence** (24h default / 7d old movies, disk or KV): successful raw provider responses â€” keyed by IMDb ID plus API-key hash, never plaintext â€” are additionally stored (`DATA_DIR/mdblist-raw`, one JSON per identity, â‰¤2000 entries / â‰¤16MiB enforced per process by a write-triggered background prune, or the existing shared KV L2 envelope when a Redis/KV backend is configured), so restarts serve recent ratings without refetching. Disk records repopulate the in-memory cache with their remaining lifetime (never extended); misses, errors, and aborted requests are never persisted; writes are fire-and-forget off the hot path with bounded concurrency (excess writes drop fail-open), reads are single-file async probes owned by the shared fetch operation (a slow read with no remaining callers never starts an upstream fetch), and all I/O is fail-open. Retention converges per process; concurrent writers can transiently exceed the caps until each process's next prune. Disk persistence requires explicitly configured durable storage (`FLAMEFORGE_DATA_DIR` set â€” always true in Docker via the entrypoint default `/data`); with the bare `./data` default or in KV mode the disk is never read, written, or scanned.
+* **JustWatch pagination**: the upstream GraphQL only pages via `$first` â€” the server overfetches (max 60) + slices locally. Deep `skip` may cost more than one upstream fetch.
 * **Chromium-only visual E2E suite**: deterministic snapshots on a single browser; Firefox/WebKit intentionally out of scope.
-* **HSTS at the reverse proxy**: the container does not force `Strict-Transport-Security` with preload (it would break LAN/Docker over HTTP). TLS+HSTS belong to Caddy / Cloudflare / Nginx — on VPS see the Caddy deploy above.
+* **HSTS at the reverse proxy**: the container does not force `Strict-Transport-Security` with preload (it would break LAN/Docker over HTTP). TLS+HSTS belong to Caddy / Cloudflare / Nginx â€” on VPS see the Caddy deploy above.
 * **Limited warmup**: only 8 core catalogs are pre-warmed at boot (`WARMUP_CATALOG_IDS`). Warming everything would trigger TMDB 429s and push boot past liveness probes.
 
 ---
 
-## 🧪 Local Development
+## ðŸ§ª Local Development
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Eful97/Pictorium.git && cd Pictorium
+git clone https://github.com/Eful97/FlameForge.git && cd FlameForge
 
 # 2. Install dependencies
 npm install
@@ -382,19 +382,20 @@ npm run verify
 
 ---
 
-## 📄 License & Credits
+## ðŸ“„ License & Credits
 
-* Released under open-source **GNU Affero General Public License v3.0 (AGPL-3.0)** — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
-* Copyright (C) 2025 **Eful97** — https://github.com/Eful97/Pictorium
-* Forks and derivatives must preserve attribution per [NOTICE](NOTICE) (AGPL-3.0 §5a/§7b): keep the copyright notice, credit Pictorium by Eful97 with a link, and state prominently what you changed and when. On GitHub, please use the **Fork** button so provenance stays connected.
+* Released under open-source **GNU Affero General Public License v3.0 (AGPL-3.0)** â€” see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+* Copyright (C) 2025 **Eful97** â€” https://github.com/Eful97/FlameForge
+* Forks and derivatives must preserve attribution per [NOTICE](NOTICE) (AGPL-3.0 Â§5a/Â§7b): keep the copyright notice, credit FlameForge by Eful97 with a link, and state prominently what you changed and when. On GitHub, please use the **Fork** button so provenance stays connected.
 * Inspired by the [erdb](https://github.com/realbestia1/erdb) project by realbestia1.
-* Metadata and artwork: [TMDB](https://www.themoviedb.org/) (metadata/images), [TheTVDB](https://thetvdb.com/) (metadata/artwork — see [API information](https://thetvdb.com/api-information)), [Fanart](https://fanart.tv/) (artwork), and [Wikidata](https://www.wikidata.org/) (awards data, published under CC0 — see [Wikidata:Introduction](https://www.wikidata.org/wiki/Wikidata:Introduction)).
+* Metadata and artwork: [TMDB](https://www.themoviedb.org/) (metadata/images), [TheTVDB](https://thetvdb.com/) (metadata/artwork â€” see [API information](https://thetvdb.com/api-information)), [Fanart](https://fanart.tv/) (artwork), and [Wikidata](https://www.wikidata.org/) (awards data, published under CC0 â€” see [Wikidata:Introduction](https://www.wikidata.org/wiki/Wikidata:Introduction)).
 * This product uses the TMDB API but is not endorsed or certified by TMDB. See the [TMDB attribution requirements](https://developer.themoviedb.org/docs/faq).
-* Ratings and lists are aggregated: [MDBList](https://mdblist.com/) (aggregated ratings via the typed `api.mdblist.com` media API with per-source minimum-votes filtering — see `PICTORIUM_RATING_MIN_VOTES`; lists; downstream providers such as IMDb, Rotten Tomatoes, Metacritic and Letterboxd appear via aggregators — no direct permission claimed), [Trakt](https://trakt.tv/) (public lists), [SIMKL](https://simkl.com/) (ratings), [AniList](https://anilist.co/) and [Kitsu](https://kitsu.app/) (anime ratings), with an IMDb-rating fallback via [Cinemeta](https://v3-cinemeta.strem.io/). Letterboxd list imports run via StremThru.
+* Ratings and lists are aggregated: [MDBList](https://mdblist.com/) (aggregated ratings via the typed `api.mdblist.com` media API with per-source minimum-votes filtering â€” see `FLAMEFORGE_RATING_MIN_VOTES`; lists; downstream providers such as IMDb, Rotten Tomatoes, Metacritic and Letterboxd appear via aggregators â€” no direct permission claimed), [Trakt](https://trakt.tv/) (public lists), [SIMKL](https://simkl.com/) (ratings), [AniList](https://anilist.co/) and [Kitsu](https://kitsu.app/) (anime ratings), with an IMDb-rating fallback via [Cinemeta](https://v3-cinemeta.strem.io/). Letterboxd list imports run via StremThru.
 * Availability and charts: [JustWatch](https://www.justwatch.com/) (streaming availability/charts) and [FlixPatrol](https://flixpatrol.com/) (charts, via the [fp-crawler](https://github.com/0xConstant1/fp-crawler) catalogs).
-* Anime ID mapping: [Fribb/anime-lists](https://github.com/Fribb/anime-lists) (bundled compact ID/season snapshot, no artwork) merges [anime-offline-database](https://github.com/cedya77/anime-offline-database) (current license ODbL 1.0 / DbCL 1.0; continuation of [manami-project/anime-offline-database](https://github.com/manami-project/anime-offline-database)) and [Anime-Lists/anime-lists](https://github.com/Anime-Lists/anime-lists) (no license identified in reviewed sources — not a claim that no rights exist). Fribb's pinned tree states no license and the exact upstream input revisions are unknown, so upstream terms and share-alike applicability remain under review — see [docs/anime-id-mapping.md](docs/anime-id-mapping.md#source-attribution-and-license-review). Additional mapping support from [AniZip](https://api.ani.zip/).
+* Anime ID mapping: [Fribb/anime-lists](https://github.com/Fribb/anime-lists) (bundled compact ID/season snapshot, no artwork) merges [anime-offline-database](https://github.com/cedya77/anime-offline-database) (current license ODbL 1.0 / DbCL 1.0; continuation of [manami-project/anime-offline-database](https://github.com/manami-project/anime-offline-database)) and [Anime-Lists/anime-lists](https://github.com/Anime-Lists/anime-lists) (no license identified in reviewed sources â€” not a claim that no rights exist). Fribb's pinned tree states no license and the exact upstream input revisions are unknown, so upstream terms and share-alike applicability remain under review â€” see [docs/anime-id-mapping.md](docs/anime-id-mapping.md#source-attribution-and-license-review). Additional mapping support from [AniZip](https://api.ani.zip/).
 * The IMDb CSV integration is a user-provided list import, not a download of IMDb's non-commercial datasets.
-* Network, studio, rating and quality badges use locally bundled assets; only network/studio logo lookup can additionally fall back to TMDB images (see [src/lib/network-svgs.ts](src/lib/network-svgs.ts)). Individual origins and license notices still need auditing — see the [badge/logo provenance ledger](docs/badge-logo-provenance.md); nothing here asserts they are public domain or used with permission.
-* Fonts shipped with the app (Inter, Noto Sans Symbols 2, Rubik, Barlow Condensed, Oswald) are SIL Open Font License 1.1; the complete version-matched license texts with copyright notices are bundled in [src/assets/fonts/licenses/](src/assets/fonts/licenses/) — see [src/assets/fonts/README.md](src/assets/fonts/README.md) for per-family sources, revisions, SHA256 hashes and verification evidence.
+* Network, studio, rating and quality badges use locally bundled assets; only network/studio logo lookup can additionally fall back to TMDB images (see [src/lib/network-svgs.ts](src/lib/network-svgs.ts)). Individual origins and license notices still need auditing â€” see the [badge/logo provenance ledger](docs/badge-logo-provenance.md); nothing here asserts they are public domain or used with permission.
+* Fonts shipped with the app (Inter, Noto Sans Symbols 2, Rubik, Barlow Condensed, Oswald) are SIL Open Font License 1.1; the complete version-matched license texts with copyright notices are bundled in [src/assets/fonts/licenses/](src/assets/fonts/licenses/) â€” see [src/assets/fonts/README.md](src/assets/fonts/README.md) for per-family sources, revisions, SHA256 hashes and verification evidence.
 * This project is AGPL-3.0; external data, artwork, fonts and trademarks keep their own licenses and owners. All trademarks belong to their respective owners; no endorsement by any data provider is claimed.
 * Outstanding notices: per-source license/attribution auditing is not complete (notably local badge/logo assets and Fribb/anime-lists upstream terms). This section will be updated as the audit progresses; it does not claim the legal review is finished.
+

@@ -18,7 +18,7 @@ import {
 } from "@/lib/visual-presets"
 import { resolveTopBadgeStyle } from "@/lib/poster-service"
 import type { Mapping } from "@/lib/types"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 
 function baseInput(overrides: Partial<PosterRenderConfigInput> = {}): PosterRenderConfigInput {
   return {
@@ -42,7 +42,7 @@ const mapping = (partial: Partial<Mapping> = {}): Mapping => ({
   ...partial,
 })
 
-const token = (partial: Partial<PictoriumUserConfig> = {}): PictoriumUserConfig => ({
+const token = (partial: Partial<FlameForgeUserConfig> = {}): FlameForgeUserConfig => ({
   globalBadges: true, rankingBadges: true, badgeStyle: "shadow",
   rankingBadgeStyle: "default",
   blurEnabled: true, blurIntensity: 20, blurFade: 50, blurDarkness: 30,
@@ -184,3 +184,5 @@ describe("extra follow-rank production resolution (query > mapping > token > pro
     expect(follow.toString()).not.toBe(pill.toString())
   })
 })
+
+

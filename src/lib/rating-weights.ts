@@ -1,14 +1,14 @@
-/**
+﻿/**
  * Voto medio a media pari (unico comportamento: i preset pesati sono stati
  * rimossi, resta il legacy).
  *
  * Modulo quasi-puro e FOGLIA CLIENT-SAFE: zero import runtime (solo
  * `import type`, cancellati in compilazione). Definisce DEFAULT_RATING_SOURCES
- * qui invece che in `ratings.ts` perché `ratings.ts` importa la cache/KV
+ * qui invece che in `ratings.ts` perchÃ© `ratings.ts` importa la cache/KV
  * (ioredis): se questa foglia importasse `ratings.ts` a runtime, il bundle
  * browser includerebbe ioredis e la build Turbopack fallirebbe con
  * "Can't resolve 'net'/'tls'/'dns'". `ratings.ts` re-esporta costante e parser
- * per compatibilità (i test di route usano importOriginal). `computeVote` è
+ * per compatibilitÃ  (i test di route usano importOriginal). `computeVote` Ã¨
  * l'unico choke point usato da poster route, details route e client (stesso
  * numero ovunque = Golden Rule).
  *
@@ -19,13 +19,13 @@
  * bundle browser. `ratings.ts` li ri-esporta (route e hardening invariati).
  *
  * NOTA sui voti-per-fonte: la nuova media API riporta conteggi voti per
- * fonte (`votes`, intero o null) — il filtro `PICTORIUM_RATING_MIN_VOTES`
+ * fonte (`votes`, intero o null) â€” il filtro `FLAMEFORGE_RATING_MIN_VOTES`
  * (default 10, 0 = disabilitato, definito in `ratings.ts`) scarta solo le
  * fonti con conteggio noto intero non-negativo sotto soglia; conteggi
  * null/mancanti/malformati (negativi, frazioni, NaN, Infinity, non numerici)
- * restano (mai conteggi inventati), RogerEbert è esente. Sulle normalizzazioni
+ * restano (mai conteggi inventati), RogerEbert Ã¨ esente. Sulle normalizzazioni
  * vale il contratto score 0-100 (sempre /10); a score null/mancante la fonte
- * è indisponibile tranne il fallback nativo 0-4 documentato di RogerEbert
+ * Ã¨ indisponibile tranne il fallback nativo 0-4 documentato di RogerEbert
  * (mai euristiche toTen generiche). Una fonte senza score normalizzabile
  * contribuisce zero (renormalizzazione), mai trascinamento verso il basso.
  */
@@ -57,8 +57,8 @@ export type RatingSource = (typeof SUPPORTED_RATING_SOURCES)[number]
 export const DEFAULT_RATING_SOURCES: RatingSource[] = ["imdb", "tmdb"]
 
 /**
- * Parsing unico del parametro `rsrc` (Fix D): split "," → trim → lowercase →
- * whitelist SUPPORTED_RATING_SOURCES. Ritorna null se il parametro è assente
+ * Parsing unico del parametro `rsrc` (Fix D): split "," â†’ trim â†’ lowercase â†’
+ * whitelist SUPPORTED_RATING_SOURCES. Ritorna null se il parametro Ã¨ assente
  * (il chiamante applica la catena dei fallback), [] se presente ma senza
  * fonti valide. Unica implementazione usata da poster route, poster-config e
  * tmdb details route (stesso numero ovunque = Golden Rule).
@@ -73,7 +73,7 @@ export function parseRatingSources(raw: string | null | undefined): string[] | n
  * Catena canonica delle fonti voto: query `rsrc` > fallbacks (mapping >
  * config token > server defaults) > DEFAULT_RATING_SOURCES. Un array vuoto
  * (nessuna fonte / solo garbage) vale come unset e fa cadere al fallback
- * successivo — mai media su zero fonti.
+ * successivo â€” mai media su zero fonti.
  */
 export function resolveRatingSources(
   query: string | null | undefined,
@@ -89,22 +89,22 @@ export function resolveRatingSources(
 
 /** Metadati UI delle fonti voto (id + label i18n + emoji). Pura, definita qui per gli editor client. */
 export const UI_RATING_SOURCES: { id: RatingSource; labelKey: string; emoji: string }[] = [
-  { id: "imdb", labelKey: "ui.source_imdb", emoji: "⭐" },
-  { id: "tmdb", labelKey: "ui.source_tmdb", emoji: "🌐" },
-  { id: "mdblist", labelKey: "ui.source_mdblist", emoji: "📊" },
-  { id: "tomatoes", labelKey: "ui.source_tomatoes", emoji: "🍅" },
-  { id: "popcorntime", labelKey: "ui.source_popcorntime", emoji: "🍿" },
-  { id: "letterboxd", labelKey: "ui.source_letterboxd", emoji: "👁️" },
-  { id: "metacritic", labelKey: "ui.source_metacritic", emoji: "🎯" },
-  { id: "metacriticuser", labelKey: "ui.source_metacriticuser", emoji: "👥" },
-  { id: "trakt", labelKey: "ui.source_trakt", emoji: "📺" },
-  { id: "simkl", labelKey: "ui.source_simkl", emoji: "⚡" },
-  { id: "filmweb", labelKey: "ui.source_filmweb", emoji: "🎥" },
-  { id: "filmwebcritics", labelKey: "ui.source_filmwebcritics", emoji: "🖋️" },
-  { id: "rogerebert", labelKey: "ui.source_rogerebert", emoji: "🎖️" },
-  { id: "mal", labelKey: "ui.source_mal", emoji: "🌸" },
-  { id: "anilist", labelKey: "ui.source_anilist", emoji: "💫" },
-  { id: "kitsu", labelKey: "ui.source_kitsu", emoji: "🦊" },
+  { id: "imdb", labelKey: "ui.source_imdb", emoji: "â­" },
+  { id: "tmdb", labelKey: "ui.source_tmdb", emoji: "ðŸŒ" },
+  { id: "mdblist", labelKey: "ui.source_mdblist", emoji: "ðŸ“Š" },
+  { id: "tomatoes", labelKey: "ui.source_tomatoes", emoji: "ðŸ…" },
+  { id: "popcorntime", labelKey: "ui.source_popcorntime", emoji: "ðŸ¿" },
+  { id: "letterboxd", labelKey: "ui.source_letterboxd", emoji: "ðŸ‘ï¸" },
+  { id: "metacritic", labelKey: "ui.source_metacritic", emoji: "ðŸŽ¯" },
+  { id: "metacriticuser", labelKey: "ui.source_metacriticuser", emoji: "ðŸ‘¥" },
+  { id: "trakt", labelKey: "ui.source_trakt", emoji: "ðŸ“º" },
+  { id: "simkl", labelKey: "ui.source_simkl", emoji: "âš¡" },
+  { id: "filmweb", labelKey: "ui.source_filmweb", emoji: "ðŸŽ¥" },
+  { id: "filmwebcritics", labelKey: "ui.source_filmwebcritics", emoji: "ðŸ–‹ï¸" },
+  { id: "rogerebert", labelKey: "ui.source_rogerebert", emoji: "ðŸŽ–ï¸" },
+  { id: "mal", labelKey: "ui.source_mal", emoji: "ðŸŒ¸" },
+  { id: "anilist", labelKey: "ui.source_anilist", emoji: "ðŸ’«" },
+  { id: "kitsu", labelKey: "ui.source_kitsu", emoji: "ðŸ¦Š" },
 ]
 
 /** Media pari sulle fonti richieste (default imdb/tmdb). */
@@ -129,3 +129,4 @@ export function computeVote(
   const allowlist = rsrc && rsrc.length > 0 ? rsrc.map((s) => s.toLowerCase()) : null
   return equalAverage(ratings, allowlist ?? [...DEFAULT_RATING_SOURCES])
 }
+

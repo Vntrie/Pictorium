@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { CustomLogoUrl } from "@/components/CustomLogoUrl"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { MOCK_CTX, renderWithCtx } from "@/__tests__/test-utils"
 import type { Mapping } from "@/lib/types"
 
@@ -167,18 +167,18 @@ describe("CustomLogoUrl", () => {
       })
     })
     const tree = render(
-      <PictoriumProvider value={{ ...MOCK_CTX, selected, mappingsMap, loadMappings }}>
+      <FlameForgeProvider value={{ ...MOCK_CTX, selected, mappingsMap, loadMappings }}>
         <CustomLogoUrl onAdd={() => {}} onRemove={onRemove} />
-      </PictoriumProvider>,
+      </FlameForgeProvider>,
     )
 
     await user.click(screen.getByRole("button", { name: /customLogoRemove/ }))
     // The PUT resolves but loadMappings stays pending: switch title meanwhile.
     await waitFor(() => expect(loadMappings).toHaveBeenCalled())
     tree.rerender(
-      <PictoriumProvider value={{ ...MOCK_CTX, selected: selectedB, mappingsMap, loadMappings }}>
+      <FlameForgeProvider value={{ ...MOCK_CTX, selected: selectedB, mappingsMap, loadMappings }}>
         <CustomLogoUrl onAdd={() => {}} onRemove={onRemove} />
-      </PictoriumProvider>,
+      </FlameForgeProvider>,
     )
     resolveLoad()
     await new Promise((r) => setTimeout(r, 50))
@@ -199,9 +199,9 @@ describe("CustomLogoUrl", () => {
       })
     })
     const tree = render(
-      <PictoriumProvider value={{ ...MOCK_CTX, selected, mappingsMap, loadMappings }}>
+      <FlameForgeProvider value={{ ...MOCK_CTX, selected, mappingsMap, loadMappings }}>
         <CustomLogoUrl onAdd={() => {}} onRemove={onRemove} />
-      </PictoriumProvider>,
+      </FlameForgeProvider>,
     )
 
     await user.click(screen.getByRole("button", { name: /customLogoRemove/ }))
@@ -266,3 +266,5 @@ describe("CustomLogoUrl", () => {
     expect(screen.getByRole("button", { name: /customLogoRemove/ })).toBeDisabled()
   })
 })
+
+

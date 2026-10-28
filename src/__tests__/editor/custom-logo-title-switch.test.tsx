@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import EditView from "@/components/EditView"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import { MOCK_CTX } from "@/__tests__/test-utils"
@@ -34,9 +34,9 @@ function renderSwitchableTitle(first: Record<string, unknown>) {
     return (
       <ThemeProvider>
         <PosterEditorProvider>
-          <PictoriumProvider value={value}>
+          <FlameForgeProvider value={value}>
             <EditView />
-          </PictoriumProvider>
+          </FlameForgeProvider>
         </PosterEditorProvider>
       </ThemeProvider>
     )
@@ -119,3 +119,5 @@ describe("custom logo title-switch storage (real EditView)", () => {
     unmount()
   })
 })
+
+

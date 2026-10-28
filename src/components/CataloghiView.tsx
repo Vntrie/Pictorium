@@ -1,11 +1,11 @@
-"use client"
+﻿"use client"
 
 import { usePSelector } from "@/lib/context"
 import { useT } from "@/lib/contexts/TranslationContext"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import { getRegionDef } from "@/lib/regions"
 import { toSearchResult, type CustomCatalogConfig } from "@/lib/types"
-import { PICTORIUM_CATALOGS, normalizeCatalogId, regionJwName } from "@/lib/catalog-definitions"
+import { FLAMEFORGE_CATALOGS, normalizeCatalogId, regionJwName } from "@/lib/catalog-definitions"
 import { rankingSourceCatalogName } from "@/lib/ranking-source"
 import { resolveEffectiveCatalogDisplayName } from "@/lib/seasonal-theme"
 import { useState, useEffect, useMemo, useRef, useCallback, type ReactNode } from "react"
@@ -87,7 +87,7 @@ function CatalogPair({
   movieRemove?: { onRemove: () => void; label: string }
   tvRemove?: { onRemove: () => void; label: string }
   /**
-   * Per-slot Pictorium publication stamp (ms epoch) of the served list, or
+   * Per-slot FlameForge publication stamp (ms epoch) of the served list, or
    * null when unknown (no genuine pin / legacy live lists). Rendered as a
    * discreet localized line under each card; null shows the honest
    * "update time unavailable" line instead of an invented date.
@@ -188,17 +188,17 @@ function resolvedTmdbId(item: SimklCardItem): number | null {
 
 /**
  * Full manifest catalog id for a custom list section (mirrors
- * `build-manifest.ts` + `catalog-handler.ts`): addon → single
- * `pictorium-custom-<type>-<id>`; `mixed` → per-section
- * `pictorium-custom-<movie|series>-<id>`; else per-type.
+ * `build-manifest.ts` + `catalog-handler.ts`): addon â†’ single
+ * `FlameForge-custom-<type>-<id>`; `mixed` â†’ per-section
+ * `FlameForge-custom-<movie|series>-<id>`; else per-type.
  * (Client sections are `movie`|`tv`, the manifest/server slot is
  * `movie`|`series`: `tv` normalizes to `series` so section renames hit.)
  */
 function customFullId(cat: CustomCatalogConfig, section: "movie" | "tv"): string {
-  if (cat.addon) return `pictorium-custom-${cat.type}-${cat.id}`
+  if (cat.addon) return `FlameForge-custom-${cat.type}-${cat.id}`
   const slot = section === "tv" ? "series" : "movie"
-  if (cat.type === "mixed") return `pictorium-custom-${slot}-${cat.id}`
-  return `pictorium-custom-${cat.type}-${cat.id}`
+  if (cat.type === "mixed") return `FlameForge-custom-${slot}-${cat.id}`
+  return `FlameForge-custom-${cat.type}-${cat.id}`
 }
 
 /**
@@ -282,7 +282,7 @@ function customItemsUrl(url: string, tmdbKey: string, mdblistApiKey: string, lim
 }
 
 async function fetchCustomItems(url: string, signal?: AbortSignal): Promise<CatalogPage> {
-  // userFetch (mai fetch grezzo): sui path /u/<uuid> aggiunge ?u= + token così
+  // userFetch (mai fetch grezzo): sui path /u/<uuid> aggiunge ?u= + token cosÃ¬
   // il server risolve le chiavi salvate nel profilo (con fetch grezzo le
   // copertine restavano vuote in multi-user pur funzionando in locale).
   const cacheKey = (currentPathUuid() || "") + "|" + url
@@ -329,7 +329,7 @@ function CustomCatalogEntry({
   const { t } = useT()
   const catalogRenames = usePSelector((v) => v.catalogRenames)
   const [items, setItems] = useState<SimklCardItem[]>([])
-  // Visibilità emoji solo display: il nome salvato (cat.name) resta intatto.
+  // VisibilitÃ  emoji solo display: il nome salvato (cat.name) resta intatto.
   const showEmojis = usePSelector((v) => v.catalogShowEmojis)
   const displayName = resolveCatalogDisplayName(cat.name, showEmojis)
   const [total, setTotal] = useState<number | null>(null)
@@ -404,7 +404,7 @@ function CustomCatalogEntry({
           <h3 className="text-base font-bold text-foreground line-clamp-1">{displayName}</h3>
           {cat.addon && (
             <span className="shrink-0 text-[10px] text-muted truncate max-w-48" title={cat.addon.manifestUrl}>
-              {(() => { try { return new URL(cat.addon.manifestUrl).hostname } catch { return cat.addon.manifestUrl } })()} · {cat.addon.catalogId}
+              {(() => { try { return new URL(cat.addon.manifestUrl).hostname } catch { return cat.addon.manifestUrl } })()} Â· {cat.addon.catalogId}
             </span>
           )}
           {total !== null && total > items.length && (
@@ -479,10 +479,10 @@ function CustomCatalogEntry({
           tv={tv}
           totalMovies={movies.length}
           totalTv={tv.length}
-          movieTitle={`${displayName} — ${t("ui.movie")}`}
-          tvTitle={`${displayName} — ${t("ui.tvSeries")}`}
-          movieGridTitle={`${displayName} — ${t("ui.movie")}`}
-          tvGridTitle={`${displayName} — ${t("ui.tvSeries")}`}
+          movieTitle={`${displayName} â€” ${t("ui.movie")}`}
+          tvTitle={`${displayName} â€” ${t("ui.tvSeries")}`}
+          movieGridTitle={`${displayName} â€” ${t("ui.movie")}`}
+          tvGridTitle={`${displayName} â€” ${t("ui.tvSeries")}`}
           openGrid={(gridItems, title, section) => {
             void expandAndOpen(gridItems, title, section)
           }}
@@ -626,7 +626,7 @@ export function CataloghiView() {
    * new ids carry source/variant. Titles follow renames, like the manifest.
    * `chartSlug` is the fetch identity (legacy codes normalize to it) and the
    * ONLY pairing key below: lists pair only on the full matching descriptor
-   * (service + chart slug + source policy + variant) — never across sources,
+   * (service + chart slug + source policy + variant) â€” never across sources,
    * countries or variants, even when the winning FP/JW source differs per
    * section (each box keeps its own actual-source footer).
    */
@@ -660,21 +660,21 @@ export function CataloghiView() {
    */
   const curatedGroups = useMemo(() => pairCuratedLists(curatedLists), [curatedLists])
   // The general JW boxes carry the JustWatch logo ONLY while their own slot
-  // really resolves to JustWatch (any custom ranking override hides it — a
+  // really resolves to JustWatch (any custom ranking override hides it â€” a
   // custom-sourced row must never wear the JW mark). Per-slot, never a global
   // both-slots flag: a custom movies slot must not brand custom as JW while
   // the actual JW series slot still gets its icon.
   const jwMovieIsRealJw = resolveRankingSource(rankingSelection, "movie").kind === "justwatch"
   const jwSeriesIsRealJw = resolveRankingSource(rankingSelection, "series").kind === "justwatch"
-  // Per-default removal: each factory list renders independently — removing
+  // Per-default removal: each factory list renders independently â€” removing
   // the movies row never hides the series row (and vice versa). A removed
   // row recovers via the manager factory reset; its data keeps loading.
   const { showMovies: showJwMovies, showSeries: showJwSeries } =
     resolveDefaultTop20Visibility(disabledCatalogIds)
   // Anime rows follow the manifest: a disabled anime catalog id hides its
   // section (genuine-new spaces disable both via disabledCatalogIds).
-  const showAnimeMovies = !disabledCatalogIds.includes("pictorium-anime-movies")
-  const showAnimeSeries = !disabledCatalogIds.includes("pictorium-anime")
+  const showAnimeMovies = !disabledCatalogIds.includes("FlameForge-anime-movies")
+  const showAnimeSeries = !disabledCatalogIds.includes("FlameForge-anime")
   const platformFilters = useMemo(() => {
     const base = [
       { id: "all", label: t("ui.all") },
@@ -705,18 +705,18 @@ export function CataloghiView() {
   // Stremio e del CatalogManagerModal (rinomine utente > nome fonte ranking >
   // default). La navigazione usa la variante browsing (popular/trending senza
   // bandiera anche con emoji ON: browsing display vs nomi canonici/export con
-  // bandiera in manager/manifest); per charts resta il legacy generico così
-  // il flusso default è byte-identico. Mai mapping stringhe duplicato qui.
-  const jwMovieRename = catalogRenames?.["pictorium-jw-movies"]?.trim() || null
-  const jwSeriesRename = catalogRenames?.["pictorium-jw-series"]?.trim() || null
-  const jwMovieRankingName = rankingSourceBrowsingName("pictorium-jw-movies", "movie", rankingSelection, activeRegion)
-  const jwSeriesRankingName = rankingSourceBrowsingName("pictorium-jw-series", "series", rankingSelection, activeRegion)
-  // Visibilità emoji solo display: rinomine salvate e nomi fonte dinamici
+  // bandiera in manager/manifest); per charts resta il legacy generico cosÃ¬
+  // il flusso default Ã¨ byte-identico. Mai mapping stringhe duplicato qui.
+  const jwMovieRename = catalogRenames?.["FlameForge-jw-movies"]?.trim() || null
+  const jwSeriesRename = catalogRenames?.["FlameForge-jw-series"]?.trim() || null
+  const jwMovieRankingName = rankingSourceBrowsingName("FlameForge-jw-movies", "movie", rankingSelection, activeRegion)
+  const jwSeriesRankingName = rankingSourceBrowsingName("FlameForge-jw-series", "series", rankingSelection, activeRegion)
+  // VisibilitÃ  emoji solo display: rinomine salvate e nomi fonte dinamici
   // restano intatti e continuano ad aggiornarsi anche mentre nascosti.
-  const jwMovieTitle = resolveCatalogDisplayName(jwMovieRename ?? jwMovieRankingName ?? `${t("ui.movie")} — Top 20`, catalogShowEmojis)
-  const jwSeriesTitle = resolveCatalogDisplayName(jwSeriesRename ?? jwSeriesRankingName ?? `${t("ui.tvSeries")} — Top 20`, catalogShowEmojis)
-  const jwMovieGridTitle = resolveCatalogDisplayName(jwMovieRename ?? jwMovieRankingName ?? `JustWatch — ${t("ui.movie")}`, catalogShowEmojis)
-  const jwSeriesGridTitle = resolveCatalogDisplayName(jwSeriesRename ?? jwSeriesRankingName ?? `JustWatch — ${t("ui.tvSeries")}`, catalogShowEmojis)
+  const jwMovieTitle = resolveCatalogDisplayName(jwMovieRename ?? jwMovieRankingName ?? `${t("ui.movie")} â€” Top 20`, catalogShowEmojis)
+  const jwSeriesTitle = resolveCatalogDisplayName(jwSeriesRename ?? jwSeriesRankingName ?? `${t("ui.tvSeries")} â€” Top 20`, catalogShowEmojis)
+  const jwMovieGridTitle = resolveCatalogDisplayName(jwMovieRename ?? jwMovieRankingName ?? `JustWatch â€” ${t("ui.movie")}`, catalogShowEmojis)
+  const jwSeriesGridTitle = resolveCatalogDisplayName(jwSeriesRename ?? jwSeriesRankingName ?? `JustWatch â€” ${t("ui.tvSeries")}`, catalogShowEmojis)
   // Sezione mista (popular/trending/custom/rename su uno slot): l'intestazione
   // "JustWatch Top 20" sarebbe falsa, si usa il titolo neutro della fonte.
   const isJwSourceCustomized = Boolean(jwMovieRename ?? jwMovieRankingName ?? jwSeriesRename ?? jwSeriesRankingName)
@@ -724,11 +724,11 @@ export function CataloghiView() {
   const jwSectionHeading = catalogShowEmojis !== false ? `${jwSectionBase} ${regionFlag}` : jwSectionBase
   // Nome effettivo di un catalogo built-in (stessa precedenza del manifest e
   // del catalog-handler: rename > ranking override > nome regionale JW > base
-  // — vedi resolveEffectiveCatalogDisplayName). Guida il contesto effimero
-  // della preview quando il titolo è aperto da queste sezioni.
+  // â€” vedi resolveEffectiveCatalogDisplayName). Guida il contesto effimero
+  // della preview quando il titolo Ã¨ aperto da queste sezioni.
   const builtinListName = useCallback((catalogId: string, slot: "movie" | "series"): string => {
     const region = getRegionDef(ed.defaultRegion)
-    const base = PICTORIUM_CATALOGS.find((c) => c.id === catalogId)?.name ?? ""
+    const base = FLAMEFORGE_CATALOGS.find((c) => c.id === catalogId)?.name ?? ""
     return resolveEffectiveCatalogDisplayName({
       baseName: base,
       customName: catalogRenames[normalizeCatalogId(catalogId)],
@@ -821,7 +821,7 @@ export function CataloghiView() {
     const mediaType = (item.media_type || item.mediaType) as "movie" | "tv" || "movie"
     const title = item.title ?? item.name ?? ""
     // No automatic list-rank override (Top-20-only contract): catalogs and
-    // cards never emit `rk=` — preview and Stremio both resolve the badge
+    // cards never emit `rk=` â€” preview and Stremio both resolve the badge
     // live (general JW / Anime Top 20, or the selected custom Top 20).
     // Region: streaming grids carry it per-item, built-ins follow the
     // global default (null).
@@ -843,10 +843,10 @@ export function CataloghiView() {
     const slot = (item.media_type || item.mediaType) === "movie" ? ("movie" as const) : ("series" as const)
     navigateToItem(item, builtinListName(slot === "movie" ? movieId : seriesId, slot))
   }
-  // Click da sezione piattaforma (slug client → prefisso id server).
+  // Click da sezione piattaforma (slug client â†’ prefisso id server).
   const navigateToPlatformItem = (slug: string) => {
     const prefix = PLATFORM_CATALOG_PREFIX[slug] ?? slug
-    return navigateToBuiltinItem(`pictorium-${prefix}-movies`, `pictorium-${prefix}-series`)
+    return navigateToBuiltinItem(`FlameForge-${prefix}-movies`, `FlameForge-${prefix}-series`)
   }
 
   const customRefreshers = useRef(new Map<string, () => Promise<boolean>>())
@@ -855,7 +855,7 @@ export function CataloghiView() {
     else customRefreshers.current.delete(id)
   }, [])
   // Curated Top 10 cards register here with the same contract (key = entry),
-  // so the header refresh also reloads the chosen lists — and only those.
+  // so the header refresh also reloads the chosen lists â€” and only those.
   const streamRefreshers = useRef(new Map<string, () => Promise<boolean>>())
   const registerStreamRefresh = useCallback((id: string, refresh: (() => Promise<boolean>) | null) => {
     if (refresh) streamRefreshers.current.set(id, refresh)
@@ -883,7 +883,7 @@ export function CataloghiView() {
   const SCROLL_KEY = "cataloghi:scroll"
 
   useEffect(() => {
-    // sessionStorage può lanciare (private mode, iframe sandbox): non deve rompere il render
+    // sessionStorage puÃ² lanciare (private mode, iframe sandbox): non deve rompere il render
     let saved: string | null = null
     try { saved = sessionStorage.getItem(SCROLL_KEY) } catch { /* storage non disponibile */ }
     if (saved) {
@@ -1041,7 +1041,7 @@ export function CataloghiView() {
         ))}
       </div>
 
-      {/* Global Top 20 source pickers — pinned above the imported catalogs,
+      {/* Global Top 20 source pickers â€” pinned above the imported catalogs,
           driving the Top 20 rows below. Shown on the unfiltered view and the
           JustWatch filter (the content it configures), never inside platform
           filters. */}
@@ -1083,7 +1083,7 @@ export function CataloghiView() {
 
       {showCustom && customCatalogs.length > 0 && <div className="section-divider" />}
 
-      {/* JustWatch Top 20 — due contenitori separati (Film | Serie) sulla stessa riga.
+      {/* JustWatch Top 20 â€” due contenitori separati (Film | Serie) sulla stessa riga.
           I titoli seguono la fonte ranking selezionata, come nel manifest.
           Il logo JustWatch (icona sola, footer a sinistra accanto al conteggio)
           compare per singolo slot solo mentre QUELLO slot risolve davvero a
@@ -1105,8 +1105,8 @@ export function CataloghiView() {
               tvTitle={jwSeriesTitle}
               movieGridTitle={jwMovieGridTitle}
               tvGridTitle={jwSeriesGridTitle}
-              openGrid={(items, title, section) => openGrid(items, title, undefined, { kind: "builtin", movieId: "pictorium-jw-movies", seriesId: "pictorium-jw-series", section })}
-              onItemClick={navigateToBuiltinItem("pictorium-jw-movies", "pictorium-jw-series")}
+              openGrid={(items, title, section) => openGrid(items, title, undefined, { kind: "builtin", movieId: "FlameForge-jw-movies", seriesId: "FlameForge-jw-series", section })}
+              onItemClick={navigateToBuiltinItem("FlameForge-jw-movies", "FlameForge-jw-series")}
               savedKeys={savedKeys}
               movieFooter={jwMovieIsRealJw ? <CatalogSourceBadge actual="justwatch" iconOnly /> : undefined}
               tvFooter={jwSeriesIsRealJw ? <CatalogSourceBadge actual="justwatch" iconOnly /> : undefined}
@@ -1119,7 +1119,7 @@ export function CataloghiView() {
 
       {showJustWatch && <div className="section-divider" />}
 
-      {/* Piattaforme streaming — filtrate se attivo un filtro */}
+      {/* Piattaforme streaming â€” filtrate se attivo un filtro */}
       {hasKey && filteredPlatforms.length > 0 && (
         <>
           <div className="mb-12">
@@ -1137,13 +1137,13 @@ export function CataloghiView() {
                     tv={chart.tv}
                     totalMovies={chart.movies.length}
                     totalTv={chart.tv.length}
-                    movieTitle={`${t("ui.movie")} — Top 10`}
-                    tvTitle={`${t("ui.tvSeries")} — Top 10`}
-                    movieGridTitle={`${sp.name} — ${t("ui.movie")}`}
-                    tvGridTitle={`${sp.name} — ${t("ui.tvSeries")}`}
+                    movieTitle={`${t("ui.movie")} â€” Top 10`}
+                    tvTitle={`${t("ui.tvSeries")} â€” Top 10`}
+                    movieGridTitle={`${sp.name} â€” ${t("ui.movie")}`}
+                    tvGridTitle={`${sp.name} â€” ${t("ui.tvSeries")}`}
                     openGrid={(items, title, section) => {
                       const prefix = PLATFORM_CATALOG_PREFIX[sp.slug] ?? sp.slug
-                      openGrid(items, title, undefined, { kind: "builtin", movieId: `pictorium-${prefix}-movies`, seriesId: `pictorium-${prefix}-series`, section })
+                      openGrid(items, title, undefined, { kind: "builtin", movieId: `FlameForge-${prefix}-movies`, seriesId: `FlameForge-${prefix}-series`, section })
                     }}
                     onItemClick={navigateToPlatformItem(sp.slug)}
                     savedKeys={savedKeys}
@@ -1164,7 +1164,7 @@ export function CataloghiView() {
       )}
 
       {/* Curated opt-in Top 10: ONLY the enabled chosen LISTS are mounted
-          and loaded — one SimklCard box per actual section/variant list
+          and loaded â€” one SimklCard box per actual section/variant list
           (never a group render a single trash could wipe), each with the
           selection chart country (never the global JW region) and per-list
           actual source. In legacy mode this section does not exist and the
@@ -1194,7 +1194,7 @@ export function CataloghiView() {
                 />
               )
               // Pair block: Film LEFT + Serie RIGHT on desktop, stacked on
-              // mobile. Singles and mixed `all` stay fullwidth on their own —
+              // mobile. Singles and mixed `all` stay fullwidth on their own â€”
               // every list renders exactly once, nothing is ever dropped.
               if (block.kind === "pair") {
                 return (
@@ -1233,7 +1233,7 @@ export function CataloghiView() {
 
       {showAnime && <div className="section-divider" />}
 
-      {/* Anime trending — Film e Serie in due contenitori separati.
+      {/* Anime trending â€” Film e Serie in due contenitori separati.
           Anche uno-quattro risultati validi si mostrano (niente soglia). */}
       {showAnime && (
         <>
@@ -1245,12 +1245,12 @@ export function CataloghiView() {
               tv={animeTvVisible}
               totalMovies={animeMoviesVisible.length}
               totalTv={animeTvVisible.length}
-              movieTitle={`${t("ui.movie")} — Top 20`}
-              tvTitle={`${t("ui.tvSeries")} — Top 20`}
-              movieGridTitle={`Anime — ${t("ui.movie")}`}
-              tvGridTitle={`Anime — ${t("ui.tvSeries")}`}
-              openGrid={(items, title, section) => openGrid(items, title, undefined, { kind: "builtin", movieId: "pictorium-anime-movies", seriesId: "pictorium-anime", section })}
-              onItemClick={navigateToBuiltinItem("pictorium-anime-movies", "pictorium-anime")}
+              movieTitle={`${t("ui.movie")} â€” Top 20`}
+              tvTitle={`${t("ui.tvSeries")} â€” Top 20`}
+              movieGridTitle={`Anime â€” ${t("ui.movie")}`}
+              tvGridTitle={`Anime â€” ${t("ui.tvSeries")}`}
+              openGrid={(items, title, section) => openGrid(items, title, undefined, { kind: "builtin", movieId: "FlameForge-anime-movies", seriesId: "FlameForge-anime", section })}
+              onItemClick={navigateToBuiltinItem("FlameForge-anime-movies", "FlameForge-anime")}
               savedKeys={savedKeys}
               movieFooter={<AnimeCreditLink href={ANIME_MOVIE_LIST_URL} label="MDBList list trending-anime-movies by snoak (opens in new tab)" />}
               tvFooter={<AnimeCreditLink href={ANIME_SERIES_LIST_URL} label="MDBList list trending-anime-shows by snoak (opens in new tab)" />}
@@ -1367,8 +1367,8 @@ export function CataloghiView() {
                         // della lista (rename vince), griglie built-in dal nome
                         // effettivo del catalogo d'origine (stessa risoluzione
                         // del click compatto: rename > ranking > JW > base,
-                        // risolta al click così rinomine/ranking tardivi
-                        // seguono). Mai dal titolo griglia né dal titolo film.
+                        // risolta al click cosÃ¬ rinomine/ranking tardivi
+                        // seguono). Mai dal titolo griglia nÃ© dal titolo film.
                         // No automatic `rk=` from any grid (Top-20-only
                         // contract): preview and Stremio resolve live.
                         const gridListName = !gridSource
@@ -1431,3 +1431,4 @@ export function CataloghiView() {
     </div>
   )
 }
+

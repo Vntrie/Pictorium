@@ -235,3 +235,4 @@ describe("GET /api/poster with custom ranking source", () => {
     expect(jwCalls).toBe(0)
   })
 })
+

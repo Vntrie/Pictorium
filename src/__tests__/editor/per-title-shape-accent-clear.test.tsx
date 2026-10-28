@@ -347,3 +347,4 @@ describe("correction 1/3: retired Badge Lab fields persist as inert per-shape da
     expect(effectiveMappingForShape(saved, "landscape")?.badgePresetRev).toBe("abcdef12")
   })
 })
+

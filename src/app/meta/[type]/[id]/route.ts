@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server"
-import { pictoriumMeta } from "@/lib/meta-handler"
+import { FlameForgeMeta } from "@/lib/meta-handler"
 
 export const maxDuration = 60
 
@@ -9,5 +9,5 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
   const { type: mediaType, id: rawId } = await params
   const userParam = req.nextUrl.searchParams.get("u") || req.nextUrl.searchParams.get("user")
   const configParam = req.nextUrl.searchParams.get("config") || req.nextUrl.searchParams.get("c")
-  return pictoriumMeta(req, mediaType, rawId, userParam, configParam)
+  return FlameForgeMeta(req, mediaType, rawId, userParam, configParam)
 }

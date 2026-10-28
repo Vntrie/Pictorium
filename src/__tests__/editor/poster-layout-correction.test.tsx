@@ -1,6 +1,6 @@
 /**
  * Correction cycle 1 — per-shape posterLayout precedence, exercised through
- * the REAL provider (PictoriumRoot, deferred network) and the REAL EditView
+ * the REAL provider (FlameForgeRoot, deferred network) and the REAL EditView
  * shape switch (stash), never through stubbed probes:
  * - saved landscape legacy mapping (no layout) follows the landscape profile
  *   even when the flat is standard;
@@ -13,8 +13,8 @@
 import { useEffect, createElement } from "react"
 import { render, act, fireEvent, screen } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import type { SearchResult, TMDBImage, Mapping } from "@/lib/types"
@@ -25,7 +25,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
 }))
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -156,9 +156,9 @@ async function renderRoot() {
   ctx = null
   ed = null
   render(
-    <PictoriumRoot>
+    <FlameForgeRoot>
       <Probe />
-    </PictoriumRoot>,
+    </FlameForgeRoot>,
   )
   await flush()
   expect(ctx, "provider context available").toBeTruthy()
@@ -387,3 +387,5 @@ describe("per-title layout survives the format stash round-trip", () => {
     expect(editor().posterLayout).toBe("fresh")
   })
 })
+
+

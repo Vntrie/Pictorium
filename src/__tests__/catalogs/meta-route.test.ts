@@ -52,7 +52,7 @@ describe("GET /meta/[type]/[id]", () => {
     __clearTMDBCache()
   })
 
-  it("returns complete movie metadata with Pictorium poster URL and cast/crew", async () => {
+  it("returns complete movie metadata with FlameForge poster URL and cast/crew", async () => {
     vi.spyOn(globalThis, "fetch")
       // /find/tt0137523
       .mockResolvedValueOnce(Response.json({
@@ -697,3 +697,5 @@ describe("GET /meta/[type]/[id]", () => {
     // (verified through logic: isPartialSeasonData writes with 60_000ms TTL)
   })
 })
+
+

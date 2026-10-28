@@ -6,7 +6,7 @@ import { isAllowedByAllowlist, isPrivateHost } from "@/app/api/proxy/[...path]/r
 
 describe("Addon Proxy Helpers", () => {
   afterEach(() => {
-    delete process.env.POSTERIUM_PROXY_ALLOW_DOMAINS
+    delete process.env.FLAMEFORGE_PROXY_ALLOW_DOMAINS
   })
 
   it("rewrites metas poster URLs correctly for movies and series", () => {
@@ -16,17 +16,17 @@ describe("Addon Proxy Helpers", () => {
       { id: "278", type: "movie", name: "Numeric Movie", poster: null },
     ]
 
-    const rewritten = rewriteMetasPosters(metas, "https://pictorium.app")
+    const rewritten = rewriteMetasPosters(metas, "https://FlameForge.app")
 
-    expect(rewritten[0].poster).toContain("https://pictorium.app/api/poster/movie/tt0111161")
-    expect(rewritten[1].poster).toContain("https://pictorium.app/api/poster/series/tt0944947")
-    expect(rewritten[2].poster).toContain("https://pictorium.app/api/poster/movie/278")
+    expect(rewritten[0].poster).toContain("https://FlameForge.app/api/poster/movie/tt0111161")
+    expect(rewritten[1].poster).toContain("https://FlameForge.app/api/poster/series/tt0944947")
+    expect(rewritten[2].poster).toContain("https://FlameForge.app/api/poster/movie/278")
   })
 
   it("rewrites single meta poster URL correctly", () => {
     const meta: StremioItemMeta = { id: "tt1375666", type: "movie", name: "Inception", poster: "https://old.jpg" }
-    const rewritten = rewriteSingleMetaPoster(meta, "https://my-pictorium.koyeb.app")
-    expect(rewritten.poster).toContain("https://my-pictorium.koyeb.app/api/poster/movie/tt1375666")
+    const rewritten = rewriteSingleMetaPoster(meta, "https://my-FlameForge.koyeb.app")
+    expect(rewritten.poster).toContain("https://my-FlameForge.koyeb.app/api/poster/movie/tt1375666")
   })
 
   it("appends user token to poster URL when userUuid is provided", () => {
@@ -34,25 +34,25 @@ describe("Addon Proxy Helpers", () => {
     const metas: StremioItemMeta[] = [
       { id: "tt0111161", type: "movie", name: "The Shawshank Redemption" },
     ]
-    const rewritten = rewriteMetasPosters(metas, "https://pictorium.app", userUuid)
+    const rewritten = rewriteMetasPosters(metas, "https://FlameForge.app", userUuid)
     expect(rewritten[0].poster).toContain(`&u=${userUuid}`)
 
-    const single = rewriteSingleMetaPoster(metas[0], "https://pictorium.app", userUuid)
+    const single = rewriteSingleMetaPoster(metas[0], "https://FlameForge.app", userUuid)
     expect(single.poster).toContain(`&u=${userUuid}`)
   })
 
   it("omits dv when not provided (backward compat)", () => {
     const metas: StremioItemMeta[] = [{ id: "tt0111161", type: "movie" }]
-    expect(rewriteMetasPosters(metas, "https://pictorium.app")[0].poster).not.toContain("dv=")
-    expect(rewriteMetasPosters(metas, "https://pictorium.app", null, null)[0].poster).not.toContain("dv=")
-    expect(rewriteSingleMetaPoster(metas[0], "https://pictorium.app").poster).not.toContain("dv=")
+    expect(rewriteMetasPosters(metas, "https://FlameForge.app")[0].poster).not.toContain("dv=")
+    expect(rewriteMetasPosters(metas, "https://FlameForge.app", null, null)[0].poster).not.toContain("dv=")
+    expect(rewriteSingleMetaPoster(metas[0], "https://FlameForge.app").poster).not.toContain("dv=")
   })
 
   it("appends dv cache-buster when provided (metas + single)", () => {
     const dv = "a1b2c3d4"
     const metas: StremioItemMeta[] = [{ id: "tt0111161", type: "movie" }]
-    expect(rewriteMetasPosters(metas, "https://pictorium.app", null, dv)[0].poster).toContain(`&dv=${dv}`)
-    expect(rewriteSingleMetaPoster(metas[0], "https://pictorium.app", null, dv).poster).toContain(`&dv=${dv}`)
+    expect(rewriteMetasPosters(metas, "https://FlameForge.app", null, dv)[0].poster).toContain(`&dv=${dv}`)
+    expect(rewriteSingleMetaPoster(metas[0], "https://FlameForge.app", null, dv).poster).toContain(`&dv=${dv}`)
   })
 
   it("proxy dv covers all visual defaults: deterministic and order-independent", () => {
@@ -80,7 +80,7 @@ describe("Addon Proxy Helpers", () => {
   it("rewritten URLs carry the full-defaults dv", () => {
     const dv = proxyDefaultsSignature({ badgeStyle: "pill" })
     const metas: StremioItemMeta[] = [{ id: "tt0111161", type: "movie" }]
-    expect(rewriteMetasPosters(metas, "https://pictorium.app", null, dv)[0].poster).toContain(`&dv=${dv}`)
+    expect(rewriteMetasPosters(metas, "https://FlameForge.app", null, dv)[0].poster).toContain(`&dv=${dv}`)
   })
 
   it("resolveImdbToTmdb returns null for non-imdb IDs", async () => {
@@ -99,12 +99,12 @@ describe("Addon Proxy Helpers", () => {
         logo: "https://original.logo/1.png",
       },
     ]
-    const rewritten = rewriteMetasPosters(metas, "https://pictorium.app")
-    expect(rewritten[0].poster).toContain("https://pictorium.app/api/poster/movie/tt0111161")
+    const rewritten = rewriteMetasPosters(metas, "https://FlameForge.app")
+    expect(rewritten[0].poster).toContain("https://FlameForge.app/api/poster/movie/tt0111161")
     expect(rewritten[0].background).toBe("https://original.backdrop/1.jpg")
     expect(rewritten[0].logo).toBe("https://original.logo/1.png")
 
-    const single = rewriteSingleMetaPoster(metas[0], "https://pictorium.app")
+    const single = rewriteSingleMetaPoster(metas[0], "https://FlameForge.app")
     expect(single.background).toBe("https://original.backdrop/1.jpg")
     expect(single.logo).toBe("https://original.logo/1.png")
   })
@@ -118,39 +118,39 @@ describe("Addon Proxy Helpers", () => {
       { id: "anidb:456", type: "series", name: "Anime 2", poster: "https://original.poster/a.jpg" },
       { id: "tmdb:550", type: "movie", name: "TMDB prefixed", poster: "https://original.poster/t.jpg" },
     ]
-    const rewritten = rewriteMetasPosters(metas, "https://pictorium.app")
+    const rewritten = rewriteMetasPosters(metas, "https://FlameForge.app")
     expect(rewritten[0].poster).toBe("https://original.poster/k.jpg")
     expect(rewritten[1].poster).toBe("https://original.poster/a.jpg")
     // tmdb: prefisso risolvibile → parte numerica
-    expect(rewritten[2].poster).toContain("https://pictorium.app/api/poster/movie/550")
+    expect(rewritten[2].poster).toContain("https://FlameForge.app/api/poster/movie/550")
   })
 })
 
-describe("isAllowedByAllowlist (C3/A1 — POSTERIUM_PROXY_ALLOW_DOMAINS)", () => {
+describe("isAllowedByAllowlist (C3/A1 — FLAMEFORGE_PROXY_ALLOW_DOMAINS)", () => {
   afterEach(() => {
-    delete process.env.POSTERIUM_PROXY_ALLOW_DOMAINS
+    delete process.env.FLAMEFORGE_PROXY_ALLOW_DOMAINS
   })
 
   it("allows everything when the env is unset or empty (default open)", () => {
     expect(isAllowedByAllowlist(new URL("https://anything.example/x"))).toBe(true)
-    process.env.POSTERIUM_PROXY_ALLOW_DOMAINS = "  "
+    process.env.FLAMEFORGE_PROXY_ALLOW_DOMAINS = "  "
     expect(isAllowedByAllowlist(new URL("https://anything.example/x"))).toBe(true)
   })
 
   it("allows an exact domain match and its subdomains", () => {
-    process.env.POSTERIUM_PROXY_ALLOW_DOMAINS = "example.com"
+    process.env.FLAMEFORGE_PROXY_ALLOW_DOMAINS = "example.com"
     expect(isAllowedByAllowlist(new URL("https://example.com/addon"))).toBe(true)
     expect(isAllowedByAllowlist(new URL("https://sub.example.com/addon"))).toBe(true)
   })
 
   it("blocks domains outside the allowlist", () => {
-    process.env.POSTERIUM_PROXY_ALLOW_DOMAINS = "example.com"
+    process.env.FLAMEFORGE_PROXY_ALLOW_DOMAINS = "example.com"
     expect(isAllowedByAllowlist(new URL("https://evil.example.net/x"))).toBe(false)
     expect(isAllowedByAllowlist(new URL("https://notexample.com/x"))).toBe(false)
   })
 
   it("is case-insensitive and supports multiple comma-separated domains", () => {
-    process.env.POSTERIUM_PROXY_ALLOW_DOMAINS = "Example.COM, api.other.net"
+    process.env.FLAMEFORGE_PROXY_ALLOW_DOMAINS = "Example.COM, api.other.net"
     expect(isAllowedByAllowlist(new URL("https://EXAMPLE.com/x"))).toBe(true)
     expect(isAllowedByAllowlist(new URL("https://sub.api.other.net/x"))).toBe(true)
     expect(isAllowedByAllowlist(new URL("https://other.net/x"))).toBe(false)
@@ -205,3 +205,5 @@ describe("isPrivateHost (S6 — prefissi IP solo su letterali)", () => {
     expect(isPrivateHost("cyberflix.koyeb.app")).toBe(false)
   })
 })
+
+

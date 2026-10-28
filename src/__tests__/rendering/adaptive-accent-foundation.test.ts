@@ -251,3 +251,4 @@ describe("legacy automatic accent untouched by the foundation", () => {
     expect(normalizeAutomaticAccentHex("red")).toBe("red")
   })
 })
+

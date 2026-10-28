@@ -17,8 +17,8 @@ vi.mock("@/lib/tmdb", async (importOriginal) => {
 })
 
 const TMDB_ENV_KEYS = [
-  "PICTORIUM_TMDB_KEY",
-  "POSTERIUM_TMDB_KEY",
+  "FLAMEFORGE_TMDB_KEY",
+  "FLAMEFORGE_TMDB_KEY",
   "TMDB_KEY",
   "TMDB_API_KEY",
 ] as const
@@ -34,14 +34,14 @@ describe("POST /api/warmup — TMDB key forwarding to poster self-fetch", () => 
   beforeEach(() => {
     fetchSpy.mockClear()
     fetchSpy.mockResolvedValue(new Response(null, { status: 200 }))
-    for (const key of [...TMDB_ENV_KEYS, "PICTORIUM_PUBLIC_INSTANCE"] as const) {
+    for (const key of [...TMDB_ENV_KEYS, "FLAMEFORGE_PUBLIC_INSTANCE"] as const) {
       savedEnv[key] = process.env[key]
       delete process.env[key]
     }
-    // The global setup simulates a public instance (POSTERIUM_PUBLIC_INSTANCE=1):
+    // The global setup simulates a public instance (FLAMEFORGE_PUBLIC_INSTANCE=1):
     // warmup then requires x-warmup-token (fail-closed without a token).
-    savedEnv["PICTORIUM_WARMUP_TOKEN"] = process.env.PICTORIUM_WARMUP_TOKEN
-    process.env.PICTORIUM_WARMUP_TOKEN = "test-warmup-token"
+    savedEnv["FLAMEFORGE_WARMUP_TOKEN"] = process.env.FLAMEFORGE_WARMUP_TOKEN
+    process.env.FLAMEFORGE_WARMUP_TOKEN = "test-warmup-token"
   })
 
   afterEach(() => {
@@ -100,3 +100,5 @@ describe("POST /api/warmup — TMDB key forwarding to poster self-fetch", () => 
     }
   })
 })
+
+

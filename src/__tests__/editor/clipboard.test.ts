@@ -28,3 +28,4 @@ describe("copyText", () => {
     expect(await copyText("x")).toBe(false)
   })
 })
+

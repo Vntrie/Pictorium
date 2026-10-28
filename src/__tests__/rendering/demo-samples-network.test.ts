@@ -39,3 +39,4 @@ describe("demo samples network fallback (shared resolver, real assets)", () => {
     expect(pill).toBeNull()
   })
 })
+

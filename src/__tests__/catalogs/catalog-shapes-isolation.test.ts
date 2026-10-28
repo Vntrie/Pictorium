@@ -62,8 +62,8 @@ const mockedSkip = vi.mocked(shouldSkipServerSync)
 
 const USER_A = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
 const USER_B = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
-const SHAPE_ID = "pictorium-jw-series"
-const OTHER_ID = "pictorium-jw-movies"
+const SHAPE_ID = "FlameForge-jw-series"
+const OTHER_ID = "FlameForge-jw-movies"
 
 function memStore() {
   const map = new Map<string, string>()
@@ -350,7 +350,7 @@ describe("hook: catalogShapes debounced scoped sync (real useCustomCatalogs)", (
       result.current.setCatalogShape(SHAPE_ID, "poster")
     })
     expect(result.current.catalogShapes).toEqual({ [SHAPE_ID]: "poster" })
-    expect(JSON.parse(store.get("pictorium_catalog_shapes") ?? "null")).toEqual({ [SHAPE_ID]: "poster" })
+    expect(JSON.parse(store.get("FLAMEFORGE_catalog_shapes") ?? "null")).toEqual({ [SHAPE_ID]: "poster" })
     await waitFor(() => expect(putBodies()).toHaveLength(1), { timeout: 3000 })
     expect(putBodies()[0].url).toBe("/api/defaults")
     expect(putBodies()[0].body.catalogShapes).toEqual({ [SHAPE_ID]: "poster" })
@@ -361,7 +361,7 @@ describe("hook: catalogShapes debounced scoped sync (real useCustomCatalogs)", (
       result.current.setCatalogShape(SHAPE_ID, null)
     })
     expect(result.current.catalogShapes).toEqual({})
-    expect(store.get("pictorium_catalog_shapes")).toBe("{}")
+    expect(store.get("FLAMEFORGE_catalog_shapes")).toBe("{}")
     await waitFor(() => expect(putBodies()).toHaveLength(1), { timeout: 3000 })
     const cleared = putBodies()[0].body
     expect("catalogShapes" in cleared).toBe(true)
@@ -419,9 +419,9 @@ describe("hook: catalogShapes debounced scoped sync (real useCustomCatalogs)", (
 
   it("settled clear survives a remount (reload follows global, old shape not resurrected) and reset touches only shapes", async () => {
     const store = memStore()
-    store.set("pictorium_catalog_shapes", JSON.stringify({ [SHAPE_ID]: "poster" }))
-    store.set("pictorium_catalog_renames", JSON.stringify({ [SHAPE_ID]: "Pretty" }))
-    store.set("pictorium_catalog_order", JSON.stringify([SHAPE_ID]))
+    store.set("FLAMEFORGE_catalog_shapes", JSON.stringify({ [SHAPE_ID]: "poster" }))
+    store.set("FLAMEFORGE_catalog_renames", JSON.stringify({ [SHAPE_ID]: "Pretty" }))
+    store.set("FLAMEFORGE_catalog_order", JSON.stringify([SHAPE_ID]))
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
     await act(async () => {
       await new Promise((r) => setTimeout(r, 500))
@@ -440,7 +440,7 @@ describe("hook: catalogShapes debounced scoped sync (real useCustomCatalogs)", (
     // the same store in prod. The injected memStore here diverges, so mirror
     // the removal explicitly (no source change: pre-existing pattern shared
     // with resetCatalogNames/resetCatalogOrder).
-    store.raw.delete("pictorium_catalog_shapes")
+    store.raw.delete("FLAMEFORGE_catalog_shapes")
     await waitFor(() => expect(putBodies()).toHaveLength(1), { timeout: 3000 })
     const resetPut = putBodies()[0].body
     expect(resetPut.catalogShapes).toEqual({})
@@ -482,3 +482,5 @@ describe("hook: catalogShapes debounced scoped sync (real useCustomCatalogs)", (
     expect(inFlight).not.toContain(USER_B)
   })
 })
+
+

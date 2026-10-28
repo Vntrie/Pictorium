@@ -45,3 +45,4 @@ describe("POST /api/mappings upsert error contract", () => {
     expect(json).toEqual({ error: "Internal server error" })
   })
 })
+

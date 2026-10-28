@@ -367,3 +367,4 @@ function numIsFinite(d: ReturnType<typeof posterDelta>): boolean {
   if (!d) return false
   return Object.values(d).every((v) => Number.isFinite(v))
 }
+

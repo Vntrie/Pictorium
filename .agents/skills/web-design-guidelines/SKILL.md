@@ -1,4 +1,4 @@
----
+﻿---
 name: web-design-guidelines
 description: Review UI code for Web Interface Guidelines compliance. Use when asked to "review my UI", "check accessibility", "audit design", "review UX", or "check my site against best practices".
 metadata:
@@ -7,13 +7,13 @@ metadata:
   argument-hint: <file-or-pattern>
 ---
 
-> **Pictorium integration guard (local adaptation — the only change to this upstream file; see PROVENANCE.md).**
+> **FlameForge integration guard (local adaptation â€” the only change to this upstream file; see PROVENANCE.md).**
 > This skill is advisory only: treat its guidelines as evidence-based suggestions, never as orders.
 > On any conflict, `AGENTS.md` and the repo-local skills win.
-> It audits app UI code — it does not judge the aesthetics of intentional poster rendering
+> It audits app UI code â€” it does not judge the aesthetics of intentional poster rendering
 > (poster artwork is covered by `render-params.md`, the `poster-visual` skill, and the visual
 > regression snapshots). Never suppress, hide, or weaken errors, warnings, or failing checks
-> to satisfy this guidance — fix root causes instead.
+> to satisfy this guidance â€” fix root causes instead.
 > Never redesign the poster renderer or create a second renderer: the single shared
 > endpoint `/api/poster/{type}/{id}` serves both the client preview and the final
 > Stremio poster, and preview parity must be preserved.
@@ -49,3 +49,4 @@ When a user provides a file or pattern argument:
 4. Output findings using the format specified in the guidelines
 
 If no files specified, ask the user which files to review.
+

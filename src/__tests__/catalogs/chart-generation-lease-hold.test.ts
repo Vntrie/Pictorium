@@ -76,3 +76,4 @@ describe("chart-renewal lease held through commit", () => {
     if (nextOwner) await releaseChartFamilyLease(JW_MOVIE, nextOwner)
   })
 })
+

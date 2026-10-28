@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo, useEffect, useRef, useCallback, useDeferredValue } from "react"
 import { usePSelector } from "@/lib/context"
@@ -15,7 +15,7 @@ import { useCollections } from "@/lib/useCollections"
 import { useCountUp } from "@/lib/useCountUp"
 import type { Mapping } from "@/lib/types"
 
-// Contatore animato isolato: useCountUp fa setState a ogni frame per 600ms —
+// Contatore animato isolato: useCountUp fa setState a ogni frame per 600ms â€”
 // dentro MyPostersView ri-renderizzava l'intera griglia a ogni tick.
 function PosterCountBadge({ count }: { count: number }) {
   const value = useCountUp(count)
@@ -35,7 +35,7 @@ export function MyPostersView() {
   const { t } = useT()
   const [filter, setFilter] = useState("")
   // Ricerca reattiva: l'input resta immediato, filtro/sort/raggruppamento
-  // della griglia rincorrono a priorità bassa (niente jank sul keystroke).
+  // della griglia rincorrono a prioritÃ  bassa (niente jank sul keystroke).
   const deferredFilter = useDeferredValue(filter)
   const filterRef = useRef<HTMLInputElement>(null)
   const [typeFilter, setTypeFilter] = useState<"all" | "movie" | "tv" | "anime">("all")
@@ -67,7 +67,7 @@ export function MyPostersView() {
   const sortCloseTimer = useRef<ReturnType<typeof setTimeout>>(null)
 
   // Dual-format: flip rapido del formato primario (PUT parziale con merge
-  // server-side: tuning e backdrop preservati; updatedAt cambia → mv nuova →
+  // server-side: tuning e backdrop preservati; updatedAt cambia â†’ mv nuova â†’
   // niente staleness Stremio; il PUT invalida cache poster e cataloghi).
   const toggleMappingShape = useCallback(async (m: Mapping) => {
     const next = m.posterShape === "landscape" ? "poster" : "landscape"
@@ -79,7 +79,7 @@ export function MyPostersView() {
       })
       await loadMappings()
     } catch (e) {
-      console.error("[pictorium] Toggle shape failed:", e)
+      console.error("[FlameForge] Toggle shape failed:", e)
     }
   }, [loadMappings])
 
@@ -108,7 +108,7 @@ export function MyPostersView() {
 
   // Cancella N mapping e riporta il numero di fallimenti: con Promise.all una
   // singola HTTP non-2xx farebbe fallire tutto senza feedback e lascerebbe i
-  // restanti non eliminati (alcuni già rimossi lato server, altri no).
+  // restanti non eliminati (alcuni giÃ  rimossi lato server, altri no).
   const removeMany = useCallback(async (items: Mapping[]) => {
     const results = await Promise.allSettled(items.map((m) => removeMapping(m)))
     return results.filter((r) => r.status === "rejected").length
@@ -189,13 +189,13 @@ export function MyPostersView() {
   }, [collections, mappings])
 
   // Filtro base senza formato: le due sezioni (verticale/orizzontale)
-  // ripartiscono questi stessi item, così ricerca/tipo/collezione/ordinamento
+  // ripartiscono questi stessi item, cosÃ¬ ricerca/tipo/collezione/ordinamento
   // valgono identici in entrambe.
   const baseFiltered = useMemo(() => {
     return mappings
       .filter((m) => {
         // deferredFilter: la digitazione resta a 60fps (input immediato),
-        // la griglia rincorre a priorità bassa senza bloccare il keystroke.
+        // la griglia rincorre a prioritÃ  bassa senza bloccare il keystroke.
         if (!m.title.toLowerCase().includes(deferredFilter.toLowerCase())) return false
         if (typeFilter === "movie" && m.mediaType !== "movie") return false
         if (typeFilter === "tv" && !(m.mediaType === "tv" && !(m.genreName || "").toLowerCase().includes("anim"))) return false
@@ -278,7 +278,7 @@ export function MyPostersView() {
     return () => document.removeEventListener("mousedown", handler)
   }, [sortOpen, closeSortDropdown])
 
-  // Shortcut "/" per il filtro titolo (non quando si sta già digitando)
+  // Shortcut "/" per il filtro titolo (non quando si sta giÃ  digitando)
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return
@@ -654,7 +654,7 @@ export function MyPostersView() {
       )}
       {/* Sezioni separate per formato (mai mischiati): con un filtro formato
           attivo si mostra la sola sezione, altrimenti prima i verticali 2:3
-          poi gli orizzontali 16:9 con colonne più larghe. */}
+          poi gli orizzontali 16:9 con colonne piÃ¹ larghe. */}
       {formatFilter !== "all" ? (
         <div className={`mx-auto grid gap-3 md:gap-4 max-w-7xl ${formatFilter === "landscape" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"}`}>
           {renderTiles(filtered)}
@@ -717,3 +717,4 @@ export function MyPostersView() {
     </div>
   )
 }
+

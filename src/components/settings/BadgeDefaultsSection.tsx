@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useState, useId, type ReactNode } from "react"
 import { ChevronDown, Flame, Layers, Menu, Palette, SlidersHorizontal, Sparkles, Star, Trophy, Tv } from "lucide-react"
@@ -64,14 +64,14 @@ import {
 // Master Trend stash, one slot per edit target: portrait keeps the legacy
 // key (existing stashes survive), landscape gets its own so restoring one
 // format never resurrects the other format's order.
-const TREND_SASH_STASH_KEY = "pictorium_trend_sash_stash"
-const TREND_SASH_STASH_KEY_LANDSCAPE = "pictorium_trend_sash_stash:landscape"
+const TREND_SASH_STASH_KEY = "FLAMEFORGE_trend_sash_stash"
+const TREND_SASH_STASH_KEY_LANDSCAPE = "FLAMEFORGE_trend_sash_stash:landscape"
 
 // Rank-only stash, separate from the master stash: rank OFF remembers the
 // exact order (rank position included) per edit target, so rank ON restores
 // it without reshuffling the other categories. Never clobbers the master stash.
-const RANK_SASH_STASH_KEY = "pictorium_rank_sash_stash"
-const RANK_SASH_STASH_KEY_LANDSCAPE = "pictorium_rank_sash_stash:landscape"
+const RANK_SASH_STASH_KEY = "FLAMEFORGE_rank_sash_stash"
+const RANK_SASH_STASH_KEY_LANDSCAPE = "FLAMEFORGE_rank_sash_stash:landscape"
 
 // Staged-mode stash (five-tab settings): in-memory per edit target, never
 // localStorage and never a durable config write before the global Save.
@@ -174,7 +174,7 @@ function BadgeGroup({ id, title, icon: Icon, defaultOpen, hidden, children, bare
  *  rendered once outside the genre AvailabilityGate so a disabled genre
  *  fieldset never traps it. Gated by the canonical isBadgeFontActive over the
  *  effective flags (common text style): with no supported font consumer
- *  active the whole group unmounts — never an orphan disclosure/hint. */
+ *  active the whole group unmounts â€” never an orphan disclosure/hint. */
 function CommonFontCard({ shape, onPreviewFamilyChange, flags }: { shape?: BadgeShapeTarget; onPreviewFamilyChange?: (f: DefaultsPreviewFamily) => void; flags: EffectiveBadgeFlags }) {
   const { t } = useT()
   const ed = usePosterEditor()
@@ -199,7 +199,7 @@ function CommonFontCard({ shape, onPreviewFamilyChange, flags }: { shape?: Badge
  * portrait reads/writes the shared flats, landscape the `landscape` profile.
  * Data sources, endpoints, region, date format and API settings stay global.
  * `onPreviewFamilyChange` (optional) reports which card the user is editing so
- * the preview owner can show a pertinent sample — preview-only, never writes. */
+ * the preview owner can show a pertinent sample â€” preview-only, never writes. */
 export type BadgeDefaultsMode = "rankings" | "information" | "appearance"
 
 export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, presetsEnabled = true, unifiedView, element, onOpenAdvanced, mode, testStaged, testDirty }: {
@@ -255,7 +255,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
   // Preview-family scope (U2): each card reports its family on explicit press
   // or keyboard focus so the preview shows a pertinent sample. Press (not
   // hover) avoids preview flicker/fetch storms from mere mouse transit.
-  // Text-only state lift — never moves focus, never unmounts controls (no
+  // Text-only state lift â€” never moves focus, never unmounts controls (no
   // focus trap), identical values bail out in the owner setter.
   const famAttrs = (family: DefaultsPreviewFamily) => ({
     "data-preview-family": family,
@@ -295,7 +295,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
   // Targeted Fresh-entry reset (Classifiche unified presentation only):
   // entering Fresh neutralizes ONLY the title-logo and genre/rating-group
   // positions in the edited shape (autozero contract: genre 0/0, logo
-  // null/null) via the existing scoped setters — scales and every other
+  // null/null) via the existing scoped setters â€” scales and every other
   // setting stay intact, the other shape freezes via the standard setters.
   const [, setGenreBadgeOffsetX] = scoped("genreBadgeOffsetX", ed.defaultGenreBadgeOffsetX, ed.setDefaultGenreBadgeOffsetX)
   const [, setGenreBadgeOffsetY] = scoped("genreBadgeOffsetY", ed.defaultGenreBadgeOffsetY, ed.setDefaultGenreBadgeOffsetY)
@@ -307,7 +307,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
   // public ?freshScope=all contract (per-title, old callers) is untouched.
   // Read-only here: the scope renders ranked-only, the hint below states it.
   const [posterFreshScope] = scoped("posterFreshScope", ed.defaultPosterFreshScope, ed.setDefaultPosterFreshScope)
-  // Età per-shape (task3A): portrait = flat condivisi, landscape = override
+  // EtÃ  per-shape (task3A): portrait = flat condivisi, landscape = override
   // del profilo (assente = segue il flat; `false` esplicito vince). Stesso
   // pattern degli altri visual scoped (mai i root setter diretti).
   const [ageBadge, setAgeBadge] = scoped("ageBadge", ed.defaultAgeBadge, ed.setDefaultAgeBadge)
@@ -326,7 +326,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
   const separateStyleActive = isSeparateStyleActive(effFlags)
   const ageStyleActive = isAgeStyleActive(effFlags)
   const qualityStyleActive = isQualityStyleActive(effFlags)
-  // Common font group (appearance): unmounted — wrapper included — when no
+  // Common font group (appearance): unmounted â€” wrapper included â€” when no
   // supported font consumer is effectively active (same canonical gate as
   // the card itself, never a second derivation).
   const fontActive = isBadgeFontActive(effFlags)
@@ -336,7 +336,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
   void effDisplay
   // Extra style options: the full renderer-supported subset (canonical
   // EXTRA_BADGE_STYLES order preserved: colored always offered, never gated
-  // on the current value — the renderer already handles every entry).
+  // on the current value â€” the renderer already handles every entry).
   // Hoisted above the shared cards (same values, same callbacks).
   const extraOptions: ExtraBadgeStyle[] = ["default", "pill", "corner", "vetro", "bordo", "colored"]
   const EXTRA_STYLE_LABELS: Record<ExtraBadgeStyle, string> = {
@@ -396,7 +396,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
   // appearance tab wraps it in an effective gate, standalone renders it raw.
   // Reports the dedicated `extra` preview family (not the generic `info`):
   // focusing or pressing this card switches the defaults preview to the
-  // extra-bucket sample so the staged `xbs` choice is visible immediately —
+  // extra-bucket sample so the staged `xbs` choice is visible immediately â€”
   // never the Fresh/Coming Soon sample. Preview-only, never writes.
   const extraStyleCard = (
     <div {...famAttrs("extra")} className="bg-surface/50 border border-surface2/60 rounded-xl p-3.5 space-y-1.5 shadow-sm">
@@ -448,9 +448,9 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
     </div>
   )
   // Scoped reset (task 3B1): restores this tab's landscape keys to
-  // independent shape-appropriate defaults — the current portrait effective
+  // independent shape-appropriate defaults â€” the current portrait effective
   // frozen in (same pixels as follow, then decoupled), age forced to the
-  // canonical OFF/IT/standard trio — never clear-to-follow. Numerics and
+  // canonical OFF/IT/standard trio â€” never clear-to-follow. Numerics and
   // gradient overrides owned by Transform stay intact. Divergence (not mere
   // presence) drives the button: a snapshot that still equals the flat is
   // not an override; null on inherit-keys follows the flat (canonical
@@ -579,7 +579,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
   function handlePresentation(p: RankingPresentation) {
     if (p === "fresh") {
       // Actual transition only: re-clicking the already-selected Fresh
-      // preserves deliberate slider edits made while Fresh. One-way reset —
+      // preserves deliberate slider edits made while Fresh. One-way reset â€”
       // returning to Nastro/Numero never restores the old offsets.
       if (posterLayout !== "fresh") {
         setGenreBadgeOffsetX(0)
@@ -656,7 +656,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
       {crTestResult.ok ? (
         <div className="space-y-1">
           <div className="font-semibold text-emerald-300">
-            {t("ui.customRatingTestOk")} · {crTestResult.status} OK · {crTestResult.ms} ms
+            {t("ui.customRatingTestOk")} Â· {crTestResult.status} OK Â· {crTestResult.ms} ms
           </div>
           {crTestResult.ratings?.map((r) => (
             <div key={r.id} className="flex items-center justify-between text-zinc-200">
@@ -668,14 +668,14 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
       ) : (
         <div className="text-red-300">
           {customRatingTestErrorLabel(crTestResult.error)}
-          {crTestResult.status ? ` · ${crTestResult.status}` : ""} · {crTestResult.ms} ms
+          {crTestResult.status ? ` Â· ${crTestResult.status}` : ""} Â· {crTestResult.ms} ms
         </div>
       )}
     </div>
   ) : null
 
   // Quick-preset canonical transform reset: single shared source (no
-  // duplicated constants/formulas — see src/lib/quick-visual-presets.ts).
+  // duplicated constants/formulas â€” see src/lib/quick-visual-presets.ts).
   function quickTransformPatch(portrait: boolean): Partial<VisualPresetValues> {
     return sharedQuickTransformPatch(portrait)
   }
@@ -809,13 +809,13 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
   // delivery non mutati per isolamento. Ogni ready look applica la sua
   // ricetta canonica completa (QUICK_BADGE_PATCHES + reset canonico: nessun
   // pin visivo eredita il look precedente). Nessun nested `landscape` nel
-  // desired: in landscape l'overlay è solo il patch derivato dai flat (mai
+  // desired: in landscape l'overlay Ã¨ solo il patch derivato dai flat (mai
   // il profilo corrente sopra il reset). RatingSources NON resettate
   // (rimozione isolamento): tutti i ready preservano le fonti utente come
-  // Apple/personali; i testi restano validi ("Punteggi IMDb/TMDB e qualità"
+  // Apple/personali; i testi restano validi ("Punteggi IMDb/TMDB e qualitÃ "
   // descrive il contenuto, non un reset).
   // Full only (`readyPin`): the canonical complete recipe
-  // (QUICK_BADGE_PATCHES.full) plus the standalone-extra reset — the edited
+  // (QUICK_BADGE_PATCHES.full) plus the standalone-extra reset â€” the edited
   // shape returns to follow-own-rank instead of inheriting a tuned extra
   // style. Essential/Ratings share the same readyPin with their own canonical
   // recipes below; personal presets never pass it.
@@ -848,7 +848,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
 
   // Essential/Ratings/Full share the single canonical recipes with the
   // Preset-tab gallery (QUICK_BADGE_PATCHES + transform reset): never
-  // duplicated subsets — every entry point stages the identical snapshot.
+  // duplicated subsets â€” every entry point stages the identical snapshot.
   const applyEssential = () => {
     applyQuickForTarget(QUICK_BADGE_PATCHES.essential, true)
   }
@@ -859,13 +859,13 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
 
   // Full shares the single canonical recipe with the Preset-tab gallery
   // (QUICK_BADGE_PATCHES.full + transform reset via quickLookDesired): never
-  // a duplicated subset — both entry points stage the identical snapshot.
+  // a duplicated subset â€” both entry points stage the identical snapshot.
   const applyFull = () => {
     applyQuickForTarget(QUICK_BADGE_PATCHES.full, true)
   }
 
   // Snapshot preset keys that live in the landscape profile: `defaultX` maps
-  // to the `x` profile key. Everything else (rating sources, fit flags, …)
+  // to the `x` profile key. Everything else (rating sources, fit flags, â€¦)
   // stays global. Logo alignment is Auto-only (never staged from a preset).
   // Delivery shape never follows a preset here.
   const PRESET_TO_LAND: Record<string, keyof LandscapeServerDefaults> = {
@@ -933,7 +933,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
     return false
   }
   function snapshotGlobalsMatch(cur: VisualPresetValues, preset: VisualPresetValues): boolean {
-    // Logo alignment is Auto-only (no selector): never part of the match —
+    // Logo alignment is Auto-only (no selector): never part of the match â€”
     // the staged session always carries null and legacy presets may not.
     return (
       snapshotFieldEqual(cur.defaultRatingSources, preset.defaultRatingSources) &&
@@ -1123,7 +1123,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
         />
       </div>
       {/* Personal presets sit right below the builtin selection (same edit
-          target, same list guards) — never in a separate SettingsPanel slot. */}
+          target, same list guards) â€” never in a separate SettingsPanel slot. */}
       {presetsEnabled && <VisualPresetsSection shape={targetShape} enabled={presetsEnabled} />}
       {/* What to show: compact quick toggles over the existing shape-scoped
           setters (genre/year/rating/quality/rank/age only). Same values and
@@ -1230,7 +1230,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
             title={t("ui.formatTargetHint")}
             className="shrink-0 text-[11px] font-semibold text-muted hover:text-zinc-200 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-2.5 py-1 transition-colors cursor-pointer"
           >
-            {t("ui.reset")} · {t("ui.posterShapeLandscape")}
+            {t("ui.reset")} Â· {t("ui.posterShapeLandscape")}
           </button>
         </div>
       )}
@@ -1361,7 +1361,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
       {/* CARD Ratings: vote, separate, sources, custom. Visibility lives ONLY
           in Information: the separate style picker owns a dedicated appearance
           wrapper below, so in appearance this card would render as an orphan
-          shell (title with every control hidden) — it stays mounted + hidden
+          shell (title with every control hidden) â€” it stays mounted + hidden
           for state, never visible. */}
       <div {...famAttrs("ratings")} hidden={hideFor("ratings") || modeHide("information")} className="bg-surface/50 border border-surface2/60 rounded-xl p-3.5 space-y-3 shadow-sm">
         <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
@@ -1433,7 +1433,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
                           >
                             {t("ui.enableAll")}
                           </button>
-                          <span className="text-zinc-600">·</span>
+                          <span className="text-zinc-600">Â·</span>
                           <button
                             type="button"
                             onClick={() => {
@@ -1571,7 +1571,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
         <p className="text-[11px] text-zinc-400 italic -mt-1">{t("ui.ratingSourcesHint")}</p>
         <div className="flex items-center gap-1.5 text-[10px]">
           <button type="button" onClick={() => ed.setDefaultRatingSources(UI_RATING_SOURCES.map((s) => s.id))} className="text-accent-orange hover:underline font-semibold cursor-pointer">{t("ui.enableAll")}</button>
-          <span className="text-zinc-600">·</span>
+          <span className="text-zinc-600">Â·</span>
           <button type="button" onClick={() => ed.setDefaultRatingSources(["imdb"])} className="text-muted hover:text-zinc-200 cursor-pointer">{t("ui.sourcesImdbOnly")}</button>
         </div>
         <div className="grid grid-cols-2 gap-1.5 max-h-52 overflow-y-auto pr-0.5">
@@ -1778,7 +1778,7 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
                       </span>
                       <span className="inline-flex items-center gap-0.5">
                         {mode === "rankings" ? (
-                          <span className={`text-[10px] font-mono px-1 ${isOn ? "text-zinc-300" : "text-zinc-600"}`}>{isOn ? `#${sash.indexOf(b) + 1}` : "—"}</span>
+                          <span className={`text-[10px] font-mono px-1 ${isOn ? "text-zinc-300" : "text-zinc-600"}`}>{isOn ? `#${sash.indexOf(b) + 1}` : "â€”"}</span>
                         ) : (
                         <Toggle
                           value={isOn}
@@ -1961,3 +1961,4 @@ export function BadgeDefaultsSection({ active, shape, onPreviewFamilyChange, pre
     </div>
   )
 }
+

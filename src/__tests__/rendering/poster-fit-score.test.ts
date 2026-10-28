@@ -310,3 +310,4 @@ describe("scorePosterLogoFit landscape", () => {
     expect(ranked[0].posterPath).toBe("/dark.jpg")
   })
 })
+

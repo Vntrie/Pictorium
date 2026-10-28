@@ -76,3 +76,4 @@ describe("removed Fresh numeral-font legacy compat", () => {
     expect(parsed.success && "freshNumeralFont" in parsed.data).toBe(false)
   })
 })
+

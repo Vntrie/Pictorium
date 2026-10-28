@@ -35,32 +35,32 @@ describe("notice cards (Fase 2: solo key-missing)", () => {
   })
 
   it("buildNoticeMeta usa id convenzionale e tipo richiesto", () => {
-    const meta = buildNoticeMeta({ type: "series", poster: "http://localhost:3000/pictorium.png" })
+    const meta = buildNoticeMeta({ type: "series", poster: "http://localhost:3000/FlameForge.png" })
     expect(meta.id.startsWith(NOTICE_ID_PREFIX)).toBe(true)
     expect(meta.type).toBe("series")
-    expect(meta.poster).toContain("/pictorium.png")
+    expect(meta.poster).toContain("/FlameForge.png")
     expect(isNoticeId(meta.id)).toBe(true)
     expect(isNoticeId("tmdb:123")).toBe(false)
   })
 
   it("catalogo JW senza chiave: notice card invece di metas vuoto", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch")
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json")
-    const res = await GET_CATALOG(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json")
+    const res = await GET_CATALOG(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
     expect(body.metas).toHaveLength(1)
     expect(body.metas[0].id.startsWith(NOTICE_ID_PREFIX)).toBe(true)
-    expect(body.metas[0].poster).toContain("/pictorium.png")
+    expect(body.metas[0].poster).toContain("/FlameForge.png")
     expect(body.metas[0].poster).not.toContain("/api/poster/")
     // Nessuna chiamata upstream: il ramo key-missing ritorna prima di JW/TMDB.
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it("ricerca senza chiave: notice card invece di metas vuoto", async () => {
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-movies.json?search=Avatar")
-    const res = await GET_CATALOG(req, { params: Promise.resolve({ type: "movie", id: "pictorium-search-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-movies.json?search=Avatar")
+    const res = await GET_CATALOG(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-search-movies.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -70,15 +70,15 @@ describe("notice cards (Fase 2: solo key-missing)", () => {
 
   it("/meta sulla notice: scheda informativa senza chiamate di rete", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch")
-    const req = new NextRequest("http://localhost:3000/meta/movie/pictorium:notice:missing-tmdb-key.json")
-    const res = await GET_META(req, { params: Promise.resolve({ type: "movie", id: "pictorium:notice:missing-tmdb-key.json" }) })
+    const req = new NextRequest("http://localhost:3000/meta/movie/FlameForge:notice:missing-tmdb-key.json")
+    const res = await GET_META(req, { params: Promise.resolve({ type: "movie", id: "FlameForge:notice:missing-tmdb-key.json" }) })
     const body = await res.json()
 
     expect(body.meta).toMatchObject({
-      id: "pictorium:notice:missing-tmdb-key",
+      id: "FlameForge:notice:missing-tmdb-key",
       type: "movie",
     })
-    expect(body.meta.poster).toContain("/pictorium.png")
+    expect(body.meta.poster).toContain("/FlameForge.png")
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 })
@@ -107,3 +107,5 @@ describe("mdblist block-paging (Fase 1)", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1)
   })
 })
+
+

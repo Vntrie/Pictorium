@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useT } from "@/lib/contexts/TranslationContext"
@@ -11,7 +11,7 @@ import { toSearchResult, type SearchResult } from "@/lib/types"
 import type { GenericStreamingSection } from "@/lib/streaming-catalogs"
 
 interface StreamingCatalogCardProps {
-  /** Derived list id (legacy `pictorium-stream-*` or generic `pictorium-stream2-*`). */
+  /** Derived list id (legacy `FlameForge-stream-*` or generic `FlameForge-stream2-*`). */
   catalogId: string
   title: string
   /** Actual list section: rendered as an accessible localized compact badge
@@ -49,7 +49,7 @@ interface StreamingCatalogCardProps {
   variantLabel?: string | null
   /**
    * Open the full list grid (browse rows, already max 10, with their real
-   * media types incl. mixed `all`). The whole card affords it (⧉ hint);
+   * media types incl. mixed `all`). The whole card affords it (â§‰ hint);
    * without it the card would be a no-op. Trash never triggers it
    * (SimklCard stopPropagation, click + keyboard).
    */
@@ -59,7 +59,7 @@ interface StreamingCatalogCardProps {
 /**
  * One derived streaming list: loads ONLY its pinned rows through the
  * read-only browse projection (`GET /api/streaming-catalog`) and renders
- * them with the existing SimklCard visual (ORIGINAL TMDB w185 miniatures —
+ * them with the existing SimklCard visual (ORIGINAL TMDB w185 miniatures â€”
  * never `/api/poster` images in cards, no extra images/logo/external_ids
  * fetches per list). Tiles open the editor with the effective list name as
  * ephemeral seasonal context. The per-list ACTUAL source (header or body,
@@ -156,8 +156,8 @@ export function StreamingCatalogCard({
     if (typeof tmdbId !== "number" || !Number.isSafeInteger(tmdbId) || tmdbId <= 0) return
     const mediaType = (item.media_type || item.mediaType) === "tv" ? ("tv" as const) : ("movie" as const)
     // No automatic list rank from curated cards (Top-20-only contract):
-    // only general JW / Anime Top 20 — or an explicitly selected custom
-    // Top 20, resolved live — produce an automatic badge. The preview uses
+    // only general JW / Anime Top 20 â€” or an explicitly selected custom
+    // Top 20, resolved live â€” produce an automatic badge. The preview uses
     // the same snapshot row as Stremio (same absent `rk=` / `region=`),
     // never persisted.
     navigateToPoster(
@@ -254,3 +254,4 @@ export function StreamingCatalogCard({
     </div>
   )
 }
+

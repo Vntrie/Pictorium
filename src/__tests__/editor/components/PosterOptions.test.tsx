@@ -179,3 +179,4 @@ describe("PosterOptions", () => {
 afterEach(() => {
   vi.restoreAllMocks()
 })
+

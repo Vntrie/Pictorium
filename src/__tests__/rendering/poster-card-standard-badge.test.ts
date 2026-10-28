@@ -2,7 +2,7 @@
  * P15: Card main standard badge + optional separate individuals.
  *
  * Contract under test (user-explicit: "prendiamo quello standard di
- * Pictorium, non reinventiamo" + "voglio poter mettere rating separati"):
+ * FlameForge, non reinventiamo" + "voglio poter mettere rating separati"):
  * - the Card main badge is the EXISTING standard genre/rating renderer fed
  *   with the ONE P8 aggregate (`aggregateCardRating` of the selected stack)
  *   — pixel-identical to calling `renderGenreBadge` directly with that
@@ -489,3 +489,5 @@ describe("P15 service Card: optional separate individuals (existing renderers on
     }
   }, 240000)
 })
+
+

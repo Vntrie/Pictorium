@@ -91,3 +91,4 @@ describe("release-note exclusions (withdrawn work)", () => {
     expect(groups.features[0].text).toBe("Customize badges with Badge Lab")
   })
 })
+

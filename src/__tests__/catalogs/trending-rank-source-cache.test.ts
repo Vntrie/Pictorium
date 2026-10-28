@@ -167,3 +167,4 @@ describe("GET /api/trending/rank mutable-source HTTP caching", () => {
     expect(mockedFetchTop20).not.toHaveBeenCalled()
   })
 })
+

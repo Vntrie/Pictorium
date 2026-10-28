@@ -288,16 +288,16 @@ describe("live=1 server resolution (absent params follow the space)", () => {
 })
 
 describe("defaults revision via epoch (two simulated instances)", () => {
-  const ENV_KEYS = ["PICTORIUM_DATA_DIR", "PICTORIUM_MULTI_USER"] as const
+  const ENV_KEYS = ["FLAMEFORGE_DATA_DIR", "FLAMEFORGE_MULTI_USER"] as const
   let savedEnv: Record<string, string | undefined> = {}
   let tempDir: string | undefined
 
   beforeEach(async () => {
     savedEnv = {}
     for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-follow-"))
-    process.env.PICTORIUM_DATA_DIR = tempDir
-    process.env.PICTORIUM_MULTI_USER = "1"
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-follow-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
+    process.env.FLAMEFORGE_MULTI_USER = "1"
     vi.resetModules()
   })
 
@@ -354,3 +354,5 @@ describe("defaults revision via epoch (two simulated instances)", () => {
     expect((await sd.getServerDefaultsChecked()).blurIntensity).toBe(5)
   })
 })
+
+

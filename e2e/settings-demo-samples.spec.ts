@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test"
+﻿import { test, expect, type Page } from "@playwright/test"
 import { putDefaultsWithRetry } from "./defaults-retry"
 
 // Settings defaults preview: title search (Avatar -> TV), click-to-zoom and
@@ -92,9 +92,9 @@ async function seed(page: Page) {
   await page.addInitScript(() => {
     try {
       localStorage.clear()
-      localStorage.setItem("pictorium_profile_id", "e2e-demo-samples")
-      localStorage.setItem("pictorium_profile_stateless", "1")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_profile_id", "e2e-demo-samples")
+      localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       localStorage.setItem("preferred_lang", "it")
       localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
     } catch {}
@@ -120,7 +120,7 @@ async function resetBadgeToggles(page: Page) {
  * /api/defaults PUT shallow-merges, so a partial reset cannot delete keys:
  * the Essenziale button persists quickTransformPatch (NATURAL_GRADIENT_DEFAULTS
  * gradientHeight 35 + badgeStyle minimal + ranking off) via debounced autosave,
- * and the old 8-field reset left gradientHeight=35 stored — the next test then
+ * and the old 8-field reset left gradientHeight=35 stored â€” the next test then
  * rendered pre-hydration gradHeight=30 vs post-reload 35. Full payload keeps
  * every autosaveable key at its factory value; landscape is replaced wholesale
  * so frozen portrait echoes are dropped too. */
@@ -193,9 +193,9 @@ const FACTORY_DEFAULTS = {
 async function seedPersist(page: Page) {
   await page.addInitScript(() => {
     try {
-      localStorage.setItem("pictorium_profile_id", "e2e-demo-persist")
-      localStorage.setItem("pictorium_profile_stateless", "1")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_profile_id", "e2e-demo-persist")
+      localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       localStorage.setItem("preferred_lang", "it")
       localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
     } catch {}
@@ -395,8 +395,8 @@ test.describe("Settings demo samples: search, zoom, badges", () => {
     await box.press("Enter")
     await nextPreview(
       seen,
-      // Click DENTRO l'azione: la preview TV è emessa dalla selezione, e un
-      // poll from-now con noop dopo il click perderebbe il burst già partito
+      // Click DENTRO l'azione: la preview TV Ã¨ emessa dalla selezione, e un
+      // poll from-now con noop dopo il click perderebbe il burst giÃ  partito
       // (stesso flaw baseline provato su u4: niente refetch senza edit).
       async () => {
         await search.getByRole("option", { name: /La casa di carta/ }).click()
@@ -429,10 +429,10 @@ test.describe("Settings demo samples: search, zoom, badges", () => {
     await expect.poll(() => floating.getAttribute("data-corner")).not.toBe(cornerBefore)
     // Save/Back stay reachable: the overlay never covers the footer. On mobile
     // the dialog close is the header Back button ("Indietro", ui.back), not
-    // the desktop X ("Chiudi") — the footer holds Save (+Install) only. Save is
+    // the desktop X ("Chiudi") â€” the footer holds Save (+Install) only. Save is
     // correctly DISABLED here (staged session, "Nessuna modifica": the TV
     // demo switch is preview-only and must not dirty the draft), so the
-    // contract is visibility, not enabledness — the staged-save enable path
+    // contract is visibility, not enabledness â€” the staged-save enable path
     // is covered by specs that actually edit settings.
     await expect(page.getByTestId("settings-save")).toBeVisible()
     await expect(page.getByTestId("settings-save")).toBeDisabled()
@@ -555,10 +555,10 @@ test.describe("Settings demo samples: search, zoom, badges", () => {
     collectPreviewRequests(page, seen)
     // Settled arrange-state gate: the preview carries the unified topShade
     // default (ts=50, PosterEditorContext:52) both pre-hydration and after
-    // the arranged FACTORY_DEFAULTS topShade (ts=50) is adopted — no
+    // the arranged FACTORY_DEFAULTS topShade (ts=50) is adopted â€” no
     // first/reopen drift on this axis (bs=shadow both = dialog rows, single
     // param delta). Byte-equality must compare settled rows, not transients
-    // — same flaw class as the u4 noop baselines.
+    // â€” same flaw class as the u4 noop baselines.
     const settledTv = (u: URL) => u.searchParams.get("ts") === "50"
     const tvUrl = (from: number, pred: (u: URL) => boolean = settledTv): Promise<string> => {
       let out: string | null = null
@@ -633,3 +633,4 @@ test.describe("Settings demo samples: search, zoom, badges", () => {
     await expect(dialog.getByText("La casa di carta", { exact: true })).toHaveCount(0)
   })
 })
+

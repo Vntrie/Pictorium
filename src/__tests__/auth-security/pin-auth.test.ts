@@ -56,13 +56,13 @@ describe("PIN Authentication & Security", () => {
 
   beforeAll(async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "pin-auth-test-"))
-    process.env.PICTORIUM_DATA_DIR = tempDir
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
     file = path.join(tempDir, "security.json")
   })
 
   afterAll(async () => {
     _resetPinCache()
-    delete process.env.PICTORIUM_DATA_DIR
+    delete process.env.FLAMEFORGE_DATA_DIR
     try {
       await fs.rm(tempDir, { recursive: true, force: true })
     } catch {}
@@ -172,7 +172,7 @@ describe("PIN Authentication & Security", () => {
       expect(json.success).toBe(true)
 
       const cookieHeader = res.headers.get("set-cookie")
-      expect(cookieHeader).toContain("pictorium_pin_session=")
+      expect(cookieHeader).toContain("FLAMEFORGE_pin_session=")
     })
 
     it("PUT: rifiuta PIN sotto 6 cifre", async () => {
@@ -204,7 +204,7 @@ describe("PIN Authentication & Security", () => {
       expect(okRes.status).toBe(200)
       const json = await okRes.json()
       expect(json.success).toBe(true)
-      expect(okRes.headers.get("set-cookie")).toContain("pictorium_pin_session=")
+      expect(okRes.headers.get("set-cookie")).toContain("FLAMEFORGE_pin_session=")
     })
 
     it("DELETE: rimuove il PIN solo fornendo quello corretto", async () => {
@@ -252,16 +252,16 @@ describe("PIN Authentication & Security", () => {
   })
 
   describe("binding PIN↔admin token (v1.23.0)", () => {
-    const OLD_ENV = { pictorium: process.env.PICTORIUM_ADMIN_TOKEN, bare: process.env.ADMIN_TOKEN }
+    const OLD_ENV = { FlameForge: process.env.FLAMEFORGE_ADMIN_TOKEN, bare: process.env.ADMIN_TOKEN }
     afterEach(() => {
-      if (OLD_ENV.pictorium === undefined) delete process.env.PICTORIUM_ADMIN_TOKEN
-      else process.env.PICTORIUM_ADMIN_TOKEN = OLD_ENV.pictorium
+      if (OLD_ENV.FlameForge === undefined) delete process.env.FLAMEFORGE_ADMIN_TOKEN
+      else process.env.FLAMEFORGE_ADMIN_TOKEN = OLD_ENV.FlameForge
       if (OLD_ENV.bare === undefined) delete process.env.ADMIN_TOKEN
       else process.env.ADMIN_TOKEN = OLD_ENV.bare
     })
 
     it("il PIN impostato via token muore con la rotazione dell'env", async () => {
-      process.env.PICTORIUM_ADMIN_TOKEN = "token-A"
+      process.env.FLAMEFORGE_ADMIN_TOKEN = "token-A"
       expect(await setPin("123456", { viaAdminToken: true })).toBe(true)
       expect(await verifyPin("123456")).toBe(true)
       expect(await hasPinConfigured()).toBe(true)
@@ -269,25 +269,27 @@ describe("PIN Authentication & Security", () => {
       expect(await verifySessionToken(session)).toBe(true)
 
       // Rotazione: stesso PIN, token diverso → tutto inerte.
-      process.env.PICTORIUM_ADMIN_TOKEN = "token-B"
+      process.env.FLAMEFORGE_ADMIN_TOKEN = "token-B"
       expect(await verifyPin("123456")).toBe(false)
       expect(await hasPinConfigured()).toBe(false)
       expect(await verifySessionToken(session)).toBe(false)
     })
 
     it("il PIN impostato via PIN (o senza token) sopravvive all'env", async () => {
-      delete process.env.PICTORIUM_ADMIN_TOKEN
+      delete process.env.FLAMEFORGE_ADMIN_TOKEN
       delete process.env.ADMIN_TOKEN
       expect(await setPin("123456")).toBe(true)
-      process.env.PICTORIUM_ADMIN_TOKEN = "token-C"
+      process.env.FLAMEFORGE_ADMIN_TOKEN = "token-C"
       expect(await verifyPin("123456")).toBe(true)
       expect(await hasPinConfigured()).toBe(true)
     })
 
     it("il PIN sopravvive quando il token non cambia", async () => {
-      process.env.PICTORIUM_ADMIN_TOKEN = "token-A"
+      process.env.FLAMEFORGE_ADMIN_TOKEN = "token-A"
       expect(await setPin("123456", { viaAdminToken: true })).toBe(true)
       expect(await verifyPin("123456")).toBe(true)
     })
   })
 })
+
+

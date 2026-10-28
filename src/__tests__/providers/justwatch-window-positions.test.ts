@@ -93,3 +93,4 @@ describe("automatic Top-20 window (shared contract)", () => {
     expect(rows.map((r) => r.rank)).toEqual([5, 9])
   })
 })
+

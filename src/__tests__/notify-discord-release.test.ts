@@ -9,14 +9,14 @@ describe("formatDiscordPayload", () => {
   it("formats title, notes, and release URL within Discord character limits", () => {
     const payload = formatDiscordPayload({
       tag: "v1.24.6",
-      repo: "Eful97/Pictorium",
+      repo: "Eful97/FlameForge",
       notes: "## ✨ Features\n- New feature",
     })
 
-    expect(payload.content).toContain("# 🚀 Pictorium v1.24.6 is now available!")
+    expect(payload.content).toContain("# 🚀 FlameForge v1.24.6 is now available!")
     expect(payload.content).toContain("## ✨ Features\n- New feature")
-    expect(payload.content).toContain("https://github.com/Eful97/Pictorium/releases/tag/v1.24.6")
-    expect(payload.username).toBe("Pictorium Releases")
+    expect(payload.content).toContain("https://github.com/Eful97/FlameForge/releases/tag/v1.24.6")
+    expect(payload.username).toBe("FlameForge Releases")
     expect(payload.avatar_url).toContain("icon-192.png")
     expect(payload.content.length).toBeLessThanOrEqual(DISCORD_MAX_LENGTH)
   })
@@ -24,11 +24,11 @@ describe("formatDiscordPayload", () => {
   it("handles bare tag without 'v' prefix", () => {
     const payload = formatDiscordPayload({
       tag: "1.24.6",
-      repo: "Eful97/Pictorium",
+      repo: "Eful97/FlameForge",
       notes: "some notes",
     })
 
-    expect(payload.content).toContain("# 🚀 Pictorium v1.24.6 is now available!")
+    expect(payload.content).toContain("# 🚀 FlameForge v1.24.6 is now available!")
     expect(payload.content).toContain("releases/tag/v1.24.6")
   })
 
@@ -39,7 +39,7 @@ describe("formatDiscordPayload", () => {
       notes: "notes only",
     })
 
-    expect(payload.content).toContain("# 🚀 Pictorium v1.24.6 is now available!")
+    expect(payload.content).toContain("# 🚀 FlameForge v1.24.6 is now available!")
     expect(payload.content).not.toContain("GitHub Release")
   })
 
@@ -47,13 +47,13 @@ describe("formatDiscordPayload", () => {
     const hugeNotes = "A".repeat(3000)
     const payload = formatDiscordPayload({
       tag: "v1.24.6",
-      repo: "Eful97/Pictorium",
+      repo: "Eful97/FlameForge",
       notes: hugeNotes,
     })
 
     expect(payload.content.length).toBeLessThanOrEqual(DISCORD_MAX_LENGTH)
     expect(payload.content).toContain("(...and more, see full release notes)")
-    expect(payload.content).toContain("https://github.com/Eful97/Pictorium/releases/tag/v1.24.6")
+    expect(payload.content).toContain("https://github.com/Eful97/FlameForge/releases/tag/v1.24.6")
   })
 })
 
@@ -97,3 +97,5 @@ describe("sendDiscordNotification", () => {
     ).rejects.toThrow("Discord webhook returned HTTP 400 Bad Request: Invalid payload")
   })
 })
+
+

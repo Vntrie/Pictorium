@@ -270,3 +270,4 @@ describe("poster card geometry (shared cover composition)", () => {
     }
   })
 })
+

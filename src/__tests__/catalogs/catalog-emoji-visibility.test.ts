@@ -46,8 +46,8 @@ function tokenWithVisibility(
 async function manifestCatalogNames(token: string | null) {
   const req = new NextRequest(
     token
-      ? `https://pictorium.test/manifest.json?config=${token}`
-      : "https://pictorium.test/manifest.json",
+      ? `https://FlameForge.test/manifest.json?config=${token}`
+      : "https://FlameForge.test/manifest.json",
   )
   const res = await buildManifestResponse(req, null, token)
   const data = (await res.json()) as {
@@ -67,7 +67,7 @@ describe("stripCatalogEmojis (display-only catalog names)", () => {
     expect(stripCatalogEmojis("☁️ Sky Go / NOW — Film")).toBe("Sky Go / NOW — Film")
     expect(stripCatalogEmojis("⛩️ Top 20 Film Anime")).toBe("Top 20 Film Anime")
     expect(stripCatalogEmojis("🍥 Crunchyroll — Anime & Serie")).toBe("Crunchyroll — Anime & Serie")
-    expect(stripCatalogEmojis("🔍 Pictorium — Cerca Film")).toBe("Pictorium — Cerca Film")
+    expect(stripCatalogEmojis("🔍 FlameForge — Cerca Film")).toBe("FlameForge — Cerca Film")
   })
 
   it("removes ZWJ sequences, hearts with VS16 and keycaps as a whole", () => {
@@ -140,63 +140,65 @@ describe("Popular/Trending canonical names carry the region flag; browsing stays
 
   it("has the flag on movie AND series popular canonical names", () => {
     expect(
-      rankingSourceCatalogName("pictorium-jw-movies", "movie", { rankingSourceMovie: "jw:popular" }, itRegion),
+      rankingSourceCatalogName("FlameForge-jw-movies", "movie", { rankingSourceMovie: "jw:popular" }, itRegion),
     ).toBe("🇮🇹 I più popolari — Film")
     expect(
-      rankingSourceCatalogName("pictorium-jw-series", "series", { rankingSourceSeries: "jw:popular" }, itRegion),
+      rankingSourceCatalogName("FlameForge-jw-series", "series", { rankingSourceSeries: "jw:popular" }, itRegion),
     ).toBe("🇮🇹 I più popolari — Serie TV")
   })
 
   it("has the flag on movie AND series trending canonical names", () => {
     expect(
-      rankingSourceCatalogName("pictorium-jw-movies", "movie", { rankingSourceMovie: "jw:trending" }, itRegion),
+      rankingSourceCatalogName("FlameForge-jw-movies", "movie", { rankingSourceMovie: "jw:trending" }, itRegion),
     ).toBe("🇮🇹 In tendenza — Film")
     expect(
-      rankingSourceCatalogName("pictorium-jw-series", "series", { rankingSourceSeries: "jw:trending" }, itRegion),
+      rankingSourceCatalogName("FlameForge-jw-series", "series", { rankingSourceSeries: "jw:trending" }, itRegion),
     ).toBe("🇮🇹 In tendenza — Serie TV")
   })
 
   it("follows the real country flag while browsing stays flagless", () => {
     const us = getRegionDef("US")
     expect(
-      rankingSourceCatalogName("pictorium-jw-movies", "movie", { rankingSourceMovie: "jw:popular" }, us),
+      rankingSourceCatalogName("FlameForge-jw-movies", "movie", { rankingSourceMovie: "jw:popular" }, us),
     ).toBe("🇺🇸 I più popolari — Film")
     expect(
-      rankingSourceBrowsingName("pictorium-jw-movies", "movie", { rankingSourceMovie: "jw:popular" }, us),
+      rankingSourceBrowsingName("FlameForge-jw-movies", "movie", { rankingSourceMovie: "jw:popular" }, us),
     ).toBe("I più popolari — Film")
     expect(
-      rankingSourceBrowsingName("pictorium-jw-series", "series", { rankingSourceSeries: "jw:trending" }, us),
+      rankingSourceBrowsingName("FlameForge-jw-series", "series", { rankingSourceSeries: "jw:trending" }, us),
     ).toBe("In tendenza — Serie TV")
   })
 
   it("keeps the Charts flag via the regional default", () => {
-    expect(regionJwName("pictorium-jw-movies", "movie", itRegion)).toBe("🇮🇹 Top 20 Italia — Film")
-    expect(regionJwName("pictorium-jw-series", "series", itRegion)).toBe("🇮🇹 Top 20 Italia — Serie TV")
+    expect(regionJwName("FlameForge-jw-movies", "movie", itRegion)).toBe("🇮🇹 Top 20 Italia — Film")
+    expect(regionJwName("FlameForge-jw-series", "series", itRegion)).toBe("🇮🇹 Top 20 Italia — Serie TV")
   })
 })
 
 describe("Stremio manifest follows the emoji visibility selection", () => {
   it("keeps full flagged names by default (current behavior)", async () => {
     const names = await manifestCatalogNames(tokenWithVisibility(undefined, "jw:popular", ""))
-    expect(names.get("pictorium-jw-movies")).toBe("🇮🇹 I più popolari — Film")
-    expect(names.get("pictorium-jw-series")).toBe("🇮🇹 Top 20 Italia — Serie TV")
-    expect(names.get("pictorium-search-movies")).toBe("🔍 Pictorium — Cerca Film")
+    expect(names.get("FlameForge-jw-movies")).toBe("🇮🇹 I più popolari — Film")
+    expect(names.get("FlameForge-jw-series")).toBe("🇮🇹 Top 20 Italia — Serie TV")
+    expect(names.get("FlameForge-search-movies")).toBe("🔍 FlameForge — Cerca Film")
   })
 
   it("strips every catalog name when hidden, including popular flags and search rows", async () => {
     const names = await manifestCatalogNames(tokenWithVisibility(false, "jw:popular", ""))
-    expect(names.get("pictorium-jw-movies")).toBe("I più popolari — Film")
-    expect(names.get("pictorium-jw-series")).toBe("Top 20 Italia — Serie TV")
-    expect(names.get("pictorium-netflix-movies")).toBe("Netflix — Film")
-    expect(names.get("pictorium-search-movies")).toBe("Pictorium — Cerca Film")
+    expect(names.get("FlameForge-jw-movies")).toBe("I più popolari — Film")
+    expect(names.get("FlameForge-jw-series")).toBe("Top 20 Italia — Serie TV")
+    expect(names.get("FlameForge-netflix-movies")).toBe("Netflix — Film")
+    expect(names.get("FlameForge-search-movies")).toBe("FlameForge — Cerca Film")
   })
 
   it("lets an explicit user rename win and strips only for display", async () => {
     const names = await manifestCatalogNames(
       tokenWithVisibility(false, "jw:popular", "", {
-        "pictorium-jw-movies": "🚀 La mia classifica",
+        "FlameForge-jw-movies": "🚀 La mia classifica",
       }),
     )
-    expect(names.get("pictorium-jw-movies")).toBe("La mia classifica")
+    expect(names.get("FlameForge-jw-movies")).toBe("La mia classifica")
   })
 })
+
+

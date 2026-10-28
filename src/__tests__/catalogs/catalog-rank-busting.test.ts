@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest"
 import { NextRequest } from "next/server"
-import { pictoriumCatalog } from "@/lib/catalog-handler"
+import { FlameForgeCatalog } from "@/lib/catalog-handler"
 import * as top20Module from "@/lib/top20-ranking"
 import * as tmdbModule from "@/lib/tmdb"
 import * as jwModule from "@/lib/justwatch"
@@ -52,7 +52,7 @@ describe("catalog rank cache-busting integration", () => {
     } as unknown as tmdbModule.TMDBDetails))
   })
 
-  it("emits no automatic rk override in poster URLs for pictorium-jw Top 20 catalogs", async () => {
+  it("emits no automatic rk override in poster URLs for FlameForge-jw Top 20 catalogs", async () => {
     vi.spyOn(top20Module, "fetchTop20Ranking").mockResolvedValue({
       status: "ok",
       period: "day",
@@ -62,8 +62,8 @@ describe("catalog rank cache-busting integration", () => {
       ],
     })
 
-    const req = new NextRequest("https://example.com/catalog/movie/pictorium-jw-movies.json")
-    const res = await pictoriumCatalog(req, "movie", "pictorium-jw-movies", null, null)
+    const req = new NextRequest("https://example.com/catalog/movie/FlameForge-jw-movies.json")
+    const res = await FlameForgeCatalog(req, "movie", "FlameForge-jw-movies", null, null)
     expect(res.status).toBe(200)
 
     const json = await res.json()
@@ -148,8 +148,8 @@ describe("JW popular/trending arbitrary-skip canonical windows carry no automati
   }
 
   async function fetchPopularCatalog(query: string): Promise<Array<{ poster: string }>> {
-    const req = new NextRequest(`https://example.com/catalog/movie/pictorium-jw-movies.json${query}`)
-    const res = await pictoriumCatalog(req, "movie", "pictorium-jw-movies", null, null)
+    const req = new NextRequest(`https://example.com/catalog/movie/FlameForge-jw-movies.json${query}`)
+    const res = await FlameForgeCatalog(req, "movie", "FlameForge-jw-movies", null, null)
     expect(res.status).toBe(200)
     const json = await res.json()
     return json.metas as Array<{ poster: string }>
@@ -229,3 +229,5 @@ describe("JW popular/trending arbitrary-skip canonical windows carry no automati
     expect(offsets).toEqual([0, 7])
   })
 })
+
+

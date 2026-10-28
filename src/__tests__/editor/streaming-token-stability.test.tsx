@@ -6,13 +6,13 @@
  *
  * Two layers: hook-consumer tests pin the effect/input contract (stable ref
  * = one mint; real edit = remint; undefined omits the key, [] carries it);
- * the PictoriumRoot tests guard the real callsite line itself (they render
+ * the FlameForgeRoot tests guard the real callsite line itself (they render
  * the actual root, so reintroducing a per-render copy makes them time out).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { act, render, renderHook, waitFor } from "@testing-library/react"
 import { useEffect } from "react"
-import { PictoriumRoot, useP, type PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP, type FlameForgeCtx } from "@/lib/context"
 
 vi.mock("@/lib/guest-guard", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/guest-guard")>()
@@ -167,8 +167,8 @@ describe("streaming token input identity (context callsite)", () => {
   })
 })
 
-describe("root token stability (PictoriumRoot, real callsite)", () => {
-  let ctx: PictoriumCtx | null = null
+describe("root token stability (FlameForgeRoot, real callsite)", () => {
+  let ctx: FlameForgeCtx | null = null
 
   function Probe() {
     const v = useP()
@@ -191,9 +191,9 @@ describe("root token stability (PictoriumRoot, real callsite)", () => {
 
   it("explicit [] settles (no pending/off oscillation) and unrelated rerenders mint nothing", async () => {
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -222,9 +222,9 @@ describe("root token stability (PictoriumRoot, real callsite)", () => {
 
   it("a real selection change from the root remints once with the new payload", async () => {
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -248,3 +248,5 @@ describe("root token stability (PictoriumRoot, real callsite)", () => {
     expect(ctx!.localConfigToken).not.toBe(tokenBefore)
   })
 })
+
+

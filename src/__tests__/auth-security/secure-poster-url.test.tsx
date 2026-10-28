@@ -179,3 +179,4 @@ describe("useSecurePosterUrl effect: header-only fetch, cleanup, fallback", () =
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-object-url")
   })
 })
+

@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test"
+﻿import { test, expect, type Page } from "@playwright/test"
 import { putDefaultsWithRetry } from "./defaults-retry"
 
 // Settings > Trasforma preview-only (Verticale/Orizzontale).
@@ -19,7 +19,7 @@ function tryDemoUrl(raw: string): URL | null {
   // Geometry metadata (`debug=1&netgeo=1`, fetched via fetch() by
   // useNetworkGeometry) returns JSON, not the rendered poster image (loaded
   // via XHR blob, hence resourceType filtering would miss every genuine
-  // preview — the debug/netgeo query exclusion is the precise semantic).
+  // preview â€” the debug/netgeo query exclusion is the precise semantic).
   // Counting it as a preview render breaks the no-image-refetch assertions.
   if (u.searchParams.get("netgeo") === "1" || u.searchParams.get("debug") === "1") return null
   return u
@@ -42,15 +42,15 @@ interface Seen {
   /** resourceType effettivo per ogni riga di urls (parallelo, stessa push). */
   kinds: string[]
   /** Request image sullo stesso path preview (gallery/thumbnail); l'overlap
-   * di URL con urls è legittimo e consentito. */
+   * di URL con urls Ã¨ legittimo e consentito. */
   imageUrls: string[]
   geometryUrls: string[]
 }
 
-/** Log di tutte le request preview demo (anche quelle già partite).
- * Il discriminator anti-contaminazione è il resourceType effettivo della
+/** Log di tutte le request preview demo (anche quelle giÃ  partite).
+ * Il discriminator anti-contaminazione Ã¨ il resourceType effettivo della
  * request (XHR = dialog preview blob; image = thumbnail gallery/preset;
- * fetch = metadati geometria/API), NON l'unicità URL: main e gallery possono
+ * fetch = metadati geometria/API), NON l'unicitÃ  URL: main e gallery possono
  * legittimamente chiedere la stessa URL. Le righe predicate (urls) restano
  * solo-XHR; le image sono catturate a parte per la regressione. */
 function collectPreviewRequests(page: Page, seen: Seen) {
@@ -116,9 +116,9 @@ async function seed(page: Page) {
   await page.addInitScript(() => {
     try {
       localStorage.clear()
-      localStorage.setItem("pictorium_profile_id", "e2e-transform")
-      localStorage.setItem("pictorium_profile_stateless", "1")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_profile_id", "e2e-transform")
+      localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       localStorage.setItem("preferred_lang", "it")
       localStorage.setItem("tmdb_key", "")
     } catch {}
@@ -130,8 +130,8 @@ async function seed(page: Page) {
  * button-interactions.spec.ts): isola dagli altri spec che persistono
  * tuning condiviso nella stessa data-dir. Landscape sostituito in toto
  * (merge shallow), con override diversi dai flat per provare il profilo.
- * networkLogo + follow espliciti: il fetch geometria (netgeo) è gated su di
- * essi e il PUT è merge-only — senza, un networkLogo spento lasciato da uno
+ * networkLogo + follow espliciti: il fetch geometria (netgeo) Ã¨ gated su di
+ * essi e il PUT Ã¨ merge-only â€” senza, un networkLogo spento lasciato da uno
  * spec precedente sopprime il fetch per tutto il test (0 request, mai un
  * semplice ritardo).
  */
@@ -155,7 +155,7 @@ async function resetServerDefaults(page: Page) {
 }
 
 test.describe("Trasforma Verticale/Orizzontale preview-only", () => {
-  test("desktop: tab Orizzontale → landscape live, slider → nuovi params, Verticale → flat", async ({ page }) => {
+  test("desktop: tab Orizzontale â†’ landscape live, slider â†’ nuovi params, Verticale â†’ flat", async ({ page }) => {
     await seed(page)
     await page.setViewportSize({ width: 1280, height: 900 })
     await resetServerDefaults(page)
@@ -173,7 +173,7 @@ test.describe("Trasforma Verticale/Orizzontale preview-only", () => {
     expect(p.get("shape")).toBe("poster")
     expect(p.get("gradHeight")).toBe("30")
 
-    // Passo a Trasforma (sotto-tab Verticale): stesso URL → nessun refetch
+    // Passo a Trasforma (sotto-tab Verticale): stesso URL â†’ nessun refetch
     // immagine. Il freeze geometria (debug=1&netgeo=1, JSON) parte invece
     // subito: va nel bucket geometria, mai in quello preview.
     const before = seen.urls.length
@@ -188,7 +188,7 @@ test.describe("Trasforma Verticale/Orizzontale preview-only", () => {
     // window only grows while polling).
     await expect.poll(() => seen.geometryUrls.length, { timeout: 30_000 }).toBeGreaterThan(geoBefore)
     expect(seen.urls.length).toBe(before)
-    // Regressione: la geometria network è metadata JSON sulla stessa preview
+    // Regressione: la geometria network Ã¨ metadata JSON sulla stessa preview
     // (stessi params + debug/netgeo), distinta dal render immagine.
     expect(seen.geometryUrls.length).toBeGreaterThan(geoBefore)
     const geo = new URL(seen.geometryUrls[seen.geometryUrls.length - 1])
@@ -200,10 +200,10 @@ test.describe("Trasforma Verticale/Orizzontale preview-only", () => {
     p = await waitPreview(seen)
     expect(p.get("shape")).toBe("poster")
 
-    // Regressione contaminazione: il discriminator è il resourceType
-    // effettivo registrato per ogni request, non l'unicità URL (main e
+    // Regressione contaminazione: il discriminator Ã¨ il resourceType
+    // effettivo registrato per ogni request, non l'unicitÃ  URL (main e
     // gallery possono legittimamente chiedere la stessa URL). Ogni riga
-    // preview è XHR (solo stream dialog); le image sullo stesso path sono
+    // preview Ã¨ XHR (solo stream dialog); le image sullo stesso path sono
     // osservate a parte dopo l'apertura; la gallery resta montata e
     // renderizzata normalmente.
     const gallery = dialog.locator('img[src*="/api/poster/"]')
@@ -243,7 +243,7 @@ test.describe("Trasforma Verticale/Orizzontale preview-only", () => {
     const previewBox = page.getByTestId("settings-preview")
     await expect(previewBox.locator(".aspect-video")).toBeVisible()
 
-    // Slider live reali (tastiera): Altezza Orizzontale 20 → 25.
+    // Slider live reali (tastiera): Altezza Orizzontale 20 â†’ 25.
     const landSection = panel.getByText("Override sfumatura Orizzontale").locator("..")
     const height = landSection.getByLabel("Altezza", { exact: true })
     await expect(height).toHaveValue("20")
@@ -253,7 +253,7 @@ test.describe("Trasforma Verticale/Orizzontale preview-only", () => {
     expect(p.get("shape")).toBe("landscape")
     expect(p.get("gradHeight")).toBe("25")
 
-    // Scala badge superiore Orizzontale 120 → 125.
+    // Scala badge superiore Orizzontale 120 â†’ 125.
     const topCard = landSection.getByText("Classifica", { exact: true }).locator("xpath=../..")
     const scale = topCard.getByLabel("Scala", { exact: true })
     await expect(scale).toHaveValue("120")
@@ -286,7 +286,7 @@ test.describe("Trasforma Verticale/Orizzontale preview-only", () => {
     expect(p.get("shape")).toBe("poster")
   })
 
-  test("mobile: Orizzontale → landscape live + aspect, Verticale → flat", async ({ page }) => {
+  test("mobile: Orizzontale â†’ landscape live + aspect, Verticale â†’ flat", async ({ page }) => {
     await seed(page)
     await page.setViewportSize({ width: 390, height: 844 })
     await resetServerDefaults(page)
@@ -294,7 +294,7 @@ test.describe("Trasforma Verticale/Orizzontale preview-only", () => {
     collectPreviewRequests(page, seen)
 
     await page.getByRole("button", { name: /Impostazioni/i }).click()
-    // Su mobile la nav tab è un select visibile.
+    // Su mobile la nav tab Ã¨ un select visibile.
     const category = page.locator("select:visible").first()
     await expect(category).toBeVisible()
     let p = await waitPreview(seen)
@@ -305,7 +305,7 @@ test.describe("Trasforma Verticale/Orizzontale preview-only", () => {
     await expect(panel).toBeVisible()
 
     // After the switch the test requires the ACTUAL dialog XHR of the new
-    // generation (shape=landscape): open→click routinely completes inside
+    // generation (shape=landscape): openâ†’click routinely completes inside
     // the 200ms dialog debounce, so a first-any match would latch the
     // settling pre-click portrait XHR. Post-click thumbnails are landscape
     // (PresetsPanel follows editTargetShape) and image-typed, hence already
@@ -342,11 +342,12 @@ test.describe("Trasforma Verticale/Orizzontale preview-only", () => {
     )
     expect(p.get("shape")).toBe("poster")
     expect(p.get("gradHeight")).toBe("30")
-    // Regressione: il vincitore è un vero render preview (mai metadata
-    // geometria) e nessuna URL geometria è mai finita nel bucket preview.
+    // Regressione: il vincitore Ã¨ un vero render preview (mai metadata
+    // geometria) e nessuna URL geometria Ã¨ mai finita nel bucket preview.
     expect(p.get("debug")).toBeNull()
     expect(p.get("netgeo")).toBeNull()
     expect(seen.urls.every((raw) => !new URL(raw).searchParams.has("netgeo"))).toBe(true)
     expect(seen.geometryUrls.every((raw) => new URL(raw).searchParams.get("netgeo") === "1")).toBe(true)
   })
 })
+

@@ -42,7 +42,7 @@ vi.mock("@vercel/kv", () => ({
         }
         return h
       }
-      if (script.includes("pictorium:mapping-upsert:v1")) {
+      if (script.includes("FlameForge:mapping-upsert:v1")) {
         if (keys.length !== 1 || args.length !== 3) throw new Error("unsupported mapping-upsert args in fake eval")
         const [hashK] = keys
         const [maxRaw, field, json] = args
@@ -55,7 +55,7 @@ vi.mock("@vercel/kv", () => ({
         h.set(field, JSON.parse(json))
         return 0
       }
-      if (script.includes("pictorium:mapping-import:v1")) {
+      if (script.includes("FlameForge:mapping-import:v1")) {
         if (keys.length !== 1 || args.length < 1 || (args.length - 1) % 2 !== 0)
           throw new Error("unsupported mapping-import args in fake eval")
         const [hashK] = keys
@@ -66,7 +66,7 @@ vi.mock("@vercel/kv", () => ({
         for (let i = 1; i < args.length; i += 2) h.set(args[i], JSON.parse(args[i + 1]))
         return 0
       }
-      if (script.includes("pictorium:alias-set:v1")) {
+      if (script.includes("FlameForge:alias-set:v1")) {
         if (keys.length !== 2 || args.length !== 3) throw new Error("unsupported alias-set args in fake eval")
         const [aliasK, mapK] = keys
         const ah = hashOf(aliasK)
@@ -84,7 +84,7 @@ vi.mock("@vercel/kv", () => ({
   },
 }))
 
-const originalDataDir = process.env.POSTERIUM_DATA_DIR
+const originalDataDir = process.env.FLAMEFORGE_DATA_DIR
 let tempDir: string | undefined
 
 function makeMapping(id: number, title: string): Mapping {
@@ -102,9 +102,9 @@ function makeMapping(id: number, title: string): Mapping {
 
 afterEach(async () => {
   if (originalDataDir === undefined) {
-    delete process.env.POSTERIUM_DATA_DIR
+    delete process.env.FLAMEFORGE_DATA_DIR
   } else {
-    process.env.POSTERIUM_DATA_DIR = originalDataDir
+    process.env.FLAMEFORGE_DATA_DIR = originalDataDir
   }
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
@@ -116,8 +116,8 @@ afterEach(async () => {
 
 describe("file mapping store", () => {
   it("reloads mappings written by another server worker", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-store-"))
-    process.env.POSTERIUM_DATA_DIR = tempDir
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-store-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
     vi.resetModules()
     const store = await import("@/lib/store")
     expect(await store.getAll()).toEqual([])
@@ -138,8 +138,8 @@ describe("file mapping store", () => {
   })
 
   it("handles concurrent upserts without losing writes", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-concurrent-"))
-    process.env.POSTERIUM_DATA_DIR = tempDir
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-concurrent-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
     vi.resetModules()
     const store = await import("@/lib/store")
 
@@ -166,8 +166,8 @@ describe("file mapping store", () => {
   })
 
   it("importMappings stamps a fresh updatedAt on each imported mapping", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-import-"))
-    process.env.POSTERIUM_DATA_DIR = tempDir
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-import-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
     vi.resetModules()
     const store = await import("@/lib/store")
 
@@ -192,8 +192,8 @@ describe("file mapping store", () => {
   })
 
   it("importMappings([]) è no-op (niente hset vuoto → niente 500, v1.23.0)", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-import-empty-"))
-    process.env.POSTERIUM_DATA_DIR = tempDir
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-import-empty-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
     vi.resetModules()
     const store = await import("@/lib/store")
     await expect(store.importMappings([])).resolves.toBeUndefined()
@@ -248,13 +248,13 @@ describe("KV per-user quota guards (Q2b2 atomic EVAL)", () => {
   // tests below overwrite must come back verbatim — never a bare `delete`
   // that would drop a caller value.
   const origQuotaEnv = new Map<string, string | undefined>([
-    ["PICTORIUM_REDIS_URL", process.env.PICTORIUM_REDIS_URL],
-    ["POSTERIUM_REDIS_URL", process.env.POSTERIUM_REDIS_URL],
+    ["FLAMEFORGE_REDIS_URL", process.env.FLAMEFORGE_REDIS_URL],
+    ["FLAMEFORGE_REDIS_URL", process.env.FLAMEFORGE_REDIS_URL],
     ["REDIS_URL", process.env.REDIS_URL],
     ["KV_REST_API_URL", process.env.KV_REST_API_URL],
     ["KV_REST_API_TOKEN", process.env.KV_REST_API_TOKEN],
-    ["PICTORIUM_MAX_MAPPINGS_PER_USER", process.env.PICTORIUM_MAX_MAPPINGS_PER_USER],
-    ["POSTERIUM_MAX_MAPPINGS_PER_USER", process.env.POSTERIUM_MAX_MAPPINGS_PER_USER],
+    ["FLAMEFORGE_MAX_MAPPINGS_PER_USER", process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER],
+    ["FLAMEFORGE_MAX_MAPPINGS_PER_USER", process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER],
   ])
 
   function restoreQuotaEnv(): void {
@@ -269,12 +269,12 @@ describe("KV per-user quota guards (Q2b2 atomic EVAL)", () => {
     // wins over KV in getKv(), so blank the Redis selectors ("" trims to
     // unset in resolveRedisUrl) to force the mocked @vercel/kv path — never
     // an accidental real Redis when the parent env is configured.
-    vi.stubEnv("PICTORIUM_REDIS_URL", "")
-    vi.stubEnv("POSTERIUM_REDIS_URL", "")
+    vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+    vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
     vi.stubEnv("REDIS_URL", "")
     vi.stubEnv("KV_REST_API_URL", "https://example.upstash.io")
     vi.stubEnv("KV_REST_API_TOKEN", "test-token")
-    vi.stubEnv("PICTORIUM_MAX_MAPPINGS_PER_USER", max)
+    vi.stubEnv("FLAMEFORGE_MAX_MAPPINGS_PER_USER", max)
   }
 
   async function kvStore(max: string) {
@@ -334,7 +334,7 @@ describe("KV per-user quota guards (Q2b2 atomic EVAL)", () => {
     // Seed 2, then lower the cap to 1: the stored count (2) is already over.
     await store.upsert(makeMapping(1, "A"), UUID_Q)
     await store.upsert(makeMapping(2, "B"), UUID_Q)
-    vi.stubEnv("PICTORIUM_MAX_MAPPINGS_PER_USER", "1")
+    vi.stubEnv("FLAMEFORGE_MAX_MAPPINGS_PER_USER", "1")
     await expect(store.importMappings([makeMapping(1, "A2")], UUID_Q)).rejects.toMatchObject({
       name: "QuotaExceededError",
       max: 1,
@@ -364,3 +364,5 @@ describe("KV per-user quota guards (Q2b2 atomic EVAL)", () => {
     expect((err as Error).name).not.toBe("QuotaExceededError")
   })
 })
+
+

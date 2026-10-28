@@ -164,3 +164,4 @@ describe("buildStremioPosterSearchParams", () => {
     expect(params.get("tint")).toBe("20")
   })
 })
+

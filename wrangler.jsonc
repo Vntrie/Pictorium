@@ -1,5 +1,5 @@
-{
-  // Pictorium poster edge cache (tiered Workers Caching, opt-in).
+﻿{
+  // FlameForge poster edge cache (tiered Workers Caching, opt-in).
   // NOT deployed by this repo: no deploy script, no account writes.
   // Validated with `wrangler deploy --dry-run` (see task evidence).
   // Use pinned wrangler@4.151.1 (clean, zero warnings);
@@ -7,15 +7,15 @@
   // and `observability.issues` (schema added later).
   // Semantics: gateway `default` entrypoint stays uncached; only the
   // `PosterCacheTier` entrypoint is cached (per-entrypoint override of the
-  // top-level default). Requires PICTORIUM_TIERED_CACHE=1 at runtime,
+  // top-level default). Requires FLAMEFORGE_TIERED_CACHE=1 at runtime,
   // otherwise the Worker keeps its legacy local-only cache behavior.
-  "name": "pictorium",
+  "name": "FlameForge",
   "main": "scripts/cloudflare-poster-worker.mjs",
   "compatibility_date": "2026-09-19",
   "workers_dev": true,
   "vars": {
-    "PICTORIUM_TIERED_CACHE": "1",
-    "ORIGIN_URL": "https://pictorium.duckdns.org"
+    "FLAMEFORGE_TIERED_CACHE": "1",
+    "ORIGIN_URL": "https://FlameForge.duckdns.org"
   },
   "cache": { "enabled": false },
   "exports": {
@@ -35,3 +35,4 @@
     "issues": { "enabled": true }
   }
 }
+

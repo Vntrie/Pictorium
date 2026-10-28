@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ResponsiveToaster } from "@/components/ResponsiveToaster";
 import "./globals.css";
@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://pictorium.app"),
-  title: "Pictorium — Generatore di poster per Stremio",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://FlameForge.app"),
+  title: "FlameForge â€” Generatore di poster per Stremio",
   description: "Generatore dinamico di poster cinematografici per Stremio: locandine pulite, loghi vettoriali, rating e badge trend composti in tempo reale.",
   manifest: "/site.webmanifest",
   icons: {
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Pictorium",
+    title: "FlameForge",
     description: "Generatore di poster cinematografici per Stremio",
-    images: ["/pictorium.png"],
+    images: ["/FlameForge.png"],
     type: "website",
   },
   robots: { index: true, follow: true },
@@ -54,7 +54,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var t;try{t=localStorage.getItem("pictorium_ui_theme");}catch(e){}var s=t==="light"||t==="dark"?t:"system";var d=s==="system"?(typeof window.matchMedia==="function"?(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):"dark"):s;document.documentElement.setAttribute("data-theme",d);document.documentElement.setAttribute("data-theme-setting",s);document.documentElement.classList.add(d);document.documentElement.classList.remove(d==="dark"?"light":"dark");})();`,
+            __html: `(function(){var t;try{t=localStorage.getItem("FLAMEFORGE_ui_theme");}catch(e){}var s=t==="light"||t==="dark"?t:"system";var d=s==="system"?(typeof window.matchMedia==="function"?(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):"dark"):s;document.documentElement.setAttribute("data-theme",d);document.documentElement.setAttribute("data-theme-setting",s);document.documentElement.classList.add(d);document.documentElement.classList.remove(d==="dark"?"light":"dark");})();`,
           }}
         />
         <script
@@ -79,3 +79,4 @@ export default function RootLayout({
     </html>
   );
 }
+

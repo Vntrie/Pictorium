@@ -4,15 +4,15 @@
  * `effectiveDefaultsForShape` rule as the settings preview and the server).
  * Portrait fresh titles keep the flats. Saved mappings always win.
  *
- * Drives the REAL provider (PictoriumRoot) with deferred network, captures
+ * Drives the REAL provider (FlameForgeRoot) with deferred network, captures
  * the outgoing editor preview XHR params, and cross-checks them against the
  * server effective config (resolvePosterRenderConfig, mapping null).
  */
 import { useEffect } from "react"
 import { render, act } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import type { SearchResult, TMDBImage, Mapping } from "@/lib/types"
@@ -21,7 +21,7 @@ import { buildStremioPosterUrl } from "@/lib/stremio-poster-url"
 import { effectiveDefaultsForShape } from "@/lib/server-defaults"
 import type { ServerDefaults } from "@/lib/server-defaults"
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -228,9 +228,9 @@ async function renderRoot() {
   ctx = null
   ed = null
   render(
-    <PictoriumRoot>
+    <FlameForgeRoot>
       <Probe />
-    </PictoriumRoot>,
+    </FlameForgeRoot>,
   )
   await flush()
   expect(ctx, "provider context available").toBeTruthy()
@@ -547,3 +547,5 @@ describe("N5 fresh landscape defaults", () => {
     expect(ed!.topBadgeOffsetX).toBe(5)
   })
 })
+
+

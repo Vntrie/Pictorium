@@ -1,6 +1,6 @@
 /**
  * Effective-accent picker (client, header transport): BadgeControls shows the
- * hex ACTUALLY painted (server `X-Pictorium-Accent` response header of the
+ * hex ACTUALLY painted (server `X-FlameForge-Accent` response header of the
  * exact rendered preview image, published by the existing XHR blob load — no
  * dedicated JSON fetch) — never the legacy base — while canonical identity
  * (`accentColor`/`autoAccentColor`, `isManualAccent`, `ac=`, mapping) is
@@ -10,7 +10,7 @@ import { beforeEach, describe, expect, it, vi, afterEach } from "vitest"
 import { act, fireEvent, render, screen, waitFor, renderHook } from "@testing-library/react"
 import { createElement, useState } from "react"
 import { BadgeControls } from "@/components/BadgeControls"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import { MOCK_CTX } from "@/__tests__/test-utils"
@@ -49,7 +49,7 @@ const SELECTED = {
 }
 
 const PREVIEW_URL =
-  "https://pictorium.test/api/poster/movie/1?rv=e6889605bb&preview=1&bs=colored&rs=default&shape=poster&ts=80&bd=30&be=1"
+  "https://FlameForge.test/api/poster/movie/1?rv=e6889605bb&preview=1&bs=colored&rs=default&shape=poster&ts=80&bd=30&be=1"
 
 /** Canonical legacy base (what useRootColors sampled) — NOT the answer. */
 const BASE = "#425e66"
@@ -131,9 +131,9 @@ function HarnessView({ accent = null, auto = BASE, preview = PREVIEW_URL, onAcce
   return (
     <ThemeProvider>
       <PosterEditorProvider>
-        <PictoriumProvider value={value}>
+        <FlameForgeProvider value={value}>
           <BadgeControls />
-        </PictoriumProvider>
+        </FlameForgeProvider>
       </PosterEditorProvider>
     </ThemeProvider>
   )
@@ -774,3 +774,5 @@ describe("manual path stays exact and always available", () => {
     expect(mappings[0]!.body.accentColor).toBeUndefined()
   })
 })
+
+

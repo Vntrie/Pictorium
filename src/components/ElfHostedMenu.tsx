@@ -1,14 +1,14 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useState, type ReactNode } from "react"
 import { ArrowUpRight, Minus } from "lucide-react"
 import { useT } from "@/lib/contexts/TranslationContext"
 import { fetchServerStatus } from "@/lib/guest-guard"
 
-const MINIMIZED_KEY_PREFIX = "pictorium_elfhosted_minimized_"
-const TOGGLE_EVENT = "pictorium:elfhosted-toggle"
+const MINIMIZED_KEY_PREFIX = "FLAMEFORGE_elfhosted_minimized_"
+const TOGGLE_EVENT = "FlameForge:elfhosted-toggle"
 const DEPLOY_URL =
-  "https://store.elfhosted.com/product/pictorium/?utm_source=pictorium-public&utm_medium=landing&utm_campaign=upgrade"
+  "https://store.elfhosted.com/product/FlameForge/?utm_source=FlameForge-public&utm_medium=landing&utm_campaign=upgrade"
 
 export type ElfHostedScope = "desktop" | "mobile"
 
@@ -117,7 +117,7 @@ export function ElfHostedMenuPanel({ onMinimize }: { onMinimize: () => void }) {
       </div>
       <p className="px-2 pb-2 text-[11px] leading-snug text-zinc-400">{t("ui.hostedByShared")}</p>
       <div className="h-px bg-white/10 mx-2 mb-1" aria-hidden="true" />
-      {/* Private-instance row: ElfHosted's Pictorium product page. */}
+      {/* Private-instance row: ElfHosted's FlameForge product page. */}
       <MenuLink href={DEPLOY_URL}>{t("ui.hostedByDeploy")}</MenuLink>
       <MenuLink href="https://stremio-addons-guide.elfhosted.com/">
         {t("ui.hostedByGuideLine", { guide: t("ui.hostedByGuide") })}
@@ -125,3 +125,4 @@ export function ElfHostedMenuPanel({ onMinimize }: { onMinimize: () => void }) {
     </div>
   )
 }
+

@@ -1,8 +1,8 @@
-import { test, expect, type Page, type Locator } from "@playwright/test"
+﻿import { test, expect, type Page, type Locator } from "@playwright/test"
 
-// T3 — anteprima icone stile badge (Vetro) in light/dark.
+// T3 â€” anteprima icone stile badge (Vetro) in light/dark.
 // Legge gli stili computati reali (icona + wrapper .badge-style-preview)
-// negli stati selezionato/non selezionato e su mount ripetuti light→dark→light.
+// negli stati selezionato/non selezionato e su mount ripetuti lightâ†’darkâ†’light.
 // PNG in test-results (ispezione umana); asserzioni sui colori computati,
 // nessuno snapshot comparativo.
 test.describe("Badge style icon preview (vetro) themes", () => {
@@ -10,9 +10,9 @@ test.describe("Badge style icon preview (vetro) themes", () => {
     await page.addInitScript(() => {
       try {
         localStorage.clear()
-        localStorage.setItem("pictorium_profile_id", "e2e-vetro")
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", "e2e-vetro")
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", "it")
       } catch {}
     })
@@ -33,7 +33,7 @@ test.describe("Badge style icon preview (vetro) themes", () => {
   }
 
   async function exitSettingsResolvingDirty(page: Page) {
-    // Staged contract: a dirty draft never closes silently — Escape opens the
+    // Staged contract: a dirty draft never closes silently â€” Escape opens the
     // exit-confirm modal; a clean draft closes directly. The Vetro selection
     // above is part of the test intent, so a dirty draft persists via the
     // modal's explicit "Salva e chiudi" (real accessible UI, no DOM forcing).
@@ -77,7 +77,7 @@ test.describe("Badge style icon preview (vetro) themes", () => {
 
   test("light: wrapper scuro dietro icona vetro (selezionata e no), repeat stabile", async ({ page }) => {
     await page.addInitScript(() => {
-      try { localStorage.setItem("pictorium_ui_theme", "light") } catch {}
+      try { localStorage.setItem("FLAMEFORGE_ui_theme", "light") } catch {}
     })
     const controls = await openGenreGrid(page)
     let s = await readVetro(page, controls)
@@ -137,7 +137,7 @@ test.describe("Badge style icon preview (vetro) themes", () => {
 
   test("hover/focus: anteprima vetro stabile in light (selected/unselected), dark invariato", async ({ page }) => {
     await page.addInitScript(() => {
-      try { localStorage.setItem("pictorium_ui_theme", "light") } catch {}
+      try { localStorage.setItem("FLAMEFORGE_ui_theme", "light") } catch {}
     })
     const controls = await openGenreGrid(page)
     const { btn } = await vetroTile(controls)
@@ -230,11 +230,11 @@ test.describe("Badge style icon preview (vetro) themes", () => {
 
   test("hardening: light con sola classe (senza attributo data-theme) resta leggibile", async ({ page }) => {
     await page.addInitScript(() => {
-      try { localStorage.setItem("pictorium_ui_theme", "light") } catch {}
+      try { localStorage.setItem("FLAMEFORGE_ui_theme", "light") } catch {}
     })
     await page.goto("/")
     // Stato divergente: variabili light via classe `light`, ma i selettori
-    // [data-theme="light"] non matchano (ex hydration/async race) → prima
+    // [data-theme="light"] non matchano (ex hydration/async race) â†’ prima
     // del fix qui l'icona vetro era Aa bianco su fondo chiaro.
     await page.evaluate(() => {
       document.documentElement.removeAttribute("data-theme")
@@ -252,3 +252,4 @@ test.describe("Badge style icon preview (vetro) themes", () => {
     await btn.screenshot({ path: "test-results/vetro-light-classonly.png", animations: "disabled" })
   })
 })
+

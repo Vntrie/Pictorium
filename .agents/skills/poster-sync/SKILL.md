@@ -1,7 +1,7 @@
----
+﻿---
 name: poster-sync
 description: >
-  Synchronize client/server visual render parameters in Pictorium. The poster is
+  Synchronize client/server visual render parameters in FlameForge. The poster is
   served by a single shared renderer (`/api/poster/{type}/{id}`): parameters
   that travel in the preview URL have a client counterpart (EditView, context,
   poster-url) and a server counterpart (route.ts, svg-badge.ts, badges.ts).
@@ -13,8 +13,8 @@ description: >
   to a rendering file.
 ---
 
-Pictorium renders ONE poster: the client preview is a single `<img src={previewUrl}>`
-that loads `/api/poster/{type}/{id}` — the same endpoint Stremio uses. There is no
+FlameForge renders ONE poster: the client preview is a single `<img src={previewUrl}>`
+that loads `/api/poster/{type}/{id}` â€” the same endpoint Stremio uses. There is no
 separate client renderer. "Client" here means the URL params the client builds
 (`src/lib/context.tsx`, `src/lib/poster-url.ts`); "server" means what the route reads
 (`src/app/api/poster/[type]/[id]/route.ts`) and how SVG badges are drawn
@@ -30,11 +30,11 @@ paddings/gaps, accent color extraction, ribbon side, overflow protection formula
 
 1. **Locate the server counterpart.** Grep the parameter name across `src/lib/*.ts`
    and `src/app/api/poster/[type]/[id]/route.ts`. Server-side-only constants in
-   the shared renderer may have no client-side usage or query param — inspect
+   the shared renderer may have no client-side usage or query param â€” inspect
    the shared implementation and the client URL/server consumers, and update
    only the affected consumers. The canonical param map lives in
    `.agents/render-params.md` (URL query params + badge geometry tables).
-   When descriptive docs and code disagree on current behavior, CODE WINS —
+   When descriptive docs and code disagree on current behavior, CODE WINS â€”
    update `.agents/render-params.md`. It never overrides user requirements,
    public contracts, or security policies.
 
@@ -44,7 +44,7 @@ paddings/gaps, accent color extraction, ribbon side, overflow protection formula
    never fork the formula. Check `computeLogoBox`, `buildGenreTextFlow`,
    `genreBadgeDims`, `estimateTextWidth`.
 
-3. **Regenerate RENDER_VERSION** — never hand-edit `src/lib/render-version.ts`
+3. **Regenerate RENDER_VERSION** â€” never hand-edit `src/lib/render-version.ts`
    (it is auto-generated). Run:
    ```
    node scripts/write-render-version.mjs
@@ -52,15 +52,15 @@ paddings/gaps, accent color extraction, ribbon side, overflow protection formula
    It hashes the render files listed in `scripts/write-render-version.mjs`
    (`RENDER_FILES`). If your file is not in that list and it affects visual output,
    add it, then regenerate. The `predev`/`prebuild`/`pretest` scripts already do
-   this automatically — the manual run is for immediate verification.
+   this automatically â€” the manual run is for immediate verification.
 
 4. **Keep generated values out of documentation.** Read the generated files;
    never copy `rv` or app-version values into `AGENTS.md` or skill files.
 
 5. **Run the visual regression suite at the final batch before push/integration**
-   according to `AGENTS.md` → Verification Strategy:
+   according to `AGENTS.md` â†’ Verification Strategy:
    ```
-   npx playwright test e2e/pictorium-visual.spec.ts
+   npx playwright test e2e/FlameForge-visual.spec.ts
    ```
    No external dependencies: `playwright.config.ts` starts `e2e/mock-server.mjs`
    automatically (dedicated port + `.next-e2e` distDir), so it works even with
@@ -68,16 +68,16 @@ paddings/gaps, accent color extraction, ribbon side, overflow protection formula
 
 6. **Intentional appearance change?** Update snapshots deliberately:
    ```
-   npx playwright test e2e/pictorium-visual.spec.ts --update-snapshots
+   npx playwright test e2e/FlameForge-visual.spec.ts --update-snapshots
    ```
    Review the `.png` diffs before committing them.
 
 ## Query params quick reference
 
-The canonical client → server query param map lives in
+The canonical client â†’ server query param map lives in
 [`.agents/render-params.md`](../../render-params.md) (section "Parametri URL
 (query string)"). Consult it whenever a param pair changes. Do NOT duplicate the
-table here — update the canonical file instead.
+table here â€” update the canonical file instead.
 
 Dead params: `gradColor`, `gradOpacity`, `gradFade`, `gradDir` are not read by the
 server anymore. Do not reintroduce them.
@@ -92,4 +92,5 @@ server anymore. Do not reintroduce them.
   push/integration. Scheduling is defined by `AGENTS.md Verification Strategy`;
   visual during work is only for requested diagnosis or demonstrated need.
 - For URL/mapping/precedence changes, include the relevant URL unit tests and
-  `e2e/pictorium-parity.spec.ts` in the final batch. No duplicated renderer.
+  `e2e/FlameForge-parity.spec.ts` in the final batch. No duplicated renderer.
+

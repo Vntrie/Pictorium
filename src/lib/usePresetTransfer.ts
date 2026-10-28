@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useState } from "react"
 import { toast } from "sonner"
@@ -66,7 +66,7 @@ export function usePresetTransfer(options?: {
     setBusy(true)
     try {
       const visuals = [...(await readPresets("portrait")), ...(await readPresets("landscape"))]
-      downloadJson(`pictorium-presets-${dateStamp()}.json`, buildPresetFile({ visual: visuals, gradient: getCustomGradientPresets() }))
+      downloadJson(`FlameForge-presets-${dateStamp()}.json`, buildPresetFile({ visual: visuals, gradient: getCustomGradientPresets() }))
       toast.success(t("ui.saved"))
     } catch {
       toast.error(t("ui.visualPresetsError"))
@@ -78,19 +78,19 @@ export function usePresetTransfer(options?: {
   const exportVisual = useCallback((preset: { name: string; shape?: unknown; values: unknown }) => {
     const shape = visualPresetShapeSchema.safeParse(preset.shape)
     downloadJson(
-      `pictorium-visual-preset-${slugify(preset.name)}.json`,
+      `FlameForge-visual-preset-${slugify(preset.name)}.json`,
       buildPresetFile({ visual: [{ ...preset, shape: shape.success ? shape.data : "portrait" }] }),
     )
     toast.success(t("ui.saved"))
   }, [t])
 
   const exportGradients = useCallback(() => {
-    downloadJson(`pictorium-gradient-presets-${dateStamp()}.json`, buildPresetFile({ gradient: getCustomGradientPresets() }))
+    downloadJson(`FlameForge-gradient-presets-${dateStamp()}.json`, buildPresetFile({ gradient: getCustomGradientPresets() }))
     toast.success(t("ui.saved"))
   }, [t])
 
   const exportGradient = useCallback((preset: { name: string; values: unknown }) => {
-    downloadJson(`pictorium-gradient-preset-${slugify(preset.name)}.json`, buildPresetFile({ gradient: [preset] }))
+    downloadJson(`FlameForge-gradient-preset-${slugify(preset.name)}.json`, buildPresetFile({ gradient: [preset] }))
     toast.success(t("ui.saved"))
   }, [t])
 
@@ -190,3 +190,4 @@ export function usePresetTransfer(options?: {
 
   return { busy, exportAll, exportVisual, exportGradients, exportGradient, importFile }
 }
+

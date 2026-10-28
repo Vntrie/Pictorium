@@ -200,3 +200,4 @@ describe("fetchAggregatedRating breaker (fail-open, 3 fails → 30s)", () => {
     expect(hangingForever).toHaveBeenCalledTimes(1)
   })
 })
+

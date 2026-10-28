@@ -503,3 +503,4 @@ describe("quick presets natural+transform isolated", () => {
     expectGlobalsUnchanged(c)
   })
 })
+

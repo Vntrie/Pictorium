@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useCallback, type CSSProperties } from "react"
 import dynamic from "next/dynamic"
@@ -21,7 +21,7 @@ const SettingsPanel = dynamic(() => import("@/components/SettingsPanel").then((m
 const SearchView = dynamic(() => import("@/components/SearchView").then((m) => m.SearchView), { ssr: false })
 const MyPostersView = dynamic(() => import("@/components/MyPostersView").then((m) => m.MyPostersView), { ssr: false })
 const CataloghiView = dynamic(() => import("@/components/CataloghiView").then((m) => m.CataloghiView), { ssr: false })
-const EditView = dynamic(() => import("@/components/EditView"), { ssr: false, loading: () => <div className="h-64 flex items-center justify-center text-xs text-zinc-500 animate-pulse">…</div> })
+const EditView = dynamic(() => import("@/components/EditView"), { ssr: false, loading: () => <div className="h-64 flex items-center justify-center text-xs text-zinc-500 animate-pulse">â€¦</div> })
 const ProxyModal = dynamic(() => import("@/components/ProxyModal").then((m) => m.ProxyModal), { ssr: false })
 const InstallModal = dynamic(() => import("@/components/InstallModal").then((m) => m.InstallModal), { ssr: false })
 const OnboardingTour = dynamic(() => import("@/components/OnboardingTour").then((m) => m.OnboardingTour), { ssr: false })
@@ -60,20 +60,20 @@ export function AppShell() {
   /** Every settings close path runs through the panel session guard: the
    *  shell never unmounts the panel directly (no silent draft loss). */
   const requestSettingsClose = () => {
-    window.dispatchEvent(new CustomEvent("pictorium:settings-close-request"))
+    window.dispatchEvent(new CustomEvent("FlameForge:settings-close-request"))
   }
 
   const [hasPinConfigured, setHasPinConfigured] = useState<boolean | null>(null)
   const [isUnlocked, setIsUnlocked] = useState(false)
-  // Su /u/<uuid> il cancello è la password dello spazio (UserUnlockModal):
+  // Su /u/<uuid> il cancello Ã¨ la password dello spazio (UserUnlockModal):
   // il lucchetto PIN d'istanza non deve murare anche gli spazi (niente doppio
-  // cancello in multi-user). Letto al mount: AppShell è per-pagina.
+  // cancello in multi-user). Letto al mount: AppShell Ã¨ per-pagina.
   const [isUserPath] = useState(() => currentPathUuid() !== null)
 
   useEffect(() => {
     const id = currentPathUuid()
     if (id && typeof window !== "undefined") {
-      try { window.sessionStorage?.setItem("pictorium_active_space", id) } catch {}
+      try { window.sessionStorage?.setItem("FLAMEFORGE_active_space", id) } catch {}
     }
   }, [])
 
@@ -97,8 +97,8 @@ export function AppShell() {
       }
       checkPinStatus()
     }
-    window.addEventListener("pictorium:pin-change", handlePinChange)
-    return () => window.removeEventListener("pictorium:pin-change", handlePinChange)
+    window.addEventListener("FlameForge:pin-change", handlePinChange)
+    return () => window.removeEventListener("FlameForge:pin-change", handlePinChange)
   }, [checkPinStatus])
 
   const handlePinUnlock = () => {
@@ -107,7 +107,7 @@ export function AppShell() {
 
   // Walled PIN lock: same condition as the mount below. While it is
   // visible the app shell is inert (see div.app-shell) and onboarding stays
-  // parked — a single active dialog, no split focus.
+  // parked â€” a single active dialog, no split focus.
   const pinLocked = Boolean(hasPinConfigured && !isUnlocked && !showLangPicker && !isUserPath)
 
 
@@ -115,7 +115,7 @@ export function AppShell() {
 
   // Explicit onboarding replay ("Repeat guided setup"): transient intent,
   // scoped to the requesting namespace and consumed once when the setup
-  // wizard finishes. In-memory only — a reload never auto-replays. Keys,
+  // wizard finishes. In-memory only â€” a reload never auto-replays. Keys,
   // posters and settings are untouched; the wizard (LangPicker) always runs
   // first and the tour opens after it closes (never stacked). State machine
   // lives in the hook (same wiring the integration tests exercise); the tour
@@ -133,15 +133,15 @@ export function AppShell() {
   }, [promotePendingReplay, setShowLangPicker])
 
   // First-use onboarding: the tour checklist advances when the install modal
-  // actually opens (real action, not the click) — including toolbar opens.
+  // actually opens (real action, not the click) â€” including toolbar opens.
   useEffect(() => {
     if (installOpen) window.dispatchEvent(new CustomEvent(ONBOARDING_INSTALL_OPENED_EVENT))
   }, [installOpen])
 
   // Lock toolbar pre-auth (multi-user): senza uuid o senza unlock di sessione
-  // i bottoni top-right + bottom-nav restano disabilitati — l'auth passa solo
+  // i bottoni top-right + bottom-nav restano disabilitati â€” l'auth passa solo
   // dal gate centrale (UserSpacesList) o dal modal di sblocco. Single-user
-  // invariato (multiUserOn false → mai locked).
+  // invariato (multiUserOn false â†’ mai locked).
   const [multiUserOn, setMultiUserOn] = useState(false)
   const [lockUuid, setLockUuid] = useState<string | null>(null)
   const [, setUnlockTick] = useState(0)
@@ -198,11 +198,11 @@ export function AppShell() {
     setSettingsOpen(true)
     let tries = 0
     const tick = () => {
-      window.dispatchEvent(new CustomEvent("pictorium:settings-space-tab"))
-      const el = document.getElementById("pictorium-uuid-section")
+      window.dispatchEvent(new CustomEvent("FlameForge:settings-space-tab"))
+      const el = document.getElementById("FlameForge-uuid-section")
       if (el) {
         // Guardia: jsdom (test) e vecchi webview non implementano
-        // scrollIntoView — senza, il timer scade dopo il teardown e l'eccezione
+        // scrollIntoView â€” senza, il timer scade dopo il teardown e l'eccezione
         // uncaught fa fallire l'intera run vitest (exit 1 a test tutti verdi).
         if (typeof el.scrollIntoView === "function") el.scrollIntoView({ behavior: "smooth", block: "start" })
         return
@@ -240,10 +240,10 @@ export function AppShell() {
       {/* Desktop Top-Left Community Island (GitHub & Ko-fi Goal) */}
       {!(view === "edit" && selected) && <DesktopCommunityLinks />}
 
-      {/* Desktop Toolbar — Floating Island */}
+      {/* Desktop Toolbar â€” Floating Island */}
       <div className="hidden md:flex absolute top-4 right-4 z-20">
         <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50 relative z-50">
-          {/* Installa Pictorium Hub Pill Button */}
+          {/* Installa FlameForge Hub Pill Button */}
           <button
             type="button"
             onClick={handleInstallCatalog}
@@ -371,8 +371,8 @@ export function AppShell() {
             role="button"
             tabIndex={0}
             aria-label={t("ui.homeBtn")}
-            src="/pictorium.svg"
-            alt="Pictorium"
+            src="/FlameForge.svg"
+            alt="FlameForge"
             decoding="async"
             className="header-logo header-logo-dark h-10 sm:h-14 md:h-24 w-auto cursor-pointer hover:brightness-110 active:scale-95 transition-all duration-150 mb-1.5 md:mb-2"
           />
@@ -383,8 +383,8 @@ export function AppShell() {
             role="button"
             tabIndex={0}
             aria-label={t("ui.homeBtn")}
-            src="/pictorium-light.svg"
-            alt="Pictorium"
+            src="/FlameForge-light.svg"
+            alt="FlameForge"
             decoding="async"
             className="header-logo header-logo-light h-10 sm:h-14 md:h-24 w-auto cursor-pointer hover:brightness-110 active:scale-95 transition-all duration-150 mb-1.5 md:mb-2"
           />
@@ -526,3 +526,4 @@ export function AppShell() {
     </>
   )
 }
+

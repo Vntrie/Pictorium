@@ -1,7 +1,7 @@
-// Script offline una tantum: verifica che i package JustWatch usati da
-// Pictorium (PLATFORM_JW_PACKAGES in catalog-handler.ts) esistano davvero in
+﻿// Script offline una tantum: verifica che i package JustWatch usati da
+// FlameForge (PLATFORM_JW_PACKAGES in catalog-handler.ts) esistano davvero in
 // ognuna delle 15 regioni supportate, includendo gli add-on/channel
-// (includeAddons: true — senza, HBO Max/Crunchyroll/AMC+ via Amazon Channel
+// (includeAddons: true â€” senza, HBO Max/Crunchyroll/AMC+ via Amazon Channel
 // risultano invisibili).
 //
 // Uso: node scripts/audit-jw-packages.mjs [COUNTRY...]
@@ -15,8 +15,8 @@ const JW_API = process.env.JUSTWATCH_API_URL || "https://apis.justwatch.com/grap
 const EXPECTED = {
   netflix: ["nfx"],
   // Unioni regionali (JW ignora i codici assenti): basta che ALMENO UNO sia
-  // presente — nessuno shortName esiste in tutte le regioni (es. Prime è
-  // `prv` in IT ma `amp` in US/GB/DE/JP; Paramount+ in ES è SkyShowtime `sst`).
+  // presente â€” nessuno shortName esiste in tutte le regioni (es. Prime Ã¨
+  // `prv` in IT ma `amp` in US/GB/DE/JP; Paramount+ in ES Ã¨ SkyShowtime `sst`).
   prime: ["prv", "amp"],
   disney: ["dnp"],
   now: ["ntv", "skg", "pct", "pcp"],
@@ -81,16 +81,16 @@ async function main() {
         console.log(`${country} ${platform}: OK (${present.join(",")})`)
       } else {
         failures++
-        console.log(`${country} ${platform}: MANCANTE [${codes.join(",")}] — nessuno presente`)
+        console.log(`${country} ${platform}: MANCANTE [${codes.join(",")}] â€” nessuno presente`)
         const addonHits = pkgs.filter((p) => codes.includes(p.addonParent?.shortName))
         for (const h of addonHits) {
-          console.log(`    ↳ canale add-on: ${h.shortName} (${h.clearName}) ← parent ${h.addonParent.shortName}`)
+          console.log(`    â†³ canale add-on: ${h.shortName} (${h.clearName}) â† parent ${h.addonParent.shortName}`)
         }
       }
     }
   }
   if (failures > 0) {
-    console.log(`\n${failures} controlli falliti — valuta aggiornamento PLATFORM_JW_PACKAGES`)
+    console.log(`\n${failures} controlli falliti â€” valuta aggiornamento PLATFORM_JW_PACKAGES`)
     process.exitCode = 1
   } else {
     console.log("\nTutti i package attesi sono disponibili in tutte le regioni")
@@ -98,3 +98,4 @@ async function main() {
 }
 
 main()
+

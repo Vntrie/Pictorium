@@ -1,4 +1,4 @@
-import fsp from "node:fs/promises"
+﻿import fsp from "node:fs/promises"
 import path from "node:path"
 import { NextResponse } from "next/server"
 import { rateLimit, rateLimitKey, rateLimitResponse } from "@/lib/rate-limit"
@@ -12,7 +12,7 @@ import { extractUserParam, getScopedUserId, checkUserAuth, userDir } from "@/lib
 
 // Fix L15: i campi streaming devono testare DAVVERO JustWatch e FlixPatrol
 // (prima testavano due endpoint TMDB, fuorviante). I probe girano solo con
-// una chiave TMDB presente: senza, la status page mostra già "chiave mancante"
+// una chiave TMDB presente: senza, la status page mostra giÃ  "chiave mancante"
 // e i test restano veloci (niente rete).
 const PROBE_TIMEOUT_MS = 4000
 
@@ -69,7 +69,7 @@ async function canRead(file: string): Promise<boolean> {
 }
 
 async function canWriteDir(dir: string): Promise<boolean> {
-  const probe = path.join(dir, `.pictorium-healthcheck-${Date.now()}`)
+  const probe = path.join(dir, `.FlameForge-healthcheck-${Date.now()}`)
   try {
     await fsp.writeFile(probe, "ok")
     await fsp.unlink(probe)
@@ -80,7 +80,7 @@ async function canWriteDir(dir: string): Promise<boolean> {
 }
 
 export async function GET(request: Request) {
-  // D1: probe di liveness per Docker/entrypoint (`?probe=1`) — 200 senza
+  // D1: probe di liveness per Docker/entrypoint (`?probe=1`) â€” 200 senza
   // chiave e senza probe upstream. Prima /api/health senza x-api-key
   // rispondeva sempre 503: HEALTHCHECK restava unhealthy (restart loop) e
   // l'entrypoint non superava mai il gate di boot (self-warmup mai avviato).
@@ -147,7 +147,7 @@ export async function GET(request: Request) {
 
   const storage = {
     mode: storageMode,
-    // Diagnostica: quale backend KV è attivo ("redis" nativo, "upstash" REST, null = file).
+    // Diagnostica: quale backend KV Ã¨ attivo ("redis" nativo, "upstash" REST, null = file).
     // `mode` resta il contratto ("kv" | "file"): Redis conta come "kv".
     storageBackend: getStorageBackend(),
     // dataDir NON esposto: rivelerebbe il path assoluto del filesystem (info leak)
@@ -180,3 +180,4 @@ export async function GET(request: Request) {
   const statusCode = tmdbTrending.ok && tmdbSearch.ok && storageOk ? 200 : 503
   return NextResponse.json(health, { status: statusCode })
 }
+

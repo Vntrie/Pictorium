@@ -189,3 +189,4 @@ describe("es-419 meta/poster routing", () => {
     expect(body.logoSelection.usedLang).toBe("es")
   })
 })
+

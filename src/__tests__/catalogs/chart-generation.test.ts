@@ -204,14 +204,14 @@ describe("chart-generation group identity (no global barrier)", () => {
   })
 
   it("routes built-in family-backed catalogs, excluding custom/search", () => {
-    expect(isBuiltInChartCatalogId("pictorium-jw-movies")).toBe(true)
-    expect(isBuiltInChartCatalogId("pictorium-jw-series")).toBe(true)
-    expect(isBuiltInChartCatalogId("pictorium-anime-movies")).toBe(true)
-    expect(isBuiltInChartCatalogId("pictorium-anime")).toBe(true)
-    expect(isBuiltInChartCatalogId("pictorium-netflix-movies")).toBe(true)
-    expect(isBuiltInChartCatalogId("pictorium-prime-series")).toBe(true)
-    expect(isBuiltInChartCatalogId("pictorium-search-movies")).toBe(false)
-    expect(isBuiltInChartCatalogId("pictorium-custom-abc")).toBe(false)
+    expect(isBuiltInChartCatalogId("FlameForge-jw-movies")).toBe(true)
+    expect(isBuiltInChartCatalogId("FlameForge-jw-series")).toBe(true)
+    expect(isBuiltInChartCatalogId("FlameForge-anime-movies")).toBe(true)
+    expect(isBuiltInChartCatalogId("FlameForge-anime")).toBe(true)
+    expect(isBuiltInChartCatalogId("FlameForge-netflix-movies")).toBe(true)
+    expect(isBuiltInChartCatalogId("FlameForge-prime-series")).toBe(true)
+    expect(isBuiltInChartCatalogId("FlameForge-search-movies")).toBe(false)
+    expect(isBuiltInChartCatalogId("FlameForge-custom-abc")).toBe(false)
   })
 
   it("pins the ready-body TTL contract", () => {
@@ -546,3 +546,5 @@ describe("chart-generation persistence (restart + cross-instance + file)", () =>
     }
   })
 })
+
+

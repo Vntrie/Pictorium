@@ -314,3 +314,4 @@ describe("GET /api/poster session cache language isolation (Phase 2)", () => {
     expect(mockedGetDetails.mock.calls.length).toBe(itCalls + frCalls.length)
   })
 })
+

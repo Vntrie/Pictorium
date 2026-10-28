@@ -102,13 +102,13 @@ describe("Task2 JustWatch page/preview correctness", () => {
     })
 
     const paths = [
-      "/catalog/movie/pictorium-jw-movies.json?api_key=test-key",
-      "/catalog/movie/pictorium-jw-movies.json?api_key=test-key&genre=Tutti",
-      "/catalog/movie/pictorium-jw-movies.json?api_key=test-key&genre=All",
+      "/catalog/movie/FlameForge-jw-movies.json?api_key=test-key",
+      "/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&genre=Tutti",
+      "/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&genre=All",
     ]
     const bodies: Array<{ metas: Array<{ id: string; poster: string }> }> = []
     for (const p of paths) {
-      const res = await GET(catalogReq(p), { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+      const res = await GET(catalogReq(p), { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
       expect(res.status).toBe(200)
       bodies.push(await res.json())
       // Same unfiltered cache key by design (no genre fragment): reset all
@@ -162,8 +162,8 @@ describe("Task2 JustWatch page/preview correctness", () => {
     })
 
     const res = await GET(
-      catalogReq("/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=0"),
-      { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) },
+      catalogReq("/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=0"),
+      { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) },
     )
     expect(res.status).toBe(200)
     const page0 = await res.json()
@@ -202,16 +202,16 @@ describe("Task2 JustWatch page/preview correctness", () => {
       return detailsResponse(771, "Recovered 771")
     })
 
-    const path = "/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=0"
+    const path = "/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=0"
     // 1. Thrown error surfaces as an uncached empty page.
-    const errRes = await GET(catalogReq(path), { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const errRes = await GET(catalogReq(path), { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     expect(errRes.status).toBe(200)
     expect((await errRes.json()).metas).toEqual([])
     const callsAfterError = jwCalls
 
     // 2. Same URL recovers without poison: the error wrote no cache entry.
     mode = "ok"
-    const okRes = await GET(catalogReq(path), { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const okRes = await GET(catalogReq(path), { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     expect(okRes.status).toBe(200)
     expect((await okRes.json()).metas.map((m: { id: string }) => m.id)).toEqual(["tmdb:771"])
     expect(jwCalls).toBeGreaterThan(callsAfterError)
@@ -222,12 +222,14 @@ describe("Task2 JustWatch page/preview correctness", () => {
     cacheClear()
     mode = "empty"
     jwCalls = 0
-    const emptyPath = "/catalog/movie/pictorium-jw-movies.json?api_key=test-key&skip=40"
-    const e1 = await GET(catalogReq(emptyPath), { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const emptyPath = "/catalog/movie/FlameForge-jw-movies.json?api_key=test-key&skip=40"
+    const e1 = await GET(catalogReq(emptyPath), { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     expect((await e1.json()).metas).toEqual([])
     expect(jwCalls).toBe(1)
-    const e2 = await GET(catalogReq(emptyPath), { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const e2 = await GET(catalogReq(emptyPath), { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     expect((await e2.json()).metas).toEqual([])
     expect(jwCalls).toBe(1)
   })
 })
+
+

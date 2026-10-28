@@ -107,21 +107,21 @@ describe("auto dedup: Italy Crunchyroll is exactly 3 semantic lists (RED-before)
     // The 2 split fallbacks keep their STABLE legacy auto ids.
     const ids = choices.map((c) => c.catalogId).sort();
     expect(ids).toEqual([
-      "pictorium-stream-crunchyroll-it-movies",
-      "pictorium-stream-crunchyroll-it-series",
-      "pictorium-stream2-crunchyroll--italy--all--auto",
+      "FlameForge-stream-crunchyroll-it-movies",
+      "FlameForge-stream-crunchyroll-it-series",
+      "FlameForge-stream2-crunchyroll--italy--all--auto",
     ]);
 
     const byId = new Map(choices.map((c) => [c.catalogId, c]));
-    expect(byId.get("pictorium-stream-crunchyroll-it-movies")).toMatchObject({
+    expect(byId.get("FlameForge-stream-crunchyroll-it-movies")).toMatchObject({
       section: "movies",
       potential: "justwatch",
     });
-    expect(byId.get("pictorium-stream-crunchyroll-it-series")).toMatchObject({
+    expect(byId.get("FlameForge-stream-crunchyroll-it-series")).toMatchObject({
       section: "series",
       potential: "justwatch",
     });
-    expect(byId.get("pictorium-stream2-crunchyroll--italy--all--auto")).toMatchObject({
+    expect(byId.get("FlameForge-stream2-crunchyroll--italy--all--auto")).toMatchObject({
       section: "all",
       potential: "flixpatrol",
     });
@@ -137,16 +137,16 @@ describe("auto dedup: Italy Crunchyroll is exactly 3 semantic lists (RED-before)
     const netflix = await (await availabilityGET(req("service=netflix&country=IT"))).json();
     expect(
       (netflix.choices as Array<{ catalogId: string }>).map((c) => c.catalogId).sort(),
-    ).toEqual(["pictorium-stream-netflix-it-movies", "pictorium-stream-netflix-it-series"]);
+    ).toEqual(["FlameForge-stream-netflix-it-movies", "FlameForge-stream-netflix-it-series"]);
     // Paramount IT carries a real overall base too: the 2 legacy splits PLUS
     // the genuinely distinct mixed `all` (never merged with the split).
     const paramount = await (await availabilityGET(req("service=paramount&country=IT"))).json();
     expect(
       (paramount.choices as Array<{ catalogId: string }>).map((c) => c.catalogId).sort(),
     ).toEqual([
-      "pictorium-stream-paramount-it-movies",
-      "pictorium-stream-paramount-it-series",
-      "pictorium-stream2-paramount--italy--all--auto",
+      "FlameForge-stream-paramount-it-movies",
+      "FlameForge-stream-paramount-it-series",
+      "FlameForge-stream2-paramount--italy--all--auto",
     ]);
   });
 
@@ -155,11 +155,11 @@ describe("auto dedup: Italy Crunchyroll is exactly 3 semantic lists (RED-before)
     vi.spyOn(globalThis, "fetch").mockImplementation(async () => Response.json(doc));
     const json = await (await availabilityGET(req("service=rai&country=IT"))).json();
     const ids = (json.choices as Array<{ catalogId: string }>).map((c) => c.catalogId);
-    expect(ids).toContain("pictorium-stream2-rai--italy--series--auto--it");
-    expect(ids).not.toContain("pictorium-stream2-rai--italy--series--auto");
+    expect(ids).toContain("FlameForge-stream2-rai--italy--series--auto--it");
+    expect(ids).not.toContain("FlameForge-stream2-rai--italy--series--auto");
     // Base sections still served where the index proves them.
-    expect(ids).toContain("pictorium-stream2-rai--italy--movies--auto");
-    expect(ids).toContain("pictorium-stream2-rai--italy--all--auto");
+    expect(ids).toContain("FlameForge-stream2-rai--italy--movies--auto");
+    expect(ids).toContain("FlameForge-stream2-rai--italy--all--auto");
   });
 
   it("strict source policies unchanged: only-FP serves real FP charts, only-JW serves the matrix", async () => {
@@ -167,12 +167,12 @@ describe("auto dedup: Italy Crunchyroll is exactly 3 semantic lists (RED-before)
     vi.spyOn(globalThis, "fetch").mockImplementation(async () => Response.json(doc));
     const fp = await (await availabilityGET(req("service=crunchyroll&country=IT&source=flixpatrol"))).json();
     const fpIds = (fp.choices as Array<{ catalogId: string }>).map((c) => c.catalogId).sort();
-    expect(fpIds).toEqual(["pictorium-stream2-crunchyroll--italy--all--flixpatrol"]);
+    expect(fpIds).toEqual(["FlameForge-stream2-crunchyroll--italy--all--flixpatrol"]);
     const jw = await (await availabilityGET(req("service=crunchyroll&country=IT&source=justwatch"))).json();
     const jwIds = (jw.choices as Array<{ catalogId: string }>).map((c) => c.catalogId).sort();
     expect(jwIds).toEqual([
-      "pictorium-stream2-crunchyroll--italy--movies--justwatch",
-      "pictorium-stream2-crunchyroll--italy--series--justwatch",
+      "FlameForge-stream2-crunchyroll--italy--movies--justwatch",
+      "FlameForge-stream2-crunchyroll--italy--series--justwatch",
     ]);
   });
 
@@ -231,3 +231,5 @@ describe("auto dedup: Italy Crunchyroll is exactly 3 semantic lists (RED-before)
     );
   });
 });
+
+

@@ -150,3 +150,4 @@ describe("landscape defaults logo limits inherit flat, override wins", () => {
     expect(ctx().landscape.logoScale).toBe(100)
   })
 })
+

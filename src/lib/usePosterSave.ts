@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback } from "react"
 import type { SearchResult, TMDBImage, Mapping, NetworkLogoPosition, PosterShape } from "./types"
@@ -32,7 +32,7 @@ interface PosterSaveDeps {
   setPreviewId: (id: string | null) => void
   posters: TMDBImage[]
   metaInfo: { genres: { id: number; name: string }[]; voteAverage: number; type?: string; status?: string; release_date?: string; first_air_date?: string; last_air_date?: string; next_episode_to_air?: { air_date: string } | null; number_of_seasons?: number; number_of_episodes?: number; awards?: string[]; nominations?: string[]; studios?: string[]; director?: string | null; keywords?: string[]; imdb_id?: string | null; wikidata_id?: string | null; networksDetailed?: { name: string; logo_path: string | null; origin_country?: string }[]; productionCompaniesDetailed?: { name: string; logo_path: string | null; origin_country?: string }[] }
-  /** IMDb Top 250 membership for the selected content. */
+  /** IMDb Topâ€¯250 membership for the selected content. */
   imdbTop250?: boolean
   trendRank: number | null
   mdblistAnimeList: EnrichedAnimeItem[]
@@ -55,14 +55,14 @@ interface PosterSaveDeps {
   badgeYear: boolean
   badgeRating: boolean
   badgeQuality: boolean
-  /** Badge età per-titolo in editing (congelato al save; assente = default effettivi, mai migrato). */
+  /** Badge etÃ  per-titolo in editing (congelato al save; assente = default effettivi, mai migrato). */
   ageBadge?: boolean
-  /** Paese classificazione età per-titolo in editing (fail-closed al render). */
+  /** Paese classificazione etÃ  per-titolo in editing (fail-closed al render). */
   ageCountry?: string
-  /** Stile pill età per-titolo in editing ("standard" = resa storica). */
+  /** Stile pill etÃ  per-titolo in editing ("standard" = resa storica). */
   ageBadgeStyle?: AgeBadgeStyle
   customRatings: boolean
-  /** Fonti del voto medio ★ per-titolo (congelate al save come gli altri badge). */
+  /** Fonti del voto medio â˜… per-titolo (congelate al save come gli altri badge). */
   ratingSources: string[]
   /** Colonna rating separati per-titolo (congelata al save). */
   separateRatings: boolean
@@ -82,7 +82,7 @@ interface PosterSaveDeps {
   extraBadgeStyle: ExtraBadgeStyle | ExtraBadgeFollowRank | string | null
   /** Font dei testi badge per-titolo (congelato al save). */
   badgeFont: string
-  /** Stile icone del badge qualità per-titolo (congelato al save). */
+  /** Stile icone del badge qualitÃ  per-titolo (congelato al save). */
   qualityBadgeStyle: string
   /** Formati A/V abilitati per-titolo (congelati al save). */
   videoFormats?: VideoFormat[] | null
@@ -116,7 +116,7 @@ interface PosterSaveDeps {
   blurDarkness: number
   /** Profilo sfumatura landscape live (sezione Orizzontale). */
   landscapeBlur: LandscapeBlurState
-  /** True se la sezione Orizzontale è stata toccata (guida il save). */
+  /** True se la sezione Orizzontale Ã¨ stata toccata (guida il save). */
   landscapeBlurDirty: boolean
   /** Default globali logo (flat) e profilo Orizzontale: la scelta logo li
    *  applica quando il mapping non congela valori propri (null = auto/0). */
@@ -172,7 +172,7 @@ interface PosterSaveDeps {
   setLogoScale: (v: number, opts?: { auto?: boolean }) => void
   /**
    * Provenance scala titolo (correzione c1): false/assente = auto (il save
-   * scrive null così il poster resta auto al rank-change; mai 100 baked sui
+   * scrive null cosÃ¬ il poster resta auto al rank-change; mai 100 baked sui
    * fallback Standard). True = esplicito (congelato, anche 75/100/150/200).
    */
   logoScaleExplicit?: boolean
@@ -267,7 +267,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
     const isLand = posterShape === "landscape"
     // Logo manuale su non-clean: scegliendo un DIVERSO poster non-clean in
     // portrait si azzera il logo in stato (solo locale, mai PUT, mai
-    // logoDisabled) così non si trascina l'auto dal clean; l'utente può poi
+    // logoDisabled) cosÃ¬ non si trascina l'auto dal clean; l'utente puÃ² poi
     // applicarlo manualmente. Stesso poster ricliccato = nessun reset.
     // Landscape invariato (auto-effect dedicato).
     if (!isLand && image.file_path !== previewPoster?.file_path && image.iso_639_1 !== null) {
@@ -294,7 +294,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
     setLogoDisabled(false)
     // Scala/offset logo: default globali per formato (espliciti, anche 75) >
     // auto EFFETTIVO (correzione c1: Fresh effettivo = 100, fallback Standard
-    // = aspect — mai 100 baked sui no-rank). Default → esplicito; puro auto →
+    // = aspect â€” mai 100 baked sui no-rank). Default â†’ esplicito; puro auto â†’
     // provenance auto (preview sentinel, save null, rank-effect lo riallinea).
     // Senza default si resta sullo storico (auto + 0), mai regressioni;
     // espliciti salvati altrove invariati.
@@ -374,7 +374,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
       loadMappings()
       if (selected) setPreviewId(`${selected.media_type}:${selected.id}`)
     } catch (e) {
-      console.error("[pictorium] Remove logo failed:", e)
+      console.error("[FlameForge] Remove logo failed:", e)
       // M17: rollback dello stato se il PUT non va a buon fine
       if (logoPrecedente) setSelectedLogo(logoPrecedente)
       import("sonner").then(({ toast }) => toast(t("ui.saveError")))
@@ -397,9 +397,9 @@ export function usePosterSave(deps: PosterSaveDeps) {
     const backdropToSaveOverride = overrides.selectedBackdrop !== undefined ? overrides.selectedBackdrop : selectedBackdrop
     if (!selected || !posterToSave) return
 
-    // Profilo stateless: il mapping per-titolo non può essere salvato (nessuno
+    // Profilo stateless: il mapping per-titolo non puÃ² essere salvato (nessuno
     // storage server). La config di stile viaggia comunque nel link `?config=`.
-    // Use shared badge computation — identical to server
+    // Use shared badge computation â€” identical to server
     const animeRankData = mdblistAnimeList?.find((a) => a.id === selected.id)
     const badgeInput: BadgeInput = {
       mediaType: selected.media_type === "tv" ? "tv" : "movie",
@@ -447,7 +447,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
         ? posters.filter(p => p.iso_639_1 === null).map(p => p.file_path)
         : []
     const effectiveRotationPosters = baseRotationPosters.filter((path) => !excludedSet.has(path))
-    // Risolvi network logo da salvare: SVG first → TMDB fallback, stesso ordine del poster-service
+    // Risolvi network logo da salvare: SVG first â†’ TMDB fallback, stesso ordine del poster-service
     let networkLogoPath: string | null = null
     let networkLogoName: string | null = null
     {
@@ -455,8 +455,8 @@ export function usePosterSave(deps: PosterSaveDeps) {
         ...(metaInfo.networksDetailed ?? []),
         ...(metaInfo.productionCompaniesDetailed ?? []),
       ].map((c) => ({ name: c.name, logoPath: c.logo_path }))
-      // Filtro anime già in getNetworkKey (ma per salvataggio teniamo semplice: prova SVG existence via heuristica locale minima)
-      // Per non importare getNetworkKey qui, salva il primo con logo_path non null; il render farà comunque SVG-first.
+      // Filtro anime giÃ  in getNetworkKey (ma per salvataggio teniamo semplice: prova SVG existence via heuristica locale minima)
+      // Per non importare getNetworkKey qui, salva il primo con logo_path non null; il render farÃ  comunque SVG-first.
       for (const cand of candidates) {
         if (cand.logoPath) { networkLogoPath = cand.logoPath; networkLogoName = cand.name; break }
       }
@@ -469,15 +469,15 @@ export function usePosterSave(deps: PosterSaveDeps) {
     // editing, quindi il save scrive il profilo attivo e PRESERVA l'altro dal
     // mapping esistente (mai azzerato dal save dell'altro formato). Per i
     // mapping nuovi il profilo verticale eredita gli slider (portrait subito
-    // funzionante). Lo sfondo è editabile solo in landscape: in portrait si
+    // funzionante). Lo sfondo Ã¨ editabile solo in landscape: in portrait si
     // preserva quello salvato, altrimenti ogni save verticale cancellerebbe
     // il 16:9 (oggi removeBackdrop + save portrait = backdrop perso).
     const prevMapping = mappingsMap.get(`${selected.media_type}:${selected.id}`) ?? null
     const isLandscapeMode = posterShape === "landscape"
     // Flat defaults for the independence boundary, in mapping-bare names
-    // (`showBadges`, `badgeStyle`, …): the chain-effective freeze for
+    // (`showBadges`, `badgeStyle`, â€¦): the chain-effective freeze for
     // inherit-null/absent saved flats. A level the caller did not pass stays
-    // `undefined` (= unknown provenance → legacy fallback, documented).
+    // `undefined` (= unknown provenance â†’ legacy fallback, documented).
     const flatDefaultsChain: Record<string, unknown> = {
       showBadges: defaultGlobalBadges,
       rankingBadges: defaultRankingBadges,
@@ -485,7 +485,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
       badgeYear: defaultBadgeYear,
       badgeRating: defaultBadgeRating,
       badgeQuality: defaultBadgeQuality,
-      // Badge età per-titolo: provenance per il freeze chain-correct del
+      // Badge etÃ  per-titolo: provenance per il freeze chain-correct del
       // backfill (un OFF esplicito con default ON congela ON nel profilo
       // dell'altro formato; assente = fallback legacy, mai il live editato).
       ageBadge: defaultAgeBadge,
@@ -510,10 +510,10 @@ export function usePosterSave(deps: PosterSaveDeps) {
     const portraitStash = isLandscapeMode ? otherStash : null
     const landscapeStash = !isLandscapeMode ? otherStash : null
     // Portrait-flat writer (correction c1): a landscape save preserves the
-    // flat VERBATIM — staged portrait value when present (newer than the
+    // flat VERBATIM â€” staged portrait value when present (newer than the
     // saved mapping, or the only portrait value for a new mapping), else the
     // saved flat (concrete stays, null stays null, absent stays absent on the
-    // full-replace POST), else absent for a new mapping (inherit — never a
+    // full-replace POST), else absent for a new mapping (inherit â€” never a
     // clone of the edited landscape live value into the portrait flat).
     const keepFlatKey = <T>(key: string, current: T): T => {
       if (!isLandscapeMode) return current
@@ -523,8 +523,8 @@ export function usePosterSave(deps: PosterSaveDeps) {
       return undefined as T
     }
     // Sfumatura landscape: i valori live della sezione Orizzontale vincono
-    // quando la sezione è stata toccata oppure il save avviene in landscape
-    // (la preview li mostra) — altrimenti il profilo salvato resta intatto
+    // quando la sezione Ã¨ stata toccata oppure il save avviene in landscape
+    // (la preview li mostra) â€” altrimenti il profilo salvato resta intatto
     // (niente freeze involontario dei default al save portrait).
     const useLandscapeBlur = landscapeBlurDirty || isLandscapeMode
     const landscapeBlurPatch = {
@@ -547,8 +547,8 @@ export function usePosterSave(deps: PosterSaveDeps) {
       badgeYear,
       badgeRating,
       badgeQuality,
-      // Badge età per-titolo live (fallback default/factory per i chiamanti
-      // legacy senza live: mai undefined nel boundary — un undefined
+      // Badge etÃ  per-titolo live (fallback default/factory per i chiamanti
+      // legacy senza live: mai undefined nel boundary â€” un undefined
       // congelerebbe un backfill spurio nel profilo dell'altro formato).
       ageBadge: ageBadge ?? defaultAgeBadge ?? false,
       ageCountry: ageCountry ?? defaultAgeCountry ?? DEFAULT_AGE_COUNTRY,
@@ -573,12 +573,12 @@ export function usePosterSave(deps: PosterSaveDeps) {
     // keys (owned keys are never rebased); arrays cloned; inherit-null via the
     // shared snapshot helper. For inherit-null/absent saved flats the other
     // shape rendered the CHAIN (defaults), not the flat: freeze the
-    // chain-effective value — but only when the edit actually moves it,
+    // chain-effective value â€” but only when the edit actually moves it,
     // keeping the profile sparse otherwise. Unknown provenance (no defaults
     // passed: tests/legacy callers) keeps the legacy factory/skip fallback,
     // byte-identical to the pre-correction boundary. New mappings: no saved
     // flat to preserve, but an unvisited landscape would otherwise inherit the
-    // new portrait flat and shadow the landscape defaults — so freeze the
+    // new portrait flat and shadow the landscape defaults â€” so freeze the
     // CHAIN-effective look (landscape-defaults profile > flat default >
     // factory, never the edited live) for keys where it differs from the new
     // flat; staged landscape edits still win below.
@@ -640,7 +640,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
               const target = chain.value
               // Legacy null extra renders pixel-identical to the follow-rank
               // marker (own-rank): never freeze a marker over a legacy null on
-              // a new map — keep the profile sparse.
+              // a new map â€” keep the profile sparse.
               if (k === "extraBadgeStyle" && (live == null) && isExtraFollowRank(target)) continue
               const moved = Array.isArray(live) || Array.isArray(target)
                 ? JSON.stringify(live ?? null) !== JSON.stringify(target ?? null)
@@ -655,7 +655,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
     // wins over the pre-edit backfill for the style keys it carries. Tuning,
     // logo and gradient keep their existing rules (prev-preserved / dirty).
     // The formerly-shared visuals travel in the same stash verbatim
-    // (customBadge/accent/preset draft, null included: explicit auto/none —
+    // (customBadge/accent/preset draft, null included: explicit auto/none â€”
     // the switch-restore materializes the effective look into live, so a
     // stashed null is never an untouched inherit).
     const landscapeStashStyles: Record<string, unknown> = {}
@@ -667,7 +667,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
       }
     }
     // Retired Badge Lab (custom badge library removed): the editor no longer
-    // stages family bindings, so the stored values round-trip verbatim —
+    // stages family bindings, so the stored values round-trip verbatim â€”
     // never edited, never deleted by a save (full-replace upsert would drop
     // omitted keys). The renderer ignores them unconditionally.
     const prevRec = (prevMapping ?? null) as unknown as Record<string, unknown> | null
@@ -678,7 +678,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
       prevLandRec && Object.prototype.hasOwnProperty.call(prevLandRec, key) ? prevLandRec[key] : undefined
     const landscapeProfile = isLandscapeMode
       ? {
-          // Correzione c1: auto (provenance) → null (resta auto al
+          // Correzione c1: auto (provenance) â†’ null (resta auto al
           // rank-change; mai 100 baked sui fallback Standard). Espliciti
           // (anche 75/100/150/200) congelati invariati.
           logoScale: logoScaleExplicit === false ? null : logoScale, logoOffsetX, logoOffsetY,
@@ -718,10 +718,10 @@ export function usePosterSave(deps: PosterSaveDeps) {
     const backdropToSave = isLandscapeMode
       ? (backdropToSaveOverride?.file_path || null)
       : (backdropToSaveOverride?.file_path ?? prevMapping?.backdropPath ?? null)
-    // Landscape custom split (portrait mirror above): custom tile →
+    // Landscape custom split (portrait mirror above): custom tile â†’
     // backdropPath keeps the TMDB reference (render fallback if the URL dies)
     // and the URL goes to customBackdropUrl; TMDB tile or missing backdrop
-    // (automatic) → custom cleared, the save freezes the shown state. The
+    // (automatic) â†’ custom cleared, the save freezes the shown state. The
     // portrait save preserves the saved customBackdropUrl verbatim
     // (per-format independence: portrait never touches landscape).
     const prevBackdropTmdbRef = prevMapping?.backdropPath && !isCustomPosterUrl(prevMapping.backdropPath)
@@ -733,7 +733,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
         : { backdropPath: null as string | null, customBackdropUrl: null as string | null })
       : { backdropPath: backdropToSave, customBackdropUrl: prevMapping?.customBackdropUrl ?? null }
     // Esclusione con fallback (override presente): mirror di selectBackdrop,
-    // che resetta scala/offset a 100/0/0 insieme alla selezione — senza, il save
+    // che resetta scala/offset a 100/0/0 insieme alla selezione â€” senza, il save
     // conserverebbe le trasformazioni dello sfondo appena escluso.
     const backdropScaleToSave = overrides.selectedBackdrop !== undefined ? 100 : (isLandscapeMode ? backdropScale : (prevMapping?.backdropScale ?? backdropScale))
     const backdropOffsetXToSave = overrides.selectedBackdrop !== undefined ? 0 : (isLandscapeMode ? backdropOffsetX : (prevMapping?.backdropOffsetX ?? backdropOffsetX))
@@ -763,7 +763,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
           title: titleOf(selected),
           posterPath: saveSplit.posterPath,
           // Portrait cover identity: on landscape saves the saved flat stays
-          // saved (never clobbered by the other shape's live value — same
+          // saved (never clobbered by the other shape's live value â€” same
           // keepFlatKey rule as tuning/styles and the cover-only strict
           // split). Only without a mapping (first save) is the live value
           // frozen, like cover-only from the portrait file.
@@ -789,12 +789,12 @@ export function usePosterSave(deps: PosterSaveDeps) {
           trendPeriod: "day",
           // Solo scelta manuale: l'auto-rilevato coincide con autoAccentColor e
           // non deve congelarsi nel mapping, altrimenti il calcolo server non
-          // girerebbe più per questo titolo (né in preview né su Stremio).
+          // girerebbe piÃ¹ per questo titolo (nÃ© in preview nÃ© su Stremio).
           // Per-formato: in landscape il flat resta quello salvato VERBATIM
           // (mai clobberato dal live dell'altro formato); dallo stash portrait
           // vince la chiave PRESENTE (stessa semantica presence di keepFlatKey:
           // manuale valido stashato, oppure null = automatico ESPLICITO che
-          // azzera il flat come un save portrait — mai resurrect del manuale
+          // azzera il flat come un save portrait â€” mai resurrect del manuale
           // salvato; assente = mai visitato = salvato verbatim). Gli auto
           // effettivi non si congelano mai (il save scrive manual-or-null per
           // forma, mai l'hex campionato). Azzerare il flat portrait
@@ -818,19 +818,19 @@ export function usePosterSave(deps: PosterSaveDeps) {
           showBadges: keepFlatKey("showBadges", globalBadges),
           rankingBadges: keepFlatKey("rankingBadges", rankingBadges),
           // Snapshot esplicito per-titolo (freeze): valori pieni, mai
-          // `undefined`="segui i default". Così cambiare le Impostazioni dopo
-          // il save non muove più questo poster. I mapping vecchi con
-          // `undefined` continuano a seguire i default finché non risalvati.
+          // `undefined`="segui i default". CosÃ¬ cambiare le Impostazioni dopo
+          // il save non muove piÃ¹ questo poster. I mapping vecchi con
+          // `undefined` continuano a seguire i default finchÃ© non risalvati.
           // Per-formato: in landscape il flat resta quello salvato (mai
           // clobberato dalla veste dell'altro formato), come il tuning.
           badgeGenre: keepFlatKey("badgeGenre", badgeGenre),
           badgeYear: keepFlatKey("badgeYear", badgeYear),
           badgeRating: keepFlatKey("badgeRating", badgeRating),
           badgeQuality: keepFlatKey("badgeQuality", badgeQuality),
-          // Badge età congelato per-titolo (stessa regola per-shape degli
+          // Badge etÃ  congelato per-titolo (stessa regola per-shape degli
           // altri toggle/stili: flat preservato in landscape, live in
           // portrait). I mapping vecchi senza chiavi restano senza chiavi
-          // finché non risalvati (mai migrazione in lettura).
+          // finchÃ© non risalvati (mai migrazione in lettura).
           ageBadge: keepFlatKey("ageBadge", ageBadge),
           ageCountry: keepFlatKey("ageCountry", ageCountry),
           ageBadgeStyle: keepFlatKey("ageBadgeStyle", ageBadgeStyle),
@@ -849,7 +849,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
           badgeRank,
           badgeLabel,
           animeRank: animeRankData?.rank ?? null,
-          // Extra testuale per-titolo: in portrait il live ("" mai dal UI —
+          // Extra testuale per-titolo: in portrait il live ("" mai dal UI â€”
           // blur coerce a null), in landscape il flat salvato VERBATIM (mai
           // clobberato dal live dell'altro formato; staged portrait vince).
           customBadge: keepFlatKey("customBadge", customBadge),
@@ -918,7 +918,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
             ? (prevMapping?.networkLogoFollowTitle ?? undefined)
             : networkLogoFollowTitle,
           // Posizione congelata per-titolo (freeze come gli altri toggle):
-          // "auto" esplicito così il titolo non segue più i default dopo il save.
+          // "auto" esplicito cosÃ¬ il titolo non segue piÃ¹ i default dopo il save.
           // Per-formato: in landscape il flat resta quello salvato.
           networkLogoPosition: keepFlatKey("networkLogoPosition", networkLogoPosition),
           ribbonEnabled: keepFlatKey("ribbonEnabled", ribbonEnabled !== undefined ? ribbonEnabled : undefined),
@@ -935,7 +935,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
           posterFreshScope: keepFlatKey("posterFreshScope", posterFreshScope),
           // Cornice stagionale congelata per-titolo (flat unico condiviso
           // tra i formati: nessuna indipendenza per-formato, nessuno stash
-          // landscape, nessun backfill — come ratingSources sopra). Null =
+          // landscape, nessun backfill â€” come ratingSources sopra). Null =
           // Automatico (assente nel payload = segue la lista di origine);
           // "none" = sopprime un tema ereditato; i temi seguono il titolo.
           seasonalTheme: seasonalTheme ?? undefined,
@@ -957,7 +957,7 @@ export function usePosterSave(deps: PosterSaveDeps) {
       return true
     } catch (error) {
       // 401 = istanza con ADMIN_TOKEN/multi-user senza sblocco: il generico
-      // "errore" non dice cosa fare — guida allo sblocco admin (che abilita
+      // "errore" non dice cosa fare â€” guida allo sblocco admin (che abilita
       // anche i salvataggi, vedi ui.adminTokenDesc).
       if (!overrides.silent) {
         const toastMsg = error instanceof ApiError && error.status === 401
@@ -973,10 +973,10 @@ export function usePosterSave(deps: PosterSaveDeps) {
   /**
    * Cover-only save ("Salva solo poster" / "Save poster only"): persists
    * the cover image + logo identity plus non-visual title metadata
-   * (see buildCoverOnlyPayload — genreName/voteAverage deliberately carried
+   * (see buildCoverOnlyPayload â€” genreName/voteAverage deliberately carried
    * as legacy mapped metadata so the mapped render branch keeps Genre/Rating
    * badges) via
-   * full-replace POST — never PUT, whose merge would preserve previously
+   * full-replace POST â€” never PUT, whose merge would preserve previously
    * frozen styling instead of clearing it. Everything else follows the
    * global defaults after save. Exclusion autosaves keep using saveConfig
    * (full-save, unchanged).
@@ -1024,3 +1024,4 @@ export function usePosterSave(deps: PosterSaveDeps) {
 
   return { selectPoster, selectLogo, removeLogo, selectBackdrop, removeBackdrop, saveConfig, saveCoverOnly }
 }
+

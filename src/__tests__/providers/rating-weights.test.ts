@@ -35,3 +35,4 @@ describe("computeVote (sempre media pari, nessun preset)", () => {
     expect(computeVote(sample, [])).toBe(calculateAverageRating(sample))
   })
 })
+

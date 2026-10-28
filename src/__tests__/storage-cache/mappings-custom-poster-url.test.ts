@@ -155,3 +155,4 @@ describe("PUT /api/mappings/[id] customBackdropUrl (per-format independence)", (
     expect(upsert).not.toHaveBeenCalled()
   })
 })
+

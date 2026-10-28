@@ -225,3 +225,4 @@ describe("settings defaults order: presets, then layout, then rest", () => {
     expect(ctx().defaultPosterLayout).toBe("standard")
   })
 })
+

@@ -18,9 +18,9 @@ vi.mock("@vercel/kv", () => ({
 }))
 
 const ENV_KEYS = [
-  "PICTORIUM_DATA_DIR",
-  "PICTORIUM_MULTI_USER",
-  "PICTORIUM_MAX_MAPPINGS_PER_USER",
+  "FLAMEFORGE_DATA_DIR",
+  "FLAMEFORGE_MULTI_USER",
+  "FLAMEFORGE_MAX_MAPPINGS_PER_USER",
   "PROFILE_ENCRYPTION_KEY",
 ] as const
 let savedEnv: Record<string, string | undefined> = {}
@@ -29,11 +29,11 @@ let tempDir: string | undefined
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-userpw-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
-  process.env.PICTORIUM_MULTI_USER = "1"
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-userpw-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
+  process.env.FLAMEFORGE_MULTI_USER = "1"
   process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
-  delete process.env.PICTORIUM_MAX_MAPPINGS_PER_USER
+  delete process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
   kvStore.clear()
@@ -276,3 +276,5 @@ describe("user-auth KV backend (Redis/Upstash via lib/kv)", () => {
     expect(await reloaded.userExists("00000000-0000-4000-8000-000000000000")).toBe(false)
   })
 })
+
+

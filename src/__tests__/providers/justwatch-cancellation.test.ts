@@ -475,3 +475,4 @@ describe("JustWatch cancellation liveness (real modules)", () => {
     newCtrl.abort()
   })
 })
+

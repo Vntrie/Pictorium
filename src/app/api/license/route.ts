@@ -1,18 +1,18 @@
-import { NextResponse } from "next/server"
+﻿import { NextResponse } from "next/server"
 
-// Offerta sorgente AGPL-3.0 §13 via rete: chi usa un'istanza (anche di un
+// Offerta sorgente AGPL-3.0 Â§13 via rete: chi usa un'istanza (anche di un
 // fork modificato) trova qui licenza + dove chiedere il Corresponding Source.
 // Volutamente statico e fuori dal rate-limit (come il probe di liveness):
 // zero I/O, nessun segreto, nessun failure mode.
 export async function GET(): Promise<Response> {
   return NextResponse.json(
     {
-      program: "Pictorium",
+      program: "FlameForge",
       license: "AGPL-3.0-only",
       licenseUrl: "https://www.gnu.org/licenses/agpl-3.0.html",
       licenseFile: "/LICENSE",
       noticeFile: "/NOTICE",
-      source: "https://github.com/Eful97/Pictorium",
+      source: "https://github.com/Eful97/FlameForge",
       copyright: "Copyright (C) 2025 Eful97",
       notice:
         "If you received this program over a network from a modified instance, " +
@@ -22,3 +22,4 @@ export async function GET(): Promise<Response> {
     { status: 200 },
   )
 }
+

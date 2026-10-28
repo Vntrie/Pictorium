@@ -165,7 +165,7 @@ describe("correction2: genuine empty vs failure provenance (real adapters)", () 
   beforeEach(async () => {
     vi.restoreAllMocks()
     tmpDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "chartfam-c2-"))
-    vi.stubEnv("PICTORIUM_DATA_DIR", tmpDataDir)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", tmpDataDir)
     vi.stubEnv("MDBLIST_API_URL", "https://mdblist.test")
     vi.resetModules()
     jw = await import("@/lib/justwatch")
@@ -526,7 +526,7 @@ describe("correction2: file-backend commit serialization and stale-owner rejecti
   beforeEach(async () => {
     vi.restoreAllMocks()
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "chartfam-c2file-"))
-    vi.stubEnv("PICTORIUM_DATA_DIR", dir)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
     vi.resetModules()
     fileCg = await import("@/lib/chart-generation")
     now = utc(2026, 10, 22, 8, 0, 0)
@@ -679,3 +679,5 @@ describe("correction2: file-backend commit serialization and stale-owner rejecti
     expect((await mem.loadPublished(group(), family))?.rows.map((r) => r.tmdbId)).toEqual([96])
   })
 })
+
+

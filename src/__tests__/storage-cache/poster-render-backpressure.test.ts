@@ -16,7 +16,7 @@ describe("render slot backpressure (503 path)", () => {
   })
 
   it("waiter resolves null after RENDER_SLOT_WAIT_MS when slots stay full", async () => {
-    vi.stubEnv("PICTORIUM_RENDER_SLOT_WAIT_MS", "500")
+    vi.stubEnv("FLAMEFORGE_RENDER_SLOT_WAIT_MS", "500")
     const m = await importCache()
     expect(m.RENDER_SLOT_WAIT_MS).toBe(500)
 
@@ -38,8 +38,8 @@ describe("render slot backpressure (503 path)", () => {
   })
 
   it("queue limit rejects waiters beyond N immediately (no 15s wait)", async () => {
-    vi.stubEnv("PICTORIUM_RENDER_SLOT_WAIT_MS", "5000")
-    vi.stubEnv("PICTORIUM_RENDER_QUEUE", "1")
+    vi.stubEnv("FLAMEFORGE_RENDER_SLOT_WAIT_MS", "5000")
+    vi.stubEnv("FLAMEFORGE_RENDER_QUEUE", "1")
     const m = await importCache()
 
     const releases: Array<() => void> = []
@@ -58,3 +58,5 @@ describe("render slot backpressure (503 path)", () => {
     releases.slice(1).forEach((r) => r())
   })
 })
+
+

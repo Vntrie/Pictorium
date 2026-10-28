@@ -380,8 +380,8 @@ describe("badge target scope", () => {
     // Staged five-tab session: the stash lives in memory per target, so a
     // landscape toggle stages with zero localStorage writes — the legacy key
     // especially stays untouched (no cross-target resurrection from disk).
-    expect(localStorage.getItem("pictorium_trend_sash_stash:landscape")).toBeNull()
-    expect(localStorage.getItem("pictorium_trend_sash_stash")).toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_trend_sash_stash:landscape")).toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_trend_sash_stash")).toBeNull()
     fireEvent.click(badgeSwitch("ui.topBadge"))
     // Staged session: the explicit Save installs the draft into outer truth.
     await saveStaged()
@@ -389,8 +389,8 @@ describe("badge target scope", () => {
     fireEvent.click(within(target).getByText("ui.posterShapePortrait"))
     fireEvent.click(badgeSwitch("ui.topBadge"))
     // Portrait stages to its own memory slot too — still zero durable writes.
-    expect(localStorage.getItem("pictorium_trend_sash_stash")).toBeNull()
-    expect(localStorage.getItem("pictorium_trend_sash_stash:landscape")).toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_trend_sash_stash")).toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_trend_sash_stash:landscape")).toBeNull()
     // Functional per-target restore: back ON resurrects this target's order.
     fireEvent.click(badgeSwitch("ui.topBadge"))
     await saveStaged()
@@ -498,3 +498,5 @@ describe("snapshot presets respect the edit target", () => {
     expect(ctx().landscape.rankingBadges).toBe(true)
   })
 })
+
+

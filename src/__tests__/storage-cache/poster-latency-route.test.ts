@@ -404,3 +404,4 @@ describe("route-level poster latency categories", () => {
     expect(after.latency.cached.count).toBe(1)
   })
 })
+

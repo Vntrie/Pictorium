@@ -1,8 +1,8 @@
-/**
- * Per-profile coordination primitives for Trakt token writes — task 3/plan.
+﻿/**
+ * Per-profile coordination primitives for Trakt token writes â€” task 3/plan.
  *
  * SERVER-ONLY: imports `node:crypto`/`node:fs` (same rule as
- * `trakt-auth.ts` — no `server-only` package import, boundary enforced by the
+ * `trakt-auth.ts` â€” no `server-only` package import, boundary enforced by the
  * import graph). NEVER import from client components or shared client/server
  * leaves. Importers: `trakt-auth.ts` (guarded save, refresh, disconnect),
  * `user-activity.ts` (`deleteUser` wipe) and the Trakt routes. It imports
@@ -11,7 +11,7 @@
  *
  * Two file-backend mutexes (single-host mode), one KV key (shared mode):
  * - Mutation lock (`acquireTraktProfileLock`): serializes every short
- *   storage critical section — guarded commit (gen check + token write +
+ *   storage critical section â€” guarded commit (gen check + token write +
  *   gen bump), explicit disconnect (fence + delete), conditional
  *   invalid_grant clear, wipe deletes. Held ONLY across storage IO, NEVER
  *   across the network, so an explicit disconnect can always proceed while
@@ -30,26 +30,26 @@
  *   unique token, and every coordinated write re-checks it at the storage
  *   boundary (KV: one atomic EVAL comparing generation + user existence +
  *   lock ownership; file: compare under the held mutation lock). A mismatch
- *   aborts the write — a stale refresh, a post-disconnect callback save, or
+ *   aborts the write â€” a stale refresh, a post-disconnect callback save, or
  *   a post-wipe save can never resurrect or overwrite.
  *
- * FILE LOCK SAFETY (no-steal, fail-closed — no atomic filesystem CAS exists
+ * FILE LOCK SAFETY (no-steal, fail-closed â€” no atomic filesystem CAS exists
  * in the repo helpers, and none is claimed): the file mutexes are O_EXCL
  * (`wx`) lock files OUTSIDE the user namespace
  * (`<DATA_DIR>/trakt-locks/<uuid>.lock` / `<uuid>.refresh.lock`, so a
  * namespace wipe can never destroy a held lock). A lock file is NEVER
  * automatically removed while it exists: no TTL-expiry steal, no dead-owner
  * reaping, no pid probing. Pid checks cannot make a pathname unlink
- * conditional — two contenders that both read the same stale payload can
+ * conditional â€” two contenders that both read the same stale payload can
  * interleave so that the second unlinks a live replacement created between
- * its read and its unlink — so this module never unlinks a file it did not
+ * its read and its unlink â€” so this module never unlinks a file it did not
  * just create-and-own. Contenders wait boundedly and then fail closed with
  * `TraktLockUnavailableError`. Consequence: a crashed holder's lock file
  * survives the crash. MANUAL RECOVERY, SERVICE STOPPED ONLY: after
- * verifying no live Pictorium process holds it, delete
+ * verifying no live FlameForge process holds it, delete
  * `<DATA_DIR>/trakt-locks/<uuid>.lock` (and/or `<uuid>.refresh.lock`) by
  * hand. Deleting a lock file while its owner may be live lets two writers
- * coexist — the exact race fencing exists to prevent — so lock files are
+ * coexist â€” the exact race fencing exists to prevent â€” so lock files are
  * never removed under a running service, by hand or by code: no code path
  * (including the account wipe) unlinks lock files. Orphaned lock files hold
  * no tokens (owner + expiry metadata only).
@@ -61,12 +61,12 @@
  *
  * Generation storage: `users/<uuid>/trakt.gen` (file, atomic replace) or
  * `user:<uuid>:trakt:gen` (KV). Values are unique fencing tokens
- * (`<ms>-<random>`), compared by exact equality only — no RMW races, no
+ * (`<ms>-<random>`), compared by exact equality only â€” no RMW races, no
  * lost increments. The wipe deletes the generation alongside the namespace
  * (GDPR-clean, no tombstone retention): a post-wipe save is still stopped
  * by the existence check + the no-mkdir write rule in `trakt-auth.ts`
- * (same-UUID recreation after a wipe is impossible in practice —
- * `createUser` mints a fresh randomUUID — so no tombstone is needed).
+ * (same-UUID recreation after a wipe is impossible in practice â€”
+ * `createUser` mints a fresh randomUUID â€” so no tombstone is needed).
  */
 import crypto from "node:crypto"
 import fsp from "node:fs/promises"
@@ -97,7 +97,7 @@ export class TraktLockUnavailableError extends Error {
 
 /**
  * Fencing-generation read failed (storage IO / KV outage). Fail-closed: the
- * caller must abort the coordinated write — a swallowed `null` would be
+ * caller must abort the coordinated write â€” a swallowed `null` would be
  * indistinguishable from "never fenced" and could pass a CAS check against
  * a legacy/absent generation. `null` is returned ONLY when no generation
  * was ever stored (legacy record, never linked, or wiped).
@@ -129,7 +129,7 @@ function newGeneration(): string {
   return `${Date.now()}-${crypto.randomBytes(8).toString("hex")}`
 }
 
-// ── Generation sidecar ──────────────────────────────────────────────
+// â”€â”€ Generation sidecar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function genFile(userId: string): string {
   // Inside the namespace on purpose: the wipe removes it (no tombstone
@@ -145,7 +145,7 @@ function genKvKey(userId: string): string {
 /**
  * Current fencing generation for the profile, or null when never bumped
  * (legacy record, never linked, or wiped). Exact-equality compare only.
- * Storage trouble THROWS `TraktGenerationUnavailableError` (fail-closed) —
+ * Storage trouble THROWS `TraktGenerationUnavailableError` (fail-closed) â€”
  * it never resolves to null, so callers cannot mistake an outage for an
  * unfenced profile and pass a CAS check they must not pass.
  */
@@ -206,7 +206,7 @@ export async function clearTraktGeneration(userId: string): Promise<void> {
   }
 }
 
-// ── Distributed lock ────────────────────────────────────────────────
+// â”€â”€ Distributed lock â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 // Marker comments let the unit-test KV mock emulate each script's atomic
 // semantics (real Redis/Upstash just ignore Lua comments).
@@ -242,7 +242,7 @@ async function acquireKvLock(key: string, owner: string, ttlMs: number, waitMs: 
   const deadline = Date.now() + waitMs
   for (;;) {
     // Atomic-only: a non-atomic get+set fallback would let two workers both
-    // believe they hold the lock. EVAL failure throws → fail-closed.
+    // believe they hold the lock. EVAL failure throws â†’ fail-closed.
     const won = await getKv().eval<number>(LOCK_ACQUIRE_SCRIPT, [key], [owner, String(ttlMs)])
     if (Number(won) === 1) return
     if (Date.now() >= deadline) throw new TraktLockUnavailableError()
@@ -253,7 +253,7 @@ async function acquireKvLock(key: string, owner: string, ttlMs: number, waitMs: 
 async function releaseKvLock(key: string, owner: string): Promise<void> {
   try {
     // Atomic owner-checked release ONLY: never get+del (a stale holder must
-    // not delete the current holder's lock). Failure → TTL reaps it.
+    // not delete the current holder's lock). Failure â†’ TTL reaps it.
     await getKv().eval<number>(LOCK_RELEASE_SCRIPT, [key], [owner])
   } catch (e) {
     log.warn("trakt profile lock release failed (TTL will reap it)", {
@@ -264,7 +264,7 @@ async function releaseKvLock(key: string, owner: string): Promise<void> {
 
 function parseLockPayload(raw: unknown): LockPayload | null {
   // Owner-checked release ONLY (never consulted for reaping: this module
-  // never unlinks a file it did not just create-and-own — see module doc).
+  // never unlinks a file it did not just create-and-own â€” see module doc).
   if (typeof raw !== "string") return null
   try {
     const p = JSON.parse(raw) as Partial<LockPayload>
@@ -290,7 +290,7 @@ async function acquireFileLock(file: string, owner: string, ttlMs: number, waitM
       if (code !== "EEXIST") throw new TraktLockUnavailableError()
     }
     // Held by someone. Exclusive, no-steal: the file is NEVER unlinked here
-    // (no TTL-expiry steal, no dead-owner reaping — a read-then-unlink race
+    // (no TTL-expiry steal, no dead-owner reaping â€” a read-then-unlink race
     // could destroy a live replacement created between the two). The owner
     // releases it owner-checked, the KV sibling expires server-side, and a
     // crashed file holder is recovered by the documented manual procedure
@@ -318,15 +318,15 @@ async function releaseFileLock(file: string, owner: string): Promise<void> {
 /**
  * Acquire the per-profile Trakt MUTATION mutex. Serializes the short
  * storage critical sections (guarded commit, disconnect fence+delete,
- * conditional invalid_grant clear, wipe deletes) — held ONLY across
+ * conditional invalid_grant clear, wipe deletes) â€” held ONLY across
  * storage IO, never across the network. Bounded wait (`waitMs`, default
  * `TRAKT_LOCK_WAIT_MS`); file locks are NEVER automatically removed
- * (no-steal — not on TTL expiry, not for dead owners; crash recovery is the
- * documented manual procedure with the service stopped) — contention always
+ * (no-steal â€” not on TTL expiry, not for dead owners; crash recovery is the
+ * documented manual procedure with the service stopped) â€” contention always
  * ends in `TraktLockUnavailableError`, never in a steal. The KV key
  * auto-expires (`ttlMs`, default `TRAKT_LOCK_TTL_MS`) so a crashed holder
  * can never wedge the profile. Throws `TraktLockUnavailableError` on
- * contention timeout, EVAL outage or IO trouble — the caller must abort the
+ * contention timeout, EVAL outage or IO trouble â€” the caller must abort the
  * write (fail-closed).
  */
 export async function acquireTraktProfileLock(
@@ -397,3 +397,4 @@ function normalizeLockOpts(opts?: { waitMs?: number; ttlMs?: number }): {
       : TRAKT_LOCK_TTL_MS
   return { waitMs, ttlMs, owner: newOwner() }
 }
+

@@ -1,4 +1,4 @@
-import crypto from "node:crypto"
+﻿import crypto from "node:crypto"
 import { cacheGet, cacheSet } from "@/lib/cache"
 import { createLogger } from "@/lib/logger"
 import {
@@ -41,15 +41,15 @@ function hashFragment(value: string): string {
   return crypto.createHash("sha1").update(value).digest("hex").slice(0, 10)
 }
 
-/** Evita ricorsione verso Pictorium stesso (stesso host dell'istanza). */
+/** Evita ricorsione verso FlameForge stesso (stesso host dell'istanza). */
 export function isSelfManifest(manifestUrl: string, requestOrigin: string | null): boolean {
   try {
     if (!requestOrigin) return false
     const m = new URL(manifestUrl)
     const o = new URL(requestOrigin)
     if (m.hostname.toLowerCase() !== o.hostname.toLowerCase()) return false
-    // Stesso host: blocca solo se il path sembra Pictorium (manifest/proxy nostri).
-    return /pictorium|manifest\.json/i.test(m.pathname)
+    // Stesso host: blocca solo se il path sembra FlameForge (manifest/proxy nostri).
+    return /FlameForge|manifest\.json/i.test(m.pathname)
   } catch {
     return false
   }
@@ -84,7 +84,7 @@ export async function fetchAddonManifest(
     const json = await readJsonCapped(res, ADDON_MANIFEST_MAX_BYTES)
     const manifest = validateManifestShape(json)
     if (!manifest) return { error: "invalid_manifest" }
-    // Mai importare stream/sottotitoli: il manifest può dichiararli, l'MVP li ignora.
+    // Mai importare stream/sottotitoli: il manifest puÃ² dichiararli, l'MVP li ignora.
     cacheSet(cacheKey, manifest, ["stremio", "addon"], ADDON_MANIFEST_CACHE_TTL_MS)
     return { manifest }
   } catch (e) {
@@ -151,3 +151,4 @@ export async function fetchAddonCatalogPage(
     return { items: [], error: "unavailable" }
   }
 }
+

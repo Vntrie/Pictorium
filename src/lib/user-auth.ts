@@ -1,4 +1,4 @@
-import crypto from "node:crypto"
+﻿import crypto from "node:crypto"
 import fsp from "node:fs/promises"
 import path from "node:path"
 import { DATA_DIR } from "@/lib/data-dir"
@@ -33,9 +33,9 @@ export function sanitizeUserId(value: string | null | undefined): string | null 
 }
 
 /**
- * Namespace effettivo per una richiesta: l'UUID solo quando il flag è ON e
- * l'ID è valido. Con flag OFF ritorna sempre null → i caller usano il path
- * globale invariato (retrocompatibilità byte-identica).
+ * Namespace effettivo per una richiesta: l'UUID solo quando il flag Ã¨ ON e
+ * l'ID Ã¨ valido. Con flag OFF ritorna sempre null â†’ i caller usano il path
+ * globale invariato (retrocompatibilitÃ  byte-identica).
  */
 export function getScopedUserId(userParam: string | null | undefined): string | null {
   if (!isMultiUserEnabled()) return null
@@ -51,7 +51,7 @@ export function getMaxMappingsPerUser(): number {
 /**
  * Cap anti-Sybil sul numero di namespace (istanza pubblica): `0` o assente =
  * nessun limite (comportamento storico). Oltre il cap `POST /api/users`
- * risponde 429. Env `PICTORIUM_MAX_USERS` (legacy `POSTERIUM_MAX_USERS`).
+ * risponde 429. Env `FLAMEFORGE_MAX_USERS` (legacy `FLAMEFORGE_MAX_USERS`).
  */
 export function getMaxUsers(): number {
   const raw = envWithFallback("MAX_USERS")
@@ -229,7 +229,7 @@ export async function verifyUserPassword(userId: string, password: string | null
   if (!stored || !stored.includes(":")) {
     // Timing uniforme anti-oracolo: un fantasma (o un utente senza password)
     // deve costare quanto un tentativo reale, altrimenti la durata dello
-    // scrypt rivela (esistenza × ha-password). Lo scrypt dummy non tocca
+    // scrypt rivela (esistenza Ã— ha-password). Lo scrypt dummy non tocca
     // alcun record: il risultato resta sempre false.
     dummyScrypt()
     return false
@@ -252,11 +252,11 @@ function dummyScrypt(): void {
   crypto.scryptSync("dummy-password-for-timing-uniformity", salt, 64)
 }
 
-// ── Fail limiter password (anti grinding) ─────────────────────────────
-// `checkUserAuth` è chiamato da endpoint con bucket larghi (mappings 120/10s,
+// â”€â”€ Fail limiter password (anti grinding) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// `checkUserAuth` Ã¨ chiamato da endpoint con bucket larghi (mappings 120/10s,
 // defaults 30/3s) e da uno senza bucket (GET /api/defaults): senza un freno
 // centrale, la password (scrypt) sarebbe macinabile a decine di tentativi al
-// secondo per IP. Il token bucket per-endpoint non basta perché gli endpoint
+// secondo per IP. Il token bucket per-endpoint non basta perchÃ© gli endpoint
 // legittimi (autosave con password) non devono 429are: qui si contano solo i
 // FALLIMENTI (finestra scorrevole 5/5min per IP+UUID), i successi azzerano.
 // A soglia raggiunta niente scrypt (fail-closed veloce, anche anti CPU-burn).
@@ -335,11 +335,11 @@ export function extractUserPassword(req: { headers: Headers | { get: (name: stri
 
 /**
  * Autenticazione completa sul namespace: secret (veloce) oppure password
- * (scrypt, solo se presentata). Da usare in tutti gli endpoint scoped così
+ * (scrypt, solo se presentata). Da usare in tutti gli endpoint scoped cosÃ¬
  * le due credenziali restano intercambiabili senza duplicare la logica.
  *
  * Il ramo password passa dal fail limiter centrale (solo fallimenti, vedi
- * sopra): a soglia raggiunta niente scrypt. I successi non contano mai, così
+ * sopra): a soglia raggiunta niente scrypt. I successi non contano mai, cosÃ¬
  * l'autosave legittimo con password non 429a.
  */
 export async function checkUserAuth(
@@ -393,12 +393,12 @@ export function userRateLimitKey(req: Request, userId: string): string {
 }
 
 /**
- * Identità canonica sulle route `/u/<uuid>/...` (anti confused-deputy):
- * il path vince sempre. Se la query `?u=`/`?user=` è presente e diverge dal
+ * IdentitÃ  canonica sulle route `/u/<uuid>/...` (anti confused-deputy):
+ * il path vince sempre. Se la query `?u=`/`?user=` Ã¨ presente e diverge dal
  * path (dopo sanitizzazione), ritorna `{ mismatch: true }` e il caller deve
- * rispondere 400 senza toccare alcun namespace. Query assente o uguale →
+ * rispondere 400 senza toccare alcun namespace. Query assente o uguale â†’
  * `{ user }`. Con flag OFF ritorna comunque il path sanitizzato (i caller
- * lo ignorano via getScopedUserId → null, byte-identico).
+ * lo ignorano via getScopedUserId â†’ null, byte-identico).
  */
 export function resolvePathUser(
   pathUser: string | null | undefined,
@@ -409,13 +409,14 @@ export function resolvePathUser(
     return { user: pathId, mismatch: false }
   }
   const queryId = sanitizeUserId(queryUser)
-  // Query invalida (non-UUID): la ignora Stremio? No — fail-closed: se il
-  // client manda `?u=garbage` su path scoped è un errore di integrazione,
-  // ma non una doppia identità. La trattiamo come mismatch solo se sembra
-  // un tentativo di identità alternativa: qualsiasi `?u=` non vuoto e diverso
-  // dal path normalizzato → 400. Semplice, predicibile, testabile.
+  // Query invalida (non-UUID): la ignora Stremio? No â€” fail-closed: se il
+  // client manda `?u=garbage` su path scoped Ã¨ un errore di integrazione,
+  // ma non una doppia identitÃ . La trattiamo come mismatch solo se sembra
+  // un tentativo di identitÃ  alternativa: qualsiasi `?u=` non vuoto e diverso
+  // dal path normalizzato â†’ 400. Semplice, predicibile, testabile.
   if (queryId === null) return { user: pathId, mismatch: true }
   if (pathId === null) return { user: null, mismatch: true }
   if (queryId !== pathId) return { user: pathId, mismatch: true }
   return { user: pathId, mismatch: false }
 }
+

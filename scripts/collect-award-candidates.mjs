@@ -1,6 +1,6 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 /**
- * collect-award-candidates.mjs — semi-automatic awards collection CLI.
+ * collect-award-candidates.mjs â€” semi-automatic awards collection CLI.
  *
  * OFFLINE/admin only: never imported by poster runtime code, adds ZERO
  * calls per poster. Collects candidate award rows for BOUNDED requested
@@ -8,7 +8,7 @@
  *
  * - `--live` (all families): fetches the official source pages/APIs
  *   (Emmy: televisionacademy.com year/category pages with schema.org
- *   ItemList JSON-LD — targeted parser, fail-closed on changed markup;
+ *   ItemList JSON-LD â€” targeted parser, fail-closed on changed markup;
  *   Oscar: oscars.org ceremony pages, structured Best Picture block only;
  *   Globe: goldenglobes.com official Awards Database read-only API
  *   `wp-json/awdb/v1/nominations/`), then resolves identity per title via
@@ -16,7 +16,7 @@
  *   with an optional exact-single TMDB search fallback when a key is
  *   configured. Ambiguous identities stay review-required, never guessed.
  * - `--input rows.json`: deterministic offline path (no network). Input
- *   verification labels are self-asserted and reported as such — they are
+ *   verification labels are self-asserted and reported as such â€” they are
  *   NOT trusted as verified.
  *
  * Diffs against CURRENT curated lists and writes a candidate JSON +
@@ -37,7 +37,7 @@
  * Bounds: --timeout-ms (1000-30000, default 8000), --retries (0-2, never for
  * keyless-TMDB-401 or scrape-401/403/404), --concurrency (1-4).
  * Exit: 0 with report written; 2 on usage/IO errors. Findings never fail
- * the run — they are REPORTED for human review.
+ * the run â€” they are REPORTED for human review.
  */
 import fs from "node:fs"
 import path from "node:path"
@@ -100,8 +100,8 @@ export function parseArgs(argv) {
 // provider availability inspection without leaking secrets.
 function tmdbKeyPresent() {
   return Boolean(
-    process.env.PICTORIUM_TMDB_KEY ||
-    process.env.POSTERIUM_TMDB_KEY ||
+    process.env.FLAMEFORGE_TMDB_KEY ||
+    process.env.FLAMEFORGE_TMDB_KEY ||
     process.env.TMDB_KEY ||
     process.env.TMDB_API_KEY,
   )
@@ -110,8 +110,8 @@ function tmdbKeyPresent() {
 /** Key value for the optional exact-single TMDB fallback. Never logged. */
 function tmdbKeyValue() {
   return (
-    process.env.PICTORIUM_TMDB_KEY ||
-    process.env.POSTERIUM_TMDB_KEY ||
+    process.env.FLAMEFORGE_TMDB_KEY ||
+    process.env.FLAMEFORGE_TMDB_KEY ||
     process.env.TMDB_KEY ||
     process.env.TMDB_API_KEY ||
     null
@@ -127,7 +127,7 @@ export async function fetchBounded(url, { timeoutMs }) {
   const timer = setTimeout(() => ctrl.abort(), timeoutMs)
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Pictorium-awards-updater/1.0 (admin collect; bounded)" },
+      headers: { "User-Agent": "FlameForge-awards-updater/1.0 (admin collect; bounded)" },
       signal: ctrl.signal,
     })
     const contentLength = Number(res.headers.get("content-length") || "0")
@@ -201,7 +201,7 @@ function sparqlEscapeLiteral(value) {
  * ONE bounded HTTP call for all titles (no per-title search burst).
  * Body is read through the shared bounded streaming reader (bytes-capped,
  * reader-cancelled on overflow); oversize/read-error/timeout yields a
- * non-ok status with zero rows — never a truncated "ok" parse. */
+ * non-ok status with zero rows â€” never a truncated "ok" parse. */
 export async function wikidataIdentitiesBatch(titles, timeoutMs) {
   const uniq = [...new Set(titles)].slice(0, MAX_LIVE_ROWS)
   const values = uniq.map((t) => `"${sparqlEscapeLiteral(t)}"@en`).join(" ")
@@ -211,7 +211,7 @@ export async function wikidataIdentitiesBatch(titles, timeoutMs) {
   const timer = setTimeout(() => ctrl.abort(), timeoutMs)
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Pictorium-awards-updater/1.0 (admin collect; bounded)" },
+      headers: { "User-Agent": "FlameForge-awards-updater/1.0 (admin collect; bounded)" },
       signal: ctrl.signal,
     })
     if (res.status === 429) return { status: "rate-limited-429", rows: [] }
@@ -258,7 +258,7 @@ export async function wikidataIdentitiesBatch(titles, timeoutMs) {
 /** Optional exact-single TMDB title search (key value used, never logged).
  * Bounded streaming read; oversize/read-error/timeout never resolves.
  * NOTE: a single page-1 exact match is NOT global uniqueness proof (remakes
- * share titles), so callers record this as a human-review candidate ONLY —
+ * share titles), so callers record this as a human-review candidate ONLY â€”
  * it never auto-attaches a TMDB id to an official row. */
 export async function tmdbSearchExact(title, media, timeoutMs) {
   const key = tmdbKeyValue()
@@ -269,7 +269,7 @@ export async function tmdbSearchExact(title, media, timeoutMs) {
   const timer = setTimeout(() => ctrl.abort(), timeoutMs)
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Pictorium-awards-updater/1.0 (admin collect; bounded)" },
+      headers: { "User-Agent": "FlameForge-awards-updater/1.0 (admin collect; bounded)" },
       signal: ctrl.signal,
     })
     if (res.status === 401) return { status: "unavailable-401" }
@@ -401,7 +401,7 @@ export async function resolveLiveIdentities(rows, { timeoutMs }) {
 /**
  * Bounded live collect: fetch official pages (GET only, body-capped,
  * sha256-recorded), parse supported adapters, resolve identity.
- * Every outcome — including blocks — is RECORDED, never retried blindly.
+ * Every outcome â€” including blocks â€” is RECORDED, never retried blindly.
  */
 export async function liveCollect({ family, years, timeoutMs, retries, concurrency, keyPresent }) {
   const pages = years.flatMap((y) => officialSourcePages(family, y))
@@ -422,12 +422,12 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
       }
     }
     // No retry for HTTP 401/403/404 class outcomes: a keyless-TMDB 401 is not
-    // a Pictorium failure, a scrape 403/404 is not overcome by retrying.
+    // a FlameForge failure, a scrape 403/404 is not overcome by retrying.
     if (liveResults.every((r) => r.outcome !== "timeout")) break
   }
   for (const r of liveResults) {
     if ((r.status === 401 || r.status === 403 || r.status === 404) && r.outcome === "http-error") {
-      r.note = "not-retried (keyless-401/scrape-403/missing-404 are not Pictorium failures)"
+      r.note = "not-retried (keyless-401/scrape-403/missing-404 are not FlameForge failures)"
     }
   }
 
@@ -438,7 +438,7 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
 
   // Globe only: official award-index prefetch (one bounded call per run).
   // Validates that the requested (year, award) exists in the official index.
-  // Index-unavailable never blocks row-level guards — it is REPORTED and the
+  // Index-unavailable never blocks row-level guards â€” it is REPORTED and the
   // pages are still parsed with exact award/year checks (unvalidated note).
   let globeIndex = null
   if (family === "globe-film" || family === "globe-tv") {
@@ -450,19 +450,19 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
         if (doc && typeof doc === "object" && doc.awards_by_year && typeof doc.awards_by_year === "object") {
           globeIndex = doc.awards_by_year
         } else {
-          parseFindings.push({ page: GLOBE_FILTERS_URL, kind: "filters-shape", detail: "filters JSON lacks awards_by_year — pages parsed unvalidated" })
+          parseFindings.push({ page: GLOBE_FILTERS_URL, kind: "filters-shape", detail: "filters JSON lacks awards_by_year â€” pages parsed unvalidated" })
         }
       } catch {
-        parseFindings.push({ page: GLOBE_FILTERS_URL, kind: "filters-bad-json", detail: "filters body not JSON — pages parsed unvalidated" })
+        parseFindings.push({ page: GLOBE_FILTERS_URL, kind: "filters-bad-json", detail: "filters body not JSON â€” pages parsed unvalidated" })
       }
     } else {
-      parseFindings.push({ page: GLOBE_FILTERS_URL, kind: "filters-unavailable", detail: `${idxRes.outcome}${idxRes.status ? ` HTTP ${idxRes.status}` : ""} — pages parsed unvalidated` })
+      parseFindings.push({ page: GLOBE_FILTERS_URL, kind: "filters-unavailable", detail: `${idxRes.outcome}${idxRes.status ? ` HTTP ${idxRes.status}` : ""} â€” pages parsed unvalidated` })
     }
   }
 
   const globePageUrl = (base, n) => base.replace(/([?&])page=\d+/, `$1page=${n}`)
   const completeLine = (res, rows, winners, skipped, extra = "") =>
-    `fetched 200 (${res.bytes}B) → parsed ${rows} rows (${winners} winner${winners === 1 ? "" : "s"}, ${skipped} skipped) ${extra}`
+    `fetched 200 (${res.bytes}B) â†’ parsed ${rows} rows (${winners} winner${winners === 1 ? "" : "s"}, ${skipped} skipped) ${extra}`
 
   for (const p of pages) {
     const res = byUrl.get(p.url)
@@ -470,14 +470,14 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
     if (!p.supported) {
       coverage.push({
         year: p.year, category: p.category,
-        line: `adapter ${LIVE_ADAPTER_STATUS[family].adapter} UNSUPPORTED — no live fetch parsed (offline --input path only). INCOMPLETE live.`,
+        line: `adapter ${LIVE_ADAPTER_STATUS[family].adapter} UNSUPPORTED â€” no live fetch parsed (offline --input path only). INCOMPLETE live.`,
       })
       continue
     }
     if (!res || res.outcome !== "fetched" || typeof res.body !== "string") {
       coverage.push({
         year: p.year, category: p.category,
-        line: `page ${res ? res.outcome + (res.status ? ` HTTP ${res.status}` : "") : "not-fetched"} — no rows parsed. INCOMPLETE live.`,
+        line: `page ${res ? res.outcome + (res.status ? ` HTTP ${res.status}` : "") : "not-fetched"} â€” no rows parsed. INCOMPLETE live.`,
       })
       continue
     }
@@ -485,10 +485,10 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
     if (p.adapter === "oscar-ceremony") {
       const block = extractOscarBestPictureBlock(res.body)
       if (!block) {
-        parseFindings.push({ page: p.url, kind: "bestpicture-missing", detail: "official page shape changed (no Best Picture block) — no rows invented" })
+        parseFindings.push({ page: p.url, kind: "bestpicture-missing", detail: "official page shape changed (no Best Picture block) â€” no rows invented" })
         coverage.push({
           year: p.year, category: p.category,
-          line: `fetched 200 (${res.bytes}B) but NO Best Picture block found — markup changed, 0 rows parsed. INCOMPLETE live.`,
+          line: `fetched 200 (${res.bytes}B) but NO Best Picture block found â€” markup changed, 0 rows parsed. INCOMPLETE live.`,
         })
         continue
       }
@@ -498,7 +498,7 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
       if (!parsed.ok) {
         coverage.push({
           year: p.year, category: p.category,
-          line: `fetched 200 (${res.bytes}B) but parse failed (${parsed.reason}) — 0 rows parsed. INCOMPLETE live.`,
+          line: `fetched 200 (${res.bytes}B) but parse failed (${parsed.reason}) â€” 0 rows parsed. INCOMPLETE live.`,
         })
         continue
       }
@@ -518,10 +518,10 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
       if (globeIndex) {
         const offered = globeIndex[String(p.year)]
         if (!Array.isArray(offered) || !offered.includes(p.award)) {
-          parseFindings.push({ page: p.url, kind: "award-not-offered", detail: `official index has no "${p.award}" for ${p.year} — pages skipped, 0 rows` })
+          parseFindings.push({ page: p.url, kind: "award-not-offered", detail: `official index has no "${p.award}" for ${p.year} â€” pages skipped, 0 rows` })
           coverage.push({
             year: p.year, category: p.category,
-            line: `official award index lists no "${p.award}" for ${p.year} — 0 rows parsed. INCOMPLETE live (category not offered that year).`,
+            line: `official award index lists no "${p.award}" for ${p.year} â€” 0 rows parsed. INCOMPLETE live (category not offered that year).`,
           })
           continue
         }
@@ -535,14 +535,14 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
         const extra = await runWithConcurrency(extraUrls, concurrency, (u) => fetchBounded(u, { timeoutMs }))
         for (const r of extra) {
           if ((r.status === 401 || r.status === 403 || r.status === 404) && r.outcome === "http-error") {
-            r.note = "not-retried (keyless-401/scrape-403/missing-404 are not Pictorium failures)"
+            r.note = "not-retried (keyless-401/scrape-403/missing-404 are not FlameForge failures)"
           }
           liveResults.push({ ...r, body: undefined })
           pageResults.push(r)
         }
         byUrl.set(p.url, res)
         if (totalPages > want) {
-          parseFindings.push({ page: p.url, kind: "pagination-truncated", detail: `official X-WP-TotalPages=${totalPages} > fetched ${want} (cap MAX_GLOBE_PAGES=${MAX_GLOBE_PAGES}) — rows PARTIAL` })
+          parseFindings.push({ page: p.url, kind: "pagination-truncated", detail: `official X-WP-TotalPages=${totalPages} > fetched ${want} (cap MAX_GLOBE_PAGES=${MAX_GLOBE_PAGES}) â€” rows PARTIAL` })
         }
       }
       const bodies = []
@@ -550,13 +550,13 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
       for (const [i, r] of pageResults.entries()) {
         if (r.outcome === "fetched" && typeof r.body === "string") { bodies.push(r.body); okPages++ }
         else {
-          parseFindings.push({ page: globePageUrl(p.url, i + 1), kind: "page-unavailable", detail: `${r.outcome}${r.status ? ` HTTP ${r.status}` : ""} — page rows missing (PARTIAL)` })
+          parseFindings.push({ page: globePageUrl(p.url, i + 1), kind: "page-unavailable", detail: `${r.outcome}${r.status ? ` HTTP ${r.status}` : ""} â€” page rows missing (PARTIAL)` })
         }
       }
       if (bodies.length === 0) {
         coverage.push({
           year: p.year, category: p.category,
-          line: `all ${pageResults.length} page(s) unavailable — 0 rows parsed. INCOMPLETE live.`,
+          line: `all ${pageResults.length} page(s) unavailable â€” 0 rows parsed. INCOMPLETE live.`,
         })
         continue
       }
@@ -581,7 +581,7 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
       if (rows.length === 0) {
         coverage.push({
           year: p.year, category: p.category,
-          line: `fetched 200 (${okPages}/${pageResults.length} pages) but parse failed (${failed || "no-rows"}) — 0 rows parsed. INCOMPLETE live.`,
+          line: `fetched 200 (${okPages}/${pageResults.length} pages) but parse failed (${failed || "no-rows"}) â€” 0 rows parsed. INCOMPLETE live.`,
         })
         continue
       }
@@ -598,10 +598,10 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
 
     const block = extractItemListBlock(res.body)
     if (!block) {
-      parseFindings.push({ page: p.url, kind: "itemlist-missing", detail: "official page shape changed (no ItemList JSON-LD) — no rows invented" })
+      parseFindings.push({ page: p.url, kind: "itemlist-missing", detail: "official page shape changed (no ItemList JSON-LD) â€” no rows invented" })
       coverage.push({
         year: p.year, category: p.category,
-        line: `fetched 200 (${res.bytes}B) but NO ItemList block found — markup changed, 0 rows parsed. INCOMPLETE live.`,
+        line: `fetched 200 (${res.bytes}B) but NO ItemList block found â€” markup changed, 0 rows parsed. INCOMPLETE live.`,
       })
       continue
     }
@@ -611,7 +611,7 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
     if (!parsed.ok) {
       coverage.push({
         year: p.year, category: p.category,
-        line: `fetched 200 (${res.bytes}B) but parse failed (${parsed.reason}) — 0 rows parsed. INCOMPLETE live.`,
+        line: `fetched 200 (${res.bytes}B) but parse failed (${parsed.reason}) â€” 0 rows parsed. INCOMPLETE live.`,
       })
       continue
     }
@@ -623,7 +623,7 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
     const why = complete ? "COMPLETE for requested scope" : `INCOMPLETE (winner=${parsed.meta.winnerCount}, skipped=${skipped}, numberOfItems=${declared ?? "n/a"} vs parsed=${parsed.rows.length})`
     coverage.push({
       year: p.year, category: p.category,
-      line: `fetched 200 (${res.bytes}B) → parsed ${parsed.rows.length} rows (${parsed.meta.winnerCount} winner${parsed.meta.winnerCount === 1 ? "" : "s"}, ${skipped} skipped) ${why}.`,
+      line: `fetched 200 (${res.bytes}B) â†’ parsed ${parsed.rows.length} rows (${parsed.meta.winnerCount} winner${parsed.meta.winnerCount === 1 ? "" : "s"}, ${skipped} skipped) ${why}.`,
     })
   }
 
@@ -643,7 +643,7 @@ export async function liveCollect({ family, years, timeoutMs, retries, concurren
         parseFindings.push({
           page: "(identity)",
           kind: "identity-unresolved",
-          detail: `"${l.title}": wikidata=${l.wikidata.status}, ${l.wikidata.qidsSeen.length} same-label items, ${l.wikidata.withClaim.length} with TMDB claim, tmdb-fallback=${l.tmdb.status} — human resolution required, never guessed`,
+          detail: `"${l.title}": wikidata=${l.wikidata.status}, ${l.wikidata.qidsSeen.length} same-label items, ${l.wikidata.withClaim.length} with TMDB claim, tmdb-fallback=${l.tmdb.status} â€” human resolution required, never guessed`,
         })
       }
     }
@@ -728,7 +728,7 @@ async function main() {
 
   const generatedAt = new Date().toISOString()
   const adapterStatus = LIVE_ADAPTER_STATUS[args.family]
-  const adapterNote = `- ${args.family}: adapter ${adapterStatus.adapter} — ${adapterStatus.supported ? "SUPPORTED" : "UNSUPPORTED"}. ${adapterStatus.evidence}`
+  const adapterNote = `- ${args.family}: adapter ${adapterStatus.adapter} â€” ${adapterStatus.supported ? "SUPPORTED" : "UNSUPPORTED"}. ${adapterStatus.evidence}`
   const report = renderReport({
     family: args.family,
     years: years.length === 1 ? String(years[0]) : `${years[0]}-${years[years.length - 1]}`,
@@ -744,8 +744,8 @@ async function main() {
     coverage,
     adapterNote,
     coverageNote: args.live
-      ? `- Live collect covered ${args.family} ${years[0]}${years.length > 1 ? `-${years[years.length - 1]}` : ""} official pages only (bounded; fetched page ≠ parsed completeness, see coverage above). Input verification labels below are self-asserted unless upgraded by a Wikidata/TMDB lookup in this run. Unrequested years/families and empty nominee lists elsewhere stay INCOMPLETE — no whole-list completeness claimed.`
-      : `- Offline/fixture input only (no live verification in this run; input verification labels are self-asserted, NOT independently verified here). Unrequested years/families and empty nominee lists elsewhere stay INCOMPLETE — no whole-list completeness claimed.`,
+      ? `- Live collect covered ${args.family} ${years[0]}${years.length > 1 ? `-${years[years.length - 1]}` : ""} official pages only (bounded; fetched page â‰  parsed completeness, see coverage above). Input verification labels below are self-asserted unless upgraded by a Wikidata/TMDB lookup in this run. Unrequested years/families and empty nominee lists elsewhere stay INCOMPLETE â€” no whole-list completeness claimed.`
+      : `- Offline/fixture input only (no live verification in this run; input verification labels are self-asserted, NOT independently verified here). Unrequested years/families and empty nominee lists elsewhere stay INCOMPLETE â€” no whole-list completeness claimed.`,
   })
 
   const outDir = path.resolve(args.out)
@@ -784,3 +784,4 @@ if (isCliEntry) {
     process.exit(2)
   })
 }
+

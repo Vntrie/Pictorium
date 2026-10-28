@@ -93,9 +93,9 @@ function importTokenNoRankingSource(cid: string, type: "movie" | "series" | "mix
 
 async function getCustomCatalog(cid: string, stType: "movie" | "series", token: string) {
   const req = new NextRequest(
-    `http://localhost:3000/catalog/${stType}/pictorium-custom-${stType}-${cid}.json?api_key=test-key&config=${token}`,
+    `http://localhost:3000/catalog/${stType}/FlameForge-custom-${stType}-${cid}.json?api_key=test-key&config=${token}`,
   )
-  const res = await GET(req, { params: Promise.resolve({ type: stType, id: `pictorium-custom-${stType}-${cid}.json` }) })
+  const res = await GET(req, { params: Promise.resolve({ type: stType, id: `FlameForge-custom-${stType}-${cid}.json` }) })
   const body = await res.json()
   return { res, body: body as { metas: Array<{ id: string; name: string; poster: string }> } }
 }
@@ -206,3 +206,5 @@ describe("imported list must not become a ranking source (JW selected)", () => {
     expect(badge).toMatchObject({ type: "rank", rank: 4 })
   })
 })
+
+

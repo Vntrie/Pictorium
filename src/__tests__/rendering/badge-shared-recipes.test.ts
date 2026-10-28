@@ -177,3 +177,4 @@ describe("buildHouseRankingSvg", () => {
     expect(accent.svg).not.toEqual(satin.svg)
   })
 })
+

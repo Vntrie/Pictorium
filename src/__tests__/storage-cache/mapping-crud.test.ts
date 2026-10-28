@@ -113,3 +113,4 @@ describe("badge priority edge cases", () => {
     expect(r?.label).toBe("Anime")
   })
 })
+

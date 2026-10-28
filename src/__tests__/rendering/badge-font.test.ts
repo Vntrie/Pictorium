@@ -347,3 +347,4 @@ describe("Badge font contract (bfont)", () => {
     }
   })
 })
+

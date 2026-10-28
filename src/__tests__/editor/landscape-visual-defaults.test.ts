@@ -384,3 +384,4 @@ describe("PUT /api/defaults landscape visual profile", () => {
     expect((await PUT(put({ landscape: { globalBadges: "yes" } }) as unknown as NextRequest)).status).toBe(400)
   })
 })
+

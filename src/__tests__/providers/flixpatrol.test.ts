@@ -3,7 +3,7 @@ import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 
-const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "pictorium-flixpatrol-test-"))
+const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "FlameForge-flixpatrol-test-"))
 
 // Chart dates ride the wall clock (dynamic Rome-today label): the behaviors
 // under test here are country routing and source priority, while chart-date
@@ -50,7 +50,7 @@ function makeCatalog(prefix: string): unknown {
 describe("flixpatrol country support (D7)", () => {
   it("uses global platform ranks without filling short charts with national titles", async () => {
     vi.resetModules()
-    process.env.POSTERIUM_DATA_DIR = tmpDir
+    process.env.FLAMEFORGE_DATA_DIR = tmpDir
     const fetchSpy = vi.fn(async (_url: unknown, init?: RequestInit) => {
       const request = JSON.parse(String(init?.body))
       expect(request.variables.countryStreamingCharts).toBeNull()
@@ -76,7 +76,7 @@ describe("flixpatrol country support (D7)", () => {
 
   it("honours the country param instead of always returning Italy", async () => {
     vi.resetModules()
-    process.env.POSTERIUM_DATA_DIR = tmpDir
+    process.env.FLAMEFORGE_DATA_DIR = tmpDir
     vi.stubGlobal("fetch", vi.fn(async (url: string | URL | Request) => {
       const u = String(url)
       if (u.includes("italy.json")) return new Response(JSON.stringify(makeCatalog("IT")))
@@ -97,7 +97,7 @@ describe("flixpatrol country support (D7)", () => {
 
   it("rejects unsupported countries (fail-closed)", async () => {
     vi.resetModules()
-    process.env.POSTERIUM_DATA_DIR = tmpDir
+    process.env.FLAMEFORGE_DATA_DIR = tmpDir
     vi.stubGlobal("fetch", vi.fn(async () => new Response("not found", { status: 404 })))
 
     const { getTop10 } = await import("@/lib/flixpatrol")
@@ -108,8 +108,8 @@ describe("flixpatrol country support (D7)", () => {
     vi.resetModules()
     // Hermetic disk: earlier tests seed the shared tmpDir with fresh FP docs;
     // this case needs FP down, so it reads from an isolated empty dir.
-    const isoDir = fs.mkdtempSync(path.join(os.tmpdir(), "pictorium-flixpatrol-fallback-"))
-    process.env.POSTERIUM_DATA_DIR = isoDir
+    const isoDir = fs.mkdtempSync(path.join(os.tmpdir(), "FlameForge-flixpatrol-fallback-"))
+    process.env.FLAMEFORGE_DATA_DIR = isoDir
     try {
       vi.stubGlobal("fetch", vi.fn(async (url: string | URL | Request) => {
         const u = String(url)
@@ -144,3 +144,5 @@ describe("flixpatrol country support (D7)", () => {
     }
   })
 })
+
+

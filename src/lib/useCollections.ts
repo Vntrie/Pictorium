@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useReducer, useEffect } from "react"
 
@@ -9,9 +9,9 @@ export interface PosterCollection {
   createdAt: number
 }
 
-const STORAGE_KEY = "pictorium_collections"
+const STORAGE_KEY = "FLAMEFORGE_collections"
 
-// ── localStorage helpers ──────────────────────────────────────────
+// â”€â”€ localStorage helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function load(): PosterCollection[] {
   try {
     if (typeof window === "undefined" || typeof localStorage === "undefined" || !window?.localStorage) return []
@@ -31,7 +31,7 @@ function save(cols: PosterCollection[]) {
   } catch {}
 }
 
-// ── Reducer ────────────────────────────────────────────────────────
+// â”€â”€ Reducer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type Action =
   | { type: "HYDRATE"; payload: PosterCollection[] }
   | { type: "CREATE"; payload: PosterCollection }
@@ -71,10 +71,10 @@ function reducer(state: PosterCollection[], action: Action): PosterCollection[] 
 
 const INITIAL_STATE: PosterCollection[] = []
 
-// ── Helpers ────────────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function uuid(): string {
   // crypto.randomUUID richiede un contesto sicuro (HTTPS/localhost); su
-  // HTTP non protetto è assente → fallback con getRandomValues.
+  // HTTP non protetto Ã¨ assente â†’ fallback con getRandomValues.
   try {
     if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
       return crypto.randomUUID()
@@ -97,11 +97,11 @@ function uuid(): string {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
 }
 
-// ── Hook ───────────────────────────────────────────────────────────
+// â”€â”€ Hook â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function useCollections() {
   const [collections, dispatch] = useReducer(reducer, INITIAL_STATE)
 
-  // Carica da localStorage al mount — DOPO il primo render, così
+  // Carica da localStorage al mount â€” DOPO il primo render, cosÃ¬
   // il reducer parte con array vuoto e non sovrascrive mai dati
   useEffect(() => {
     const data = load()
@@ -110,13 +110,13 @@ export function useCollections() {
 
   // Ogni volta che lo stato cambia, sincronizza localStorage
   useEffect(() => {
-    // Salta il primo render (collections è INITIAL_STATE, non vogliamo
+    // Salta il primo render (collections Ã¨ INITIAL_STATE, non vogliamo
     // scrivere [] se ci sono dati reali in localStorage)
     if (collections === INITIAL_STATE) return
     save(collections)
   }, [collections])
 
-  // ── Mutazioni ──────────────────────────────────────────────────
+  // â”€â”€ Mutazioni â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function createCollection(name: string) {
     dispatch({
       type: "CREATE",
@@ -154,3 +154,4 @@ export function useCollections() {
     removeFromCollection,
   }
 }
+

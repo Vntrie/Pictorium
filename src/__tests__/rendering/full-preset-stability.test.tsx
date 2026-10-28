@@ -637,3 +637,4 @@ describe("legacy standalone path stages the same canonical Full", () => {
     expect(screen.getByTestId("poster-style-full")).toHaveAttribute("aria-pressed", "true")
   })
 })
+

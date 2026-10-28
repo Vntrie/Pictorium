@@ -98,8 +98,8 @@ describe("M1: legacy persisted cache without variants forces refetch (no fake ba
     vi.spyOn(globalThis, "fetch").mockImplementation(async () => Response.json(REAL_DOC))
     const res = await getStreamingAvailability({ service: "rai", country: "IT" })
     const ids = res.choices.map((c) => c.catalogId)
-    expect(ids).toContain("pictorium-stream2-rai--italy--series--auto--it")
-    expect(ids).not.toContain("pictorium-stream2-rai--italy--series--auto")
+    expect(ids).toContain("FlameForge-stream2-rai--italy--series--auto--it")
+    expect(ids).not.toContain("FlameForge-stream2-rai--italy--series--auto")
     const variantChoice = res.choices.find((c) => "variant" in c && c.variant === "it")
     expect(variantChoice).toMatchObject({ potential: "flixpatrol", fpChart: true })
     // Migration persisted the compat marker: the rewritten disk snapshot
@@ -113,7 +113,7 @@ describe("M1: legacy persisted cache without variants forces refetch (no fake ba
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("network down"))
     const res = await getStreamingAvailability({ service: "rai", country: "IT" })
     const ids = res.choices.map((c) => c.catalogId)
-    expect(ids).not.toContain("pictorium-stream2-rai--italy--series--auto")
+    expect(ids).not.toContain("FlameForge-stream2-rai--italy--series--auto")
     // Honest: error (unknown FP coverage), never a stale `true` base.
     expect(res.indexStatus).toBe("error")
     expect(res.choices.every((c) => c.fpChart === "unknown")).toBe(true)
@@ -124,10 +124,10 @@ describe("M1: legacy persisted cache without variants forces refetch (no fake ba
     const first = await getStreamingAvailability({})
     expect(first.generatedAt).toBe(REAL_DOC.generated_at)
     const firstIds = first.choices.map((c) => c.catalogId)
-    expect(firstIds).toContain("pictorium-stream2-rai--italy--series--auto--it")
+    expect(firstIds).toContain("FlameForge-stream2-rai--italy--series--auto--it")
     // Legacy-identical Netflix IT base stays on the legacy id (generic
     // suppresses the duplicate); the base itself must survive the roundtrip.
-    expect(firstIds).toContain("pictorium-stream-netflix-it-series")
+    expect(firstIds).toContain("FlameForge-stream-netflix-it-series")
     // Restart (memory dropped, disk kept) + network down: the NEW snapshot
     // (with `variants`) reloads identically — base stays base, variant-only
     // stays variant-only, source age preserved.
@@ -140,9 +140,9 @@ describe("M1: legacy persisted cache without variants forces refetch (no fake ba
     expect(second.indexStatus).toBe("ok")
     expect(second.generatedAt).toBe(REAL_DOC.generated_at)
     const secondIds = second.choices.map((c) => c.catalogId)
-    expect(secondIds).toContain("pictorium-stream2-rai--italy--series--auto--it")
-    expect(secondIds).not.toContain("pictorium-stream2-rai--italy--series--auto")
-    expect(secondIds).toContain("pictorium-stream-netflix-it-series")
+    expect(secondIds).toContain("FlameForge-stream2-rai--italy--series--auto--it")
+    expect(secondIds).not.toContain("FlameForge-stream2-rai--italy--series--auto")
+    expect(secondIds).toContain("FlameForge-stream-netflix-it-series")
   })
 })
 
@@ -232,7 +232,7 @@ describe("N: mixed all manifest types (root conditional, meta untouched, legacy 
     })
     const mixed = await (await buildManifestResponse(new NextRequest("http://localhost:3000/manifest.json"))).json()
     expect(mixed.types).toContain("all")
-    expect(mixed.catalogs.some((c: { id: string; type: string }) => c.id === "pictorium-stream2-crave--canada--all--auto--amazon-channels" && c.type === "all")).toBe(true)
+    expect(mixed.catalogs.some((c: { id: string; type: string }) => c.id === "FlameForge-stream2-crave--canada--all--auto--amazon-channels" && c.type === "all")).toBe(true)
     // The meta resource keeps its explicit resolver-supported types (no fake meta all).
     const meta = (mixed.resources as Array<string | { name: string; types: string[] }>).find(
       (r) => typeof r !== "string" && r.name === "meta",
@@ -245,7 +245,9 @@ describe("N: mixed all manifest types (root conditional, meta untouched, legacy 
     vi.spyOn(globalThis, "fetch").mockImplementation(async () => Response.json(REAL_DOC))
     const json = await (await availabilityGET(new NextRequest("http://localhost:3000/api/streaming-availability?service=rai&country=IT"))).json()
     const ids = (json.choices as Array<{ catalogId: string }>).map((c) => c.catalogId)
-    expect(ids).toContain("pictorium-stream2-rai--italy--series--auto--it")
-    expect(ids).not.toContain("pictorium-stream2-rai--italy--series--auto")
+    expect(ids).toContain("FlameForge-stream2-rai--italy--series--auto--it")
+    expect(ids).not.toContain("FlameForge-stream2-rai--italy--series--auto")
   })
 })
+
+

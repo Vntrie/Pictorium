@@ -233,3 +233,4 @@ describe("parseRatingSources / resolveRatingSources (Fix D — parser unico rsrc
     expect(resolveRatingSources(null)).toEqual(["imdb", "tmdb"])
   })
 })
+

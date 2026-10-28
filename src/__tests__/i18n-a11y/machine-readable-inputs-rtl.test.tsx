@@ -86,3 +86,4 @@ describe("machine-readable inputs stay LTR under Hebrew RTL", () => {
     expect(inputIt.getAttribute("dir")).toBe("ltr")
   })
 })
+

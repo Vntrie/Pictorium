@@ -15,3 +15,4 @@ describe("badgeCacheKey", () => {
     expect(badgeCacheKey("rank", "#1 Oggi", 380)).not.toBe(badgeCacheKey("rank", "#2 Oggi", 380))
   })
 })
+

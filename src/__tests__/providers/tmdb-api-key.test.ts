@@ -9,16 +9,16 @@ function mkReq(searchParams?: Record<string, string>, headers?: Record<string, s
   }
 }
 
-describe("resolveRequestApiKey — fallback d'istanza POSTERIUM_TMDB_KEY", () => {
+describe("resolveRequestApiKey — fallback d'istanza FLAMEFORGE_TMDB_KEY", () => {
   beforeEach(() => {
-    delete process.env.POSTERIUM_TMDB_KEY
+    delete process.env.FLAMEFORGE_TMDB_KEY
   })
   afterEach(() => {
-    delete process.env.POSTERIUM_TMDB_KEY
+    delete process.env.FLAMEFORGE_TMDB_KEY
   })
 
   it("priorità: header x-api-key > query api_key > env", () => {
-    process.env.POSTERIUM_TMDB_KEY = "env-key"
+    process.env.FLAMEFORGE_TMDB_KEY = "env-key"
     const req = mkReq({ api_key: "query-key" }, { "x-api-key": "header-key" })
     expect(resolveRequestApiKey(req)).toBe("header-key")
     expect(resolveRequestApiKey(mkReq({ api_key: "query-key" }))).toBe("query-key")
@@ -26,12 +26,13 @@ describe("resolveRequestApiKey — fallback d'istanza POSTERIUM_TMDB_KEY", () =>
   })
 
   it("ritorna undefined quando non c'è nulla (nessuna env)", () => {
-    delete process.env.POSTERIUM_TMDB_KEY
+    delete process.env.FLAMEFORGE_TMDB_KEY
     expect(resolveRequestApiKey(mkReq({}))).toBeUndefined()
   })
 
   it("header vuoto non vince sull'env", () => {
-    process.env.POSTERIUM_TMDB_KEY = "env-key"
+    process.env.FLAMEFORGE_TMDB_KEY = "env-key"
     expect(resolveRequestApiKey(mkReq({}, { "x-api-key": "" }))).toBe("env-key")
   })
 })
+

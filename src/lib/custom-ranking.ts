@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Shared server-side custom ranking service: the single function that turns
  * a configured custom list into an ordered Top-N of resolvable TMDB ids.
  *
@@ -50,7 +50,7 @@ const log = createLogger("custom-ranking")
 export const CUSTOM_RANKING_TOP_N = 20
 
 /**
- * Provider fetch window: same 500-row window as the pictorium-custom-*
+ * Provider fetch window: same 500-row window as the FlameForge-custom-*
  * catalogs, so first-20-per-type is preserved across the whole supported
  * list (a mixed list with movies late in the tail still fills the movie
  * Top-20). Per-render cost is bounded by deadline (caller signal race +
@@ -167,7 +167,7 @@ const inflight = new Map<string, Promise<CustomRankingResult>>()
  * provenance (generation timestamp + 30min TTL), or null when absent/expired.
  * Read-only: never fetches, never renews (Task D poster freshness cap).
  * Only `ok` results with items are ever cached, so a null here also covers
- * error/empty states (no cap — the poster already renders fail-closed).
+ * error/empty states (no cap â€” the poster already renders fail-closed).
  */
 export function customRankingRemainingMs(
   input: FetchCustomRankingInput,
@@ -342,3 +342,4 @@ async function resolveTop20(input: FetchCustomRankingInput): Promise<CustomRanki
   log.debug("Custom ranking resolved to zero TMDB ids", { slot: input.slot })
   return { status: "empty", items: [] }
 }
+

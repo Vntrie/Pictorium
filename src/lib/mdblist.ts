@@ -1,4 +1,4 @@
-import crypto from "node:crypto"
+﻿import crypto from "node:crypto"
 import { cacheFetchedAt, cacheGet, cacheRemainingMs, cacheSet } from "./cache"
 import { envWithFallback } from "./env-compat"
 import { combineAbortSignals } from "./abort-signal"
@@ -25,7 +25,7 @@ export const MDBLISTS = [
 ] as const
 
 // A2: 12h list cache TTL. Only NON-empty results are cached long-term:
-// a network error (catch → []) must not freeze the list, it retries on
+// a network error (catch â†’ []) must not freeze the list, it retries on
 // the next access (empties at 60s, unchanged).
 const CACHE_TTL_MS = 12 * 60 * 60 * 1000
 
@@ -39,7 +39,7 @@ export const MDBLIST_BLOCK_SIZE = 500
  * provenance (generation timestamp + 12h TTL, 60s on empties), or null when
  * absent/expired. Read-only: never fetches, never renews (Task D poster
  * freshness cap for the anime-rank path). The key scheme mirrors
- * fetchMDBList exactly — a mismatch safely yields null (no cap).
+ * fetchMDBList exactly â€” a mismatch safely yields null (no cap).
  */
 export function mdblistRemainingMs(
   listKey: string,
@@ -77,9 +77,9 @@ export async function fetchMDBList(
     if (strict) throw new Error(`fetchMDBList strict: unknown list ${listKey}`)
     return []
   }
-  // Solo la chiave esplicita della richiesta: non esiste più chiave d'istanza.
+  // Solo la chiave esplicita della richiesta: non esiste piÃ¹ chiave d'istanza.
   const key = apiKey
-  // La key cambia il payload → parte del cache key (hash, mai plaintext),
+  // La key cambia il payload â†’ parte del cache key (hash, mai plaintext),
   // come in ratings.ts: due contesti con key diverse non collidono.
   const keyHash = key ? crypto.createHash("sha1").update(key).digest("hex").slice(0, 8) : "none"
   const cacheKey = `mdblist:list:${listKey}:${keyHash}`
@@ -142,8 +142,8 @@ export async function fetchMDBList(
   try {
     const slug = list.url.split('/').pop()
     // MDBLIST_API_URL esplicito (test E2E: punta al mock server locale) vince
-    // sempre sulla key, così i test restano deterministici senza chiamate reali.
-    // In produzione MDBLIST_API_URL è assente e si usa l'endpoint reale
+    // sempre sulla key, cosÃ¬ i test restano deterministici senza chiamate reali.
+    // In produzione MDBLIST_API_URL Ã¨ assente e si usa l'endpoint reale
     // (con key se disponibile).
     const explicitUrl = process.env.MDBLIST_API_URL
     let res: Response | null = null
@@ -158,7 +158,7 @@ export async function fetchMDBList(
       // is read or recorded there.
       if (!isMdbKeyParked(key)) {
         res = await timedFetch(`https://api.mdblist.com/lists/snoak/${slug}/items?apikey=${encodeURIComponent(key)}&limit=${MDBLIST_BLOCK_SIZE}`, {
-          headers: { "User-Agent": "Mozilla/5.0 Pictorium" },
+          headers: { "User-Agent": "Mozilla/5.0 FlameForge" },
           signal: combineAbortSignals(signal, 8000),
         }).catch(() => null)
         if (res) {
@@ -179,7 +179,7 @@ export async function fetchMDBList(
     if (!res || !res.ok) {
       // Fallback endpoint pubblico JSON diretto
       res = await timedFetch(`https://mdblist.com/lists/snoak/${slug}/json`, {
-        headers: { "User-Agent": "Mozilla/5.0 Pictorium" },
+        headers: { "User-Agent": "Mozilla/5.0 FlameForge" },
         signal: combineAbortSignals(signal, 8000),
       }).catch(() => null)
     }
@@ -323,7 +323,7 @@ export async function fetchCustomMDBList(urlOrSlug: string, apiKey?: string, lim
       }
       if (keyUrl) {
         res = await timedFetch(keyUrl, {
-          headers: { "User-Agent": "Mozilla/5.0 Pictorium" },
+          headers: { "User-Agent": "Mozilla/5.0 FlameForge" },
           signal: combineAbortSignals(signal, 10000),
         }).catch(() => null)
         if (res) {
@@ -337,7 +337,7 @@ export async function fetchCustomMDBList(urlOrSlug: string, apiKey?: string, lim
       }
     }
 
-    // Se la chiamata con chiave è fallita o non c'è chiave, usa l'endpoint pubblico JSON
+    // Se la chiamata con chiave Ã¨ fallita o non c'Ã¨ chiave, usa l'endpoint pubblico JSON
     if (!res || !res.ok) {
       let publicUrl = ""
       if (target.user && target.slug) {
@@ -349,7 +349,7 @@ export async function fetchCustomMDBList(urlOrSlug: string, apiKey?: string, lim
       }
       if (publicUrl) {
         res = await timedFetch(publicUrl, {
-          headers: { "User-Agent": "Mozilla/5.0 Pictorium" },
+          headers: { "User-Agent": "Mozilla/5.0 FlameForge" },
           signal: combineAbortSignals(signal, 10000),
         }).catch(() => null)
       }
@@ -381,7 +381,7 @@ export async function fetchCustomMDBList(urlOrSlug: string, apiKey?: string, lim
       rawItems = payload.items
     } else if (Array.isArray(payload?.movies) || Array.isArray(payload?.shows)) {
       // Le sezioni movies/shows portano il tipo: lo si annota come default
-      // (il campo proprio dell'item vince se presente) così i cataloghi
+      // (il campo proprio dell'item vince se presente) cosÃ¬ i cataloghi
       // "mixed" non sdoppiano gli item senza tipo in film+serie.
       const movies = (payload.movies || []).map((m: { mediatype?: string }) => ({ mediatype: "movie" as const, ...m }))
       const shows = (payload.shows || []).map((s: { mediatype?: string }) => ({ mediatype: "show" as const, ...s }))
@@ -422,3 +422,4 @@ export async function checkMDBLists(imdbId: string): Promise<{ key: string; rank
   }
   return null
 }
+

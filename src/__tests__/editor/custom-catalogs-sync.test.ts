@@ -69,7 +69,7 @@ describe("useCustomCatalogs auto-sync", () => {
 
     // Dati locali conservati nonostante il rifiuto
     expect(result.current.customCatalogs).toHaveLength(1)
-    expect(JSON.parse(store.get("pictorium_custom_catalogs") ?? "[]")).toHaveLength(1)
+    expect(JSON.parse(store.get("FLAMEFORGE_custom_catalogs") ?? "[]")).toHaveLength(1)
 
     // Retry the same failed payload without requiring another configuration edit.
     mockedPut.mockClear()
@@ -160,7 +160,7 @@ describe("useCustomCatalogs auto-sync", () => {
       return { ok: true, json: async () => ({ customCatalogs: initial }) } as Response
     })
     const store = memStore()
-    store.set("pictorium_custom_catalogs", JSON.stringify(initial))
+    store.set("FLAMEFORGE_custom_catalogs", JSON.stringify(initial))
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
     await act(async () => { await new Promise(resolve => setTimeout(resolve, 100)) })
     await act(async () => { result.current.toggleCustomCatalog("a") })
@@ -195,7 +195,7 @@ describe("useCustomCatalogs auto-sync", () => {
     })
     // localStorage con chiave presente ma array vuoto = svuotamento intenzionale
     const store = memStore()
-    store.set("pictorium_custom_catalogs", "[]")
+    store.set("FLAMEFORGE_custom_catalogs", "[]")
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
 
     await act(async () => {
@@ -208,7 +208,7 @@ describe("useCustomCatalogs auto-sync", () => {
     mockedPut.mockImplementation(async () => okGet)
     const store = memStore()
     store.set(
-      "pictorium_custom_catalogs",
+      "FLAMEFORGE_custom_catalogs",
       JSON.stringify([{ id: "legacy", name: "Legacy", type: "movie", url: "https://mdblist.com/lists/u/legacy" }]),
     )
     const { result } = renderHook(() => useCustomCatalogs(store.get, store.set))
@@ -241,3 +241,5 @@ describe("useCustomCatalogs auto-sync", () => {
     expect(result.current.catalogsSyncNonce).toBe(1)
   })
 })
+
+

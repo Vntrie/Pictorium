@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback, useRef, useEffect } from "react"
 import { http } from "./http"
@@ -36,16 +36,16 @@ export function useSearch(tmdbKey: string, lang: string, hasServerKey = false) {
   const [totalPages, setTotalPages] = useState(0)
   const [searchPage, setSearchPage] = useState(1)
   const [recentSearches, setRecentSearches] = useState<string[]>(readRecentSearches)
-  // Identità della ricerca che ha prodotto i risultati correnti (query
+  // IdentitÃ  della ricerca che ha prodotto i risultati correnti (query
   // normalizzata + lingua): loadMore/loadMoreFiltered la riusano invece del
-  // testo live del campo, che può già contenere un'altra digitazione.
+  // testo live del campo, che puÃ² giÃ  contenere un'altra digitazione.
   const activeRef = useRef<{ query: string; lang: string } | null>(null)
   // Ultima richiesta fallita (query + pagina): il retry la ripete senza
   // azzerare i risultati con una nuova pagina 1.
   const failedRef = useRef<{ query: string; lang: string; page: number } | null>(null)
   const [failedPage, setFailedPage] = useState<number | null>(null)
-  // Una ricerca pagina-1 è stata completata (successo o errore): solo allora
-  // la UI può mostrare "nessun risultato" invece del campo iniziale.
+  // Una ricerca pagina-1 Ã¨ stata completata (successo o errore): solo allora
+  // la UI puÃ² mostrare "nessun risultato" invece del campo iniziale.
   const [hasSearched, setHasSearched] = useState(false)
 
   // Revision counter per scartare risposte stale
@@ -108,11 +108,11 @@ export function useSearch(tmdbKey: string, lang: string, hasServerKey = false) {
     } catch (e) {
       if (rev !== revRef.current) return []
       if (controller.signal.aborted) return []
-      console.error("[pictorium] Search failed:", e)
+      console.error("[FlameForge] Search failed:", e)
       failedRef.current = { query: searchQuery, lang: language, page }
       setFailedPage(page)
       // Le pagine silent (ciclo filtrato) registrano solo il fallimento per
-      // il retry mirato: niente toast né errore globale che lampeggia.
+      // il retry mirato: niente toast nÃ© errore globale che lampeggia.
       if (!opts?.silent) {
         toast.error(t("ui.searchError"))
         setError(t("ui.searchError"))
@@ -140,7 +140,7 @@ export function useSearch(tmdbKey: string, lang: string, hasServerKey = false) {
 
   /**
    * "Carica altri" con filtro tipo attivo: una pagina mista da 20 aggiunge
-   * pochi match visibili, così si prosegue finché non se ne accumulano
+   * pochi match visibili, cosÃ¬ si prosegue finchÃ© non se ne accumulano
    * `targetNew` (o pagine esaurite / maxPages per click). Ritorna i match aggiunti.
    * Silent (niente overlay lampeggiante: lo spinner del bottone copre l'attesa).
    * Avanza solo dopo una pagina riuscita (anche vuota di match): dopo un
@@ -164,10 +164,10 @@ export function useSearch(tmdbKey: string, lang: string, hasServerKey = false) {
         const revBefore = revRef.current
         const batch = await doSearch(active.query, page + 1, { silent: true, language: active.lang })
         // Nuova ricerca nel frattempo (altro submit): stop, i suoi risultati
-        // hanno già sostituito la lista (ogni doSearch avanza rev di uno).
+        // hanno giÃ  sostituito la lista (ogni doSearch avanza rev di uno).
         if (revRef.current !== revBefore + 1) break
-        // Errore su questa pagina: stop senza avanzare né cancellare
-        // l'errore; il retry ripartirà dalla stessa pagina.
+        // Errore su questa pagina: stop senza avanzare nÃ© cancellare
+        // l'errore; il retry ripartirÃ  dalla stessa pagina.
         if (failedRef.current && failedRef.current.query === active.query && failedRef.current.page === page + 1) break
         page += 1
         added += matches(batch)
@@ -179,7 +179,7 @@ export function useSearch(tmdbKey: string, lang: string, hasServerKey = false) {
   }, [searchPage, totalPages, searching, doSearch])
 
   /** Ripete l'ultima richiesta fallita (stessa query e pagina), senza
-   *  azzerare i risultati già caricati con una nuova pagina 1. */
+   *  azzerare i risultati giÃ  caricati con una nuova pagina 1. */
   const retryFailed = useCallback(async (): Promise<void> => {
     const failed = failedRef.current
     if (!failed || searching || loadMoreRef.current) return
@@ -221,3 +221,4 @@ export function useSearch(tmdbKey: string, lang: string, hasServerKey = false) {
     clearRecentSearches,
   }
 }
+

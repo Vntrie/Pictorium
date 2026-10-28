@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest"
 import { render } from "@testing-library/react"
-import { PictoriumProvider, usePSelector } from "@/lib/context"
+import { FlameForgeProvider, usePSelector } from "@/lib/context"
 import { MOCK_CTX } from "../test-utils"
-import type { PictoriumCtx } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 
 describe("usePSelector", () => {
@@ -30,10 +30,10 @@ describe("usePSelector", () => {
       </>
     )
 
-    let ctx: PictoriumCtx = { ...MOCK_CTX }
+    let ctx: FlameForgeCtx = { ...MOCK_CTX }
     const Wrapper = ({ children }: { children: React.ReactNode }) => (
       <PosterEditorProvider>
-        <PictoriumProvider value={ctx}>{children}</PictoriumProvider>
+        <FlameForgeProvider value={ctx}>{children}</FlameForgeProvider>
       </PosterEditorProvider>
     )
 
@@ -54,6 +54,8 @@ describe("usePSelector", () => {
       usePSelector((v) => v.lang)
       return null
     }
-    expect(() => render(<Probe />)).toThrow("usePSelector must be inside PictoriumProvider")
+    expect(() => render(<Probe />)).toThrow("usePSelector must be inside FlameForgeProvider")
   })
 })
+
+

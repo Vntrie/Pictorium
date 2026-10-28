@@ -104,7 +104,7 @@ vi.mock("ioredis", () => {
         !hasAs(fakeState.strings, k) &&
         !hasAs(fakeState.sets as Map<string, unknown>, k) &&
         !hasAs(fakeState.zsets as Map<string, unknown>, k)
-      if (script.includes("pictorium:preset-save:v1")) {
+      if (script.includes("FlameForge:preset-save:v1")) {
         if (numKeys !== 4) throw new Error("unsupported preset-save args in fake eval")
         if (keys.length !== 4 || args.length !== 5) throw new Error("unsupported preset-save args in fake eval")
         const [presetK, indexK, dlK, createdK] = keys
@@ -150,7 +150,7 @@ vi.mock("ioredis", () => {
         }
         return 0
       }
-      if (script.includes("pictorium:mapping-upsert:v1")) {
+      if (script.includes("FlameForge:mapping-upsert:v1")) {
         if (numKeys !== 1 || keys.length !== 1 || args.length !== 3)
           throw new Error("unsupported mapping-upsert args in fake eval")
         const [hashK] = keys
@@ -165,7 +165,7 @@ vi.mock("ioredis", () => {
         h.set(field, json)
         return 0
       }
-      if (script.includes("pictorium:mapping-import:v1")) {
+      if (script.includes("FlameForge:mapping-import:v1")) {
         if (numKeys !== 1 || keys.length !== 1 || args.length < 1 || (args.length - 1) % 2 !== 0)
           throw new Error("unsupported mapping-import args in fake eval")
         const [hashK] = keys
@@ -178,7 +178,7 @@ vi.mock("ioredis", () => {
         for (let i = 1; i < args.length; i += 2) h.set(args[i], args[i + 1])
         return 0
       }
-      if (script.includes("pictorium:alias-set:v1")) {
+      if (script.includes("FlameForge:alias-set:v1")) {
         if (numKeys !== 2 || keys.length !== 2 || args.length !== 3)
           throw new Error("unsupported alias-set args in fake eval")
         const [aliasK, mapK] = keys
@@ -304,13 +304,13 @@ const UUID_A = "11111111-1111-4111-8111-111111111111"
 
 // --- Exact env isolation: capture originals, restore verbatim. ---
 const ENV_KEYS = [
-  "PICTORIUM_REDIS_URL",
-  "POSTERIUM_REDIS_URL",
+  "FLAMEFORGE_REDIS_URL",
+  "FLAMEFORGE_REDIS_URL",
   "REDIS_URL",
   "KV_REST_API_URL",
   "KV_REST_API_TOKEN",
-  "PICTORIUM_MAX_MAPPINGS_PER_USER",
-  "POSTERIUM_MAX_MAPPINGS_PER_USER",
+  "FLAMEFORGE_MAX_MAPPINGS_PER_USER",
+  "FLAMEFORGE_MAX_MAPPINGS_PER_USER",
 ] as const
 const originalEnv = new Map<string, string | undefined>()
 
@@ -333,8 +333,8 @@ function clearFakeBackend(): void {
 }
 
 function forceKvMode(): void {
-  process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379"
-  delete process.env.POSTERIUM_REDIS_URL
+  process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379"
+  delete process.env.FLAMEFORGE_REDIS_URL
   delete process.env.REDIS_URL
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
@@ -374,7 +374,7 @@ afterEach(async () => {
 
 describe("quota races: mappings/aliases (Q2b2) atomic EVAL, all GREEN", () => {
   it("mapping upsert: two concurrent inserts at max-1 must not both succeed", async () => {
-    process.env.PICTORIUM_MAX_MAPPINGS_PER_USER = "2"
+    process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER = "2"
     vi.resetModules()
     // Two module instances = two server instances sharing one Redis.
     const storeA = await import("@/lib/store")
@@ -416,7 +416,7 @@ describe("quota races: mappings/aliases (Q2b2) atomic EVAL, all GREEN", () => {
   })
 
   it("mapping importMappings: two concurrent imports at max-1 must not both succeed", async () => {
-    process.env.PICTORIUM_MAX_MAPPINGS_PER_USER = "2"
+    process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER = "2"
     vi.resetModules()
     const storeA = await import("@/lib/store")
     vi.resetModules()
@@ -455,7 +455,7 @@ describe("quota races: mappings/aliases (Q2b2) atomic EVAL, all GREEN", () => {
   })
 
   it("alias setImdbAlias: two concurrent aliases sharing quota at max-1 must not both succeed", async () => {
-    process.env.PICTORIUM_MAX_MAPPINGS_PER_USER = "2"
+    process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER = "2"
     vi.resetModules()
     const storeA = await import("@/lib/store")
     vi.resetModules()
@@ -496,3 +496,5 @@ describe("quota races: mappings/aliases (Q2b2) atomic EVAL, all GREEN", () => {
     }
   })
 })
+
+

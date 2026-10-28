@@ -1,5 +1,5 @@
 /**
- * Task D slice: honest `X-Pictorium-Source` on cache HIT and MISS.
+ * Task D slice: honest `X-FlameForge-Source` on cache HIT and MISS.
  *
  * Regression: the hit path keyed the header on snapshot existence alone, so
  * cached skip/genre variant windows overclaimed the canonical snapshot's
@@ -237,12 +237,14 @@ describe("streaming source header hit/miss parity", () => {
     mockedEnsureFresh.mockResolvedValue(
       pinWith([{ tmdbId: 11, imdbId: "tt1000001", rank: 1, title: "Test Show" }], "flixpatrol") as never,
     )
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-netflix-series.json?api_key=k")
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-netflix-series.json?api_key=k")
     const res = await catalogGET(req, {
-      params: Promise.resolve({ type: "series", id: "pictorium-netflix-series.json" }),
+      params: Promise.resolve({ type: "series", id: "FlameForge-netflix-series.json" }),
     })
     expect(res.status).toBe(200)
     expect(res.headers.get(STREAMING_SOURCE_HEADER)).toBeNull()
     expect(res.headers.get("Access-Control-Expose-Headers")).toBeNull()
   })
 })
+
+

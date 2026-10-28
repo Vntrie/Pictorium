@@ -522,3 +522,4 @@ describe("task11 compositor alignment + resampling (actual overlays)", () => {
     expect(s1.equals(s2)).toBe(true)
   }, 180000)
 })
+

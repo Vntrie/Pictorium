@@ -108,7 +108,7 @@ function token(): string {
 
 function catalogReq(user: string, cfg: string) {
   return new NextRequest(
-    `http://localhost:3000/catalog/movie/pictorium-custom-movie-${CID}.json?u=${user}&api_key=test-key&config=${cfg}`,
+    `http://localhost:3000/catalog/movie/FlameForge-custom-movie-${CID}.json?u=${user}&api_key=test-key&config=${cfg}`,
   )
 }
 
@@ -117,9 +117,9 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     vi.restoreAllMocks()
     vi.clearAllMocks()
     cacheClear()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = "test-trakt-client-id"
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = "test-trakt-client-id"
     process.env.TRAKT_API_URL = "http://trakt.test"
-    process.env.PICTORIUM_MULTI_USER = "1"
+    process.env.FLAMEFORGE_MULTI_USER = "1"
     traktCalls.length = 0
     connCtl.mode = { [OWNER_A]: "token", [OWNER_B]: "token" }
     connCtl.token = { [OWNER_A]: "token-A", [OWNER_B]: "token-B" }
@@ -177,9 +177,9 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
   })
 
   afterEach(() => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     delete process.env.TRAKT_API_URL
-    delete process.env.PICTORIUM_MULTI_USER
+    delete process.env.FLAMEFORGE_MULTI_USER
     cacheClear()
   })
 
@@ -187,7 +187,7 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     const cfg = token()
     // 1. Connected: private items served through the owner namespace.
     const r1 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     const b1 = (await r1.json()) as { metas: Array<{ id: string; name: string }> }
     expect(b1.metas).toHaveLength(2)
@@ -198,7 +198,7 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
 
     // 2. Repeat: served from cache (provider + handler), no new upstream call.
     const r2 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     expect(((await r2.json()) as { metas: unknown[] }).metas).toHaveLength(2)
     expect(traktCalls).toHaveLength(1)
@@ -208,7 +208,7 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     connCtl.mode[OWNER_A] = "disconnected"
     connCtl.gen[OWNER_A] = "gen-A2"
     const r3 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     const b3 = (await r3.json()) as { metas: Array<{ name: string }> }
     expect(b3.metas).toHaveLength(0)
@@ -218,7 +218,7 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     connCtl.mode[OWNER_A] = "token"
     connCtl.gen[OWNER_A] = "gen-A3"
     const r4 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     const b4 = (await r4.json()) as { metas: Array<{ name: string }> }
     expect(b4.metas).toHaveLength(2)
@@ -229,10 +229,10 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
   it("never shares private items across owners using the same saved URL", async () => {
     const cfg = token()
     const ra = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     const rb = await GET(catalogReq(OWNER_B, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     const ba = (await ra.json()) as { metas: Array<{ name: string }> }
     const bb = (await rb.json()) as { metas: Array<{ name: string }> }
@@ -245,7 +245,7 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     const cfg = token()
     // Connected: private items served and cached at every layer.
     const r1 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     expect(((await r1.json()) as { metas: unknown[] }).metas).toHaveLength(2)
     expect(traktCalls).toHaveLength(1)
@@ -257,7 +257,7 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     connCtl.gen[OWNER_A] = "gen-A2"
     connCtl.genThrows[OWNER_A] = true
     const r2 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     const b2 = (await r2.json()) as { metas: unknown[] }
     expect(b2.metas).toHaveLength(0)
@@ -270,7 +270,7 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     // token is verified) but must persist nowhere.
     connCtl.genThrows[OWNER_A] = true
     const r1 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     expect(((await r1.json()) as { metas: unknown[] }).metas).toHaveLength(2)
     expect(traktCalls).toHaveLength(1)
@@ -278,13 +278,13 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     // proves the outage response wrote nothing under any key.
     connCtl.genThrows[OWNER_A] = false
     const r2 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     expect(((await r2.json()) as { metas: unknown[] }).metas).toHaveLength(2)
     expect(traktCalls).toHaveLength(2)
     // ...and the fenced response caches normally afterwards.
     const r3 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     expect(((await r3.json()) as { metas: unknown[] }).metas).toHaveLength(2)
     expect(traktCalls).toHaveLength(2)
@@ -293,13 +293,13 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
   it("ignores same-generation cache hits when the token store becomes unavailable (no stale private serve)", async () => {
     const cfg = token()
     const r1 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     expect(((await r1.json()) as { metas: unknown[] }).metas).toHaveLength(2)
     expect(traktCalls).toHaveLength(1)
     // Baseline: repeat is a hit (no new upstream call).
     const rHit = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     expect(((await rHit.json()) as { metas: unknown[] }).metas).toHaveLength(2)
     expect(traktCalls).toHaveLength(1)
@@ -308,7 +308,7 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     // fetch.
     connCtl.mode[OWNER_A] = "temporary"
     const r2 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     expect(((await r2.json()) as { metas: unknown[] }).metas).toHaveLength(0)
     expect(traktCalls).toHaveLength(1)
@@ -327,7 +327,7 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
       { ok: true, accessToken: "token-A", generation: "gen-A2", noCache: false },
     )
     const r1 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     expect(((await r1.json()) as { metas: unknown[] }).metas).toHaveLength(0)
     expect(traktCalls).toHaveLength(1)
@@ -336,7 +336,7 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     connCtl.mode[OWNER_A] = "token"
     connCtl.gen[OWNER_A] = "gen-A2"
     const r2 = await GET(catalogReq(OWNER_A, cfg), {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${CID}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${CID}.json` }),
     })
     const b2 = (await r2.json()) as { metas: Array<{ name: string }> }
     expect(b2.metas).toHaveLength(2)
@@ -344,3 +344,5 @@ describe("Stremio catalog: owning-user private Trakt watchlist (task 4)", () => 
     expect(traktCalls).toHaveLength(2)
   })
 })
+
+

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState, useMemo, useEffect } from "react"
 import {
@@ -24,7 +24,7 @@ import {
 import { usePSelector } from "@/lib/context"
 import { useT } from "@/lib/contexts/TranslationContext"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
-import { PICTORIUM_CATALOGS, regionJwName, partitionAnimeCatalogsLast } from "@/lib/catalog-definitions"
+import { FLAMEFORGE_CATALOGS, regionJwName, partitionAnimeCatalogsLast } from "@/lib/catalog-definitions"
 import { sanitizeGenericStreamingSelections, streamingCatalogName, genericStreamingCatalogName, genericVariantLabel } from "@/lib/streaming-catalogs"
 import { customDerivedIds } from "@/lib/useCustomCatalogs"
 import { derivedIdsForGenericSelection } from "@/lib/streaming-catalog-client"
@@ -110,7 +110,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
   const [resetSaving, setResetSaving] = useState(false)
   // Bulk delete confirmation (destructive batch): the arm freezes against
   // the EXACT deletable target signature. Switching the selection (or an
-  // inventory change) lapses a stale arm — the next click only re-arms,
+  // inventory change) lapses a stale arm â€” the next click only re-arms,
   // never executes against a different target set. Signature comparison
   // (not render identity) keeps a stable confirm clickable.
   const [bulkArmedFor, setBulkArmedFor] = useState<string | null>(null)
@@ -158,7 +158,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
     // Built-in catalogs (i nomi JW seguono la regione attiva; i Top 20
     // seguono anche la fonte ranking selezionata, come nel manifest Stremio:
     // rinomine utente > nome fonte ranking > nome regionale Top 20).
-    // La visibilità emoji è solo display (mai storage): i nomi salvati
+    // La visibilitÃ  emoji Ã¨ solo display (mai storage): i nomi salvati
     // restano intatti e le sorgenti dinamiche continuano ad aggiornarsi.
     // Ghost inventory rule (same as the manifest in build-manifest.ts): in
   // opt-in mode the legacy platform built-ins are NOT served, so they are
@@ -166,8 +166,8 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
   // general JW rows and the anime rows always stay (anime is not
   // service-based); disabled factory JW rows stay manageable via Power.
   const hideLegacyPlatforms = isStreamingOptIn
-  for (const c of PICTORIUM_CATALOGS) {
-    if (hideLegacyPlatforms && !isDefaultTop20CatalogId(c.id) && !c.id.startsWith("pictorium-anime")) continue
+  for (const c of FLAMEFORGE_CATALOGS) {
+    if (hideLegacyPlatforms && !isDefaultTop20CatalogId(c.id) && !c.id.startsWith("FlameForge-anime")) continue
       const defaultName =
         rankingSourceCatalogName(
           c.id,
@@ -190,7 +190,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
     // Opt-in streaming selections (per derived list id, like the custom
     // mixed splits): shown with independent Hide (entry `enabled` flag, the
     // config stays) vs Remove (JUST that list id, siblings untouched).
-    // Rows persist from state even when hidden or narrowed — they are
+    // Rows persist from state even when hidden or narrowed â€” they are
     // managed here, not in the manifest.
     const sanitizedStreaming = sanitizeGenericStreamingSelections(streamingSelectionsState ?? undefined) ?? []
     for (const sel of sanitizedStreaming) {
@@ -223,14 +223,14 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
     for (const cc of customCatalogs) {
       const isCustomHomeDisabled = homeDisabledCatalogIds.includes(cc.id)
       if (cc.type === "mixed") {
-        const mId = `pictorium-custom-movie-${cc.id}`
-        const sId = `pictorium-custom-series-${cc.id}`
-        const mStored = catalogRenames[mId] || `${cc.name} — ${t("ui.movie")}`
-        const sStored = catalogRenames[sId] || `${cc.name} — ${t("ui.tvSeries")}`
+        const mId = `FlameForge-custom-movie-${cc.id}`
+        const sId = `FlameForge-custom-series-${cc.id}`
+        const mStored = catalogRenames[mId] || `${cc.name} â€” ${t("ui.movie")}`
+        const sStored = catalogRenames[sId] || `${cc.name} â€” ${t("ui.tvSeries")}`
         list.push({
           id: mId,
           name: resolveCatalogDisplayName(mStored, catalogShowEmojis),
-          originalName: `${cc.name} — ${t("ui.movie")}`,
+          originalName: `${cc.name} â€” ${t("ui.movie")}`,
           type: "movie",
           isCustom: true,
           customBaseId: cc.id,
@@ -240,7 +240,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
         list.push({
           id: sId,
           name: resolveCatalogDisplayName(sStored, catalogShowEmojis),
-          originalName: `${cc.name} — ${t("ui.tvSeries")}`,
+          originalName: `${cc.name} â€” ${t("ui.tvSeries")}`,
           type: "series",
           isCustom: true,
           customBaseId: cc.id,
@@ -248,7 +248,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
           showInHome: !isCustomHomeDisabled && !homeDisabledCatalogIds.includes(sId),
         })
       } else {
-        const cId = `pictorium-custom-${cc.type}-${cc.id}`
+        const cId = `FlameForge-custom-${cc.type}-${cc.id}`
         const cStored = catalogRenames[cId] || cc.name
         list.push({
           id: cId,
@@ -276,7 +276,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
 
     // Anime always last ("gli anime mettiamoli sempre alla fine"): stable
     // partition AFTER the user order, same rule as the Stremio manifest.
-    // Drag/bulk moves cannot make a built-in anime precede non-anime —
+    // Drag/bulk moves cannot make a built-in anime precede non-anime â€”
     // the display re-projects (stored order untouched, no moves lost).
     return partitionAnimeCatalogsLast(list)
   }, [customCatalogs, rankingSourceMovie, rankingSourceSeries, disabledCatalogIds, homeDisabledCatalogIds, catalogOrder, catalogRenames, catalogShowEmojis, activeRegion, streamingSelectionsState, isStreamingOptIn, t])
@@ -381,7 +381,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
   //   country + source + variant + section), siblings untouched;
   // - custom/addon rows delete whole providers ONLY when ALL their emitted
   //   rows are selected (a partial mixed selection can never delete one
-  //   section of a pair — the data model owns one config per provider);
+  //   section of a pair â€” the data model owns one config per provider);
   // - every other built-in (legacy platforms, anime) has no delete API and
   //   is skipped (Power only).
   // Stale selected ids (inventory changed underneath) are pruned, never executed.
@@ -434,7 +434,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
   // Exact deletable target signature (stable string, never render identity):
   // the armed confirm only fires against THIS set. Factory JW toggles (or
   // any other irrelevant change) leave the signature untouched, so a valid
-  // arm is never dropped spuriously — but ANY effective target-set change
+  // arm is never dropped spuriously â€” but ANY effective target-set change
   // (selection switch, inventory narrowing/removal) lapses it.
   const bulkSignature = useMemo(() => {
     const stream = bulkDeletable.streaming.map(
@@ -655,8 +655,8 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
                 <ChevronsUp className="w-3.5 h-3.5" />
               </button>
               {/* Bulk delete (destructive batch, two-step confirm): removes
-                  ONLY the deletable selection — per-section streaming lists
-                  and whole custom providers — atomically. Factory JW and
+                  ONLY the deletable selection â€” per-section streaming lists
+                  and whole custom providers â€” atomically. Factory JW and
                   other built-ins are never deletable (toggle-only). */}
               <button
                 type="button"
@@ -714,7 +714,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Visibilità emoji nei nomi (solo display, mai storage): nasconde
+          {/* VisibilitÃ  emoji nei nomi (solo display, mai storage): nasconde
               tutte le emoji dai nomi mostrati, i salvataggi restano intatti. */}
           <button
             type="button"
@@ -840,7 +840,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
                 </button>
 
                 {/* 3 lines Drag Handle: solo mouse (su touch il drag HTML5 non
-                    esiste — restano le frecce qui sotto, sempre funzionanti) */}
+                    esiste â€” restano le frecce qui sotto, sempre funzionanti) */}
                 <div
                   className="pointer-coarse:hidden cursor-grab active:cursor-grabbing p-1.5 rounded-lg hover:bg-white/10 text-muted hover:text-white transition-colors"
                   title={
@@ -996,7 +996,7 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
                       }}
                       onClick={(e) => e.stopPropagation()}
                       onPointerDown={(e) => e.stopPropagation()}
-                      aria-label={`${item.name} — ${t("ui.posterShape")}`}
+                      aria-label={`${item.name} â€” ${t("ui.posterShape")}`}
                       className="max-w-full px-2 py-1 bg-surface border border-white/10 rounded-lg text-[11px] text-zinc-300 hover:text-white hover:border-white/20 focus:outline-none focus:border-accent-orange transition-colors"
                     >
                       <option value="global">
@@ -1089,3 +1089,4 @@ export function CatalogManagerModal({ isOpen, onClose }: CatalogManagerModalProp
     </Modal>
   )
 }
+

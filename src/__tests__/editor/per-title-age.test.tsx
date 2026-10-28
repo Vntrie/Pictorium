@@ -29,7 +29,7 @@ import { usePosterSave } from "@/lib/usePosterSave"
 import { BadgeControls } from "@/components/BadgeControls"
 import EditView from "@/components/EditView"
 import { MOCK_CTX, renderWithCtx } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider, usePosterEditor, type PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import type { SearchResult, TMDBImage } from "@/lib/types"
@@ -449,10 +449,10 @@ function renderAgeSwitchableEditor(first: Record<string, unknown>) {
     return (
       <ThemeProvider>
         <PosterEditorProvider>
-          <PictoriumProvider value={{ ...MOCK_CTX, ...over }}>
+          <FlameForgeProvider value={{ ...MOCK_CTX, ...over }}>
             <EditView />
             <AgeProbe />
-          </PictoriumProvider>
+          </FlameForgeProvider>
         </PosterEditorProvider>
       </ThemeProvider>
     )
@@ -523,3 +523,5 @@ describe("mounted EditView age shape-switch independence (real handler)", () => 
     expect(editor().ageCountry).toBe("DE")
   })
 })
+
+

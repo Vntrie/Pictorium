@@ -144,7 +144,7 @@ describe("GET /api/poster chart-I/O gating", () => {
     mockedPinChartFamily.mockResolvedValue({ id: "live", snapshot: null })
     mockedEnsureFresh.mockResolvedValue({ id: "live", snapshot: null } as never)
     vi.mocked(fetchAggregatedRating).mockReset().mockResolvedValue(null)
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -214,3 +214,5 @@ describe("GET /api/poster chart-I/O gating", () => {
     }
   })
 })
+
+

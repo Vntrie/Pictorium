@@ -224,3 +224,4 @@ describe("extractSceneTint + luminance (cache analisi pixel)", () => {
     expect(await bottomLuminance(light, "test:lum:C")).toBe(bDark)
   })
 })
+

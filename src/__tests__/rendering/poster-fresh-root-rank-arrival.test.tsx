@@ -1,6 +1,6 @@
 /**
  * Correction c2 task8a — actual Root open/load/rank-fetch interactions
- * (reuses the poster-layout-correction fixture pattern: REAL PictoriumRoot +
+ * (reuses the poster-layout-correction fixture pattern: REAL FlameForgeRoot +
  * deferred network + real EditView shape switch, never stubbed probes).
  *
  * - rank arrives while auto -> Fresh-100 (provenance stays auto);
@@ -17,8 +17,8 @@
 import { useEffect, createElement } from "react"
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
 import { render, act, fireEvent, screen } from "@testing-library/react"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import type { SearchResult, TMDBImage, Mapping } from "@/lib/types"
@@ -41,7 +41,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
 }))
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -169,7 +169,7 @@ async function renderRoot() {
   ctx = null
   ed = null
   render(
-    createElement(PictoriumRoot, null, createElement(Probe)),
+    createElement(FlameForgeRoot, null, createElement(Probe)),
   )
   await flush()
   expect(ctx, "provider context available").toBeTruthy()
@@ -574,3 +574,5 @@ describe("preview sentinel + real service fallback parity", () => {
     expect((flat as Mapping).logoScale).toBeUndefined()
   })
 })
+
+

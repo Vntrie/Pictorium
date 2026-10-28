@@ -1,4 +1,4 @@
-import {
+﻿import {
   CHART_LIVE_PIN_ID,
   commitChartFamilySnapshot,
   familySlotFloorMs,
@@ -35,20 +35,20 @@ const log = createLogger("chart-renewal")
 
 // ---------------------------------------------------------------------------
 // Per-family renewal: one request to its catalog/rank refreshes THAT stale
-// list only — never unrelated platforms, anime lists, or modes.
+// list only â€” never unrelated platforms, anime lists, or modes.
 //
 // `ensureFreshChartFamily` is the single reusable awaited refresh API (also
 // suitable for a future scheduled trigger, which stays a separate task: no
 // scheduler, no config, no deploy changes here):
-// - pin is current (a published snapshot of this slot) → return it, zero
+// - pin is current (a published snapshot of this slot) â†’ return it, zero
 //   upstream fetches;
-// - failure gate active (<60s after a source failure) → return the old pin
+// - failure gate active (<60s after a source failure) â†’ return the old pin
 //   (retention: the last good snapshot keeps serving);
-// - another owner holds the refresh lease → return the old pin immediately
+// - another owner holds the refresh lease â†’ return the old pin immediately
 //   (competitors never wait; the owner serves new rows after its commit);
 // - else this request becomes the owner: one bounded fetch at exact serving
 //   coordinates (existing internal upstream timeouts bound it; nothing
-//   survives the request lifecycle), guarded atomic commit, lease release —
+//   survives the request lifecycle), guarded atomic commit, lease release â€”
 //   all awaited inside the owning request lifecycle, never fire-and-forget.
 //
 // A cold start (no published snapshot) fetches the requested list only and
@@ -61,12 +61,12 @@ const log = createLogger("chart-renewal")
  * ignores unknown regional package codes, so the unions are safe in every
  * region. Historic unions are preserved byte-identical here (NOW via
  * `pct`/`pcp` Peacock, Paramount via `sst` SkyShowtime): task2 must not drift
- * legacy `pictorium-<platform>-*` catalogs. New opt-in `stream:` families
+ * legacy `FlameForge-<platform>-*` catalogs. New opt-in `stream:` families
  * below use the strict own-brand packages from `streaming-catalogs.ts`
- * (no sibling aliases) — separate family identity, separate pins.
+ * (no sibling aliases) â€” separate family identity, separate pins.
  */
 export const CHART_PLATFORM_SOURCES: Record<string, { jwPackages: string[]; flixSlug: string }> = {
-  // Prime: shortName regionale — `prv` (IT/FR/ES/...) vs `amp` (US/GB/DE/JP).
+  // Prime: shortName regionale â€” `prv` (IT/FR/ES/...) vs `amp` (US/GB/DE/JP).
   netflix: { jwPackages: ["nfx"], flixSlug: "netflix" },
   prime: { jwPackages: ["prv", "amp"], flixSlug: "amazon-prime" },
   disney: { jwPackages: ["dnp"], flixSlug: "disney" },
@@ -75,7 +75,7 @@ export const CHART_PLATFORM_SOURCES: Record<string, { jwPackages: string[]; flix
   now: { jwPackages: ["ntv", "skg", "pct", "pcp"], flixSlug: "now" },
   apple: { jwPackages: ["atp"], flixSlug: "apple-tv" },
   hbo: { jwPackages: ["mxx"], flixSlug: "hbo-max" },
-  // Paramount+ in ES è SkyShowtime (`sst`): unione sicura come sopra.
+  // Paramount+ in ES Ã¨ SkyShowtime (`sst`): unione sicura come sopra.
   paramount: { jwPackages: ["pmp", "sst"], flixSlug: "paramount-plus" },
   crunchyroll: { jwPackages: ["cru"], flixSlug: "crunchyroll" },
 }
@@ -98,14 +98,14 @@ export interface FamilyFetchResult {
 /**
  * Fetch ONE canonical family at exact serving coordinates (cycle-aware: the
  * freshness floor forces a real upstream refresh past the slot boundary; the
- * floor only bypasses pre-boundary entries — in-slot entries and independent
+ * floor only bypasses pre-boundary entries â€” in-slot entries and independent
  * quality/availability caches are untouched). Throws on transport failure
  * (the refresh converts it to an error contribution: gate + retention).
  *
  * Platform families select JW or FlixPatrol via the existing serving
  * fallback and retain the winning provenance + order. Only the REQUESTED
  * side is returned (a FlixPatrol payload inherently observes both sides at
- * once, but the sibling refreshes on its own request — no cross-family
+ * once, but the sibling refreshes on its own request â€” no cross-family
  * writes here).
  */
 export async function fetchChartFamilyRows(
@@ -133,7 +133,7 @@ export async function fetchChartFamilyRows(
     }
     // A successful zero-row read is a genuine empty for this cycle: it
     // publishes an empty snapshot (a miss stays null and never resurrects a
-    // saved rank). Only transport failure (throw → error contribution, gate +
+    // saved rank). Only transport failure (throw â†’ error contribution, gate +
     // retention) keeps the last good snapshot. Strict mode guarantees the []
     // here is a real upstream success, never a conflated outage (circuit-open
     // and HTTP failures throw above).
@@ -153,19 +153,19 @@ export async function fetchChartFamilyRows(
     const isGlobal = (regionCode || "").toUpperCase() === GLOBAL_REGION_CODE
     const flixCountry = getRegionDef(regionCode).flixSlug
     // FP-first (non-GLOBAL only): a fresh usable fp-crawler chart for the
-    // REQUESTED side wins with ZERO JW traffic — a fresh movies chart never
+    // REQUESTED side wins with ZERO JW traffic â€” a fresh movies chart never
     // suppresses the series JW fallback or vice versa (no cross-side
     // filling, never blended within one chart; an opposite-side integrity
     // failure never blocks the requested side). FP misses (absent split,
-    // stale/invalid date, transport failure, malformed document/chart —
+    // stale/invalid date, transport failure, malformed document/chart â€”
     // including charts with zero usable tmdbIds) fall through to the JW
     // fallback below; only a JW failure on top of that throws (both sources
     // down: failure retention + 60s gate), never a fake empty. GLOBAL keeps
     // the historical JW-only path (GLOBAL FP deliberately excluded by scope)
-    // — unchanged.
+    // â€” unchanged.
     // LEGACY policy: the historic JW group-package unions always apply here
     // (NOW via Peacock, Paramount via SkyShowtime). No no-alias gate on this
-    // path — task2 must not drift legacy catalogs when no opt-in selection
+    // path â€” task2 must not drift legacy catalogs when no opt-in selection
     // exists. The strict policy lives on the `stream:` families below.
     if (!isGlobal) {
       const fp = await resolveFlixPlatformSides(src.flixSlug, flixCountry, {
@@ -192,12 +192,12 @@ export async function fetchChartFamilyRows(
         }
         return { rows, status: "ok", provenance: "flixpatrol" }
       }
-      // Miss → JW fallback below (same strict fetch as before).
+      // Miss â†’ JW fallback below (same strict fetch as before).
     }
     // Strict: a transport failure (including an open circuit) throws and, for
-    // non-GLOBAL families, propagates (both sources failed → error retention
+    // non-GLOBAL families, propagates (both sources failed â†’ error retention
     // via the caller); a successful [] is a real upstream answer, not an
-    // outage — it publishes an empty snapshot. GLOBAL empties are legitimate
+    // outage â€” it publishes an empty snapshot. GLOBAL empties are legitimate
     // by design.
     try {
       const rows = await getJWRankings(objectType, regionCode, 10, src.jwPackages, lang, signal, floor, true)
@@ -207,7 +207,7 @@ export async function fetchChartFamilyRows(
       if (!isGlobal) {
         return { rows: [], status: "empty", provenance: "justwatch" }
       }
-      // GLOBAL: historical path below (unchanged) — GLOBAL FP is deliberately
+      // GLOBAL: historical path below (unchanged) â€” GLOBAL FP is deliberately
       // excluded by scope, so the FP probe always misses by design.
     } catch (e) {
       if (!isGlobal) {
@@ -277,10 +277,10 @@ export async function fetchChartFamilyRows(
     }
     // Strict no-alias gate (opt-in contract): pairs without a verified
     // own-brand JW fallback never touch JW (zero group-package traffic, no
-    // Peacock/SkyShowtime laundering) — FP-only, otherwise a genuine empty
+    // Peacock/SkyShowtime laundering) â€” FP-only, otherwise a genuine empty
     // with NO provenance. Failure retention: an FP transport outage
     // (`loadFailed`) or an unusable FP source (malformed document or
-    // malformed requested-side entries) THROWS here — the refresh converts
+    // malformed requested-side entries) THROWS here â€” the refresh converts
     // it to an error contribution (old pin kept + 60s gate), never a fake
     // empty that would retire the last-good snapshot. Only an actually
     // absent split (no chart) or a stale-dated chart for the requested side
@@ -466,14 +466,14 @@ export async function fetchChartFamilyRows(
 /**
  * Reusable awaited per-family refresh (serving paths + future scheduled
  * trigger). Resolves the CURRENT slot, then:
- * - pin current → return it (zero upstream fetches; same-slot snapshots are
+ * - pin current â†’ return it (zero upstream fetches; same-slot snapshots are
  *   served until the next boundary even when underlying rolling caches
- *   expire — no upstream churn inside the slot);
+ *   expire â€” no upstream churn inside the slot);
  * - gated (<60s after a source failure) or lease held by a concurrent
- *   owner → return the old pin (retention; competitors never wait);
+ *   owner â†’ return the old pin (retention; competitors never wait);
  * - else fetch exactly this family (bounded by existing upstream timeouts),
  *   abort the commit on slot rollover, and return the fresh pin on success.
- * All work is awaited inside the calling request lifecycle — no background
+ * All work is awaited inside the calling request lifecycle â€” no background
  * fetches surviving it.
  */
 export async function ensureFreshChartFamily(
@@ -497,7 +497,7 @@ export async function ensureFreshChartFamily(
   // Pin current (a published snapshot of this slot): nothing to do.
   if (startPin.id !== CHART_LIVE_PIN_ID && startPin.id >= slot) return startPin
   // Failure gate active (a source failed <60s ago): fetching more now is
-  // waste — publish is gated anyway. Skip; the next request resumes.
+  // waste â€” publish is gated anyway. Skip; the next request resumes.
   try {
     if (await isChartFamilyGated({ ...groupInput, family })) return startPin
   } catch {
@@ -530,3 +530,4 @@ export async function ensureFreshChartFamily(
     await releaseChartFamilyLease({ ...groupInput, family }, owner)
   }
 }
+

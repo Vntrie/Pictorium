@@ -21,7 +21,7 @@ describe("fetchUnifiedCatalogResult statuses", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
     __resetTvdbTokenCache()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = "test-trakt-client-id"
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = "test-trakt-client-id"
     delete process.env.TRAKT_API_URL
     delete process.env.TVDB_API_URL
   })
@@ -40,7 +40,7 @@ describe("fetchUnifiedCatalogResult statuses", () => {
   })
 
   it("reports key_missing for Trakt without a client ID", async () => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     global.fetch = vi.fn(() => Promise.reject(new Error("must not fetch"))) as unknown as typeof fetch
     const res = await fetchUnifiedCatalogResult("https://trakt.tv/users/u/lists/trakt-st-nokey")
     expect(res).toMatchObject({ status: "key_missing", items: [] })
@@ -214,3 +214,5 @@ describe("TVDB lists via official v4 API (BYOK)", () => {
     expect(logins.length).toBe(2)
   })
 })
+
+

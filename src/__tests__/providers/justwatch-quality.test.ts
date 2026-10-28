@@ -1,4 +1,4 @@
-﻿import { describe, expect, it, beforeEach, vi, afterEach } from "vitest"
+import { describe, expect, it, beforeEach, vi, afterEach } from "vitest"
 import { resolveMaxQuality, getJWTitleQuality, __resetJWRankingsCache } from "@/lib/justwatch"
 
 describe("resolveMaxQuality", () => {
@@ -86,3 +86,4 @@ describe("getJWTitleQuality", () => {
     expect(quality).toBeNull()
   })
 })
+

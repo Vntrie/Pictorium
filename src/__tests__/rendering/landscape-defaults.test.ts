@@ -132,3 +132,4 @@ describe("landscape blur resolution end-to-end", () => {
     expect(portrait.genreBadgeOffsetX).toBe(0)
   })
 })
+

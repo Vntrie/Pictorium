@@ -95,7 +95,7 @@ describe("hook: seasonal keywords sanitize + local persist + PUT sync", () => {
     })
     // Sanitized: trimmed, deduped (match-form), overlong dropped.
     expect(result.current.seasonalHalloweenKeywords).toEqual(["Spooky Season", "cozy"])
-    expect(JSON.parse(store.raw.get("pictorium_seasonal_halloween_keywords") ?? "[]")).toEqual([
+    expect(JSON.parse(store.raw.get("FLAMEFORGE_seasonal_halloween_keywords") ?? "[]")).toEqual([
       "Spooky Season",
       "cozy",
     ])
@@ -159,3 +159,5 @@ describe("server: /api/defaults round-trips bounded keyword arrays", () => {
     expect(badEntry.status).toBe(400)
   })
 })
+
+

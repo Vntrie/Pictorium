@@ -1,20 +1,9 @@
-// Client-safe base: only the synchronous fallback dictionaries are bundled
-// statically. Every other language is registered at runtime — eagerly on the
-// server via "./i18n-server" (route entry points), on demand on the client via
-// "./i18n-loader". The sync APIs below never change signature: before a
-// language is registered they resolve through the English fallback.
-import en from "./translations/en.json"
-import it from "./translations/it.json"
+﻿import en from "./translations/en.json"
 
-export type Lang =
-  | "en" | "it" | "pl" | "fr" | "de" | "es" | "es-419" | "ja" | "ko"
-  | "pt" | "pt-br" | "he" | "cs" | "ro" | "ar" | "tr" | "nl" | "sv" | "vi"
-
+export type Lang = "en"
 export type Dictionary = Record<string, string>
 
-const dicts: Record<string, Dictionary> = { en, it }
-
-let _currentLang: string = "it"
+const dicts: Record<string, Dictionary> = { en }
 
 export const BADGE_KEY_PREFIX = "__"
 
@@ -30,8 +19,8 @@ export function resolveLabel(val: string): string {
   return isPrefixedKey(val) ? t(badgeKey(val)) : val
 }
 
-export function resolveLabelFor(val: string, lang: string): string {
-  return isPrefixedKey(val) ? createT(lang)(badgeKey(val)) : val
+export function resolveLabelFor(val: string, _lang: string): string {
+  return isPrefixedKey(val) ? createT("en")(badgeKey(val)) : val
 }
 
 export function isRankKey(val: string | null): string | null {
@@ -41,96 +30,38 @@ export function isRankKey(val: string | null): string | null {
     if (key === "badge.today" || key === "badge.anime" || key === "badge.movie" || key === "badge.series") return key
     return null
   }
-  if (val === "Oggi" || val === "Today" || val === "Aujourd'hui" || val === "Heute" || val === "Hoy" || val === "今日" || val === "오늘" || val === "Hoje" || val === "היום" || val === "Dnes" || val === "Dzisiaj" || val === "Azi" || val === "Astăzi" || val === "Astazi" || val === "اليوم" || val === "Bugün" || val === "Vandaag" || val === "Idag" || val === "Hôm nay") return "badge.today"
-  if (val === "Anime" || val === "アニメ" || val === "애니메이션" || val === "אנימה" || val === "أنمي") return "badge.anime"
-  if (val === "Film" || val === "Movie" || val === "Película" || val === "映画" || val === "영화" || val === "Filme" || val === "סרט" || val === "فيلم" || val === "Phim") return "badge.movie"
-  if (val === "Serie tv" || val === "TV series" || val === "Series" || val === "Série TV" || val === "Série" || val === "Serie de TV" || val === "Serie" || val === "TVシリーズ" || val === "TV 시리즈" || val === "סדרה" || val === "Seriál" || val === "Serial" || val === "Seriale" || val === "مسلسل" || val === "مسلسلات" || val === "Dizi" || val === "Phim truyền hình") return "badge.series"
+  if (val === "Today") return "badge.today"
+  if (val === "Anime") return "badge.anime"
+  if (val === "Movie") return "badge.movie"
+  if (val === "TV series" || val === "Series") return "badge.series"
   return null
 }
 
-/**
- * Base language subtag, lowercased ("HE-IL" -> "he", "es-419" -> "es").
- * Used for script-direction detection: region/number subtags never change
- * the writing direction.
- */
-export function baseLangCode(lang: string): string {
-  return lang.toLowerCase().split(/[-_]/)[0] ?? ""
-}
+export function baseLangCode(_lang: string): string { return "en" }
+export function isRtlLang(_lang: string): boolean { return false }
+export function documentDirectionFor(_lang: string): "rtl" | "ltr" { return "ltr" }
 
-const RTL_BASE_LANGS = new Set(["he", "ar"])
+export const DOCUMENT_LANG_PREPAINT_SCRIPT = `(function(){try{localStorage.setItem("preferred_lang","en");}catch(e){}document.documentElement.setAttribute("lang","en");document.documentElement.setAttribute("dir","ltr");})();`
 
-/**
- * True for right-to-left UI languages (Hebrew, Arabic — same logic for
- * both; every other supported locale is left-to-right).
- */
-export function isRtlLang(lang: string): boolean {
-  return RTL_BASE_LANGS.has(baseLangCode(lang))
-}
-
-/** Document direction for a UI language: "rtl" for he/ar, "ltr" otherwise. */
-export function documentDirectionFor(lang: string): "rtl" | "ltr" {
-  return isRtlLang(lang) ? "rtl" : "ltr"
-}
-
-/**
- * Pre-paint inline script (layout `<head>`): applies the persisted UI
- * language and its writing direction before first paint, so Hebrew/Arabic
- * never flash LTR. Single source of truth — the layout renders this exact
- * string; tests execute it. Keep dependency-free (no imports available
- * inline) and in sync with `documentDirectionFor` above.
- */
-export const DOCUMENT_LANG_PREPAINT_SCRIPT = `(function(){var l;try{l=localStorage.getItem("preferred_lang");}catch(e){}var c=String(l||"it").toLowerCase().split(/[-_]/)[0];var d=(c==="he"||c==="ar")?"rtl":"ltr";if(l){document.documentElement.setAttribute("lang",l);}document.documentElement.setAttribute("dir",d);})();`
-
-export function setLang(lang: string) {
-  _currentLang = lang
+export function setLang(_lang: string) {
   if (typeof document !== "undefined") {
-    document.documentElement.lang = lang
-    // Keep writing direction in sync with the language: Hebrew/Arabic need
-    // RTL base direction (punctuation like "?" in "מה לכלול?" renders on
-    // the correct side), every other language resets to LTR.
-    document.documentElement.dir = documentDirectionFor(lang)
+    document.documentElement.lang = "en"
+    document.documentElement.dir = "ltr"
   }
 }
 
-export function getLang(): string {
-  return _currentLang
-}
+export function getLang(): string { return "en" }
+export function canonicalDictLang(_lang: string): string { return "en" }
+export function registerDictionary(_lang: string, dict: Dictionary): void { dicts["en"] = dict }
+export function isDictionaryLoaded(_lang: string): boolean { return true }
+export function getDictionary(_lang: string): Dictionary | undefined { return dicts["en"] }
 
-export function canonicalDictLang(lang: string): string {
-  const c = lang.toLowerCase()
-  // The canonical TMDB locale es-MX has no dedicated UI dictionary: it
-  // reuses the Latin American one (never the English fallback).
-  if (c === "es-mx") return "es-419"
-  // Brazilian Portuguese reuses the Portuguese dictionary (no separate
-  // pt-br fork): pt-br UI strings resolve from pt, never English.
-  if (c === "pt-br") return "pt"
-  return c
-}
-
-/**
- * Register (or replace) the dictionary for a language. Server entry points
- * register every language eagerly via "./i18n-server"; the client loader
- * registers one language per dynamic import. Overwriting is idempotent: the
- * same content registered twice resolves identically.
- */
-export function registerDictionary(lang: string, dict: Dictionary): void {
-  dicts[canonicalDictLang(lang)] = dict
-}
-
-export function isDictionaryLoaded(lang: string): boolean {
-  return dicts[canonicalDictLang(lang)] !== undefined
-}
-
-export function getDictionary(lang: string): Dictionary | undefined {
-  return dicts[canonicalDictLang(lang)]
-}
-
-function lookup(lang: string, key: string): string | undefined {
-  return dicts[canonicalDictLang(lang)]?.[key] ?? dicts["en"]?.[key]
+function lookup(_lang: string, key: string): string | undefined {
+  return dicts["en"]?.[key]
 }
 
 export function t(key: string, params?: Record<string, string | number>): string {
-  let val = lookup(_currentLang, key) ?? key
+  let val = lookup("en", key) ?? key
   if (params) {
     for (const [k, v] of Object.entries(params)) {
       val = val.replaceAll(`{${k}}`, String(v))
@@ -139,9 +70,9 @@ export function t(key: string, params?: Record<string, string | number>): string
   return val
 }
 
-export function createT(lang: string) {
+export function createT(_lang: string) {
   return (key: string, params?: Record<string, string | number>): string => {
-    let val = lookup(lang, key) ?? key
+    let val = lookup("en", key) ?? key
     if (params) {
       for (const [k, v] of Object.entries(params)) {
         val = val.replaceAll(`{${k}}`, String(v))
@@ -150,3 +81,4 @@ export function createT(lang: string) {
     return val
   }
 }
+

@@ -1,7 +1,7 @@
-const buckets = new Map<string, { tokens: number; lastRefill: number }>()
+﻿const buckets = new Map<string, { tokens: number; lastRefill: number }>()
 const CLEANUP_INTERVAL = 30 * 60 * 1000
 // Cap sul numero di bucket: gli IP spoofati (X-Forwarded-For senza proxy
-// trusted) possono generare chiavi arbitrarie. Oltre il cap, i bucket più
+// trusted) possono generare chiavi arbitrarie. Oltre il cap, i bucket piÃ¹
 // vecchi vengono rimossi (FIFO) per tenere la memoria bounded.
 const MAX_KEYS = 50_000
 let cleanupTimer: ReturnType<typeof setInterval> | null = null
@@ -32,7 +32,7 @@ interface BucketConfig {
   refillWindow: number
 }
 
-// F7: il bucket poster era 100 burst/10s — un catalog load con molti poster
+// F7: il bucket poster era 100 burst/10s â€” un catalog load con molti poster
 // freddi poteva andare in 429. Sovrascrivibile via env a module level.
 const POSTER_MAX_TOKENS = (() => {
   const raw = envWithFallback("RATELIMIT_POSTER_MAX")
@@ -46,38 +46,38 @@ const limits: Record<string, BucketConfig> = {
   poster:  { maxTokens: POSTER_MAX_TOKENS, refillRate: 20, refillWindow: 1000 },
   search:  { maxTokens: 30,  refillRate: 3,  refillWindow: 1000 },
   mappings: { maxTokens: 120, refillRate: 10, refillWindow: 1000 },
-  // Resolve-image: oracolo di fetch su host esterni — burst contenuto e
+  // Resolve-image: oracolo di fetch su host esterni â€” burst contenuto e
   // refill lento. La legittima UI ne fa uno per click su "Test".
   "resolve-image": { maxTokens: 10, refillRate: 1, refillWindow: 6000 },
   presets:  { maxTokens: 120, refillRate: 10, refillWindow: 1000 },
   catalog:  { maxTokens: 60,  refillRate: 5,  refillWindow: 1000 },
-  // Warmup: operazione pesante (rende molti poster) — burst basso e refill lento
+  // Warmup: operazione pesante (rende molti poster) â€” burst basso e refill lento
   // per evitare che chiunque (istanza pubblica) possa triggerare carico.
   warmup:   { maxTokens: 5,  refillRate: 1,  refillWindow: 1000 },
-  // Config token: generazione di link firmati — burst contenuto per evitare
+  // Config token: generazione di link firmati â€” burst contenuto per evitare
   // che l'endpoint venga usato come generatore massivo.
   config:   { maxTokens: 30, refillRate: 3,  refillWindow: 1000 },
   defaults: { maxTokens: 30, refillRate: 3,  refillWindow: 1000 },
-  // Validate-key: oracolo di validità per chiavi rubate — burst contenuto e
+  // Validate-key: oracolo di validitÃ  per chiavi rubate â€” burst contenuto e
   // ~5/min sostenuti (1 token ogni 12s). La legittima UI ne fa una manciata.
   "validate-key": { maxTokens: 10, refillRate: 1,  refillWindow: 12000 },
-  // Fanart.tv: la UI ne fa una per apertura sezione a titolo (lazy) — burst
-  // contenuto come tmdb, refill uguale. La quota Fanart è stretta: la cache
+  // Fanart.tv: la UI ne fa una per apertura sezione a titolo (lazy) â€” burst
+  // contenuto come tmdb, refill uguale. La quota Fanart Ã¨ stretta: la cache
   // 24h/10min della route assorbe i ricaricamenti.
   fanart:   { maxTokens: 60,  refillRate: 5,  refillWindow: 1000 },
   // TVDB artworks gallery: la UI ne fa una per apertura sezione a titolo
-  // (lazy, come Fanart) — stessi burst/refill. La cache 6h/10min della route
+  // (lazy, come Fanart) â€” stessi burst/refill. La cache 6h/10min della route
   // assorbe i ricaricamenti; la quota TVDB resta protetta dal breaker.
   tvdb:      { maxTokens: 60,  refillRate: 5,  refillWindow: 1000 },
-  // PIN auth: tentativi di brute-force su 4-8 cifre — burst contenuto e
+  // PIN auth: tentativi di brute-force su 4-8 cifre â€” burst contenuto e
   // refill lento (20 burst, ~2/s sostenuti). La protezione reale viene da
   // PIN min 6 cifre + rotazione sessionSecret a ogni setPin.
   "auth-pin": { maxTokens: 20, refillRate: 2, refillWindow: 1000 },
-  // Creazione utenti (multi-user): istanza aperta a chiunque — burst stretto
+  // Creazione utenti (multi-user): istanza aperta a chiunque â€” burst stretto
   // e refill lento contro lo spam di UUID. Vale anche per GET exists (oracle).
   "users-create": { maxTokens: 5, refillRate: 1, refillWindow: 60000 },
-  // Password utenti (verify + cambio): scrypt è costoso e le password hanno
-  // poca entropia — burst contenuto e refill lento anti brute-force, su
+  // Password utenti (verify + cambio): scrypt Ã¨ costoso e le password hanno
+  // poca entropia â€” burst contenuto e refill lento anti brute-force, su
   // chiave composita IP+UUID (vedi userRateLimitKey).
   "users-password": { maxTokens: 10, refillRate: 1, refillWindow: 60000 },
 }
@@ -113,10 +113,10 @@ function memoryRateLimit(bucketKey: string, cfg: BucketConfig, now: number): { o
 // Con KV configurato (Redis nativo o Upstash / Vercel KV via `lib/kv.ts`)
 // il rate-limit usa un contatore fixed-window condiviso su Redis: su deploy
 // multi-istanza (Vercel multi-lambda, HF multi-replica) il limite in-memory
-// per-process vale comunque N × maxTokens per istanza. La finestra è
-// `refillWindow` (1s) con cap `maxTokens` per finestra — approssimazione
+// per-process vale comunque N Ã— maxTokens per istanza. La finestra Ã¨
+// `refillWindow` (1s) con cap `maxTokens` per finestra â€” approssimazione
 // del token bucket locale.
-// PICTORIUM_RATELIMIT_KV=0 (legacy: POSTERIUM_RATELIMIT_KV=0) forza lo store in-memory anche con KV presente.
+// FLAMEFORGE_RATELIMIT_KV=0 (legacy: FLAMEFORGE_RATELIMIT_KV=0) forza lo store in-memory anche con KV presente.
 // Su errore KV si degrada al bucket in-memory di questo processo (fail-open
 // locale): un outage del rate-limit non deve mai rompere il serving.
 // Lettura live (mai a module level): i test mutano le env + resetModules.
@@ -131,7 +131,7 @@ function logKvFallback(error: unknown): void {
   // Log throttled: in outage il fallback gira su ogni richiesta.
   if (now - lastKvErrorLog < 60_000) return
   lastKvErrorLog = now
-  log.warn("KV rate-limit store unavailable — falling back to per-process bucket", {
+  log.warn("KV rate-limit store unavailable â€” falling back to per-process bucket", {
     error: error instanceof Error ? error.message : String(error),
   })
 }
@@ -143,7 +143,7 @@ async function kvRateLimit(bucketKey: string, cfg: BucketConfig, now: number): P
   const kvKey = `rl:${bucketKey}:${win}`
   const count = await kv.incr(kvKey)
   if (count === 1) {
-    // TTL 2× finestra: la chiave scade da sola anche se il processo muore
+    // TTL 2Ã— finestra: la chiave scade da sola anche se il processo muore
     // tra INCR ed EXPIRE (nessuna chiave orfana permanente su Redis).
     await kv.expire(kvKey, Math.ceil((windowMs * 2) / 1000))
   }
@@ -156,14 +156,14 @@ async function kvRateLimit(bucketKey: string, cfg: BucketConfig, now: number): P
 
 /**
  * Rate-limit con store selezionabile: KV condiviso quando configurato
- * (RATELIMIT_KV non è "0"), altrimenti token bucket per-processo.
- * È async da quando esiste il percorso KV: tutte le call site fanno `await`.
+ * (RATELIMIT_KV non Ã¨ "0"), altrimenti token bucket per-processo.
+ * Ãˆ async da quando esiste il percorso KV: tutte le call site fanno `await`.
  */
 export async function rateLimit(key: string, bucket: string): Promise<{ ok: boolean; retAfter: number }> {
   const cfg = limits[bucket] || limits.default
   const now = Date.now()
   // Chiave composta (bucket, client): con la chiave client condivisa "shared"
-  // (senza PICTORIUM_TRUST_PROXY) tutte le route finivano in un UNICO bucket
+  // (senza FLAMEFORGE_TRUST_PROXY) tutte le route finivano in un UNICO bucket
   // il cui maxTokens/refill veniva sovrascritto dall'ultima route chiamata
   // (una chiamata warmup con max 5 sgonfiava il bucket di poster/tmdb e
   // viceversa, rendendo i limiti per-route illusori).
@@ -191,7 +191,7 @@ function warnPinnedHeaderOnce(kind: "invalid" | "missing" | "multi", header: str
     missing: "is absent from requests; falling back to per-user-agent buckets",
     multi: "carries a comma-separated list; it must be a single value set by the proxy",
   }[kind]
-  log.warn(`PICTORIUM_CLIENT_IP_HEADER "${header}" ${reason}`)
+  log.warn(`FLAMEFORGE_CLIENT_IP_HEADER "${header}" ${reason}`)
 }
 
 /** Validated, lowercased pinned header name, or "" when unset/invalid. */
@@ -209,10 +209,10 @@ export function rateLimitKey(request: Request): string {
   // Estrae l'IP client per il rate limit. Precedenza: header pinnato
   // (CLIENT_IP_HEADER + TRUST_PROXY=1) > x-real-ip/cf-connecting-ip (solo se
   // trusted) > x-forwarded-for primo hop (solo se trusted, anti H2 bucket
-  // pollution) > fallback ua:/local. Senza trust nessun header IP è usato:
+  // pollution) > fallback ua:/local. Senza trust nessun header IP Ã¨ usato:
   // sono tutti spoofabili da chi raggiunge l'origin direttamente.
   const trusted = envWithFallback("TRUST_PROXY") === "1"
-  // PICTORIUM_CLIENT_IP_HEADER (with TRUST_PROXY=1): trust exactly one header,
+  // FLAMEFORGE_CLIENT_IP_HEADER (with TRUST_PROXY=1): trust exactly one header,
   // e.g. "cf-connecting-ip" behind Cloudflare. Cloudflare does not set
   // x-real-ip but forwards one a client sends, so the default order below
   // would let that client pick its own bucket. The header must be a single
@@ -227,19 +227,19 @@ export function rateLimitKey(request: Request): string {
     return uaPinned ? `ua:${uaPinned.slice(0, 48)}` : "local"
   }
   // Solo dietro proxy fidato (v1.23.0): x-real-ip/cf-connecting-ip sono
-  // scrivibili da chiunque raggiunga l'origin direttamente — fidarsene
+  // scrivibili da chiunque raggiunga l'origin direttamente â€” fidarsene
   // sempre permette di ruotare bucket falsi ed evadere il rate limit.
   // Dietro Cloudflare/proxy che li sovrascrive, TRUST_PROXY=1 li riabilita.
-  // 1) x-real-ip — Nginx/HF
+  // 1) x-real-ip â€” Nginx/HF
   if (trusted) {
     const realIp = request.headers.get("x-real-ip")
     if (realIp) return realIp.trim()
-    // 2) cf-connecting-ip — Cloudflare
+    // 2) cf-connecting-ip â€” Cloudflare
     const cfIp = request.headers.get("cf-connecting-ip")
     if (cfIp) return cfIp.trim()
   }
-  // 3) x-forwarded-for — solo se trusted, altrimenti spoofabile (H2).
-  // Catena "client, proxy1, proxy2": il client è il PRIMO elemento.
+  // 3) x-forwarded-for â€” solo se trusted, altrimenti spoofabile (H2).
+  // Catena "client, proxy1, proxy2": il client Ã¨ il PRIMO elemento.
   // Prendere l'ultimo raggrupperebbe tutti gli utenti dietro lo stesso
   // proxy/gateway nello stesso bucket (falsi 429).
   if (trusted) {
@@ -253,8 +253,8 @@ export function rateLimitKey(request: Request): string {
     }
   }
   // Fallback: senza header IP affidabile, usa un bucket per-istanza ma con
-  // limite più alto (evita DoS del vecchio "shared"). Distinguiamo con
-  // user-agent hash quando disponibile per granularità minima.
+  // limite piÃ¹ alto (evita DoS del vecchio "shared"). Distinguiamo con
+  // user-agent hash quando disponibile per granularitÃ  minima.
   const ua = request.headers.get("user-agent")
   if (ua) return `ua:${ua.slice(0, 48)}`
   return "local"
@@ -271,3 +271,4 @@ export function rateLimitResponse(retryAfter: number): Response {
     },
   })
 }
+

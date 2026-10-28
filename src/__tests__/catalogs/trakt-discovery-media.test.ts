@@ -116,12 +116,12 @@ describe.each([
 describe("fetchUnifiedCatalogResult: Trakt trending media (mixed)", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     delete process.env.TRAKT_API_URL
   })
 
   afterEach(() => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     delete process.env.TRAKT_API_URL
     cacheInvalidate("custom_catalogs")
   })
@@ -284,11 +284,11 @@ describe("fetchUnifiedCatalogResult: Trakt trending media (mixed)", () => {
   })
 
   it("maps key_missing/private/not_found/rate_limited distinctly", async () => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     global.fetch = vi.fn(() => Promise.reject(new Error("must not fetch"))) as unknown as typeof fetch
     expect((await fetchUnifiedCatalogResult(MEDIA_URLS.trending)).status).toBe("key_missing")
     expect(global.fetch).not.toHaveBeenCalled()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
 
     for (const [status, expected] of [
       [401, "private"],
@@ -307,12 +307,12 @@ describe("fetchUnifiedCatalogResult: Trakt trending media (mixed)", () => {
 describe("fetchUnifiedCatalogResult: Trakt anticipated media (mixed)", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     delete process.env.TRAKT_API_URL
   })
 
   afterEach(() => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     delete process.env.TRAKT_API_URL
     cacheInvalidate("custom_catalogs")
   })
@@ -363,12 +363,12 @@ describe("fetchUnifiedCatalogResult: Trakt anticipated media (mixed)", () => {
 describe("fetchUnifiedCatalogResult: Trakt popular media (mixed, bare records)", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     delete process.env.TRAKT_API_URL
   })
 
   afterEach(() => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     delete process.env.TRAKT_API_URL
     cacheInvalidate("custom_catalogs")
   })
@@ -530,12 +530,12 @@ describe("fetchUnifiedCatalogResult: Trakt popular media (mixed, bare records)",
 describe("fetchUnifiedCatalogResult: Trakt discovery cache separation", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     delete process.env.TRAKT_API_URL
   })
 
   afterEach(() => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     delete process.env.TRAKT_API_URL
     cacheInvalidate("custom_catalogs")
   })
@@ -571,12 +571,12 @@ describe("fetchUnifiedCatalogResult: Trakt discovery cache separation", () => {
 describe("fetchUnifiedCatalogResult: ordinary mixed Trakt user lists keep films and series", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     delete process.env.TRAKT_API_URL
   })
 
   afterEach(() => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     delete process.env.TRAKT_API_URL
     cacheInvalidate("custom_catalogs")
   })
@@ -611,12 +611,12 @@ describe("Trakt media discovery consumers: preview, manifest, catalog", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
     mockedGetById.mockResolvedValue(null)
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     delete process.env.TRAKT_API_URL
   })
 
   afterEach(() => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     delete process.env.TRAKT_API_URL
     vi.restoreAllMocks()
     mockedGetById.mockReset()
@@ -710,12 +710,12 @@ describe("Trakt media discovery consumers: preview, manifest, catalog", () => {
       ],
     })
 
-    const req = new NextRequest(`https://pictorium.test/manifest.json?config=${token}`)
+    const req = new NextRequest(`https://FlameForge.test/manifest.json?config=${token}`)
     const res = await buildManifestResponse(req, null, token)
     const data = (await res.json()) as { catalogs: Array<{ id: string; name: string; type: string }> }
 
-    const movieCat = data.catalogs.find((c) => c.id === "pictorium-custom-movie-trakt-media-trending")
-    const seriesCat = data.catalogs.find((c) => c.id === "pictorium-custom-series-trakt-media-trending")
+    const movieCat = data.catalogs.find((c) => c.id === "FlameForge-custom-movie-trakt-media-trending")
+    const seriesCat = data.catalogs.find((c) => c.id === "FlameForge-custom-series-trakt-media-trending")
     expect(movieCat).toBeDefined()
     expect(movieCat?.type).toBe("movie")
     expect(seriesCat).toBeDefined()
@@ -775,21 +775,23 @@ describe("Trakt media discovery consumers: preview, manifest, catalog", () => {
     })
 
     const movieReq = new NextRequest(
-      `http://localhost:3000/catalog/movie/pictorium-custom-movie-${cid}.json?api_key=test-key&config=${token}`,
+      `http://localhost:3000/catalog/movie/FlameForge-custom-movie-${cid}.json?api_key=test-key&config=${token}`,
     )
     const movieRes = await GET_CATALOG(movieReq, {
-      params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${cid}.json` }),
+      params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${cid}.json` }),
     })
     const movieBody = (await movieRes.json()) as { metas: Array<{ id: string }> }
     expect(movieBody.metas.map((m) => m.id)).toEqual(["tt0371746"])
 
     const seriesReq = new NextRequest(
-      `http://localhost:3000/catalog/series/pictorium-custom-series-${cid}.json?api_key=test-key&config=${token}`,
+      `http://localhost:3000/catalog/series/FlameForge-custom-series-${cid}.json?api_key=test-key&config=${token}`,
     )
     const seriesRes = await GET_CATALOG(seriesReq, {
-      params: Promise.resolve({ type: "series", id: `pictorium-custom-series-${cid}.json` }),
+      params: Promise.resolve({ type: "series", id: `FlameForge-custom-series-${cid}.json` }),
     })
     const seriesBody = (await seriesRes.json()) as { metas: Array<{ id: string }> }
     expect(seriesBody.metas.map((m) => m.id)).toEqual(["tt0903747"])
   })
 })
+
+

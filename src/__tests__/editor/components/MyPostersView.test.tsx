@@ -43,3 +43,4 @@ describe("MyPostersView", () => {
     expect(screen.getAllByText("3").length).toBeGreaterThanOrEqual(1)
   })
 })
+

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Import cataloghi da addon Stremio tramite manifest URL (MVP).
  *
  * FOGLIA CLIENT-SAFE: zero import node-only (niente cache/KV/fs/dns/network).
@@ -37,7 +37,7 @@ export interface StremioAddonSource {
   catalogId: string
   /** Tipo originale nella fonte (movie|series). */
   catalogType: "movie" | "series"
-  /** Capacità dichiarate dalla fonte (copia dal manifest). */
+  /** CapacitÃ  dichiarate dalla fonte (copia dal manifest). */
   extra?: StremioManifestExtra[]
   addonId?: string
   addonName?: string
@@ -131,8 +131,8 @@ export function addonCatalogIncompatibility(c: StremioManifestCatalog): string |
   return null
 }
 
-/** Extra da esporre nel manifest Pictorium: copia fedele della fonte. */
-export function pictoriumExtraForAddon(source: StremioAddonSource): Array<{
+/** Extra da esporre nel manifest FlameForge: copia fedele della fonte. */
+export function FlameForgeExtraForAddon(source: StremioAddonSource): Array<{
   name: string
   isRequired?: boolean
   options?: string[]
@@ -178,7 +178,7 @@ export function buildRemoteCatalogUrl(
   return `${base}/catalog/${encodeURIComponent(remoteType)}/${encodeURIComponent(remoteId)}${suffix}`
 }
 
-/** ID Stremio supportati per il poster Pictorium (MVP: IMDb/TMDB/TVDB). */
+/** ID Stremio supportati per il poster FlameForge (MVP: IMDb/TMDB/TVDB). */
 export function parseSupportedTmdbRef(
   id: unknown,
 ): { kind: "imdb"; imdb: string } | { kind: "tmdb"; tmdbId: number } | { kind: "tvdb"; tvdb: string } | null {
@@ -237,7 +237,7 @@ export function validateManifestShape(json: unknown): StremioAddonManifestSummar
     }
     // Formato legacy dello SDK Stremio (extraSupported/extraRequired senza
     // array `extra`): normalizzato nella stessa rappresentazione del formato
-    // moderno, così compatibilità e import vedono gli stessi required.
+    // moderno, cosÃ¬ compatibilitÃ  e import vedono gli stessi required.
     const legacySupported = Array.isArray(cc.extraSupported)
       ? cc.extraSupported.filter((x): x is string => typeof x === "string" && x.length > 0 && x.length <= 40).slice(0, 20)
       : []
@@ -285,3 +285,4 @@ export function validateCatalogShape(json: unknown, maxItems = 100): Array<Recor
   }
   return out
 }
+

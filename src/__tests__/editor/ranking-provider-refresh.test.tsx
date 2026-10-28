@@ -1,7 +1,7 @@
 /**
  * Real provider propagation for catalog/ranking persistence.
  *
- * Drives the REAL PictoriumRoot (never mocked loaders) with a stubbed
+ * Drives the REAL FlameForgeRoot (never mocked loaders) with a stubbed
  * network: proves that an acknowledged catalog PUT reaches selectors
  * (context value/memo propagation) and refetches the open title rank
  * (same title, same user) through the persistence effect.
@@ -9,11 +9,11 @@
 import { render, act } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { useEffect } from "react"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import type { SearchResult, TMDBImage } from "@/lib/types"
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 
 function Probe() {
   const v = useP()
@@ -92,7 +92,7 @@ async function flush(rounds = 10) {
   }
 }
 
-describe("ranking provider propagation (real PictoriumRoot)", () => {
+describe("ranking provider propagation (real FlameForgeRoot)", () => {
   beforeEach(() => {
     rankCalls.length = 0
     nextRank = { rank: null }
@@ -113,9 +113,9 @@ describe("ranking provider propagation (real PictoriumRoot)", () => {
   it("propagates catalogsSyncNonce to selectors after an acknowledged PUT", async () => {
     ctx = null
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     expect(ctx, "provider context available").toBeTruthy()
@@ -138,9 +138,9 @@ describe("ranking provider propagation (real PictoriumRoot)", () => {
   it("refetches the open title rank after a catalog save (same title, same user)", async () => {
     ctx = null
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -169,3 +169,5 @@ describe("ranking provider propagation (real PictoriumRoot)", () => {
     expect(ctx!.trendRank).toBe(7)
   })
 })
+
+

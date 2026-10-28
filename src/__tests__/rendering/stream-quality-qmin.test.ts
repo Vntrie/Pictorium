@@ -63,7 +63,7 @@ describe("qmin — soglia minima qualità streaming", () => {
   it("niente cache pollution: la cache tiene il raw, il filtro è solo all'uscita", async () => {
     // Live chain: solo JustWatch (il legacy "torrentio" è normalizzato a JW).
     vi.resetModules()
-    vi.stubEnv("PICTORIUM_QUALITY_SOURCE", "justwatch")
+    vi.stubEnv("FLAMEFORGE_QUALITY_SOURCE", "justwatch")
     const jw = await import("@/lib/stream-quality")
     try {
       const fetchMock = vi.fn(justWatchFhdFetch)
@@ -118,3 +118,5 @@ describe("qmin — soglia minima qualità streaming", () => {
     expect(buildStremioPosterSearchParams({}).get("qmin")).toBeNull()
   })
 })
+
+

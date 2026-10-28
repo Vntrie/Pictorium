@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test"
+﻿import { expect, test, type Page } from "@playwright/test"
 
 // Separati in editor (browser reale): scala UI 100 = raw sepscale=130 in
 // preview, e lo slider X scrive sepox nella preview. Profilo stateless
@@ -8,9 +8,9 @@ test.describe("Separate ratings editor scale + offsets", () => {
     await page.addInitScript(() => {
       try {
         localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
-        localStorage.setItem("pictorium_profile_id", "e2e-separate-offsets")
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", "e2e-separate-offsets")
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", "it")
         localStorage.setItem("badgeDefaults", JSON.stringify({
           globalBadges: true,
@@ -18,7 +18,7 @@ test.describe("Separate ratings editor scale + offsets", () => {
           separateRatings: true,
           // Chiave default (non solo current): il payload persistito
           // (defaultsToPayload) salva solo le chiavi default e l'apertura
-          // titolo ricarica dallo storage — senza questa l'hydration
+          // titolo ricarica dallo storage â€” senza questa l'hydration
           // server la azzera a false e la card sparisce.
           defaultSeparateRatings: true,
           separateBadgeScale: 130,
@@ -32,7 +32,7 @@ test.describe("Separate ratings editor scale + offsets", () => {
     // Arrange deterministico via API reale (dopo il goto: il fetch relativo
     // richiede un'origine): gli spec precedenti nella run seriale salvano
     // un mapping per Avatar (movie:19995, separateRatings false) e l'editor
-    // per-titolo lo eredita — senza reset la card "Rating separati" resta
+    // per-titolo lo eredita â€” senza reset la card "Rating separati" resta
     // nascosta nonostante i default seedati.
     await page.evaluate(async () => {
       const r = await fetch("/api/mappings/movie:19995", { method: "DELETE" })
@@ -45,7 +45,7 @@ test.describe("Separate ratings editor scale + offsets", () => {
     await page.getByText(/Avatar/i).first().click()
     await expect(page.getByRole("heading", { name: "Anteprima" })).toBeVisible({ timeout: 10_000 })
     await page.getByRole("tab", { name: "Trasforma" }).click()
-    const card = page.locator("div.rounded-xl", { hasText: "Rating separati · Verticale" }).last()
+    const card = page.locator("div.rounded-xl", { hasText: "Rating separati Â· Verticale" }).last()
     await expect(card).toBeVisible({ timeout: 10_000 })
     return card
   }
@@ -84,3 +84,4 @@ test.describe("Separate ratings editor scale + offsets", () => {
     await expect(xSlider).toHaveAttribute("aria-valuetext", "40px")
   })
 })
+

@@ -94,3 +94,4 @@ describe("logger sanitization", () => {
     })
   })
 })
+

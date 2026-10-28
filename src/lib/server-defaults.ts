@@ -1,4 +1,4 @@
-import fs from "node:fs/promises"
+﻿import fs from "node:fs/promises"
 import { existsSync, readFileSync } from "node:fs"
 import path from "node:path"
 import { DATA_DIR } from "@/lib/data-dir"
@@ -65,7 +65,7 @@ export interface LandscapeServerDefaults {
   separateBadgeScale?: number
   /** Offset px del gruppo rating separati (colonna/pills; bar portrait: solo Y). Default 0. */
   separateBadgeOffsetX?: number
-  /** Offset px del gruppo rating separati (negativo = su, positivo = giù). Default 0. */
+  /** Offset px del gruppo rating separati (negativo = su, positivo = giÃ¹). Default 0. */
   separateBadgeOffsetY?: number
   /** Layout dei rating separati (default "column" = colonna destra storica). */
   separateRatingsStyle?: SeparateRatingsStyle
@@ -93,19 +93,19 @@ export interface LandscapeServerDefaults {
   badgeRating?: boolean
   badgeQuality?: boolean
   /**
-   * Badge età testuale per-shape (default OFF = flat portrait).
+   * Badge etÃ  testuale per-shape (default OFF = flat portrait).
    * Assente/null = segue il flat portrait; `false` esplicito vince sul flat
    * (un portrait ON non attiva mai un landscape mai configurato).
    */
   ageBadge?: boolean | null
   /**
-   * Paese della classificazione età per-shape (default = flat portrait, a sua
+   * Paese della classificazione etÃ  per-shape (default = flat portrait, a sua
    * volta "IT"). Assente/null/invalido = segue il flat; mai auto-cambiato con
    * lingua UI o regione streaming.
    */
   ageCountry?: string | null
   /**
-   * Stile della pill di classificazione per età per-shape (default = flat
+   * Stile della pill di classificazione per etÃ  per-shape (default = flat
    * portrait, a sua volta "standard" = resa storica). Assente/null/invalido =
    * segue il flat (fail-closed, mai spazzatura nel render).
    */
@@ -114,7 +114,7 @@ export interface LandscapeServerDefaults {
   minQuality?: StreamQuality
   /** Custom rating provider row (display). */
   customRatings?: boolean
-  /** Separate ratings column (replaces the ★ average). */
+  /** Separate ratings column (replaces the â˜… average). */
   separateRatings?: boolean
   networkLogo?: boolean
   /** Network logo placement ("auto" = dynamic mirror, "top" = ribbon-side corner). */
@@ -145,10 +145,10 @@ export interface LandscapeServerDefaults {
 }
 
 /**
- * Risoluzione pura per-formato — definita nella foglia client-safe
+ * Risoluzione pura per-formato â€” definita nella foglia client-safe
  * `server-defaults-shape.ts` (zero import runtime: `server-defaults.ts`
- * importa `node:fs`/KV e non può stare nel bundle browser). Ri-esportata qui
- * per compatibilità: route, builder URL e test esistenti continuano a
+ * importa `node:fs`/KV e non puÃ² stare nel bundle browser). Ri-esportata qui
+ * per compatibilitÃ : route, builder URL e test esistenti continuano a
  * importarla da questo modulo.
  */
 export { effectiveDefaultsForShape } from "./server-defaults-shape"
@@ -166,7 +166,7 @@ export interface ServerDefaults {
    * defaults survive untouched.
    */
   badgePresets?: RetiredBadgeFamilyBindings | null
-  /** Stile icone del badge qualità (standard = pill testuale). */
+  /** Stile icone del badge qualitÃ  (standard = pill testuale). */
   qualityBadgeStyle?: QualityBadgeStyle | null
   /** Formati A/V abilitati di default (dv, hdr, hdr10plus, atmos, imax). */
   videoFormats?: VideoFormat[] | null
@@ -175,7 +175,7 @@ export interface ServerDefaults {
   blurIntensity?: number
   blurFade?: number
   blurDarkness?: number
-  /** Intensità tinta di scena 0-100 (default 20). */
+  /** IntensitÃ  tinta di scena 0-100 (default 20). */
   tintStrength?: number
   /** Ombra lineare superiore 0-100 (default 50). */
   topShade?: number
@@ -192,37 +192,37 @@ export interface ServerDefaults {
   badgeYear?: boolean
   badgeRating?: boolean
   badgeQuality?: boolean
-  /** Badge testuale di classificazione per età (default OFF). Flat portrait:
-   *  il profilo `landscape` sopra può divergere per forma (assente = segue). */
+  /** Badge testuale di classificazione per etÃ  (default OFF). Flat portrait:
+   *  il profilo `landscape` sopra puÃ² divergere per forma (assente = segue). */
   ageBadge?: boolean
-  /** Paese della classificazione età (default "IT"). Flat portrait, profilo
+  /** Paese della classificazione etÃ  (default "IT"). Flat portrait, profilo
    *  `landscape` sopra per la forma orizzontale. Globale rispetto a lingua UI
    *  e regione streaming (mai auto-cambiato). */
   ageCountry?: string
-  /** Stile della pill di classificazione per età (default "standard" = resa
-   *  storica). Flat portrait come il toggle età (profilo `landscape` sopra
+  /** Stile della pill di classificazione per etÃ  (default "standard" = resa
+   *  storica). Flat portrait come il toggle etÃ  (profilo `landscape` sopra
    *  per la forma orizzontale). */
   ageBadgeStyle?: AgeBadgeStyle | null
-  /** Soglia minima tier qualità streaming (SD < HD < FHD < 4K): sotto soglia niente badge. Default SD. */
+  /** Soglia minima tier qualitÃ  streaming (SD < HD < FHD < 4K): sotto soglia niente badge. Default SD. */
   minQuality?: StreamQuality
-  /** Riga rating custom provider (display). Default ON quando il provider è configurato. */
+  /** Riga rating custom provider (display). Default ON quando il provider Ã¨ configurato. */
   customRatings?: boolean
   /** Endpoint provider custom rating (UI). Non-segreto; la chiave resta solo env. */
   customRatingEndpoint?: string
   /** Header della chiave provider (UI). Default "X-API-Key". */
   customRatingApiKeyHeader?: string
   ratingSources?: string[]
-  /** Colonna rating separati a destra (sostituisce la media ★). Default OFF. */
+  /** Colonna rating separati a destra (sostituisce la media â˜…). Default OFF. */
   separateRatings?: boolean
   /** Scala % della colonna rating separati (default 100 = resa storica). */
   separateBadgeScale?: number
   /** Offset px del gruppo rating separati (colonna/pills; bar portrait: solo Y). Default 0. */
   separateBadgeOffsetX?: number
-  /** Offset px del gruppo rating separati (negativo = su, positivo = giù). Default 0. */
+  /** Offset px del gruppo rating separati (negativo = su, positivo = giÃ¹). Default 0. */
   separateBadgeOffsetY?: number
   /** Layout dei rating separati (default "column" = colonna destra storica). */
   separateRatingsStyle?: SeparateRatingsStyle
-  /** Ordine/priorità sash (sottoinsieme ammesso: non listati = spenti). Default = ordine standard. */
+  /** Ordine/prioritÃ  sash (sottoinsieme ammesso: non listati = spenti). Default = ordine standard. */
   sashOrder?: SashBucket[]
   autoRotateClean?: boolean
   /** Rotazione giornaliera backdrop landscape (anche titoli non salvati). Default OFF. */
@@ -231,7 +231,7 @@ export interface ServerDefaults {
   disableCleanPosters?: boolean
   defaultLogoFitEnabled?: boolean
   /** Fit logo per-shape (toggle UI Impostazioni): vince sul legacy qui sopra.
-   *  Già accettati dallo schema PUT e persistiti — mancava solo il tipo. */
+   *  GiÃ  accettati dallo schema PUT e persistiti â€” mancava solo il tipo. */
   defaultPortraitFitEnabled?: boolean
   defaultLandscapeFitEnabled?: boolean
   networkLogo?: boolean
@@ -256,9 +256,9 @@ export interface ServerDefaults {
   /** Offset px del badge genere/rating (solo stili non-bar). Default 0. */
   genreBadgeOffsetX?: number
   genreBadgeOffsetY?: number
-  /** Scala % del badge qualità (streaming). Default 100. */
+  /** Scala % del badge qualitÃ  (streaming). Default 100. */
   qualityBadgeScale?: number
-  /** Offset px del badge qualità. Default 0. */
+  /** Offset px del badge qualitÃ . Default 0. */
   qualityBadgeOffsetX?: number
   qualityBadgeOffsetY?: number
   /** Scala % del logo network. Default 100. */
@@ -369,12 +369,12 @@ function isKvMode(): boolean {
 }
 const KV_KEY = "defaults"
 
-// ── Default di stile da env d'istanza (PICTORIUM_*, con fallback alle legacy POSTERIUM_*) ─────────────────────────
+// â”€â”€ Default di stile da env d'istanza (FLAMEFORGE_*, con fallback alle legacy FLAMEFORGE_*) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Per istanze personali (es. Vercel senza KV): fissano il default di resa
 // (Genere/Anno/Voto, stile badge, blur, network logo, nastro...) anche quando
-// defaults.json è vuoto/non persiste. Il file/KV salvato (dall'editor) vince
+// defaults.json Ã¨ vuoto/non persiste. Il file/KV salvato (dall'editor) vince
 // SEMPRE su queste env: se l'utente salva i default, quelli contano. Env non
-// impostate → nessun override ({} → comportamento attuale).
+// impostate â†’ nessun override ({} â†’ comportamento attuale).
 // Cruciale per i CATALOGHI: i poster dei cataloghi usano getServerDefaults() e
 // non il config utente, quindi senza questi default d'istanza i badge escono
 // tutti ON indipendentemente dalle preferenze salvate.
@@ -416,8 +416,8 @@ function defaultsFromEnv(): ServerDefaults {
   if (bq !== undefined) d.badgeQuality = bq
   const ageB = envBool("AGE_BADGE")
   if (ageB !== undefined) d.ageBadge = ageB
-  // Paese età: ISO-2 maiuscolo, GLOBAL esplicitamente escluso (non è un
-  // territorio di certification — vedi normalizeCertificationCountry).
+  // Paese etÃ : ISO-2 maiuscolo, GLOBAL esplicitamente escluso (non Ã¨ un
+  // territorio di certification â€” vedi normalizeCertificationCountry).
   const ageCountryRaw = getEnv("AGE_COUNTRY")?.trim().toUpperCase()
   if (ageCountryRaw && /^[A-Z]{2}$/.test(ageCountryRaw) && ageCountryRaw !== "GLOBAL") d.ageCountry = ageCountryRaw
   if (cr !== undefined) d.customRatings = cr
@@ -426,15 +426,15 @@ function defaultsFromEnv(): ServerDefaults {
   const sepR = envBool("SEPARATE_RATINGS")
   if (sepR !== undefined) d.separateRatings = sepR
   // Ordine sash da env (stesso formato della query): token validi, dedup.
-  // Vuoto/invalido → ignorato (default). Array salvato via UI non toccato qui.
+  // Vuoto/invalido â†’ ignorato (default). Array salvato via UI non toccato qui.
   const sashEnv = getEnv("SASH_ORDER")?.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean)
   if (sashEnv && sashEnv.length > 0) {
     const valid = sashEnv.filter((s): s is SashBucket =>
       s === "upcoming" || s === "rank" || s === "new" || s === "award" || s === "extra")
     if (valid.length > 0) d.sashOrder = [...new Set(valid)]
   }
-  // Soglia minima qualità (solo type-import da stream-quality: nessun ciclo
-  // di dipendenze runtime). Valori non validi → ignorati (default SD).
+  // Soglia minima qualitÃ  (solo type-import da stream-quality: nessun ciclo
+  // di dipendenze runtime). Valori non validi â†’ ignorati (default SD).
   const qminRaw = getEnv("QUALITY_MIN")?.trim().toUpperCase()
   if (qminRaw === "SD" || qminRaw === "HD" || qminRaw === "FHD" || qminRaw === "4K") d.minQuality = qminRaw
   if (blurEn !== undefined) d.blurEnabled = blurEn
@@ -521,7 +521,7 @@ const ENV_DEFAULTS: ServerDefaults = defaultsFromEnv()
 /**
  * Instance env defaults (task 3B1): the PUT merge snapshots pre-edit
  * effective values into the landscape profile, and the effective value
- * includes these env defaults — otherwise an env-covered flat would freeze
+ * includes these env defaults â€” otherwise an env-covered flat would freeze
  * as `undefined` and lose the operator's instance default on first edit.
  * Returns a copy (never the shared object).
  */
@@ -530,7 +530,7 @@ export function getInstanceEnvDefaults(): ServerDefaults {
 }
 
 let cached: ServerDefaults | null = null
-// Revisione epoch vista insieme a `cached`: se l'epoch globale è avanzata,
+// Revisione epoch vista insieme a `cached`: se l'epoch globale Ã¨ avanzata,
 // i default in memoria sono stantii e vanno ricaricati (multi-istanza).
 let cachedEpoch: string | null = null
 let globalReload: Promise<ServerDefaults> | null = null
@@ -548,7 +548,7 @@ async function loadFromDisk(): Promise<ServerDefaults> {
     return JSON.parse(raw) as ServerDefaults
   } catch (error: unknown) {
     if (error instanceof Error && "code" in error && (error as NodeJS.ErrnoException).code === "ENOENT") {
-      // File doesn't exist yet — fine
+      // File doesn't exist yet â€” fine
     } else {
       logDefaultsError("failed to load defaults", error)
     }
@@ -581,7 +581,7 @@ function warmDefaults(): Promise<void> {
 export function getServerDefaults(): ServerDefaults {
   // Il risultato fonde gli ENV_DEFAULTS (default d'istanza, opt-in) con i
   // defaults salvati (file/KV): il salvato vince sull'env. Non mutiamo `cached`
-  // così setServerDefaults scrive solo i valori dell'utente e l'env continua a
+  // cosÃ¬ setServerDefaults scrive solo i valori dell'utente e l'env continua a
   // coprire solo i campi NON salvati.
   if (cached) return { ...ENV_DEFAULTS, ...cached }
   let loaded: ServerDefaults | null = null
@@ -603,7 +603,7 @@ export function getServerDefaults(): ServerDefaults {
  * Defaults globali con controllo revisione (multi-istanza): prima di riusare
  * `cached` confronta l'epoch persistita; se avanzata, ricarica dal backend.
  * Doppia lettura epoch attorno al load: mai associare default vecchi a una
- * revisione nuova (bump durante il load → secondo load). Letture concorrenti
+ * revisione nuova (bump durante il load â†’ secondo load). Letture concorrenti
  * deduplicate; finestra residua = TTL lettura epoch (500ms, 0 nei test).
  */
 export async function getServerDefaultsChecked(): Promise<ServerDefaults> {
@@ -655,12 +655,12 @@ export async function setServerDefaults(d: ServerDefaults): Promise<void> {
   await writeQueue
 }
 
-// ── Defaults per-utente (multi-user, slice 1) ─────────────────────────────
+// â”€â”€ Defaults per-utente (multi-user, slice 1) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // `getServerDefaults()` sopra resta SINCRONA e invariata (hot path poster).
 // Il namespace utente vive qui: LRU con cap + TTL, miss = fetch reale con
 // attesa (mai fallback inventato). Isolamento stretto: i defaults salvati
 // GLOBALI non entrano nell'effettivo utente (solo ENV_DEFAULTS + salvato
-// utente) — altrimenti un cambio globale toccherebbe i poster altrui.
+// utente) â€” altrimenti un cambio globale toccherebbe i poster altrui.
 
 function userDefaultsFile(userId: string): string {
   return path.join(DATA_DIR, "users", userId, "defaults.json")
@@ -760,7 +760,7 @@ async function loadUserDefaults(userId: string): Promise<ServerDefaults> {
 /**
  * Defaults SALVATI del namespace, senza ENV d'istanza. Serve ai merge di PUT:
  * fondere sul merge effettivo (ENV + salvato) cuocerebbe i valori env nel file
- * utente, e un successivo cambio env dell'operatore non avrebbe più effetto
+ * utente, e un successivo cambio env dell'operatore non avrebbe piÃ¹ effetto
  * per quell'utente (shadowing implicito mai scelto). Lettura effettiva resta
  * getServerDefaultsForUser (ENV + questi).
  */
@@ -786,7 +786,7 @@ export async function getServerDefaultsForUser(userId: string | null | undefined
 export async function setServerDefaultsForUser(userId: string, d: ServerDefaults): Promise<void> {
   assertValidUserId(userId)
   // Dopo la scrittura la route fa bump dell'epoch: si registra l'epoch
-  // corrente così la prossima lettura revisionata rileva il bump e ricarica
+  // corrente cosÃ¬ la prossima lettura revisionata rileva il bump e ricarica
   // (mai default nuovi associati alla revisione vecchia).
   if (isKvMode()) {
     try {
@@ -817,3 +817,4 @@ export async function setServerDefaultsForUser(userId: string, d: ServerDefaults
 export function __evictUserDefaultsCache(userId: string): void {
   userDefaultsCache.delete(userId)
 }
+

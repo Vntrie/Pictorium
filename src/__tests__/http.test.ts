@@ -101,3 +101,4 @@ describe("http", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 })
+

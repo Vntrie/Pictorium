@@ -27,3 +27,4 @@ describe("getDetailsWithExternalIds (D4)", () => {
     expect(d.external_ids?.imdb_id).toBe("tt0137523")
   })
 })
+

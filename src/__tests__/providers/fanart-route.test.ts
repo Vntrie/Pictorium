@@ -27,7 +27,7 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 beforeEach(() => {
-  process.env.PICTORIUM_FANART_KEY = "test-project-key"
+  process.env.FLAMEFORGE_FANART_KEY = "test-project-key"
   __resetFanartCache()
   __clearTMDBCache()
   cacheClear()
@@ -46,7 +46,7 @@ describe("GET /api/fanart/[id]/images", () => {
   })
 
   it("503 con codice fanart_not_configured senza chiave progetto", async () => {
-    delete process.env.PICTORIUM_FANART_KEY
+    delete process.env.FLAMEFORGE_FANART_KEY
     const fetchSpy = vi.spyOn(globalThis, "fetch")
     const res = await GET(makeRequest("321", "movie"), params("321"))
     expect(res.status).toBe(503)
@@ -80,3 +80,5 @@ describe("GET /api/fanart/[id]/images", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(2)
   })
 })
+
+

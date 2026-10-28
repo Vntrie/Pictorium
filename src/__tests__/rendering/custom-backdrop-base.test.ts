@@ -251,3 +251,4 @@ describe("validatePosterQuery backdrop bound", () => {
     expect(validatePosterQuery(params)).toBeNull()
   })
 })
+

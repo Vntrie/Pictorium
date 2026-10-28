@@ -55,3 +55,4 @@ describe("mappingSchema customPosterUrl", () => {
     expect(mappingSchema.safeParse({ ...base, customPosterUrl: long }).success).toBe(false)
   })
 })
+

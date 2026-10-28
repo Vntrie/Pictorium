@@ -118,3 +118,4 @@ describe("JustWatch Fase 1 (unreleased, doppio-decode, breaker)", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(5)
   })
 })
+

@@ -3,13 +3,13 @@
  *
  * Contract (documented in .agents/catalog.md, T2 formats it in the UI):
  * - `updatedAt` (ms epoch) = snapshot.publishedAt of the SAME snapshot the
- *   rows come from — Pictorium's publication, NOT the source's update time
+ *   rows come from — FlameForge's publication, NOT the source's update time
  *   (e.g. NOT the fp-crawler chart-date), NOT the request/page time.
  * - `/api/tmdb/trending`: per-slot `{ movie, series }` (null with no genuine
  *   pin: custom/unsupported/cold); `/api/streaming-catalog`: single
  *   `updatedAt` (null with no genuine pin); `/api/mdblist/anime`: per-slot
- *   `X-Pictorium-Updated-At-Movie|-Series` headers plus the combined
- *   `X-Pictorium-Updated-At` (body stays array-shaped; each absent with no
+ *   `X-FlameForge-Updated-At-Movie|-Series` headers plus the combined
+ *   `X-FlameForge-Updated-At` (body stays array-shaped; each absent with no
  *   genuine pin for that slot).
  * - Cache hits do NOT retimestamp; outage retention keeps the OLD stamp; an
  *   actual empty publish carries its NEW stamp; unknown legacy/custom never
@@ -293,7 +293,7 @@ describe("publication metadata (updatedAt)", () => {
 
   it("browse exposes the pinned snapshot stamp; hits do not retimestamp", async () => {
     installFetch()
-    const url = "/api/streaming-catalog?catalog=pictorium-stream-netflix-it-movies&api_key=testkey"
+    const url = "/api/streaming-catalog?catalog=FlameForge-stream-netflix-it-movies&api_key=testkey"
     const first = await browseGET(req(url))
     expect(first.status).toBe(200)
     const b1 = await readJson(first)
@@ -320,29 +320,29 @@ describe("publication metadata (updatedAt)", () => {
       vi.setSystemTime(T1)
       const resMovie = await animeGET(req("/api/mdblist/anime?mdblist_key=k&api_key=testkey&type=movie"))
       expect(resMovie.status).toBe(200)
-      const stampMovie = resMovie.headers.get("X-Pictorium-Updated-At-Movie")
+      const stampMovie = resMovie.headers.get("X-FlameForge-Updated-At-Movie")
       expect(stampMovie).not.toBeNull()
       expect(Number(stampMovie)).toBeGreaterThan(0)
       // Single-slot request: no series header, combined == movie stamp.
-      expect(resMovie.headers.get("X-Pictorium-Updated-At-Series")).toBeNull()
-      expect(resMovie.headers.get("X-Pictorium-Updated-At")).toBe(stampMovie)
+      expect(resMovie.headers.get("X-FlameForge-Updated-At-Series")).toBeNull()
+      expect(resMovie.headers.get("X-FlameForge-Updated-At")).toBe(stampMovie)
       const bodyMovie = await resMovie.json()
       expect(Array.isArray(bodyMovie)).toBe(true)
       expect(bodyMovie).toHaveLength(2)
 
       vi.setSystemTime(T1 + 60_000)
       const resSeries = await animeGET(req("/api/mdblist/anime?mdblist_key=k&api_key=testkey&type=tv"))
-      const stampSeries = resSeries.headers.get("X-Pictorium-Updated-At-Series")
+      const stampSeries = resSeries.headers.get("X-FlameForge-Updated-At-Series")
       expect(stampSeries).not.toBeNull()
       expect(Number(stampSeries)).toBeGreaterThan(Number(stampMovie))
-      expect(resSeries.headers.get("X-Pictorium-Updated-At-Movie")).toBeNull()
-      expect(resSeries.headers.get("X-Pictorium-Updated-At")).toBe(stampSeries)
+      expect(resSeries.headers.get("X-FlameForge-Updated-At-Movie")).toBeNull()
+      expect(resSeries.headers.get("X-FlameForge-Updated-At")).toBe(stampSeries)
 
       // Both slots: each header matches its OWN slot, combined is the min.
       const resAll = await animeGET(req("/api/mdblist/anime?mdblist_key=k&api_key=testkey"))
-      expect(resAll.headers.get("X-Pictorium-Updated-At-Movie")).toBe(stampMovie)
-      expect(resAll.headers.get("X-Pictorium-Updated-At-Series")).toBe(stampSeries)
-      expect(resAll.headers.get("X-Pictorium-Updated-At")).toBe(stampMovie)
+      expect(resAll.headers.get("X-FlameForge-Updated-At-Movie")).toBe(stampMovie)
+      expect(resAll.headers.get("X-FlameForge-Updated-At-Series")).toBe(stampSeries)
+      expect(resAll.headers.get("X-FlameForge-Updated-At")).toBe(stampMovie)
       const bodyAll = await resAll.json()
       expect(Array.isArray(bodyAll)).toBe(true)
 
@@ -353,8 +353,8 @@ describe("publication metadata (updatedAt)", () => {
       const resFail = await animeGET(req("/api/mdblist/anime?mdblist_key=k&api_key=testkey&type=movie"))
       const failBody = await resFail.json()
       expect(failBody).toEqual([])
-      expect(resFail.headers.get("X-Pictorium-Updated-At-Movie")).toBeNull()
-      expect(resFail.headers.get("X-Pictorium-Updated-At")).toBeNull()
+      expect(resFail.headers.get("X-FlameForge-Updated-At-Movie")).toBeNull()
+      expect(resFail.headers.get("X-FlameForge-Updated-At")).toBeNull()
     } finally {
       vi.useRealTimers()
     }
@@ -365,12 +365,12 @@ describe("publication metadata (updatedAt)", () => {
     const movieUrl = "/api/mdblist/anime?mdblist_key=k&api_key=testkey&type=movie"
     const firstMovie = await animeGET(req(movieUrl))
     expect(firstMovie.status).toBe(200)
-    const stampMovie = firstMovie.headers.get("X-Pictorium-Updated-At-Movie")
+    const stampMovie = firstMovie.headers.get("X-FlameForge-Updated-At-Movie")
     expect(stampMovie).not.toBeNull()
     expect(Number(stampMovie)).toBeGreaterThan(0)
     // Single-slot request: no series header, combined == movie stamp.
-    expect(firstMovie.headers.get("X-Pictorium-Updated-At-Series")).toBeNull()
-    expect(firstMovie.headers.get("X-Pictorium-Updated-At")).toBe(stampMovie)
+    expect(firstMovie.headers.get("X-FlameForge-Updated-At-Series")).toBeNull()
+    expect(firstMovie.headers.get("X-FlameForge-Updated-At")).toBe(stampMovie)
     const bodyMovie1 = await firstMovie.json()
     expect(bodyMovie1).toHaveLength(2)
     const tmdbAfterMiss = tmdbCalls
@@ -380,9 +380,9 @@ describe("publication metadata (updatedAt)", () => {
     // identical headers (same snapshot publication, never request time) with
     // zero new upstream I/O.
     const secondMovie = await animeGET(req(movieUrl))
-    expect(secondMovie.headers.get("X-Pictorium-Updated-At-Movie")).toBe(stampMovie)
-    expect(secondMovie.headers.get("X-Pictorium-Updated-At-Series")).toBeNull()
-    expect(secondMovie.headers.get("X-Pictorium-Updated-At")).toBe(stampMovie)
+    expect(secondMovie.headers.get("X-FlameForge-Updated-At-Movie")).toBe(stampMovie)
+    expect(secondMovie.headers.get("X-FlameForge-Updated-At-Series")).toBeNull()
+    expect(secondMovie.headers.get("X-FlameForge-Updated-At")).toBe(stampMovie)
     expect(await secondMovie.json()).toEqual(bodyMovie1)
     expect(tmdbCalls).toBe(tmdbAfterMiss)
     expect(mdblistCalls).toBe(mdblistAfterMiss)
@@ -390,19 +390,19 @@ describe("publication metadata (updatedAt)", () => {
     // SAME series request twice: own slot stamp, no movie header.
     const seriesUrl = "/api/mdblist/anime?mdblist_key=k&api_key=testkey&type=tv"
     const firstSeries = await animeGET(req(seriesUrl))
-    const stampSeries = firstSeries.headers.get("X-Pictorium-Updated-At-Series")
+    const stampSeries = firstSeries.headers.get("X-FlameForge-Updated-At-Series")
     expect(stampSeries).not.toBeNull()
     expect(Number(stampSeries)).toBeGreaterThan(0)
-    expect(firstSeries.headers.get("X-Pictorium-Updated-At-Movie")).toBeNull()
-    expect(firstSeries.headers.get("X-Pictorium-Updated-At")).toBe(stampSeries)
+    expect(firstSeries.headers.get("X-FlameForge-Updated-At-Movie")).toBeNull()
+    expect(firstSeries.headers.get("X-FlameForge-Updated-At")).toBe(stampSeries)
     const bodySeries1 = await firstSeries.json()
     const tmdbAfterSeries = tmdbCalls
     const mdblistAfterSeries = mdblistCalls
 
     const secondSeries = await animeGET(req(seriesUrl))
-    expect(secondSeries.headers.get("X-Pictorium-Updated-At-Series")).toBe(stampSeries)
-    expect(secondSeries.headers.get("X-Pictorium-Updated-At-Movie")).toBeNull()
-    expect(secondSeries.headers.get("X-Pictorium-Updated-At")).toBe(stampSeries)
+    expect(secondSeries.headers.get("X-FlameForge-Updated-At-Series")).toBe(stampSeries)
+    expect(secondSeries.headers.get("X-FlameForge-Updated-At-Movie")).toBeNull()
+    expect(secondSeries.headers.get("X-FlameForge-Updated-At")).toBe(stampSeries)
     expect(await secondSeries.json()).toEqual(bodySeries1)
     expect(tmdbCalls).toBe(tmdbAfterSeries)
     expect(mdblistCalls).toBe(mdblistAfterSeries)
@@ -411,9 +411,9 @@ describe("publication metadata (updatedAt)", () => {
     // combined is the min, body order identical, still zero new upstream.
     const allUrl = "/api/mdblist/anime?mdblist_key=k&api_key=testkey"
     const firstAll = await animeGET(req(allUrl))
-    expect(firstAll.headers.get("X-Pictorium-Updated-At-Movie")).toBe(stampMovie)
-    expect(firstAll.headers.get("X-Pictorium-Updated-At-Series")).toBe(stampSeries)
-    expect(firstAll.headers.get("X-Pictorium-Updated-At")).toBe(
+    expect(firstAll.headers.get("X-FlameForge-Updated-At-Movie")).toBe(stampMovie)
+    expect(firstAll.headers.get("X-FlameForge-Updated-At-Series")).toBe(stampSeries)
+    expect(firstAll.headers.get("X-FlameForge-Updated-At")).toBe(
       String(Math.min(Number(stampMovie), Number(stampSeries))),
     )
     const bodyAll1 = await firstAll.json()
@@ -422,9 +422,9 @@ describe("publication metadata (updatedAt)", () => {
     const mdblistAfterAll = mdblistCalls
 
     const secondAll = await animeGET(req(allUrl))
-    expect(secondAll.headers.get("X-Pictorium-Updated-At-Movie")).toBe(stampMovie)
-    expect(secondAll.headers.get("X-Pictorium-Updated-At-Series")).toBe(stampSeries)
-    expect(secondAll.headers.get("X-Pictorium-Updated-At")).toBe(
+    expect(secondAll.headers.get("X-FlameForge-Updated-At-Movie")).toBe(stampMovie)
+    expect(secondAll.headers.get("X-FlameForge-Updated-At-Series")).toBe(stampSeries)
+    expect(secondAll.headers.get("X-FlameForge-Updated-At")).toBe(
       String(Math.min(Number(stampMovie), Number(stampSeries))),
     )
     expect(await secondAll.json()).toEqual(bodyAll1)
@@ -432,3 +432,5 @@ describe("publication metadata (updatedAt)", () => {
     expect(mdblistCalls).toBe(mdblistAfterAll)
   })
 })
+
+

@@ -393,7 +393,7 @@ describe("useTrending publication stamps", () => {
   })
 
   it("reads anime stamps from response headers and keeps a cache reload identical", async () => {
-    const stamps = { "x-pictorium-updated-at-movie": "1761331200000", "x-pictorium-updated-at-series": "1761334800000" }
+    const stamps = { "x-FlameForge-updated-at-movie": "1761331200000", "x-FlameForge-updated-at-series": "1761334800000" }
     mockedHttp.mockImplementation(async (url: string) => {
       if (String(url).includes("/api/tmdb/trending")) return trendPayload(100) as never
       throw new Error(`unexpected url ${url}`)
@@ -428,3 +428,5 @@ describe("useTrending publication stamps", () => {
     expect(result.current.animeUpdatedAt).toBeNull()
   })
 })
+
+

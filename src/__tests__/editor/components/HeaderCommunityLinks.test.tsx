@@ -15,7 +15,7 @@ describe("HeaderCommunityLinks", () => {
     renderWithCtx(<DesktopCommunityLinks />)
 
     const ghLink = screen.getByLabelText("GitHub Repository")
-    expect(ghLink).toHaveAttribute("href", "https://github.com/Eful97/Pictorium")
+    expect(ghLink).toHaveAttribute("href", "https://github.com/Eful97/FlameForge")
     expect(ghLink).toHaveAttribute("target", "_blank")
 
     const discordLink = screen.getByLabelText("Discord Community")
@@ -41,3 +41,5 @@ describe("HeaderCommunityLinks", () => {
     })
   })
 })
+
+

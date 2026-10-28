@@ -3,7 +3,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest"
 import { fireEvent, screen, within } from "@testing-library/react"
 import { CatalogManagerModal } from "@/components/CatalogManagerModal"
 import { renderWithCtx } from "@/__tests__/test-utils"
-import { PICTORIUM_CATALOGS } from "@/lib/catalog-definitions"
+import { FLAMEFORGE_CATALOGS } from "@/lib/catalog-definitions"
 import {
   streamingCatalogName,
   genericStreamingCatalogName,
@@ -86,14 +86,14 @@ describe("CatalogManagerModal effective inventory (opt-in ghosts)", () => {
   it("legacy mode is unchanged: all historical platforms stay manageable", () => {
     const { view } = openManager({ streamingSelections: undefined })
     expect(screen.getByText("🔴 Netflix — Film")).toBeTruthy()
-    expect(screen.getAllByRole("combobox")).toHaveLength(PICTORIUM_CATALOGS.length)
+    expect(screen.getAllByRole("combobox")).toHaveLength(FLAMEFORGE_CATALOGS.length)
     view.unmount()
   })
 
   it("disabled factory JW stays manageable via Power (no trash, no bulk)", () => {
     const toggleBuiltinCatalog = vi.fn()
     const { view } = openManager({
-      disabledCatalogIds: ["pictorium-jw-movies"],
+      disabledCatalogIds: ["FlameForge-jw-movies"],
       toggleBuiltinCatalog,
     })
     const row = rowByTitle("🇮🇹 Top 20 Italia — Film")
@@ -102,7 +102,7 @@ describe("CatalogManagerModal effective inventory (opt-in ghosts)", () => {
     expect(within(row).queryByTitle("ui.removeDefaultList")).toBeNull()
     // Power re-enables the hidden row.
     fireEvent.click(within(row).getByTitle("ui.enableStremio"))
-    expect(toggleBuiltinCatalog).toHaveBeenCalledWith("pictorium-jw-movies")
+    expect(toggleBuiltinCatalog).toHaveBeenCalledWith("FlameForge-jw-movies")
     view.unmount()
   })
 })
@@ -167,7 +167,7 @@ describe("CatalogManagerModal bulk delete", () => {
     expect(removeCustomCatalogs).toHaveBeenCalledTimes(1)
     expect(removeCustomCatalogs).toHaveBeenCalledWith(
       ["mix"],
-      ["pictorium-custom-movie-mix", "pictorium-custom-series-mix"],
+      ["FlameForge-custom-movie-mix", "FlameForge-custom-series-mix"],
     )
     view.unmount()
   })
@@ -278,7 +278,7 @@ describe("streaming default Top 10 names (brief contract)", () => {
   it("variant suffix is dropped from the name but kept in the id", () => {
     expect(genericStreamingCatalogName("rai", "italy", "series", "it")).toBe("📡 Rai Italia - Top 10")
     expect(genericStreamingCatalogId("rai", "italy", "series", "auto", "it")).toBe(
-      "pictorium-stream2-rai--italy--series--auto--it",
+      "FlameForge-stream2-rai--italy--series--auto--it",
     )
   })
 
@@ -303,3 +303,5 @@ describe("streaming default Top 10 names (brief contract)", () => {
     expect(genericStreamingCatalogName("hulu", "united-states", "series", null)).toContain("USA")
   })
 })
+
+

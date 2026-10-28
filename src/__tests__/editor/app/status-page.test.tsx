@@ -215,3 +215,4 @@ describe("StatusPage MDBList quota card", () => {
     expect(screen.queryByText("ui.statusMdblistScopeNote")).not.toBeInTheDocument()
   })
 })
+

@@ -1,11 +1,11 @@
-// ---------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------
 // Parsing della configurazione di resa (badge/blur/gradiente/logo) della route
 // poster da query string + mapping + config token + server defaults.
 // Estratto dalla route `/api/poster/[type]/[id]` per renderlo testabile in
-// isolamento. Semantica identica all'originale — nessuna logica di rendering.
+// isolamento. Semantica identica all'originale â€” nessuna logica di rendering.
 // ---------------------------------------------------------------------------
 
-import type { PictoriumUserConfig } from "./config-token"
+import type { FlameForgeUserConfig } from "./config-token"
 import { normalizeSeasonalTheme, resolveEffectiveSeasonalTheme, type SeasonalTheme } from "./seasonal-theme"
 import { effectiveMappingForShape, isPosterLayout, isPosterFreshScope, DEFAULT_POSTER_LAYOUT, DEFAULT_POSTER_FRESH_SCOPE, type Mapping, type NetworkLogoPosition, type PosterLayout, type PosterFreshScope, type PosterShape } from "./types"
 import { effectiveDefaultsForShape } from "./server-defaults-shape"
@@ -76,17 +76,17 @@ function ownedLandscapeEnum<T>(mapping: Mapping | null, shape: PosterShape, key:
 }
 
 /**
- * Formato canvas — precedenza: query `shape` > mapping salvato >
+ * Formato canvas â€” precedenza: query `shape` > mapping salvato >
  * config token > server defaults > "poster". Solo "landscape" attiva il
  * ramo 16:9 (base = backdrop TMDB); "poster" e "square" (fallback esplicito
- * Nuvio: Pictorium non ha un canvas quadrato) selezionano il verticale.
+ * Nuvio: FlameForge non ha un canvas quadrato) selezionano il verticale.
  * Usato dalla route PRIMA del fetch (serve a scegliere la base) e dentro
  * resolvePosterRenderConfig per coerenza.
  */
 export function resolvePosterShape(
   searchParams: URLSearchParams,
   mapping: Mapping | null,
-  configOverride: PictoriumUserConfig | null,
+  configOverride: FlameForgeUserConfig | null,
   sd: ServerDefaults,
 ): PosterShape {
   const q = (searchParams.get("shape") || "").toLowerCase()
@@ -101,13 +101,13 @@ export function resolvePosterShape(
 }
 
 /**
- * Seasonal frame theme — query `theme` ONLY (ephemeral originating-list
+ * Seasonal frame theme â€” query `theme` ONLY (ephemeral originating-list
  * context from the catalog handler or the client editor). No mapping,
  * config-token, or defaults chain: there is deliberately no selector,
  * global default, or persisted per-title theme. Both canvases frame with
- * their OWN user-supplied asset (portrait `500×750`, landscape `768×432`
- * via `seasonalFrameAssetPath` — the portrait art is never stretched over
- * 16:9). Invalid values behave exactly as absent (unframed) — same render,
+ * their OWN user-supplied asset (portrait `500Ã—750`, landscape `768Ã—432`
+ * via `seasonalFrameAssetPath` â€” the portrait art is never stretched over
+ * 16:9). Invalid values behave exactly as absent (unframed) â€” same render,
  * one cache key.
  */
 export function resolveSeasonalTheme(
@@ -119,12 +119,12 @@ export function resolveSeasonalTheme(
 }
 
 // ---------------------------------------------------------------------------
-// Rating separati: definizione centralizzata (unico punto di verità per route
-// e resolvePosterRenderConfig — mai catene `sep` duplicate che divergono).
+// Rating separati: definizione centralizzata (unico punto di veritÃ  per route
+// e resolvePosterRenderConfig â€” mai catene `sep` duplicate che divergono).
 // ---------------------------------------------------------------------------
 
 /**
- * Separate ratings display flag — chain: query `sep` > mapping effettivo per
+ * Separate ratings display flag â€” chain: query `sep` > mapping effettivo per
  * formato (profilo landscape vince sul flat) > config token > effective
  * per-shape defaults > flat > false (same as `cr`).
  * The 5th arg carries flats when `sd` is already shape-effective
@@ -135,7 +135,7 @@ export function resolveSeasonalTheme(
 export function resolveSeparateRatingsEnabled(
   searchParams: URLSearchParams,
   mapping: Mapping | null,
-  configOverride: PictoriumUserConfig | null,
+  configOverride: FlameForgeUserConfig | null,
   sd: ServerDefaults,
   flatSd?: ServerDefaults | null,
   shape?: PosterShape,
@@ -147,21 +147,21 @@ export function resolveSeparateRatingsEnabled(
 }
 
 /**
- * Layout dei rating separati — catena: query `sepstyle` > mapping effettivo
+ * Layout dei rating separati â€” catena: query `sepstyle` > mapping effettivo
  * per formato (profilo landscape vince sul flat) > config token > defaults
  * effettivi per formato > "column".
  *
  * Fail-closed con distinzione dall'assenza (stesso pattern `bfont` in
  * normalizePosterCacheParams): un valore PRESENTE ma non valido (garbage o
- * stringa vuota) rende `column` esplicito e NON eredita mapping/default —
- * altrimenti collasserebbe con la chiave dell'assenza (che può ereditare
- * bottom) avvelenando la cache. La query è case-insensitive (canonical
- * lowercase, come `netPos`); mapping/config/defaults sono già tipizzati.
+ * stringa vuota) rende `column` esplicito e NON eredita mapping/default â€”
+ * altrimenti collasserebbe con la chiave dell'assenza (che puÃ² ereditare
+ * bottom) avvelenando la cache. La query Ã¨ case-insensitive (canonical
+ * lowercase, come `netPos`); mapping/config/defaults sono giÃ  tipizzati.
  */
 export function resolveSeparateRatingsStyle(
   searchParams: URLSearchParams,
   mapping: Mapping | null,
-  configOverride: PictoriumUserConfig | null,
+  configOverride: FlameForgeUserConfig | null,
   sd: ServerDefaults,
   shape: PosterShape,
 ): SeparateRatingsStyle {
@@ -185,22 +185,22 @@ export function resolveSeparateRatingsStyle(
 }
 
 /**
- * Graphical poster layout — catena: query `layout` > mapping effettivo per
+ * Graphical poster layout â€” catena: query `layout` > mapping effettivo per
  * formato (profilo landscape vince sul flat) > config token > defaults
  * effettivi per formato > "standard".
  *
  * Fail-closed con distinzione dall'assenza (stesso pattern `sepstyle`/`bfont`
  * in normalizePosterCacheParams): un valore PRESENTE ma non valido (garbage
- * o stringa vuota) rende `standard` esplicito e NON eredita mapping/default —
- * altrimenti collasserebbe con la chiave dell'assenza (che può ereditare
- * fresh) avvelenando la cache. La query è case-insensitive (canonical
- * lowercase); mapping/config/defaults sono già tipizzati. Un `standard`
+ * o stringa vuota) rende `standard` esplicito e NON eredita mapping/default â€”
+ * altrimenti collasserebbe con la chiave dell'assenza (che puÃ² ereditare
+ * fresh) avvelenando la cache. La query Ã¨ case-insensitive (canonical
+ * lowercase); mapping/config/defaults sono giÃ  tipizzati. Un `standard`
  * esplicito valido prevale sempre su un fresh ereditato.
  */
 export function resolvePosterLayout(
   searchParams: URLSearchParams,
   mapping: Mapping | null,
-  configOverride: PictoriumUserConfig | null,
+  configOverride: FlameForgeUserConfig | null,
   sd: ServerDefaults,
   shape: PosterShape,
 ): PosterLayout {
@@ -217,22 +217,22 @@ export function resolvePosterLayout(
 }
 
 /**
- * Fresh apply scope — catena: query `freshScope` > mapping effettivo per
+ * Fresh apply scope â€” catena: query `freshScope` > mapping effettivo per
  * formato (profilo landscape vince sul flat) > config token > defaults
  * effettivi per formato > "ranked" (default condiviso).
  *
  * Fail-closed con distinzione dall'assenza (stesso pattern `layout` sopra):
  * un valore PRESENTE ma non valido (garbage o stringa vuota) rende `ranked`
- * esplicito e NON eredita mapping/default — altrimenti collasserebbe con la
- * chiave dell'assenza (che può ereditare all) avvelenando la cache. La
- * query è case-insensitive (canonical lowercase); mapping/config/defaults
- * sono già tipizzati. Un `all` esplicito valido prevale sempre su un ranked
+ * esplicito e NON eredita mapping/default â€” altrimenti collasserebbe con la
+ * chiave dell'assenza (che puÃ² ereditare all) avvelenando la cache. La
+ * query Ã¨ case-insensitive (canonical lowercase); mapping/config/defaults
+ * sono giÃ  tipizzati. Un `all` esplicito valido prevale sempre su un ranked
  * ereditato.
  */
 export function resolvePosterFreshScope(
   searchParams: URLSearchParams,
   mapping: Mapping | null,
-  configOverride: PictoriumUserConfig | null,
+  configOverride: FlameForgeUserConfig | null,
   sd: ServerDefaults,
   shape: PosterShape,
 ): PosterFreshScope {
@@ -256,7 +256,7 @@ export interface BottomSeparateActiveInput {
 }
 
 /**
- * Bottom attivo = badgesEnabled && badgeRating && sep && stile bottom —
+ * Bottom attivo = badgesEnabled && badgeRating && sep && stile bottom â€”
  * INDIPENDENTE da sepItems.length: con voti temporaneamente assenti nasconde
  * comunque genere+anno+voto medio (mai valori inventati).
  */
@@ -268,9 +268,9 @@ export function isBottomSeparateActive(input: BottomSeparateActiveInput): boolea
 }
 
 export interface SeparateDisplayState {
-  /** Colonna storica: sostituisce la media ★ (priorità invariata). */
+  /** Colonna storica: sostituisce la media â˜… (prioritÃ  invariata). */
   useSeparate: boolean
-  /** Modalità bottom scelta dall'utente (soppressione effettiva, vedi sotto). */
+  /** ModalitÃ  bottom scelta dall'utente (soppressione effettiva, vedi sotto). */
   bottomActive: boolean
   effectiveBadgeGenre: boolean
   effectiveBadgeYear: boolean
@@ -280,11 +280,11 @@ export interface SeparateDisplayState {
 }
 
 /**
- * Stato display dei separati da flag già risolti + n. provider disponibili.
- * La soppressione genere/anno/voto è EFFETTIVA (solo render): i flag salvati
- * (mapping/defaults) non vengono mutati — tornando a column si ripristinano.
- * Il custom provider conserva la priorità storica sulla colonna (invariata:
- * con riga custom renderizzata lo stack si nasconde); in bottom è invece la
+ * Stato display dei separati da flag giÃ  risolti + n. provider disponibili.
+ * La soppressione genere/anno/voto Ã¨ EFFETTIVA (solo render): i flag salvati
+ * (mapping/defaults) non vengono mutati â€” tornando a column si ripristinano.
+ * Il custom provider conserva la prioritÃ  storica sulla colonna (invariata:
+ * con riga custom renderizzata lo stack si nasconde); in bottom Ã¨ invece la
  * riga custom a essere esclusa (mai duplicata).
  */
 export function resolveSeparateDisplayState(input: {
@@ -332,17 +332,17 @@ export {
 export interface PosterRenderConfigInput {
   searchParams: URLSearchParams
   mapping: Mapping | null
-  configOverride: PictoriumUserConfig | null
+  configOverride: FlameForgeUserConfig | null
   sd: ServerDefaults
   /** true se la richiesta fornisce poster/mapping espliciti (query o mapping salvato) */
   hasQuery: boolean
   showBadges: boolean
   rankingBadges: boolean
-  /** segnali di classifica per l'auto-detect default→netflix */
+  /** segnali di classifica per l'auto-detect defaultâ†’netflix */
   animeRank: number | null
   rankingResult: number | null
   finalRank: number | null
-  /** lingua per la risoluzione delle label prefissate (__badge.*) — fix L32 */
+  /** lingua per la risoluzione delle label prefissate (__badge.*) â€” fix L32 */
   lang?: string
   /**
    * Effective authorized preview (WYSIWYG editor): the staged `theme=` query
@@ -365,26 +365,26 @@ export interface PosterRenderConfig {
   extraBadgeStyle: ExtraBadgeStyle | null
   /** Font dei testi badge ("inter" = resa storica). */
   badgeFont: BadgeFont
-  /** Stile icone del badge qualità (standard = pill testuale). */
+  /** Stile icone del badge qualitÃ  (standard = pill testuale). */
   qualityBadgeStyle: QualityBadgeStyle
   blurEnabled: boolean
   blurHeight: number
   blurIntensity: number
   blurFade: number
   blurDarkness: number
-  /** Intensità tinta di scena 0-100 (default 20). */
+  /** IntensitÃ  tinta di scena 0-100 (default 20). */
   tintStrength: number
   /**
    * Ombra lineare superiore 0-100 (default 50). Catena completa come la tinta:
    * query `ts` > mapping per-titolo > config token > server defaults
-   * (`PICTORIUM_TOP_SHADE`) > 50. Solo flat (vale per entrambi i canvas).
+   * (`FLAMEFORGE_TOP_SHADE`) > 50. Solo flat (vale per entrambi i canvas).
    */
   topShade: number
   /**
    * Altezza dell'ombra superiore in % del canvas 0-100 (default 25 = look
    * storico). Catena completa come la forza: query `tsh` > mapping
    * per-titolo > config token > server defaults
-   * (`PICTORIUM_TOP_SHADE_HEIGHT`) > 25. Solo flat (vale per entrambi i
+   * (`FLAMEFORGE_TOP_SHADE_HEIGHT`) > 25. Solo flat (vale per entrambi i
    * canvas). 0 = ombra disattivata qualunque sia `topShade`.
    */
   topShadeHeight: number
@@ -395,45 +395,45 @@ export interface PosterRenderConfig {
   badgeYear: boolean
   badgeRating: boolean
   badgeQuality: boolean
-  /** Badge testuale di classificazione per età (default OFF). Per-shape con
+  /** Badge testuale di classificazione per etÃ  (default OFF). Per-shape con
    *  per-titolo: query `age` > mapping effettivo per formato > config token >
    *  defaults effettivi per forma > flat > false (come gli altri toggle
    *  per-titolo: un OFF esplicito vince su un default ON). */
   ageBadge: boolean
-  /** Paese della classificazione età (default "IT", impostazione
+  /** Paese della classificazione etÃ  (default "IT", impostazione
    *  indipendente da lingua UI/regione streaming, mai auto-cambiata).
    *  Per-shape con per-titolo come il toggle: query `agecountry` > mapping
    *  effettivo per formato > config token > defaults effettivi per forma >
    *  flat > "IT" (fail-closed: valori ignoti/GLOBAL/confini cadono sul
    *  livello successivo, mai su fetch arbitrari). */
   ageCountry: string
-  /** Stile della pill di classificazione per età (default "standard" = resa
+  /** Stile della pill di classificazione per etÃ  (default "standard" = resa
    *  storica). Per-shape con per-titolo come il toggle: query `agebs` >
    *  mapping effettivo per formato > config token > defaults effettivi per
    *  forma > flat > "standard" (query presente-ma-invalida = "standard"
    *  esplicito, fail-closed). */
   ageBadgeStyle: AgeBadgeStyle
-  /** Soglia minima tier qualità streaming — catena: query `qmin` > server defaults > "SD". Globale (nessun per-titolo). */
+  /** Soglia minima tier qualitÃ  streaming â€” catena: query `qmin` > server defaults > "SD". Globale (nessun per-titolo). */
   minQuality: StreamQuality
-  /** Ordine/priorità sash — catena: query `sash` > server defaults > default. Globale (nessun per-titolo). */
+  /** Ordine/prioritÃ  sash â€” catena: query `sash` > server defaults > default. Globale (nessun per-titolo). */
   sashOrder: SashBucket[]
   /**
    * Tag badge automatici disabilitati space-wide (ID canonici, vedi
-   * `content-tags.ts`) — catena: query `dct` > config token > server
+   * `content-tags.ts`) â€” catena: query `dct` > config token > server
    * defaults > [] (storico). Globale, condiviso tra forme (nessun per-titolo,
    * nessun profilo landscape). Sanitized a ogni livello.
    */
   disabledContentTags: string[]
   /**
    * Mark network disabilitati space-wide (ID canonici, vedi
-   * `network-keys.ts`) — stessa catena del campo sopra (`dnet` in query).
+   * `network-keys.ts`) â€” stessa catena del campo sopra (`dnet` in query).
    * Skippati prima dei path locale e fallback TMDB, mai resurrect.
    */
   disabledNetworks: string[]
-  /** Riga rating custom provider (display). Default ON quando il provider è configurato. */
+  /** Riga rating custom provider (display). Default ON quando il provider Ã¨ configurato. */
   customRatings: boolean
   ratingSources: string[]
-  /** Colonna rating separati a destra (sostituisce la media ★). Default OFF. Solo portrait (il gate è al sito d'uso). */
+  /** Colonna rating separati a destra (sostituisce la media â˜…). Default OFF. Solo portrait (il gate Ã¨ al sito d'uso). */
   separateRatings: boolean
   /** Layout dei rating separati (default "column" = colonna destra storica). */
   separateRatingsStyle: SeparateRatingsStyle
@@ -441,7 +441,7 @@ export interface PosterRenderConfig {
   separateBadgeScale: number
   /** Offset px del gruppo rating separati, colonna/pills (bar portrait: solo Y). Default 0. */
   separateBadgeOffsetX: number
-  /** Offset px del gruppo rating separati (negativo = su, positivo = giù). Default 0. */
+  /** Offset px del gruppo rating separati (negativo = su, positivo = giÃ¹). Default 0. */
   separateBadgeOffsetY: number
   logoScale: number | null
   logoOffsetX: number | null
@@ -463,9 +463,9 @@ export interface PosterRenderConfig {
   /** Offset px del badge genere/rating, solo stili non-bar. */
   genreBadgeOffsetX: number
   genreBadgeOffsetY: number
-  /** Scala % del badge qualità streaming (default 100). */
+  /** Scala % del badge qualitÃ  streaming (default 100). */
   qualityBadgeScale: number
-  /** Offset px del badge qualità. */
+  /** Offset px del badge qualitÃ . */
   qualityBadgeOffsetX: number
   qualityBadgeOffsetY: number
   /** Scala % del logo network (default 100). */
@@ -491,23 +491,23 @@ export interface PosterRenderConfig {
   qNetLogo: string | null
   networkLogo: boolean
   /**
-   * Posizione del logo network — catena: query `netPos` ("top", garbage =
+   * Posizione del logo network â€” catena: query `netPos` ("top", garbage =
    * auto) > mapping per-titolo > config token > server defaults > "auto"
    * (specchio dinamico odierno, byte-identico).
    */
   networkLogoPosition: NetworkLogoPosition
   ribbonSide: "left" | "right"
   /**
-   * Nastro stile Netflix all'angolo — catena: query `ribbon` > mapping
+   * Nastro stile Netflix all'angolo â€” catena: query `ribbon` > mapping
    * per-titolo > config token > server defaults > true. Su false gli stili
    * nastro degradano all'equivalente centrato (mai nascosti).
    */
   ribbonEnabled: boolean
   /**
-   * Tinta accent sul badge classifica centrato: true quando il nastro è OFF
+   * Tinta accent sul badge classifica centrato: true quando il nastro Ã¨ OFF
    * e lo stile pre-degrado era "colored" (senza nastro deve colorare il
-   * badge default come riempimento piatto). Col nastro ON è ininfluente
-   * (lo stile "colored" colora già da sé).
+   * badge default come riempimento piatto). Col nastro ON Ã¨ ininfluente
+   * (lo stile "colored" colora giÃ  da sÃ©).
    */
   rankingBadgeAccent: boolean
   /** Stato pre-digitale (darken + badge Coming Soon, solo film). Default OFF. */
@@ -537,23 +537,23 @@ export interface PosterRenderConfig {
   seasonalTheme: SeasonalTheme | null
   /**
    * Nasconde il logo film dal composite (solo query `hideLogo`, default false).
-   * Veicolo del banner pulito (i client che lo leggono sovrappongono già il
+   * Veicolo del banner pulito (i client che lo leggono sovrappongono giÃ  il
    * logo da catalogo: il baked-in creerebbe un doppione). Il fetch resta per
    * i colori accent.
    */
   hideLogo: boolean
   /**
-   * Allineamento blocco logo/metadati — precedenza: query `align` >
+   * Allineamento blocco logo/metadati â€” precedenza: query `align` >
    * landscape profile override (concreto vince, null/assente = flat) >
    * server defaults > default di formato (landscape "left", poster "center").
    * Globale rispetto al per-titolo (il mapping non ha il campo); per-shape
-   * rispetto ai default (il profilo Orizzontale può divergere).
+   * rispetto ai default (il profilo Orizzontale puÃ² divergere).
    */
   logoAlign: "left" | "center"
 }
 
 /**
- * Age-badge request flags — UNICO punto di verità per route (early gating
+ * Age-badge request flags â€” UNICO punto di veritÃ  per route (early gating
  * del fetch) e resolvePosterRenderConfig (valori finali): mai catene `age`
  * duplicate che divergono. Query `age`/`agecountry`/`agebs` > mapping
  * effettivo per formato > config token > effective per-shape defaults > flat
@@ -561,7 +561,7 @@ export interface PosterRenderConfig {
  * override esplicito del mapping o del profilo della forma selezionata
  * viaggia in query e vince sul token (stesso contratto degli altri visual
  * scoped). Mapping null/assente/invalido = eredita (mai migrazione in
- * lettura dei mapping vecchi senza chiavi età).
+ * lettura dei mapping vecchi senza chiavi etÃ ).
  */
 export interface AgeBadgeRequest {
   ageBadge: boolean
@@ -571,7 +571,7 @@ export interface AgeBadgeRequest {
 
 export function resolveAgeBadgeRequest(
   searchParams: URLSearchParams,
-  configOverride: PictoriumUserConfig | null,
+  configOverride: FlameForgeUserConfig | null,
   sd: ServerDefaults,
   flatSd?: ServerDefaults | null,
   mapping?: Pick<Mapping, "ageBadge" | "ageCountry" | "ageBadgeStyle"> | null,
@@ -586,9 +586,9 @@ export function resolveAgeBadgeRequest(
     ?? normalizeCertificationCountry(configOverride?.ageCountry)
     ?? normalizeCertificationCountry(sd.ageCountry ?? flatSd?.ageCountry)
     ?? DEFAULT_AGE_COUNTRY
-  // Stile pill età — stessa catena per-shape con per-titolo: query `agebs`
+  // Stile pill etÃ  â€” stessa catena per-shape con per-titolo: query `agebs`
   // presente-ma-invalida = "standard" esplicito (fail-closed, mai ereditare
-  // un knockout da mapping/token/defaults con la stessa chiave — come
+  // un knockout da mapping/token/defaults con la stessa chiave â€” come
   // `bfont` invalido = Inter); assente = mapping (se valido) > token >
   // defaults effettivi per forma > "standard".
   const qAgeStyle = searchParams.get("agebs")
@@ -609,24 +609,24 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   const { searchParams: q, mapping, configOverride, sd, hasQuery, showBadges, rankingBadges, isPreview = false } = input
 
   // Canvas shape first: feeds the per-shape defaults below (20% gradient in
-  // landscape, landscape profiles). Same chain as the other params — see
+  // landscape, landscape profiles). Same chain as the other params â€” see
   // resolvePosterShape.
   const posterShape = resolvePosterShape(q, mapping, configOverride, sd)
   // Per-shape profiles (dual format My Posters): in landscape the saved
   // `mapping.landscape` wins per key over flats. The query > mapping >
   // config > defaults chain below is unchanged.
   const m = effectiveMappingForShape(mapping, posterShape)
-  // Effective per-shape defaults (Settings · Landscape): in landscape the
+  // Effective per-shape defaults (Settings Â· Landscape): in landscape the
   // server profile wins per key over flats (gradient/blur, scales/offsets
   // AND shared visuals with overrides); absent keys follow flats,
   // explicit `false`/`[]`/`0` win.
   const esd = effectiveDefaultsForShape(sd, posterShape)
 
-  // Ranking style — precedenza: query `rs` > mapping effettivo per formato
+  // Ranking style â€” precedenza: query `rs` > mapping effettivo per formato
   // (profilo landscape vince sul flat) > config token > server defaults > default.
-  // (Coerente con `badgeStyle` sotto: la query vince sul mapping — M6 WYSIWYG.
-  // Il sentinel "default" del mapping è trattato come "nessun override", identico
-  // a come "shadow" lo è per badgeStyle — ECCETTO un `default` landscape-owned
+  // (Coerente con `badgeStyle` sotto: la query vince sul mapping â€” M6 WYSIWYG.
+  // Il sentinel "default" del mapping Ã¨ trattato come "nessun override", identico
+  // a come "shadow" lo Ã¨ per badgeStyle â€” ECCETTO un `default` landscape-owned
   // esplicito, che vince su token/defaults diversi pur restando auto-detect.)
   const ownedLandscapeRs = ownedLandscapeEnum<RankingBadgeStyle>(mapping, posterShape, "rankingBadgeStyle", isRankingBadgeStyle)
   const rawRs =
@@ -640,14 +640,14 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
 
   const qRankParam = q.get("rank")
   const hasRank = !!(input.animeRank || input.rankingResult || mapping?.badgeRank || mapping?.trendRank || qRankParam || input.finalRank)
-  // Nastro stile Netflix — catena: query `ribbon=0/1` > mapping effettivo
+  // Nastro stile Netflix â€” catena: query `ribbon=0/1` > mapping effettivo
   // per formato > config token > server defaults > true (ON storico). Su false gli stili
   // nastro degradano all'equivalente centrato (mai nascosti, WYSIWYG).
   const qRibbon = q.get("ribbon")
   const ribbonEnabled = qRibbon !== null
     ? qRibbon !== "0"
     : (m?.ribbonEnabled ?? configOverride?.ribbonEnabled ?? esd.ribbonEnabled ?? sd.ribbonEnabled ?? true)
-  // "default" = auto-detect: mostra il badge stile Netflix se c'è un rank,
+  // "default" = auto-detect: mostra il badge stile Netflix se c'Ã¨ un rank,
   // altrimenti badge standard. Se il sorgente (mapping/query/config) specifica
   // un valore esplicito (pill/colored/bordo/vetro/netflix), viene rispettato
   // senza override ("bar" rimosso: degrada a "default" via isRankingBadgeStyle).
@@ -665,7 +665,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     rankingBadgeStyle = nonRibbonRankingStyle(rankingBadgeStyle)
   }
 
-  // Extra style — precedence: query `xbs` > saved mapping > config token >
+  // Extra style â€” precedence: query `xbs` > saved mapping > config token >
   // server defaults > absent (null = legacy `rs` fallback, byte-identical).
   // A present-but-invalid query value behaves as absent (falls through the
   // chain) so it stays consistent with the cache normalization, which drops
@@ -708,7 +708,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     : (normalizeExtraBadgeStyleForRender(extraWin) ?? null)
 
   // Allineamento Cinematic: vale SOLO in landscape (i portrait restano
-  // rigorosamente centrati per contratto — nessun parametro query o default
+  // rigorosamente centrati per contratto â€” nessun parametro query o default
   // globale deve mai spostarli a sinistra).
   // In landscape: query `align=left|center` > landscape profile override
   // (concrete wins; null/absent = follow the flat) > flat server defaults >
@@ -726,10 +726,10 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     : "center"
 
   // Fix M3: includere i campi blur salvati nel mapping nella catena di fallback
-  // (query > mapping > configOverride > default), come già fatto per badgeGenre/badgeStyle.
+  // (query > mapping > configOverride > default), come giÃ  fatto per badgeGenre/badgeStyle.
   // Prima il mapping salvato con blur custom non veniva mai applicato.
   // Percorso live (`live=1`, Segui-spazio): i parametri assenti seguono lo
-  // spazio salvato (vedi badges/blur sotto). Dichiarata qui perché il primo
+  // spazio salvato (vedi badges/blur sotto). Dichiarata qui perchÃ© il primo
   // uso (blurEnabled) precede il blocco badges.
   const isLiveFollow = q.get("live") === "1"
   const blurEnabled = q.get("be") !== null
@@ -755,7 +755,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
         : (configOverride !== null ? clamp(configOverride.blurIntensity, 1, 100) : (esd.blurIntensity != null && Number.isFinite(esd.blurIntensity) ? clamp(esd.blurIntensity, 1, 100) : 20)))
   // Fade di default: 70 in landscape, 50 nel portrait (look Naturale), 80
   // per i mapping non-clean senza valori congelati (profilo per tipo, come
-  // l'altezza 20 — sync con stremio-poster-url e ramo Stremio unmapped).
+  // l'altezza 20 â€” sync con stremio-poster-url e ramo Stremio unmapped).
   const rawBf = q.get("bf") ? Number(q.get("bf")) : NaN
   const blurFade = Number.isFinite(rawBf)
     ? clamp(rawBf, 0, 100)
@@ -769,7 +769,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
         ? clamp(m.blurDarkness, 0, 100)
         : (configOverride !== null ? clamp(configOverride.blurDarkness, 0, 100) : (esd.blurDarkness != null && Number.isFinite(esd.blurDarkness) ? clamp(esd.blurDarkness, 0, 100) : 30)))
 
-  // Intensità tinta 0-100 — stessa catena (query > mapping.landscape >
+  // IntensitÃ  tinta 0-100 â€” stessa catena (query > mapping.landscape >
   // mapping flat > config > defaults(.landscape) > 20). Vale per formato.
   const rawTint = q.get("tint") ? Number(q.get("tint")) : NaN
   const tintStrength = q.get("tint") !== null
@@ -782,7 +782,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
                 ? clamp(Math.round(esd.tintStrength), 0, 100)
                 : 20)))
 
-  // Ombra superiore 0-100 — catena completa (query > mapping.landscape >
+  // Ombra superiore 0-100 â€” catena completa (query > mapping.landscape >
   // mapping flat > config > defaults(.landscape) > 50). Stessi clamp anti-DoS.
   const rawTs = q.get("ts") ? Number(q.get("ts")) : NaN
   const topShade = q.get("ts") !== null
@@ -794,7 +794,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
             : (esd.topShade != null && Number.isFinite(esd.topShade)
                 ? clamp(Math.round(esd.topShade), 0, 100)
                 : 50)))
-  // Altezza ombra superiore 0-100 (% canvas) — catena completa (query >
+  // Altezza ombra superiore 0-100 (% canvas) â€” catena completa (query >
   // mapping.landscape > mapping flat > config > defaults(.landscape) > 25).
   // Stessi clamp anti-DoS. 0 = ombra disattivata (il renderer salta il
   // composite come con forza 0).
@@ -814,7 +814,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   // OFF/ON espliciti in query vincono sempre (anche su titolo non salvato
   // senza token): senza, badges=0/ranking=0 venivano ignorati (hasQuery false).
   // Percorso live (`live=1`, Segui-spazio): il parametro assente segue lo
-  // spazio (mapping > config > sd), non il default ON — altrimenti un `false`
+  // spazio (mapping > config > sd), non il default ON â€” altrimenti un `false`
   // salvato diventerebbe `true`. Fuori dal live, comportamento invariato.
   const badgesEnabled = qBadges !== null
     ? qBadges !== "0"
@@ -835,7 +835,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
         : (m?.rankingBadges ?? rankingBadges))
       : true))
 
-  // Componenti badge genere/rating — precedenza: query `bg/by/br` > mapping
+  // Componenti badge genere/rating â€” precedenza: query `bg/by/br` > mapping
   // effettivo per formato > config token/profilo > server defaults > true (tutti ON di default).
   const qBg = q.get("bg")
   const qBy = q.get("by")
@@ -846,24 +846,24 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   const badgeRating = qBr !== null ? qBr !== "0" : (m?.badgeRating ?? configOverride?.badgeRating ?? esd.badgeRating ?? sd.badgeRating ?? true)
   const badgeQuality = qBq !== null ? qBq !== "0" : (m?.badgeQuality ?? configOverride?.badgeQuality ?? esd.badgeQuality ?? sd.badgeQuality ?? true)
 
-  // Badge età (classificazione regionale testuale) — per-shape con
-  // per-titolo via resolveAgeBadgeRequest (unico punto di verità con la
+  // Badge etÃ  (classificazione regionale testuale) â€” per-shape con
+  // per-titolo via resolveAgeBadgeRequest (unico punto di veritÃ  con la
   // route, che lo riusa per il gating del fetch): default OFF = nessun
-  // fetch TMDB extra e nessun cambio di resa finché non abilitato.
+  // fetch TMDB extra e nessun cambio di resa finchÃ© non abilitato.
   const { ageBadge, ageCountry, ageBadgeStyle } = resolveAgeBadgeRequest(q, configOverride, esd, sd, m)
 
-  // Minimum streaming quality tier — chain: query `qmin` > effective
-  // per-shape defaults > "SD" (show all). Invalid values → default. No
+  // Minimum streaming quality tier â€” chain: query `qmin` > effective
+  // per-shape defaults > "SD" (show all). Invalid values â†’ default. No
   // per-title/config override (mappings lack the field).
   const minQuality: StreamQuality = parseMinQuality(q.get("qmin")) ?? parseMinQuality(esd.minQuality ?? sd.minQuality ?? null) ?? "SD"
 
-  // Sash order — chain: query `sash` (ordered subset, unlisted = off) >
+  // Sash order â€” chain: query `sash` (ordered subset, unlisted = off) >
   // effective per-shape defaults > default. Invalid tokens ignored, never
   // garbage. Explicit `[]` = all off (valid state).
   const sashOrder: SashBucket[] = parseSashOrder(q.get("sash"))
     ?? normalizeSashOrder(esd.sashOrder ?? sd.sashOrder) ?? [...DEFAULT_SASH_ORDER]
 
-  // Space-wide automatic exclusions — chain: query `dct`/`dnet`
+  // Space-wide automatic exclusions â€” chain: query `dct`/`dnet`
   // (comma-separated allowlist IDs, unlisted = enabled) > config token >
   // server defaults (flat, shared across shapes) > [] (historical).
   // Sanitized at every level: unknown IDs never reach the render.
@@ -876,13 +876,13 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     ? sanitizeDisabledNetworks(rawDnet.split(","))
     : sanitizeDisabledNetworks(configOverride?.disabledNetworks ?? sd.disabledNetworks ?? [])
 
-  // Custom rating provider row (display) — precedence: query `cr` > mapping
+  // Custom rating provider row (display) â€” precedence: query `cr` > mapping
   // effettivo per formato > config token/profile > effective per-shape defaults > true
   // (ON by default). Rendering still requires a configured provider (env).
   const qCr = q.get("cr")
   const customRatings = qCr !== null ? qCr !== "0" : (m?.customRatings ?? configOverride?.customRatings ?? esd.customRatings ?? sd.customRatings ?? true)
 
-  // Fonti voto medio ★ — catena canonica: query `rsrc` > mapping per-titolo >
+  // Fonti voto medio â˜… â€” catena canonica: query `rsrc` > mapping per-titolo >
   // config token > server defaults > imdb+tmdb. Stessa dell'URL Stremio.
   const ratingSources: string[] = resolveRatingSources(
     q.get("rsrc"),
@@ -891,23 +891,23 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     sd.ratingSources,
   )
 
-  // Separate ratings column — same chain (query `sep` > mapping effettivo per
+  // Separate ratings column â€” same chain (query `sep` > mapping effettivo per
   // formato > config > effective per-shape defaults > false, see resolveSeparateRatingsEnabled).
   // Both canvases: the column follows the quality badge in landscape too.
   const separateRatings = resolveSeparateRatingsEnabled(q, mapping, configOverride, esd, sd, posterShape)
 
-  // Layout dei rating separati — catena query > mapping effettivo per formato
+  // Layout dei rating separati â€” catena query > mapping effettivo per formato
   // > config > defaults effettivi > "column" (vedi resolveSeparateRatingsStyle).
   const separateRatingsStyle = resolveSeparateRatingsStyle(q, mapping, configOverride, sd, posterShape)
 
-  // Graphical poster layout — catena query > mapping effettivo per formato
+  // Graphical poster layout â€” catena query > mapping effettivo per formato
   // > config > defaults effettivi > "standard" (vedi resolvePosterLayout).
   const posterLayout = resolvePosterLayout(q, mapping, configOverride, sd, posterShape)
 
-  // Fresh apply scope — stessa catena (vedi resolvePosterFreshScope).
+  // Fresh apply scope â€” stessa catena (vedi resolvePosterFreshScope).
   const posterFreshScope = resolvePosterFreshScope(q, mapping, configOverride, sd, posterShape)
 
-  // Badge style — confinamento della query string al union type: valori non validi
+  // Badge style â€” confinamento della query string al union type: valori non validi
   // cadono sul default (il renderer in passato li trattava come "shadow" nel ramo else).
   // Catena: query `bs` > mapping effettivo per formato > config token >
   // server defaults (i default per-formato scelgono lo stile landscape).
@@ -926,8 +926,8 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   // degrada a default. Vale per preview e Stremio (stesso endpoint).
   if (posterShape === "landscape" && badgeStyle === "bar") badgeStyle = DEFAULT_BADGE_STYLE
 
-  // Stile icone qualità — catena: query `qbs` > mapping effettivo per formato >
-  // config token > server defaults > "standard". Valori non validi → standard.
+  // Stile icone qualitÃ  â€” catena: query `qbs` > mapping effettivo per formato >
+  // config token > server defaults > "standard". Valori non validi â†’ standard.
   const rawQbs = q.get("qbs")
     || m?.qualityBadgeStyle
     || configOverride?.qualityBadgeStyle
@@ -935,13 +935,13 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     || sd.qualityBadgeStyle
   const qualityBadgeStyle: QualityBadgeStyle = isQualityBadgeStyle(rawQbs) ? rawQbs : DEFAULT_QUALITY_BADGE_STYLE
 
-  // Font dei testi badge — stessa catena degli stili: query `bfont` >
+  // Font dei testi badge â€” stessa catena degli stili: query `bfont` >
   // mapping effettivo per formato (non-"inter" = override, come "shadow" per badgeStyle) >
   // config token > server defaults > "inter". Un `inter` landscape-owned
   // esplicito vince su token/defaults diversi (resta Inter storico);
-  // il flat `inter` resta assente. Valori non validi → inter
+  // il flat `inter` resta assente. Valori non validi â†’ inter
   // (resa storica, URL esistenti invariati). La query usa `??` e non `||`:
-  // `?bfont=` (stringa vuota) è un valore presente ma invalido → inter, come
+  // `?bfont=` (stringa vuota) Ã¨ un valore presente ma invalido â†’ inter, come
   // lo normalizza la chiave cache; con `||` cadrebbe sui default (es. Oswald)
   // con la stessa chiave di `bfont=inter` ma byte diversi.
   const ownedLandscapeBfont = ownedLandscapeEnum<BadgeFont>(mapping, posterShape, "badgeFont", isBadgeFont)
@@ -959,7 +959,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   const qOy = q.get("oy")
   // Bound anti-DoS (R1): scale fuori 10..200 arrivava a resizeLogoCached con
   // dimensioni assurde (sharp OOM); scale negativa addirittura crashava il
-  // resize → 500 permanente. `scale=0`/non-numerico resta null come prima.
+  // resize â†’ 500 permanente. `scale=0`/non-numerico resta null come prima.
   const qScaleNum = qScale ? Number(qScale) : NaN
   // Catena: query esplicita > mapping salvato > default globali (Orizzontale
   // in landscape) > auto-fit per aspect (null). I default globali null
@@ -967,7 +967,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   const logoScale = qScale
     ? (Number.isFinite(qScaleNum) && qScaleNum !== 0 ? clamp(Math.round(qScaleNum), 10, 200) : null)
     : (m?.logoScale ?? esd.logoScale ?? null)
-  // Offset: clamp ±2000px (oltre è comunque fuori canvas). A differenza di
+  // Offset: clamp Â±2000px (oltre Ã¨ comunque fuori canvas). A differenza di
   // prima, `ox=0` esplicito vince sul mapping (0 reale invece di null).
   // Offset logo: query esplicita > mapping salvato > default globali
   // (Orizzontale nel formato). Null = nessun nudge utente: la calibrazione
@@ -981,7 +981,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     ? (Number.isFinite(qOyNum) ? clamp(Math.round(qOyNum), -2000, 2000) : null)
     : (m?.logoOffsetY ?? esd.logoOffsetY ?? null)
 
-  // Badge superiore — stessa catena di blur/gradient (query > mapping > config
+  // Badge superiore â€” stessa catena di blur/gradient (query > mapping > config
   // > server defaults > default), stessi bound del logo (scala %, offset px).
   const qTScaleNum = q.get("tscale") ? Number(q.get("tscale")) : NaN
   const topBadgeScale = q.get("tscale") !== null
@@ -1002,7 +1002,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     ? (Number.isFinite(qToyNum) ? clamp(Math.round(qToyNum), -2000, 2000) : 0)
     : (m?.topBadgeOffsetY ?? configOverride?.topBadgeOffsetY ?? esd.topBadgeOffsetY ?? 0)
 
-  // Badge extra superiore — stessa catena (query > mapping per-shape > config
+  // Badge extra superiore â€” stessa catena (query > mapping per-shape > config
   // token > defaults per-shape), ma NULLABLE con fallback legacy: assente
   // ovunque (o query invalida) = null e il render usa il tuning classifica.
   // Mai default 100/0 baked qui: il fallback vive al sito d'uso per kind.
@@ -1025,7 +1025,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     ? (Number.isFinite(qExoyNum) ? clamp(Math.round(qExoyNum), -2000, 2000) : null)
     : (m?.extraBadgeOffsetY ?? configOverride?.extraBadgeOffsetY ?? esd.extraBadgeOffsetY ?? null)
 
-  // Badge genere/rating in basso — stessa catena (query > mapping > config >
+  // Badge genere/rating in basso â€” stessa catena (query > mapping > config >
   // server defaults > default), stessi bound della scala (%, 10..200).
   const qGScaleNum = q.get("gscale") ? Number(q.get("gscale")) : NaN
   const genreBadgeScale = q.get("gscale") !== null
@@ -1038,7 +1038,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
                 ? clamp(Math.round(esd.genreBadgeScale), 10, 200)
                 : 100)))
 
-  // Offset badge genere — stessa catena, clamp px come il logo.
+  // Offset badge genere â€” stessa catena, clamp px come il logo.
   const qGoxNum = q.get("gox") ? Number(q.get("gox")) : NaN
   const genreBadgeOffsetX = q.get("gox") !== null
     ? (Number.isFinite(qGoxNum) ? clamp(Math.round(qGoxNum), -2000, 2000) : 0)
@@ -1048,7 +1048,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     ? (Number.isFinite(qGoyNum) ? clamp(Math.round(qGoyNum), -2000, 2000) : 0)
     : (m?.genreBadgeOffsetY ?? configOverride?.genreBadgeOffsetY ?? esd.genreBadgeOffsetY ?? 0)
 
-  // Badge qualità streaming — stessa catena, stessi bound (%, 10..200).
+  // Badge qualitÃ  streaming â€” stessa catena, stessi bound (%, 10..200).
   const qQScaleNum = q.get("qscale") ? Number(q.get("qscale")) : NaN
   const qualityBadgeScale = q.get("qscale") !== null
     ? (Number.isFinite(qQScaleNum) && qQScaleNum !== 0 ? clamp(Math.round(qQScaleNum), 10, 200) : 100)
@@ -1060,8 +1060,8 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
                 ? clamp(Math.round(esd.qualityBadgeScale), 10, 200)
                 : 100)))
 
-  // Offset badge qualità — stessa catena, clamp px come il logo. Fallback di
-  // formato: portrait (Verticale) -10/+10, landscape (Orizzontale) 0/0 — gli
+  // Offset badge qualitÃ  â€” stessa catena, clamp px come il logo. Fallback di
+  // formato: portrait (Verticale) -10/+10, landscape (Orizzontale) 0/0 â€” gli
   // espliciti (query/mapping/config/defaults, incluso 0) vincono sempre.
   const qQoxNum = q.get("qox") ? Number(q.get("qox")) : NaN
   const qualityBadgeOffsetX = q.get("qox") !== null
@@ -1072,9 +1072,9 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     ? (Number.isFinite(qQoyNum) ? clamp(Math.round(qQoyNum), -2000, 2000) : 0)
     : (m?.qualityBadgeOffsetY ?? configOverride?.qualityBadgeOffsetY ?? esd.qualityBadgeOffsetY ?? getQualityBadgeOffsetDefault(posterShape, "y"))
 
-  // Colonna rating separati — stessa catena, stessi bound (%, 10..200).
+  // Colonna rating separati â€” stessa catena, stessi bound (%, 10..200).
   // Default unico 130 per tutti gli stili (solo fallthrough "tutto assente").
-  // Query presente ma invalida → 130 (coerente col nuovo default; range/clamp
+  // Query presente ma invalida â†’ 130 (coerente col nuovo default; range/clamp
   // invariati). Esplicito (incluso 100) da query/mapping/token/defaults vince.
   const qSepScaleNum = q.get("sepscale") ? Number(q.get("sepscale")) : NaN
   const separateBadgeScale = q.get("sepscale") !== null
@@ -1087,7 +1087,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
                 ? clamp(Math.round(esd.separateBadgeScale), 10, 200)
                 : getSeparateBadgeDefaultScale(separateRatingsStyle))))
 
-  // Offset gruppo rating separati — stessa catena (query > mapping effettivo
+  // Offset gruppo rating separati â€” stessa catena (query > mapping effettivo
   // per formato > config token > defaults effettivi > 0), clamp px come gli
   // altri offset. Muovono l'intero gruppo (mai i singoli provider).
   const qSepoxNum = q.get("sepox") ? Number(q.get("sepox")) : NaN
@@ -1099,7 +1099,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     ? (Number.isFinite(qSepoyNum) ? clamp(Math.round(qSepoyNum), -2000, 2000) : 0)
     : (m?.separateBadgeOffsetY ?? configOverride?.separateBadgeOffsetY ?? esd.separateBadgeOffsetY ?? 0)
 
-  // Logo network — stessa catena, stessi bound (%, 10..200).
+  // Logo network â€” stessa catena, stessi bound (%, 10..200).
   const qNScaleNum = q.get("netscale") ? Number(q.get("netscale")) : NaN
   const networkLogoScale = q.get("netscale") !== null
     ? (Number.isFinite(qNScaleNum) && qNScaleNum !== 0 ? clamp(Math.round(qNScaleNum), 10, 200) : 100)
@@ -1111,7 +1111,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
                 ? clamp(Math.round(esd.networkLogoScale), 10, 200)
                 : 100)))
 
-  // Offset logo network — stessa catena, clamp px come il logo. In landscape
+  // Offset logo network â€” stessa catena, clamp px come il logo. In landscape
   // la risoluzione esclude i flat di un layer fixed (follow===false): sono
   // assoluti di un'altra shape e non devono rientrare come relativi
   // (vedi network-follow.ts); il portrait resta sul ramo storico byte-identico.
@@ -1143,7 +1143,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
       ? (Number.isFinite(qNoyNum) ? clamp(Math.round(qNoyNum), -2000, 2000) : 0)
       : (mNoyOff ?? cNoyOff ?? sNoyOff ?? 0))
 
-  // Prefixed labels (`__badge.*`) resolve in the request language — a
+  // Prefixed labels (`__badge.*`) resolve in the request language â€” a
   // `__badge.anime` customBadge from a config token used to reach the
   // renderer literally (preview desync). The canonical next-episode identity
   // passes through verbatim: the renderer resolves it to the CURRENT dated
@@ -1176,7 +1176,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   // Ribbon side: explicit query wins, then config token, then live spaces
   // follow effective defaults. Otherwise portrait keeps the legacy behavior
   // (saved flat side ignored); landscape applies an explicit landscape
-  // override only — no landscape override = legacy left.
+  // override only â€” no landscape override = legacy left.
   const qSide = q.get("side")
   const ribbonSide: "left" | "right" = qSide === "right"
     ? "right"
@@ -1194,7 +1194,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   const qHideLogo = q.get("hideLogo")
   const hideLogo = qHideLogo !== null ? qHideLogo !== "0" : false
 
-  // Cornice stagionale — nessuna catena config/defaults. Solo il banner
+  // Cornice stagionale â€” nessuna catena config/defaults. Solo il banner
   // pulito (canvas landscape + `hideLogo`, senza logo per i client che lo
   // sovrappongono da catalogo) resta sempre senza cornice anche con `theme=`
   // esplicito: nessun asset viene stirato e i byte restano quelli storici. Un
@@ -1206,7 +1206,7 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
   //   `theme=` staged (valore effettivo gia risolto dal builder via
   //   resolveEffectiveSeasonalTheme: esplicita a tema, `none` = assente,
   //   Automatica = lista di origine); il mapping salvato e ignorato cosi lo
-  //   staged non resuscita mai il salvato prima del save — WYSIWYG;
+  //   staged non resuscita mai il salvato prima del save â€” WYSIWYG;
   // - resto (Stremio, preview declassata, URL bookmark): la scelta per-titolo
   //   salvata vince sul `theme` effimero di lista (`none` sopprime,
   //   assente = Automatica segue la lista).
@@ -1221,8 +1221,8 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
 
   // Follow network: toggle semplice + coordinate assolute riusate da
   // nox/noy (interpretazione condizionata al follow, vedi sopra). Il follow
-  // è effettivo solo con coordinate fisse configurate per la shape:
-  // spento-senza-coords rende follow, mai una modalità falsa incoerente.
+  // Ã¨ effettivo solo con coordinate fisse configurate per la shape:
+  // spento-senza-coords rende follow, mai una modalitÃ  falsa incoerente.
   const networkFollowRaw = resolveNetworkFollowTitle(q, mapping, configOverride, sd, posterShape)
   const networkFixed = resolveNetworkFixedCoords(q, mapping, configOverride, sd, posterShape)
   const networkLogoFollowTitle = resolveEffectiveNetworkFollow(networkFollowRaw, networkFixed)
@@ -1298,3 +1298,4 @@ export function resolvePosterRenderConfig(input: PosterRenderConfigInput): Poste
     hideLogo,
   }
 }
+

@@ -121,3 +121,4 @@ describe("custom-image-validate", () => {
     expect((await validateImageBytes(png, "image/png; charset=binary")).width).toBe(10)
   })
 })
+

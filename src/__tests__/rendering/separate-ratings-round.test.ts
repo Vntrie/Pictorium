@@ -82,3 +82,4 @@ describe.each(STYLES)("%s round ratings", (style) => {
     expect(state.suppressCustomRow).toBe(true)
   })
 })
+

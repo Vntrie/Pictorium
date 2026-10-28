@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useRef } from "react"
 import type { TMDBImage, PosterShape } from "@/lib/types"
@@ -32,7 +32,7 @@ export interface UsePosterFitInput {
   logoOffsetX: number
   logoOffsetY: number
   hasBadges: boolean
-  /** Formato canvas: "landscape" analizza sfondi 16:9 a 768×432 con layout
+  /** Formato canvas: "landscape" analizza sfondi 16:9 a 768Ã—432 con layout
    *  Cinematic Left. Default "poster". */
   shape?: PosterShape
   /** Tier dimensionale TMDB dei candidati (default w342, w780 in landscape). */
@@ -49,8 +49,8 @@ export interface UsePosterFitResult {
 interface PosterFitApiResponse {
   readonly ranked: PosterFitEntry[]
   readonly bestPosterPath: string | null
-  /** Vero quando il best-fit è disabilitato globalmente dall'istanza
-   *  (PICTORIUM_BEST_FIT_ENABLED=0): la UI non deve mostrare il best-fit. */
+  /** Vero quando il best-fit Ã¨ disabilitato globalmente dall'istanza
+   *  (FLAMEFORGE_BEST_FIT_ENABLED=0): la UI non deve mostrare il best-fit. */
   readonly disabled?: boolean
 }
 
@@ -67,7 +67,7 @@ function cacheSet(key: string, value: PosterFitApiResponse): void {
 
 function serialise(input: UsePosterFitInput): string | null {
   if (!input.enabled || !input.selectedLogo || input.cleanPosters.length < 2) return null
-  // Fix L28: la chiave include anche vote/width/height dei candidati — prima
+  // Fix L28: la chiave include anche vote/width/height dei candidati â€” prima
   // la ometteva e dopo un refresh dei dati TMDB la selezione restava stantia
   // (l'API riceve e usa questi campi).
   return JSON.stringify([
@@ -105,9 +105,9 @@ export function usePosterFit(input: UsePosterFitInput): UsePosterFitResult {
 
     const cached = resultCache.get(cacheKey)
     if (cached) {
-      // Fix L28: il cache-hit deve azzerare loading — prima, se un fetch
+      // Fix L28: il cache-hit deve azzerare loading â€” prima, se un fetch
       // precedente aveva lasciato loading=true, la UI restava sulla finestra
-      // "analisi in corso" anche con i risultati già pronti.
+      // "analisi in corso" anche con i risultati giÃ  pronti.
       setLoading(false)
       setResults(cached.ranked)
       setBestFitPath(cached.bestPosterPath)
@@ -154,7 +154,7 @@ export function usePosterFit(input: UsePosterFitInput): UsePosterFitResult {
             if (currentPathUuid()) {
               setError("Best-fit non disponibile: sblocca il tuo profilo per abilitare l'analisi automatica.")
             } else {
-              setError("Best-fit protetto: sblocca con il token admin (oppure imposta PICTORIUM_PUBLIC_INSTANCE=1 se istanza senza token).")
+              setError("Best-fit protetto: sblocca con il token admin (oppure imposta FLAMEFORGE_PUBLIC_INSTANCE=1 se istanza senza token).")
             }
           } else {
             setError(`Analisi best-fit fallita (HTTP ${res.status})`)
@@ -166,8 +166,8 @@ export function usePosterFit(input: UsePosterFitInput): UsePosterFitResult {
 
         const data = await res.json() as PosterFitApiResponse
 
-        // Best-fit disabilitato globalmente (PICTORIUM_BEST_FIT_ENABLED=0):
-        // nessun risultato, nessun errore — la UI semplicemente non lo mostra.
+        // Best-fit disabilitato globalmente (FLAMEFORGE_BEST_FIT_ENABLED=0):
+        // nessun risultato, nessun errore â€” la UI semplicemente non lo mostra.
         if (data.disabled === true) {
           setResults([])
           setBestFitPath(null)
@@ -197,3 +197,4 @@ export function usePosterFit(input: UsePosterFitInput): UsePosterFitResult {
 
   return { bestFitPath, results, loading, error }
 }
+

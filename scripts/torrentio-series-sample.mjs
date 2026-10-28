@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 // Torrentio series episode-proxy sampler (bounded: exactly 2 confirmed series).
 //
 // Scope (authorized task): existing src/data/av-specs.json series ONLY
@@ -25,8 +25,8 @@
 //   already 4K dv+atmos, so only hdr10plus can be additive (else nochange).
 // - No raw names/urls/hashes/magnets/keys/tokens persisted, logged, or
 //   embedded in errors. TMDB key is read from established local config
-//   (process env or .env.local key NAMES PICTORIUM_TMDB_KEY >
-//   POSTERIUM_TMDB_KEY > TMDB_KEY > TMDB_API_KEY); its value never reaches
+//   (process env or .env.local key NAMES FLAMEFORGE_TMDB_KEY >
+//   FLAMEFORGE_TMDB_KEY > TMDB_KEY > TMDB_API_KEY); its value never reaches
 //   logs or reports (same resolver pattern as torrentio-av-import.mjs).
 //
 // Pure helpers are exported for deterministic unit tests (no network).
@@ -277,7 +277,7 @@ function parseDotEnvFile(filePath) {
 }
 
 function resolveTmdbKey(rootDir) {
-  const names = ["PICTORIUM_TMDB_KEY", "POSTERIUM_TMDB_KEY", "TMDB_KEY", "TMDB_API_KEY"]
+  const names = ["FLAMEFORGE_TMDB_KEY", "FLAMEFORGE_TMDB_KEY", "TMDB_KEY", "TMDB_API_KEY"]
   for (const name of names) {
     if (process.env[name]) return process.env[name]
   }
@@ -301,7 +301,7 @@ async function fetchWithTimeout(url, timeoutMs) {
   const timer = setTimeout(() => ctrl.abort(), timeoutMs)
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Pictorium/1.0" },
+      headers: { "User-Agent": "FlameForge/1.0" },
       signal: ctrl.signal,
     })
     return res
@@ -331,7 +331,7 @@ function usage() {
 
 function reportPathFor(rootDir, override) {
   if (override) return path.resolve(override)
-  return path.join(os.tmpdir(), "pictorium-torrentio-series-sample", "series-report.json")
+  return path.join(os.tmpdir(), "FlameForge-torrentio-series-sample", "series-report.json")
 }
 
 function isInsideRepo(rootDir, target) {
@@ -405,7 +405,7 @@ async function main() {
 
   const tmdbKey = resolveTmdbKey(rootDir)
   if (!tmdbKey) {
-    console.error(`[${TOOL}] STOP: no TMDB request key in established local config (PICTORIUM_TMDB_KEY / TMDB_KEY / TMDB_API_KEY); refusing to guess type without the authoritative /find gate. No network attempted.`)
+    console.error(`[${TOOL}] STOP: no TMDB request key in established local config (FLAMEFORGE_TMDB_KEY / TMDB_KEY / TMDB_API_KEY); refusing to guess type without the authoritative /find gate. No network attempted.`)
     process.exit(3)
   }
   const tmdbBase = (process.env.TMDB_BASE_URL || TMDB_DEFAULT_BASE).replace(/\/+$/, "")
@@ -624,3 +624,4 @@ async function main() {
 
 const isMain = process.argv[1] === fileURLToPath(import.meta.url)
 if (isMain) main()
+

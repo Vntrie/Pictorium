@@ -281,3 +281,4 @@ describe("oversized numerals use the existing canvas fit (no new shrink path)", 
     expect(fitted.h).toBeLessThanOrEqual(570)
   })
 })
+

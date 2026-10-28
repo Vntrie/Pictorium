@@ -1,16 +1,16 @@
----
+﻿---
 name: poster-visual
 description: >
-  Visual regression and screenshot verification workflow for Pictorium. The project
+  Visual regression and screenshot verification workflow for FlameForge. The project
   ships UI/poster visual and preview-vs-Stremio parity suites against a deterministic
-  local mock server — no TMDB_API_KEY needed. Use to verify the WYSIWYG preview matches
+  local mock server â€” no TMDB_API_KEY needed. Use to verify the WYSIWYG preview matches
   the server poster, to confirm a render change looks right, to inspect screenshot diffs,
   and to update snapshots only when a change intentionally alters the look. Trigger:
   "run visual tests", "check poster screenshot", "update snapshots", "the poster looks
   wrong", "regressione visiva", or after any rendering change.
 ---
 
-Pictorium guarantees WYSIWYG: the preview uses `/api/poster/{type}/{id}`, the same
+FlameForge guarantees WYSIWYG: the preview uses `/api/poster/{type}/{id}`, the same
 route Stremio hits. Visual tests are the gate that proves client/server coherence.
 
 ## Available tools
@@ -21,20 +21,20 @@ route Stremio hits. Visual tests are the gate that proves client/server coherenc
   - VS Code / Claude Code (`@playwright/mcp`): `browser_*` (`browser_navigate`,
     `browser_snapshot`, `browser_take_screenshot`, `browser_evaluate`,
     `browser_console_messages`, `browser_network_requests`).
-- The repo Playwright suite — deterministic, mock-based; commands in
+- The repo Playwright suite â€” deterministic, mock-based; commands in
   [`.agents/visual-testing.md`](../../visual-testing.md).
 
 ## The test suite
 
 Commands, test inventory and snapshot policy are the canonical reference in
-[`.agents/visual-testing.md`](../../visual-testing.md) — do not duplicate them here.
+[`.agents/visual-testing.md`](../../visual-testing.md) â€” do not duplicate them here.
 
 ## Workflow
 
-1. **Baseline check** — include the full visual suite in the final batch before
+1. **Baseline check** â€” include the full visual suite in the final batch before
    push/integration. During work, run the focused subset (`--grep "<area>"` or
    `spec.ts:<line>`, see `.agents/visual-testing.md`) when the change touches
-   rendering; the full suite stays in the final batch (`AGENTS.md` → Verification
+   rendering; the full suite stays in the final batch (`AGENTS.md` â†’ Verification
    Strategy). Failure requires diagnosis; a pixel change alone does not identify a
    client/server divergence.
 
@@ -46,7 +46,7 @@ Commands, test inventory and snapshot policy are the canonical reference in
 3. **Fix, don't suppress.** If it's a real divergence, fix the code (see the
    `poster-sync` skill). Never edit baselines to hide a bug.
 
-4. **Intentional change only** → update baselines (`--update-snapshots`, command in
+4. **Intentional change only** â†’ update baselines (`--update-snapshots`, command in
    `.agents/visual-testing.md`). Inspect the new `.png` files before committing them,
    and regenerate RENDER_VERSION through its script when required. Never copy
    generated version values into AGENTS.md (see `poster-sync`).
@@ -61,13 +61,14 @@ When a poster looks wrong but tests pass (or to eyeball a new feature):
    (e.g. `/api/poster/series/tt1234567?<params>`) and screenshot that too.
 4. For console/network issues: `browser_console_messages` + `browser_network_requests`.
 5. `browser_evaluate` can inspect the URL the preview img resolved to and the exact
-   query params the client sent — confirm each one matches the server-side expectations
+   query params the client sent â€” confirm each one matches the server-side expectations
    in [`.agents/render-params.md`](../../render-params.md).
 
 ## Rules
 
 The rules (failure = blocking, review snapshots before committing, snapshots in git
-as the regression contract) live in `.agents/visual-testing.md` — follow those.
+as the regression contract) live in `.agents/visual-testing.md` â€” follow those.
 For scheduling, follow `AGENTS.md Verification Strategy` exclusively. The final
 visual run must use current sources; during-work runs use the focused subset.
 URL/mapping/precedence changes also need the parity spec, not screenshots alone.
+

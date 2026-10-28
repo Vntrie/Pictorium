@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 
-const SAMPLE_CONFIG: PictoriumUserConfig = {
+const SAMPLE_CONFIG: FlameForgeUserConfig = {
   globalBadges: true,
   rankingBadges: false,
   badgeStyle: "shadow",
@@ -17,7 +17,7 @@ const SAMPLE_CONFIG: PictoriumUserConfig = {
   customBadge: "Test",
 }
 
-const MINIMAL_CONFIG: PictoriumUserConfig = {
+const MINIMAL_CONFIG: FlameForgeUserConfig = {
   globalBadges: false,
   rankingBadges: false,
   badgeStyle: "pill",
@@ -83,7 +83,7 @@ describe("encodeConfig / decodeConfig round-trip", () => {
   })
 
   it("round-trips optional fields (customBadge, ribbonSide)", async () => {
-    const config: PictoriumUserConfig = {
+    const config: FlameForgeUserConfig = {
       ...SAMPLE_CONFIG,
       customBadge: "HD",
       ribbonSide: "right",
@@ -95,25 +95,25 @@ describe("encodeConfig / decodeConfig round-trip", () => {
 
   it("round-trips the corner rankingBadgeStyle", async () => {
     const { encodeConfig, decodeConfig } = await importConfigToken()
-    const config: PictoriumUserConfig = { ...SAMPLE_CONFIG, rankingBadgeStyle: "corner" }
+    const config: FlameForgeUserConfig = { ...SAMPLE_CONFIG, rankingBadgeStyle: "corner" }
     expect(decodeConfig(encodeConfig(config))).toEqual(config)
   })
 
   it("round-trips the knockout qualityBadgeStyle", async () => {
     const { encodeConfig, decodeConfig } = await importConfigToken()
-    const config: PictoriumUserConfig = { ...SAMPLE_CONFIG, qualityBadgeStyle: "knockout" }
+    const config: FlameForgeUserConfig = { ...SAMPLE_CONFIG, qualityBadgeStyle: "knockout" }
     expect(decodeConfig(encodeConfig(config))).toEqual(config)
   })
 
   it("round-trips the knockout ageBadgeStyle", async () => {
     const { encodeConfig, decodeConfig } = await importConfigToken()
-    const config: PictoriumUserConfig = { ...SAMPLE_CONFIG, ageBadgeStyle: "knockout" }
+    const config: FlameForgeUserConfig = { ...SAMPLE_CONFIG, ageBadgeStyle: "knockout" }
     expect(decodeConfig(encodeConfig(config))).toEqual(config)
   })
 
   it("round-trips an explicit null ageBadgeStyle (absent contract)", async () => {
     const { encodeConfig, decodeConfig } = await importConfigToken()
-    const config: PictoriumUserConfig = { ...SAMPLE_CONFIG, ageBadgeStyle: null }
+    const config: FlameForgeUserConfig = { ...SAMPLE_CONFIG, ageBadgeStyle: null }
     expect(decodeConfig(encodeConfig(config))).toEqual(config)
   })
 
@@ -121,7 +121,7 @@ describe("encodeConfig / decodeConfig round-trip", () => {
     const { decodeConfig } = await importConfigToken()
     // Token firmato prima della rimozione della barra: bypassa i tipi con un
     // cast e verifica che solo lo stile venga normalizzato, non tutto il token.
-    const legacy = { ...SAMPLE_CONFIG, rankingBadgeStyle: "bar" } as unknown as PictoriumUserConfig
+    const legacy = { ...SAMPLE_CONFIG, rankingBadgeStyle: "bar" } as unknown as FlameForgeUserConfig
     const raw = Buffer.from(JSON.stringify(legacy), "utf-8").toString("base64url")
     const decoded = decodeConfig(raw)
     expect(decoded).not.toBeNull()
@@ -242,7 +242,7 @@ describe("production fail-closed", () => {
 describe("defensive clamping on decode", () => {
   it("clamps out-of-range numeric fields", async () => {
     const { encodeConfig, decodeConfig } = await importConfigToken()
-    const extreme: PictoriumUserConfig = {
+    const extreme: FlameForgeUserConfig = {
       ...SAMPLE_CONFIG,
       blurIntensity: 999,
       blurFade: -10,
@@ -260,10 +260,12 @@ describe("defensive clamping on decode", () => {
 
   it("rounds non-integer numeric fields", async () => {
     const { encodeConfig, decodeConfig } = await importConfigToken()
-    const config: PictoriumUserConfig = { ...SAMPLE_CONFIG, blurIntensity: 5.6 }
+    const config: FlameForgeUserConfig = { ...SAMPLE_CONFIG, blurIntensity: 5.6 }
     const token = encodeConfig(config)
     const decoded = decodeConfig(token)
     expect(decoded).not.toBeNull()
     expect(decoded!.blurIntensity).toBe(6)
   })
 })
+
+

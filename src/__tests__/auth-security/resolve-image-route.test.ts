@@ -30,7 +30,7 @@ function req(url: string): NextRequest {
 
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.stubEnv("PICTORIUM_MULTI_USER", "1")
+  vi.stubEnv("FLAMEFORGE_MULTI_USER", "1")
   vi.mocked(checkUserAuth).mockResolvedValue(true)
   vi.mocked(resolveToImageUrl).mockResolvedValue({
     imageUrl: "https://i.imgur.com/x.jpg",
@@ -80,3 +80,5 @@ describe("GET /api/resolve-image auth e namespace", () => {
     expect((await res.json()).error).toMatch(/allowlist/)
   })
 })
+
+

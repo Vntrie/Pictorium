@@ -1,4 +1,4 @@
-import crypto from "node:crypto"
+﻿import crypto from "node:crypto"
 import fsp from "node:fs/promises"
 import path from "node:path"
 import { getStorageMode } from "@/lib/kv"
@@ -13,7 +13,7 @@ const log = createLogger("chart-generation")
 // Independent per-family ranking snapshots ("fixed cycles", simplified).
 //
 // Built-in ranking lists renew on the same portable Europe/Rome 00:00/12:00
-// cadence (DST-aware, independent of the server timezone) — but renewal is
+// cadence (DST-aware, independent of the server timezone) â€” but renewal is
 // INDEPENDENT PER canonical family, with no all-source barrier:
 //
 // - each logical ranking list (jw:movie:charts, jw:series:popular,
@@ -27,7 +27,7 @@ const log = createLogger("chart-generation")
 //   renewals proceed independently. A successful zero-row read is a genuine
 //   empty for this cycle on every family: it publishes an empty snapshot (a
 //   miss stays null and never resurrects a saved rank). Only transport
-//   failure (HTTP error, invalid payload, abort, open circuit — strict
+//   failure (HTTP error, invalid payload, abort, open circuit â€” strict
 //   adapters throw, never resolve a conflated []) blocks publish and keeps
 //   the last good snapshot, with a 60s retry gate. A cached legacy
 //   error-negative never masquerades as a successful empty for strict
@@ -45,7 +45,7 @@ const log = createLogger("chart-generation")
 //
 // Group identity (privacy/isolation):
 // - JW + platform families: region code + region language ONLY. Their fetches
-//   carry no credentials, so TMDB/MDBList keys must NOT partition them —
+//   carry no credentials, so TMDB/MDBList keys must NOT partition them â€”
 //   keyed vs public requests share the same JW/platform rows.
 // - anime families: region + language + effective MDBList key hash (keyed vs
 //   public payloads never mix). Only the hash enters keys; secrets never
@@ -53,7 +53,7 @@ const log = createLogger("chart-generation")
 //
 // Persistence: KV (`chartfam:pub/pubgen/lease`, EX bounded 7d) when
 // configured, atomic files `chartfam-*` in DATA_DIR otherwise
-// (single-process exact; multi-process file mode is best-effort only —
+// (single-process exact; multi-process file mode is best-effort only â€”
 // multi-instance deployments MUST configure KV/Redis so commits stay atomic
 // and cutover immediate). Published snapshots are retained 7 days on both
 // backends (KV TTL + 7d file sweep parity; failure-gate metas sweep at 36h):
@@ -62,7 +62,7 @@ const log = createLogger("chart-generation")
 // (owned cleanup, no untracked background work). Snapshots are bounded (rank
 // rows only, never TMDB details nor keys; cap 512KB; anime <= 500, platforms
 // <= 10, charts/popular/trending <= 20). Single-process ordering comes from
-// the memory lease (acquire→commit) PLUS the per-family commit mutex below
+// the memory lease (acquireâ†’commit) PLUS the per-family commit mutex below
 // (read-check-write is serialized, so a delayed in-flight write can never
 // land after a newer publish even if the lease window lapped it) and the
 // durable generation recheck (out-of-order or stale-owner commits are
@@ -90,7 +90,7 @@ const PUBLISH_LEASE_TTL_MS = 30_000
 /**
  * Published snapshots are retained 7 days on BOTH backends (KV EX parity):
  * a family in outage keeps its last good snapshot while other families keep
- * publishing — a successful JW renewal must never garbage-collect a failed
+ * publishing â€” a successful JW renewal must never garbage-collect a failed
  * anime family's rows. Failure-gate metas are short-lived (60s gates): a
  * 36h sweep is plenty for them.
  */
@@ -102,7 +102,7 @@ const MAX_GROUPS_MEMORY = 200
 const MAX_FAMILY_FILES_SWEEP = 400
 
 // Marker comments let the unit-test KV mock emulate atomic semantics (real
-// Redis/Upstash just ignore Lua comments) — same pattern as trakt-profile-lock.
+// Redis/Upstash just ignore Lua comments) â€” same pattern as trakt-profile-lock.
 const LEASE_ACQUIRE_SCRIPT = `-- chartfam-lease-acquire
 local v = redis.call("GET", KEYS[1])
 if v then return 0 end
@@ -120,7 +120,7 @@ return 0`
  * "ok" | "stale-lease" (lease lost/expired mid-commit: another owner may
  * have published meanwhile) | "stale-gen" (a newer generation won the race).
  * Any other outcome (script error, backend down) is an "error": the caller
- * must NOT mark memory — the last published snapshot keeps being served and
+ * must NOT mark memory â€” the last published snapshot keeps being served and
  * the next request resumes.
  */
 const COMMIT_SCRIPT = `-- chartfam-commit
@@ -135,11 +135,11 @@ return "ok"`
 // --- Pure: Rome slot -------------------------------------------------------
 
 /**
- * Current fixed-cycle slot id in Europe/Rome ("YYYYMMDD-00" for 00:00–11:59,
- * "YYYYMMDD-12" for 12:00–23:59 local). DST-aware via Intl: spring-forward
+ * Current fixed-cycle slot id in Europe/Rome ("YYYYMMDD-00" for 00:00â€“11:59,
+ * "YYYYMMDD-12" for 12:00â€“23:59 local). DST-aware via Intl: spring-forward
  * skips 02:00 (still slot 00), fall-back repeats 02:xx (still slot 00).
  * Portable: independent of the server timezone (uses explicit timeZone).
- * 12h legacy cadence — unchanged. Families on the 6h JW cadence use
+ * 12h legacy cadence â€” unchanged. Families on the 6h JW cadence use
  * `familySlotKey` (same 00/12 ids at those boundaries, so old 12h pins
  * migrate naturally with no flush).
  */
@@ -149,7 +149,7 @@ export function romeSlotKey(nowMs: number = Date.now()): string {
   return `${date}-${slot}`
 }
 
-/** Rome wall-clock date (YYYYMMDD) + hour (0–23) at an absolute instant. */
+/** Rome wall-clock date (YYYYMMDD) + hour (0â€“23) at an absolute instant. */
 function romeDateHour(nowMs: number): { date: string; hour: number } {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Rome",
@@ -199,7 +199,7 @@ export function nextFamilySlotKey(family: string, slotKey: string): string | nul
   const [, y, mo, d, hh] = m
   if (!isSixHourChartFamily(family)) {
     // 12h chain (historical `nextSlotKey` behavior, preserved byte-identically
-    // for 00/12 inputs; 06/18 ids never occur on 12h families — resolved
+    // for 00/12 inputs; 06/18 ids never occur on 12h families â€” resolved
     // deterministically onto the 12h chain anyway).
     if (hh === "00" || hh === "06") return `${y}${mo}${d}-12`
     const nextDay = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d)) + 24 * 3600 * 1000)
@@ -216,7 +216,7 @@ export function nextFamilySlotKey(family: string, slotKey: string): string | nul
 /**
  * Absolute end (exclusive, ms epoch) of the given published slot generation
  * in the family's own cadence. Snapshot-backed facts and ready bodies expire
- * at the end of the PINNED slot — never at the end of the slot containing
+ * at the end of the PINNED slot â€” never at the end of the slot containing
  * "now". A pin published in a previous slot (retained on outage) is already
  * expired. Old 12h ids under a 6h family resolve onto the 6h chain (actual
  * family cadence), so no flush is needed on rollout. Returns 0 for
@@ -253,7 +253,7 @@ function romeOffsetMinutesAt(utcMs: number): number {
  * would be off by one hour on DST transition days (midnight +01 vs noon +02
  * in spring, midnight +02 vs noon +01 in fall). Accepts 00/06/12/18 (the 6h
  * JW cadence shares the same wall-clock solver; DST transition days keep
- * their short/long absolute durations — never claim a flat 6h wall-clock
+ * their short/long absolute durations â€” never claim a flat 6h wall-clock
  * timedelta there).
  */
 export function romeSlotStartMs(slotKey: string): number {
@@ -294,7 +294,7 @@ function nextSlotKey(slotKey: string): string | null {
  * Start of the slot FOLLOWING the one containing nowMs. Computed from the
  * next slot key (not start + 12h): spring-forward days have an 11h 00-slot
  * and fall-back days a 13h one. At an exact boundary the containing slot is
- * the new one, so this returns the boundary after it — never the current
+ * the new one, so this returns the boundary after it â€” never the current
  * instant.
  */
 export function nextRomeSlotStartMs(nowMs: number = Date.now()): number {
@@ -306,7 +306,7 @@ export function nextRomeSlotStartMs(nowMs: number = Date.now()): number {
 /**
  * Absolute end (exclusive, ms epoch) of the given published slot generation
  * (`YYYYMMDD-00|12`). Snapshot-backed poster facts expire at the end of the
- * PINNED slot — not at the end of the slot containing "now" (a pin published
+ * PINNED slot â€” not at the end of the slot containing "now" (a pin published
  * in a previous slot, or a render starting just before a boundary and
  * completing after it, must not mint the future next-slot deadline). Returns
  * 0 for an unparseable generation (fail-open: the caller falls back).
@@ -355,7 +355,7 @@ export function isGenericStreamChartFamily(family: string): boolean {
 /**
  * Group identity for credential-free families (JW charts/popular/trending,
  * streaming platforms): region + language ONLY. Their fetches carry no
- * credentials, so TMDB/MDBList keys must NOT partition them — keyed vs
+ * credentials, so TMDB/MDBList keys must NOT partition them â€” keyed vs
  * public requests share the same rows.
  */
 export function chartListGroupKey(input: Pick<ChartGroupInput, "regionCode" | "regionLang">): string {
@@ -373,7 +373,7 @@ export function isKeyedChartFamily(family: string): boolean {
  * Family-aware group identity: anime families isolate on the effective
  * MDBList key hash; generic `stream2:` families (Task F) isolate on the full
  * descriptor + region + language (source/country/variant/service never share
- * pins — different source choices must not collide or fence each other);
+ * pins â€” different source choices must not collide or fence each other);
  * every other family shares region+language rows regardless of unrelated
  * credentials.
  */
@@ -396,11 +396,11 @@ export function describeChartGroup(input: ChartGroupInput): string {
  *  rows come from a published family snapshot. Custom, search, and addon
  *  catalogs are excluded (zero chart I/O on those paths). */
 export function isBuiltInChartCatalogId(catalogId: string): boolean {
-  if (catalogId.startsWith("pictorium-custom-")) return false
-  if (catalogId.startsWith("pictorium-search-")) return false
-  if (catalogId.startsWith("pictorium-jw") || catalogId.startsWith("pictorium-anime")) return true
-  if (catalogId.startsWith("pictorium-stream-") || catalogId.startsWith("pictorium-stream2-")) return true
-  return /^pictorium-.+-(movies|series)$/.test(catalogId)
+  if (catalogId.startsWith("FlameForge-custom-")) return false
+  if (catalogId.startsWith("FlameForge-search-")) return false
+  if (catalogId.startsWith("FlameForge-jw") || catalogId.startsWith("FlameForge-anime")) return true
+  if (catalogId.startsWith("FlameForge-stream-") || catalogId.startsWith("FlameForge-stream2-")) return true
+  return /^FlameForge-.+-(movies|series)$/.test(catalogId)
 }
 
 // --- Shapes ------------------------------------------------------------------
@@ -414,7 +414,7 @@ export interface ChartRow {
   /**
    * Real media type for mixed (`all`) generic charts (Task F): preserved from
    * the upstream `tmdb.media_type`. Absent on legacy families (byte-identical
-   * rows there) — generic renewal sets it, serving filters/enriches per item.
+   * rows there) â€” generic renewal sets it, serving filters/enriches per item.
    */
   readonly mediaType?: "movie" | "tv" | null
 }
@@ -521,7 +521,7 @@ interface ChartFamilyPersist {
    * Guarded atomic publish commit. Writes ONLY when the caller still owns
    * the lease AND no equal-or-newer generation is published ("stale"
    * otherwise). "error" (or a throw) means nothing was durably written: the
-   * caller must NOT mark memory — no private unpublished publication.
+   * caller must NOT mark memory â€” no private unpublished publication.
    */
   commitPublished(group: string, family: string, slot: string, snap: ChartFamilySnapshot, leaseOwner: string): Promise<ChartCommitResult>
   loadMeta(group: string, family: string): Promise<FailureMeta | null>
@@ -705,7 +705,7 @@ function filePersist(dir: string): ChartFamilyPersist {
           }
           try {
             await atomicWriteFile(pubFile(group, family), JSON.stringify(snap))
-            // Disk hygiene (owned cleanup, awaited in the owning request — no
+            // Disk hygiene (owned cleanup, awaited in the owning request â€” no
             // untracked background work): drop only long-orphaned family files.
             // Published snapshots keep the 7d KV-parity retention; failure-gate
             // metas (60s gates) sweep at 36h. Publish cadence is 2/day so the
@@ -867,7 +867,7 @@ async function withFamilyCommitLock<T>(key: string, fn: () => Promise<T>): Promi
  * owner + an unexpired lease on the file and test-memory backends (kept
  * serialized via the commit mutex + generation recheck); KV enforces the
  * same atomically via its Lua commit. No live entry (never acquired,
- * expired, or released) means a stale owner — the generation guard alone is
+ * expired, or released) means a stale owner â€” the generation guard alone is
  * not enough. Multi-process file mode stays best-effort: multi-instance
  * deployments MUST configure KV (see module header).
  */
@@ -900,7 +900,7 @@ export interface ChartFamilyInput extends ChartGroupInput {
 /**
  * Pin ONE family's snapshot for a request. Always revalidates against durable
  * storage first (single source of truth): a publish by another instance cuts
- * over immediately — old ready-body keys stop serving at once (strict
+ * over immediately â€” old ready-body keys stop serving at once (strict
  * cutover). Memory is only a fallback when durable storage is unavailable or
  * empty. Returns the last good published snapshot, or live mode when cold
  * (never published): cold requests use uniformly-live reads that publish on
@@ -972,7 +972,7 @@ export async function tryAcquireChartFamilyLease(input: ChartFamilyInput): Promi
     if (!won) return null
   }
   // File/memory mode: single-process exact via the memory lease (multi-process
-  // file is best-effort — atomic replace + generation guard on re-read; see
+  // file is best-effort â€” atomic replace + generation guard on re-read; see
   // module header: multi-instance deployments MUST configure KV).
   leaseByFamily.set(key, { owner, expiresAt: now + PUBLISH_LEASE_TTL_MS })
   return owner
@@ -1130,3 +1130,4 @@ export function __inMemoryChartGenerationPersist(): ChartFamilyPersist & {
     },
   }
 }
+

@@ -146,3 +146,4 @@ describe("B2 backdrop-crop fallback (404 → 200 con base 2:3)", () => {
     expect(meta.height).toBe(432)
   })
 })
+

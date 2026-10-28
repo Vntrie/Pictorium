@@ -23,7 +23,7 @@ import {
   ACCENT_META_HEADER,
   type EffectiveAccentMeta,
 } from "@/lib/effective-accent"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { MOCK_CTX } from "@/__tests__/test-utils"
 import { usePosterPreview } from "@/lib/usePosterPreview"
 import { toast } from "sonner"
@@ -78,9 +78,9 @@ class MockXHR {
 }
 
 const URL_A =
-  "https://pictorium.test/api/poster/movie/1?preview=1&bs=colored&shape=poster"
+  "https://FlameForge.test/api/poster/movie/1?preview=1&bs=colored&shape=poster"
 const URL_B =
-  "https://pictorium.test/api/poster/movie/1?preview=1&bs=colored&shape=landscape"
+  "https://FlameForge.test/api/poster/movie/1?preview=1&bs=colored&shape=landscape"
 
 function installXhrEnv() {
   MockXHR.instances = []
@@ -117,9 +117,9 @@ function Probe() {
 function renderPreview(url: string, rank = 0, catalogs = 0) {
   const value = { ...MOCK_CTX, previewUrl: url, rankSourceNonce: rank, catalogsSyncNonce: catalogs }
   return render(
-    <PictoriumProvider value={value as never}>
+    <FlameForgeProvider value={value as never}>
       <Probe />
-    </PictoriumProvider>,
+    </FlameForgeProvider>,
   )
 }
 
@@ -130,9 +130,9 @@ function rerenderPreview(
   catalogs = 0,
 ) {
   view.rerender(
-    <PictoriumProvider value={{ ...MOCK_CTX, previewUrl: url, rankSourceNonce: rank, catalogsSyncNonce: catalogs } as never}>
+    <FlameForgeProvider value={{ ...MOCK_CTX, previewUrl: url, rankSourceNonce: rank, catalogsSyncNonce: catalogs } as never}>
       <Probe />
-    </PictoriumProvider>,
+    </FlameForgeProvider>,
   )
 }
 
@@ -291,3 +291,5 @@ describe("usePosterPreview stale-event eligibility", () => {
     expect(getEffectiveAccentDisplay()).toMatchObject({ status: "ready", previewUrl: URL_B, meta: META })
   })
 })
+
+

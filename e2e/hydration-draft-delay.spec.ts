@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Route } from "@playwright/test"
+﻿import { test, expect, type Page, type Route } from "@playwright/test"
 import { putDefaultsWithRetry, withDefaultsRetry } from "./defaults-retry"
 
 // Deterministic hydration-race probe for the per-title Numero + Angolo flow
@@ -10,7 +10,7 @@ import { putDefaultsWithRetry, withDefaultsRetry } from "./defaults-retry"
 //
 // Isolation: the debounced UI autosave persists FULL editor state, so this
 // file restores the canonical factory surface in afterEach (same contract
-// as badge-format-defaults) — later specs inherit factory, never our dirt.
+// as badge-format-defaults) â€” later specs inherit factory, never our dirt.
 
 interface Seen {
   urls: string[]
@@ -140,9 +140,9 @@ async function seed(page: Page) {
   await page.addInitScript(() => {
     try {
       localStorage.clear()
-      localStorage.setItem("pictorium_profile_id", "e2e-hydration-draft")
-      localStorage.setItem("pictorium_profile_stateless", "1")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_profile_id", "e2e-hydration-draft")
+      localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       localStorage.setItem("preferred_lang", "it")
       localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
     } catch {}
@@ -168,7 +168,7 @@ async function getDefaultsWithRetry(page: Page, label: string): Promise<Record<s
 
 async function restoreFactory(page: Page) {
   await putDefaultsWithRetry(page, "restore defaults", FACTORY_RESTORE)
-  // Verify the full canonical surface — a mismatch is a real leak
+  // Verify the full canonical surface â€” a mismatch is a real leak
   // (merge-only PUT cannot delete keys, so every autosaved key must be
   // covered above with its factory value).
   const got = await getDefaultsWithRetry(page, "verify restore")
@@ -295,3 +295,4 @@ test("factory restore neutralizes seeded non-factory values", async ({ page }) =
   expect(seeded.ribbonEnabled).toBe(false)
   await restoreFactory(page)
 })
+

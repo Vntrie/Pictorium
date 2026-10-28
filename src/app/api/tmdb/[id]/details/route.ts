@@ -10,7 +10,7 @@ import { findAnimeByTmdb } from "@/lib/anime-id-map"
 
 // Tetto massimo per l'attesa del voto medio TMDB+IMDb (MDBList): se il fetch
 // è lento si usa il voto TMDB, coerente con la route poster (stesso knob
-// PICTORIUM_RATING_WAIT_MS, stesso default).
+// FLAMEFORGE_RATING_WAIT_MS, stesso default).
 const RATING_WAIT_MS = (() => {
   const raw = envWithFallback("RATING_WAIT_MS")
   const n = raw ? parseInt(raw, 10) : 1500

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback, useEffect, useMemo } from "react"
 import type { Mapping } from "./types"
@@ -22,7 +22,7 @@ export interface BackupImportOptions {
 }
 
 /** Flag sessione per il toast post-reload dopo un import con reload. */
-const BACKUP_RESTORED_KEY = "pictorium:backup-restored"
+const BACKUP_RESTORED_KEY = "FlameForge:backup-restored"
 
 /**
  * Skipped-keys notice, counts only (never values): omitted keys were NOT
@@ -53,16 +53,16 @@ export function useMappingsStore() {
       setMappings(Array.isArray(data.mappings) ? data.mappings : [])
     } catch (e) {
       // 401 scoped (ospite su /u/ o token non ancora salvato dal #key=):
-      // atteso e transitorio — debug, non error (il reload post-unlock segue sotto).
+      // atteso e transitorio â€” debug, non error (il reload post-unlock segue sotto).
       const msg = e instanceof Error ? e.message : String(e)
-      if (msg.includes("401")) console.debug("[pictorium] loadMappings unauthorized (guest or pre-unlock)")
-      else console.error("[pictorium] Failed to load mappings:", e)
+      if (msg.includes("401")) console.debug("[FlameForge] loadMappings unauthorized (guest or pre-unlock)")
+      else console.error("[FlameForge] Failed to load mappings:", e)
     }
   }, [])
 
   useEffect(() => { loadMappings() }, [loadMappings])
 
-  // Post-unlock: la prima load può aver girato senza token (race col #key=) —
+  // Post-unlock: la prima load puÃ² aver girato senza token (race col #key=) â€”
   // allo sblocco si ricarica il namespace, senza refresh pagina.
   useEffect(() => {
     const onUnlock = () => { void loadMappings() }
@@ -99,12 +99,12 @@ export function useMappingsStore() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      a.download = `pictorium-backup-${new Date().toISOString().slice(0, 10)}.json`
+      a.download = `FlameForge-backup-${new Date().toISOString().slice(0, 10)}.json`
       a.click()
       URL.revokeObjectURL(url)
       import("sonner").then(({ toast }) => toast.success(t("ui.saved") || "Backup esportato con successo!"))
     } catch (e) {
-      console.error("[pictorium] Export failed:", e)
+      console.error("[FlameForge] Export failed:", e)
       import("sonner").then(({ toast }) => toast.error(t("ui.exportError")))
     }
   }, [])
@@ -158,7 +158,7 @@ export function useMappingsStore() {
             }
           }
         } catch (err) {
-          console.warn("[pictorium] Local backup apply failed:", err)
+          console.warn("[FlameForge] Local backup apply failed:", err)
         }
         loadMappings()
         const result = await res.json()
@@ -173,7 +173,7 @@ export function useMappingsStore() {
           }
           // Impostazioni, preferenze locali o chiavi personali: gli state si
           // idratano al mount (defaults, cataloghi, lingua, tema, gradienti,
-          // chiavi) → reload. Il toast si mostra dopo il reload via flag di
+          // chiavi) â†’ reload. Il toast si mostra dopo il reload via flag di
           // sessione. Solo conteggi nel toast, mai valori.
           if ((imp.defaults ?? 0) > 0 || appliedLocal.length > 0 || appliedPersonalKeys.length > 0) {
             try {
@@ -215,3 +215,4 @@ export function useMappingsStore() {
 
   return { mappings, setMappings, mappingsMap, loadMappings, removeMapping, exportData, importData }
 }
+

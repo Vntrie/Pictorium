@@ -421,3 +421,4 @@ describe("save transport (edited shape frozen, other shape preserved)", () => {
     expect("ribbonSide" in mappings[0].body).toBe(false)
   })
 })
+

@@ -36,3 +36,4 @@ describe("ProxyModal", () => {
     expect(generated.textContent).toContain("&u=abcd-1234-uuid")
   })
 })
+

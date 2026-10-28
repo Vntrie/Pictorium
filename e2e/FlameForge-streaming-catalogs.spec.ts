@@ -1,5 +1,5 @@
-/**
- * Streaming Top-10 opt-in catalogs — deterministic browser flows (DRAFT).
+﻿/**
+ * Streaming Top-10 opt-in catalogs â€” deterministic browser flows (DRAFT).
  *
  * DRAFT status: collection-only until the parent serialized final batch
  * executes this file. No assertion below may be quoted as verified until
@@ -30,8 +30,8 @@
  * concurrent tsc): StreamingCatalogCard renders title + source icon +
  * variant pill but NO accessible per-list section badge (type was removed
  * from the short names and only the manager carries section badges). This
- * spec asserts the desired contract — every curated card must expose its
- * section (Film / Serie TV / Mista) as visible text — so card scoping stays
+ * spec asserts the desired contract â€” every curated card must expose its
+ * section (Film / Serie TV / Mista) as visible text â€” so card scoping stays
  * semantic and never infers type from poster pixels. Until H lands the
  * badge, card tests fail honestly at the parent gate; no assertion here is
  * weakened to hide it.
@@ -39,14 +39,14 @@
  * Fixture realm (infrastructure only, disclosed): every test runs in the
  * REAL single-user app mode. `page.route` stubs `/api/status`
  * (-> multiUser:false, the same realm the e2e webServer runs with
- * PICTORIUM_MULTI_USER unset) so the committed prod toolbar lock
+ * FLAMEFORGE_MULTI_USER unset) so the committed prod toolbar lock
  * (feat(shell) lock toolbar pre-auth, multi-user only) never engages and the
  * Cataloghi button stays enabled; `/api/auth/pin` (-> hasAdminToken:true) is
  * inert without multi-user. Single-user sync legitimately attempts PUT
  * `/api/defaults` on catalog mutations, so the fixture answers those PUTs
- * at the browser boundary (200 with an empty body — the server is never
+ * at the browser boundary (200 with an empty body â€” the server is never
  * touched) while GETs stay real. All state lives in per-context
- * localStorage, which Playwright isolates per test — no backup/restore, no
+ * localStorage, which Playwright isolates per test â€” no backup/restore, no
  * cross-test pollution, no server mutation. Upstream inventory/projection
  * are stubbed ONLY at the API boundary
  * (`/api/streaming-availability?source=`,
@@ -114,7 +114,7 @@ function genericChoice(
   },
 ): AvailabilityChoice {
   const { variantDisplay, ...rest } = partial
-  const suffix = variantDisplay ? ` · ${variantDisplay}` : ""
+  const suffix = variantDisplay ? ` Â· ${variantDisplay}` : ""
   return {
     countryFlixSlug: partial.chartSlug,
     source: "auto",
@@ -123,8 +123,8 @@ function genericChoice(
     fpChart: true,
     jwFallback: false,
     potential: "flixpatrol",
-    displayFp: `Top 10 · FlixPatrol — ${sectionKindLabel(partial.section)}${suffix}`,
-    displayJw: `Top 10 · JustWatch — ${sectionKindLabel(partial.section)}${suffix}`,
+    displayFp: `Top 10 Â· FlixPatrol â€” ${sectionKindLabel(partial.section)}${suffix}`,
+    displayJw: `Top 10 Â· JustWatch â€” ${sectionKindLabel(partial.section)}${suffix}`,
     overallOnly: false,
     note: null,
     ...rest,
@@ -133,10 +133,10 @@ function genericChoice(
 
 // Public auto composition: EVERY generic id carries `--auto` with
 // `source: "auto"`; legacy-identical pairs keep their byte-identical legacy
-// `pictorium-stream-<service>-<cc>-<section>` ids with NO source/variant
+// `FlameForge-stream-<service>-<cc>-<section>` ids with NO source/variant
 // keys (exactly like `buildStreamingChoices`); variant-only Rai emits ONLY
 // the `--auto--it` variant (never a fictitious base); Crunchyroll sides fall
-// back honestly (movies/series via verified JW — never a fake unavailable —
+// back honestly (movies/series via verified JW â€” never a fake unavailable â€”
 // while the real FP overall chart serves `all`).
 function autoAvailability() {
   return {
@@ -145,112 +145,112 @@ function autoAvailability() {
     choices: [
       genericChoice({
         service: "netflix", serviceName: "Netflix", country: "GLOBAL",
-        countryFlag: "🌐", countryLabel: "Global", chartSlug: "global",
-        section: "movies", catalogId: "pictorium-stream2-netflix--global--movies--auto",
+        countryFlag: "ðŸŒ", countryLabel: "Global", chartSlug: "global",
+        section: "movies", catalogId: "FlameForge-stream2-netflix--global--movies--auto",
       }),
       genericChoice({
         service: "netflix", serviceName: "Netflix", country: "GLOBAL",
-        countryFlag: "🌐", countryLabel: "Global", chartSlug: "global",
-        section: "series", catalogId: "pictorium-stream2-netflix--global--series--auto",
+        countryFlag: "ðŸŒ", countryLabel: "Global", chartSlug: "global",
+        section: "series", catalogId: "FlameForge-stream2-netflix--global--series--auto",
       }),
       // Legacy-identical coverage stays on the legacy entry (server shape:
       // no chartSlug/source/variant keys at all).
       {
         service: "netflix", serviceName: "Netflix", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", countryFlixSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", countryFlixSlug: "italy",
         section: "movies" as Section,
-        catalogId: "pictorium-stream-netflix-it-movies",
+        catalogId: "FlameForge-stream-netflix-it-movies",
         fpChart: true as boolean | "unknown", jwFallback: true,
         potential: "flixpatrol" as const,
-        displayFp: "Top 10 · FlixPatrol — Film", displayJw: "Top 10 · JustWatch — Film",
+        displayFp: "Top 10 Â· FlixPatrol â€” Film", displayJw: "Top 10 Â· JustWatch â€” Film",
         overallOnly: false, note: null,
       },
       {
         service: "netflix", serviceName: "Netflix", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", countryFlixSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", countryFlixSlug: "italy",
         section: "series" as Section,
-        catalogId: "pictorium-stream-netflix-it-series",
+        catalogId: "FlameForge-stream-netflix-it-series",
         fpChart: true as boolean | "unknown", jwFallback: true,
         potential: "flixpatrol" as const,
-        displayFp: "Top 10 · FlixPatrol — Serie TV", displayJw: "Top 10 · JustWatch — Serie TV",
+        displayFp: "Top 10 Â· FlixPatrol â€” Serie TV", displayJw: "Top 10 Â· JustWatch â€” Serie TV",
         overallOnly: false, note: null,
       },
       // Verified JW split under auto (no FP chart, own-brand fallback):
       // offered with the JW label, derived id stays legacy byte-identical.
       {
         service: "prime", serviceName: "Prime Video", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", countryFlixSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", countryFlixSlug: "italy",
         section: "movies" as Section,
-        catalogId: "pictorium-stream-prime-it-movies",
+        catalogId: "FlameForge-stream-prime-it-movies",
         fpChart: false as boolean | "unknown", jwFallback: true,
         potential: "justwatch" as const,
-        displayFp: "Top 10 · FlixPatrol — Film", displayJw: "Top 10 · JustWatch — Film",
+        displayFp: "Top 10 Â· FlixPatrol â€” Film", displayJw: "Top 10 Â· JustWatch â€” Film",
         overallOnly: false, note: null,
       },
       {
         service: "prime", serviceName: "Prime Video", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", countryFlixSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", countryFlixSlug: "italy",
         section: "series" as Section,
-        catalogId: "pictorium-stream-prime-it-series",
+        catalogId: "FlameForge-stream-prime-it-series",
         fpChart: false as boolean | "unknown", jwFallback: true,
         potential: "justwatch" as const,
-        displayFp: "Top 10 · FlixPatrol — Serie TV", displayJw: "Top 10 · JustWatch — Serie TV",
+        displayFp: "Top 10 Â· FlixPatrol â€” Serie TV", displayJw: "Top 10 Â· JustWatch â€” Serie TV",
         overallOnly: false, note: null,
       },
       genericChoice({
         service: "wow", serviceName: "WOW", country: "DE",
-        countryFlag: "🇩🇪", countryLabel: "Germania", chartSlug: "germany",
-        section: "movies", catalogId: "pictorium-stream2-wow--germany--movies--auto",
+        countryFlag: "ðŸ‡©ðŸ‡ª", countryLabel: "Germania", chartSlug: "germany",
+        section: "movies", catalogId: "FlameForge-stream2-wow--germany--movies--auto",
       }),
       // Rai Italy: real base Film chart + variant-only `it` Serie chart.
       genericChoice({
         service: "rai", serviceName: "Rai", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", chartSlug: "italy",
-        section: "movies", catalogId: "pictorium-stream2-rai--italy--movies--auto",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", chartSlug: "italy",
+        section: "movies", catalogId: "FlameForge-stream2-rai--italy--movies--auto",
       }),
       genericChoice({
         service: "rai", serviceName: "Rai", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", chartSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", chartSlug: "italy",
         section: "series", variant: "it", variants: ["it"], variantDisplay: "Italian",
-        catalogId: "pictorium-stream2-rai--italy--series--auto--it",
+        catalogId: "FlameForge-stream2-rai--italy--series--auto--it",
       }),
       // Crunchyroll IT: FP overall chart serves `all`; the split sides fall
       // back to verified JW (overallOnly capability retained, never split).
       genericChoice({
         service: "crunchyroll", serviceName: "Crunchyroll", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", chartSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", chartSlug: "italy",
         section: "movies", fpChart: false, jwFallback: true,
         potential: "justwatch", overallOnly: true,
         note: "Solo classifica complessiva (overall): non esposta come Film/Serie TV.",
-        catalogId: "pictorium-stream2-crunchyroll--italy--movies--auto",
+        catalogId: "FlameForge-stream2-crunchyroll--italy--movies--auto",
       }),
       genericChoice({
         service: "crunchyroll", serviceName: "Crunchyroll", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", chartSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", chartSlug: "italy",
         section: "series", fpChart: false, jwFallback: true,
         potential: "justwatch", overallOnly: true,
         note: "Solo classifica complessiva (overall): non esposta come Film/Serie TV.",
-        catalogId: "pictorium-stream2-crunchyroll--italy--series--auto",
+        catalogId: "FlameForge-stream2-crunchyroll--italy--series--auto",
       }),
       genericChoice({
         service: "crunchyroll", serviceName: "Crunchyroll", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", chartSlug: "italy",
-        section: "all", catalogId: "pictorium-stream2-crunchyroll--italy--all--auto",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", chartSlug: "italy",
+        section: "all", catalogId: "FlameForge-stream2-crunchyroll--italy--all--auto",
       }),
       genericChoice({
         service: "hulu", serviceName: "Hulu", country: "US",
-        countryFlag: "🇺🇸", countryLabel: "USA", chartSlug: "united-states",
-        section: "movies", catalogId: "pictorium-stream2-hulu--united-states--movies--auto",
+        countryFlag: "ðŸ‡ºðŸ‡¸", countryLabel: "USA", chartSlug: "united-states",
+        section: "movies", catalogId: "FlameForge-stream2-hulu--united-states--movies--auto",
       }),
       genericChoice({
         service: "hulu", serviceName: "Hulu", country: "US",
-        countryFlag: "🇺🇸", countryLabel: "USA", chartSlug: "united-states",
-        section: "series", catalogId: "pictorium-stream2-hulu--united-states--series--auto",
+        countryFlag: "ðŸ‡ºðŸ‡¸", countryLabel: "USA", chartSlug: "united-states",
+        section: "series", catalogId: "FlameForge-stream2-hulu--united-states--series--auto",
       }),
       genericChoice({
         service: "paramount", serviceName: "Paramount+", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", chartSlug: "italy",
-        section: "all", catalogId: "pictorium-stream2-paramount--italy--all--auto",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", chartSlug: "italy",
+        section: "all", catalogId: "FlameForge-stream2-paramount--italy--all--auto",
       }),
     ],
   }
@@ -265,27 +265,27 @@ function fpOnlyAvailability() {
     choices: [
       genericChoice({
         service: "hulu", serviceName: "Hulu", country: "US",
-        countryFlag: "🇺🇸", countryLabel: "USA", chartSlug: "united-states",
+        countryFlag: "ðŸ‡ºðŸ‡¸", countryLabel: "USA", chartSlug: "united-states",
         section: "movies", source: "flixpatrol",
-        catalogId: "pictorium-stream2-hulu--united-states--movies--flixpatrol",
+        catalogId: "FlameForge-stream2-hulu--united-states--movies--flixpatrol",
       }),
       genericChoice({
         service: "hulu", serviceName: "Hulu", country: "US",
-        countryFlag: "🇺🇸", countryLabel: "USA", chartSlug: "united-states",
+        countryFlag: "ðŸ‡ºðŸ‡¸", countryLabel: "USA", chartSlug: "united-states",
         section: "series", source: "flixpatrol",
-        catalogId: "pictorium-stream2-hulu--united-states--series--flixpatrol",
+        catalogId: "FlameForge-stream2-hulu--united-states--series--flixpatrol",
       }),
       genericChoice({
         service: "rai", serviceName: "Rai", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", chartSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", chartSlug: "italy",
         section: "series", source: "flixpatrol", variant: "it", variants: ["it"], variantDisplay: "Italian",
-        catalogId: "pictorium-stream2-rai--italy--series--flixpatrol--it",
+        catalogId: "FlameForge-stream2-rai--italy--series--flixpatrol--it",
       }),
       genericChoice({
         service: "crunchyroll", serviceName: "Crunchyroll", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", chartSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", chartSlug: "italy",
         section: "all", source: "flixpatrol",
-        catalogId: "pictorium-stream2-crunchyroll--italy--all--flixpatrol",
+        catalogId: "FlameForge-stream2-crunchyroll--italy--all--flixpatrol",
       }),
     ],
   }
@@ -300,17 +300,17 @@ function jwOnlyAvailability() {
     choices: [
       genericChoice({
         service: "netflix", serviceName: "Netflix", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", chartSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", chartSlug: "italy",
         section: "movies", source: "justwatch", fpChart: false,
         jwFallback: true, potential: "justwatch",
-        catalogId: "pictorium-stream2-netflix--italy--movies--justwatch",
+        catalogId: "FlameForge-stream2-netflix--italy--movies--justwatch",
       }),
       genericChoice({
         service: "netflix", serviceName: "Netflix", country: "IT",
-        countryFlag: "🇮🇹", countryLabel: "Italia", chartSlug: "italy",
+        countryFlag: "ðŸ‡®ðŸ‡¹", countryLabel: "Italia", chartSlug: "italy",
         section: "series", source: "justwatch", fpChart: false,
         jwFallback: true, potential: "justwatch",
-        catalogId: "pictorium-stream2-netflix--italy--series--justwatch",
+        catalogId: "FlameForge-stream2-netflix--italy--series--justwatch",
       }),
     ],
   }
@@ -410,7 +410,7 @@ async function stubBrowse(page: Page, opts: BrowseStubOpts = {}) {
     }
     const body = browseBody(catalog, items, source)
     opts.record?.bodies.push(body as unknown as Record<string, unknown>)
-    await route.fulfill({ json: body, headers: { "X-Pictorium-Source": source } })
+    await route.fulfill({ json: body, headers: { "X-FlameForge-Source": source } })
   })
 }
 
@@ -422,8 +422,8 @@ test.describe.configure({ mode: "serial" })
 
 test.beforeEach(async ({ page }) => {
   // Infrastructure-realm fixture ONLY: select the REAL single-user app mode
-  // (multiUser:false — the same realm the e2e webServer runs with
-  // PICTORIUM_MULTI_USER unset). The committed prod toolbar lock only
+  // (multiUser:false â€” the same realm the e2e webServer runs with
+  // FLAMEFORGE_MULTI_USER unset). The committed prod toolbar lock only
   // engages on multi-user instances, so it never fires here and the Cataloghi
   // button stays enabled. Catalog CRUD, defaults, token mint and the
   // manifest stay completely real (unstubbed).
@@ -452,13 +452,13 @@ test.beforeEach(async ({ page }) => {
 async function gotoHome(page: Page, opts: { keyed: boolean }) {
   await page.addInitScript((keyed: boolean) => {
     // Real app keys only: `preferred_lang` drives the Italian UI, `tmdb_key`
-    // unlocks original-poster browsing, `pictorium_onboarding_done` marks a
-    // used device. Dead keys (`pictorium_profile_id`, `..._stateless`) are
-    // storage-migration debris, never read by the app — never set here.
+    // unlocks original-poster browsing, `FLAMEFORGE_onboarding_done` marks a
+    // used device. Dead keys (`FLAMEFORGE_profile_id`, `..._stateless`) are
+    // storage-migration debris, never read by the app â€” never set here.
     localStorage.setItem("preferred_lang", "it")
     if (keyed) {
       localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
     }
   }, opts.keyed)
   await page.goto("/")
@@ -486,7 +486,7 @@ function providerGroup(dialog: ReturnType<Page["getByTestId"]>, serviceName: str
 }
 
 function providerToggle(group: ReturnType<ReturnType<Page["getByTestId"]>["getByRole"]>, serviceName: string) {
-  return group.getByRole("checkbox", { name: new RegExp(`^${escRegExp(serviceName)} · `) })
+  return group.getByRole("checkbox", { name: new RegExp(`^${escRegExp(serviceName)} Â· `) })
 }
 
 function choiceBox(group: ReturnType<ReturnType<Page["getByTestId"]>["getByRole"]>, nameRe: RegExp) {
@@ -495,7 +495,7 @@ function choiceBox(group: ReturnType<ReturnType<Page["getByTestId"]>["getByRole"
 
 // Desired contract (H badge, asserted hard): every curated card exposes its
 // section as visible text (Film / Serie TV / Mista). Cards scope by thumb +
-// section badge — never by poster pixels.
+// section badge â€” never by poster pixels.
 function curatedCard(page: Page, itemTitle: string, sectionLabel: string) {
   return page
     .locator(".simkl-list-card")
@@ -512,7 +512,7 @@ function managerRow(manager: ReturnType<Page["getByTestId"]>, titleRe: RegExp, s
   if (!sectionLabel) return row
   // NOTE: the inner locator MUST NOT be rooted at `manager` (manager-scoped
   // getByText bakes the modal testid into the selector, which can never match
-  // when Playwright re-queries it inside each candidate row — every row then
+  // when Playwright re-queries it inside each candidate row â€” every row then
   // resolves to 0). A page-scoped text locator is re-queried per candidate
   // row, so only rows actually containing the exact section badge match.
   return row.filter({ has: manager.page().getByText(sectionLabel, { exact: true }) })
@@ -520,7 +520,7 @@ function managerRow(manager: ReturnType<Page["getByTestId"]>, titleRe: RegExp, s
 
 async function readSelections(page: Page): Promise<unknown> {
   return page.evaluate(() => {
-    const raw = localStorage.getItem("pictorium_streaming_selections")
+    const raw = localStorage.getItem("FLAMEFORGE_streaming_selections")
     return raw === null ? null : JSON.parse(raw)
   })
 }
@@ -576,7 +576,7 @@ function manifestIds(entries: ManifestEntry[]): string[] {
 
 async function readRenames(page: Page): Promise<Record<string, unknown>> {
   return page.evaluate(() => {
-    const raw = localStorage.getItem("pictorium_catalog_renames")
+    const raw = localStorage.getItem("FLAMEFORGE_catalog_renames")
     return raw ? (JSON.parse(raw) as Record<string, unknown>) : {}
   })
 }
@@ -632,8 +632,8 @@ test("add flow offers Global first and batch-adds film+series lists", async ({ p
   await countryButtons.filter({ hasText: /Stati Uniti/ }).click()
   const huluGroup = providerGroup(dialog, "Hulu")
   await expect(huluGroup, "H2 provider group Hulu").toBeVisible()
-  await expect(choiceBox(huluGroup, /^Top 10 · FlixPatrol — Film$/)).toBeVisible()
-  await expect(choiceBox(huluGroup, /^Top 10 · FlixPatrol — Serie TV$/)).toBeVisible()
+  await expect(choiceBox(huluGroup, /^Top 10 Â· FlixPatrol â€” Film$/)).toBeVisible()
+  await expect(choiceBox(huluGroup, /^Top 10 Â· FlixPatrol â€” Serie TV$/)).toBeVisible()
   await providerToggle(huluGroup, "Hulu").check()
   await agreeLegacyConsent(dialog)
   const addButton = dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ })
@@ -648,9 +648,9 @@ test("add flow offers Global first and batch-adds film+series lists", async ({ p
   await expect(filmCard.getByRole("img", { name: "Hulu Film One" })).toBeVisible({ timeout: 20_000 })
   for (const card of [filmCard, seriesCard]) {
     await expect(card.locator("h3")).toContainText("Hulu USA - Top 10")
-    await expect(card.locator("h3")).not.toContainText("— Film")
-    await expect(card.locator("h3")).not.toContainText("— Serie TV")
-    await expect(card.locator("h3")).not.toContainText("🇺🇸")
+    await expect(card.locator("h3")).not.toContainText("â€” Film")
+    await expect(card.locator("h3")).not.toContainText("â€” Serie TV")
+    await expect(card.locator("h3")).not.toContainText("ðŸ‡ºðŸ‡¸")
   }
   // Thumbs are real w185 originals matching the controlled poster paths.
   const thumbs = tmdbImageFetches(urls)
@@ -666,7 +666,7 @@ test("add flow offers Global first and batch-adds film+series lists", async ({ p
   ).toHaveLength(0)
   // Persisted selections are exact (service + slug + sections + policy):
   // the auto policy and base chart persist WITHOUT source/variant keys
-  // (absent = auto/base on every read — never migrated).
+  // (absent = auto/base on every read â€” never migrated).
   const selections = entriesOf(await readSelections(page))
   expect(selections).toHaveLength(1)
   expect(selections[0]).toMatchObject({
@@ -682,13 +682,13 @@ test("add flow offers Global first and batch-adds film+series lists", async ({ p
   const stored = (await readSelections(page)) as unknown as Record<string, unknown>[]
   const entries = await manifestEntriesForSelections(page, { streamingSelections: stored })
   const ids = manifestIds(entries)
-  expect(ids).toContain("pictorium-stream2-hulu--united-states--movies--auto")
-  expect(ids).toContain("pictorium-stream2-hulu--united-states--series--auto")
-  expect(entries.find((e) => e.id === "pictorium-stream2-hulu--united-states--movies--auto")?.name).toBe(
-    "📺 Hulu USA - Top 10",
+  expect(ids).toContain("FlameForge-stream2-hulu--united-states--movies--auto")
+  expect(ids).toContain("FlameForge-stream2-hulu--united-states--series--auto")
+  expect(entries.find((e) => e.id === "FlameForge-stream2-hulu--united-states--movies--auto")?.name).toBe(
+    "ðŸ“º Hulu USA - Top 10",
   )
-  expect(record.catalogs).toContain("pictorium-stream2-hulu--united-states--movies--auto")
-  expect(record.catalogs).toContain("pictorium-stream2-hulu--united-states--series--auto")
+  expect(record.catalogs).toContain("FlameForge-stream2-hulu--united-states--movies--auto")
+  expect(record.catalogs).toContain("FlameForge-stream2-hulu--united-states--series--auto")
 })
 
 // ---------------------------------------------------------------------------
@@ -725,8 +725,8 @@ test("strict source modes never leak the other policy", async ({ page }) => {
   await agreeLegacyConsent(dialog)
   await dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ }).click()
   await expect(curatedCard(page, "Hulu Series One", "Serie TV")).toBeVisible({ timeout: 20_000 })
-  expect(record.catalogs).toContain("pictorium-stream2-hulu--united-states--movies--flixpatrol")
-  expect(record.catalogs).toContain("pictorium-stream2-hulu--united-states--series--flixpatrol")
+  expect(record.catalogs).toContain("FlameForge-stream2-hulu--united-states--movies--flixpatrol")
+  expect(record.catalogs).toContain("FlameForge-stream2-hulu--united-states--series--flixpatrol")
   expect(record.catalogs.some((c) => c.includes("--auto") || c.includes("--justwatch"))).toBe(false)
   // Strict JW: only verified own-brand pairs, never an FP id; Hulu (outside
   // the JW matrix) has NO group at all.
@@ -743,7 +743,7 @@ test("strict source modes never leak the other policy", async ({ page }) => {
   await dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ }).click()
   // New cards fetch their pinned browse lazily on intersection (never
   // preload): scroll the fresh lists into view before asserting their
-  // requests — same contract as scrollNewCardIntoView used by the other
+  // requests â€” same contract as scrollNewCardIntoView used by the other
   // add-flow tests. Without it, a longer page (e.g. with leftover custom
   // sections above) leaves the new cards below the fold and no browse is
   // ever attempted, so the poll below would time out.
@@ -753,9 +753,9 @@ test("strict source modes never leak the other policy", async ({ page }) => {
       () => record.bodies.map((b) => b["catalogId"]),
       { timeout: 20_000 },
     )
-    .toContain("pictorium-stream2-netflix--italy--movies--justwatch")
-  expect(record.catalogs).toContain("pictorium-stream2-netflix--italy--movies--justwatch")
-  const jwBody = record.bodies.find((b) => b["catalogId"] === "pictorium-stream2-netflix--italy--movies--justwatch")
+    .toContain("FlameForge-stream2-netflix--italy--movies--justwatch")
+  expect(record.catalogs).toContain("FlameForge-stream2-netflix--italy--movies--justwatch")
+  const jwBody = record.bodies.find((b) => b["catalogId"] === "FlameForge-stream2-netflix--italy--movies--justwatch")
   expect(jwBody?.["source"]).toBe("justwatch")
   expect(jwBody?.["chartSlug"]).toBe("italy")
   expect(jwBody?.["region"]).toBe("IT")
@@ -788,7 +788,7 @@ test("provider matrix keeps exact identities and never splits overall-only", asy
   await dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ }).click()
   await expect(curatedCard(page, "Hulu Film One", "Film")).toBeVisible({ timeout: 20_000 })
   const huluBody = record.bodies.find(
-    (b) => b["catalogId"] === "pictorium-stream2-hulu--united-states--series--auto",
+    (b) => b["catalogId"] === "FlameForge-stream2-hulu--united-states--series--auto",
   )
   expect(huluBody?.["chartSlug"]).toBe("united-states")
   expect(huluBody?.["region"]).toBe("US")
@@ -801,32 +801,32 @@ test("provider matrix keeps exact identities and never splits overall-only", asy
   await expect(raiGroup).toBeVisible()
   await expect(choiceBox(raiGroup, /Serie TV.*Italian/)).toBeVisible()
   await choiceBox(raiGroup, /Serie TV.*Italian/).check()
-  await expect(choiceBox(raiGroup, /^Top 10 · FlixPatrol — Film$/)).not.toBeChecked()
+  await expect(choiceBox(raiGroup, /^Top 10 Â· FlixPatrol â€” Film$/)).not.toBeChecked()
   await dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ }).click()
   await scrollNewCardIntoView(page)
   await expect
     .poll(() => record.catalogs, { timeout: 20_000 })
-    .toContain("pictorium-stream2-rai--italy--series--auto--it")
-  expect(record.catalogs).toContain("pictorium-stream2-rai--italy--series--auto--it")
-  expect(record.catalogs.some((c) => c === "pictorium-stream2-rai--italy--series--auto")).toBe(false)
+    .toContain("FlameForge-stream2-rai--italy--series--auto--it")
+  expect(record.catalogs).toContain("FlameForge-stream2-rai--italy--series--auto--it")
+  expect(record.catalogs.some((c) => c === "FlameForge-stream2-rai--italy--series--auto")).toBe(false)
   // Crunchyroll: split sides honestly fall back to JW while the real FP
-  // overall chart serves `all` — three choices, each with its own badge.
+  // overall chart serves `all` â€” three choices, each with its own badge.
   await openAddDialog(page)
   await dialog.getByRole("group", { name: "Paese" }).getByRole("button", { name: /Italia/ }).click()
   const crunchyGroup = providerGroup(dialog, "Crunchyroll")
-  await expect(choiceBox(crunchyGroup, /^Top 10 · JustWatch — Film$/)).toBeVisible()
-  await expect(choiceBox(crunchyGroup, /^Top 10 · JustWatch — Serie TV$/)).toBeVisible()
-  await expect(choiceBox(crunchyGroup, /^Top 10 · FlixPatrol — Film & Serie TV$/)).toBeVisible()
+  await expect(choiceBox(crunchyGroup, /^Top 10 Â· JustWatch â€” Film$/)).toBeVisible()
+  await expect(choiceBox(crunchyGroup, /^Top 10 Â· JustWatch â€” Serie TV$/)).toBeVisible()
+  await expect(choiceBox(crunchyGroup, /^Top 10 Â· FlixPatrol â€” Film & Serie TV$/)).toBeVisible()
   // Checking ONLY the Mista choice requests just the overall list.
-  await choiceBox(crunchyGroup, /^Top 10 · FlixPatrol — Film & Serie TV$/).check()
+  await choiceBox(crunchyGroup, /^Top 10 Â· FlixPatrol â€” Film & Serie TV$/).check()
   await dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ }).click()
   // The mixed card only fires its pinned browse after mount: poll for the
   // request itself (no section-badge dependency) before asserting the fetch.
   await scrollNewCardIntoView(page)
   await expect
     .poll(() => record.catalogs, { timeout: 20_000 })
-    .toContain("pictorium-stream2-crunchyroll--italy--all--auto")
-  expect(record.catalogs).toContain("pictorium-stream2-crunchyroll--italy--all--auto")
+    .toContain("FlameForge-stream2-crunchyroll--italy--all--auto")
+  expect(record.catalogs).toContain("FlameForge-stream2-crunchyroll--italy--all--auto")
   expect(record.catalogs.some((c) => c.includes("crunchyroll--italy--movies"))).toBe(false)
   expect(record.catalogs.some((c) => c.includes("crunchyroll--italy--series"))).toBe(false)
   // WOW Germany present under Germania (localized alphabetical slot).
@@ -835,14 +835,14 @@ test("provider matrix keeps exact identities and never splits overall-only", asy
     dialog.getByRole("group", { name: "Paese" }).getByRole("button", { name: /Germania/ }),
   ).toBeVisible()
   await dialog.getByRole("group", { name: "Paese" }).getByRole("button", { name: /Germania/ }).click()
-  await choiceBox(providerGroup(dialog, "WOW"), /^Top 10 · FlixPatrol — Film$/).check()
+  await choiceBox(providerGroup(dialog, "WOW"), /^Top 10 Â· FlixPatrol â€” Film$/).check()
   await dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ }).click()
   await scrollNewCardIntoView(page)
   await expect
     .poll(() => record.catalogs, { timeout: 20_000 })
-    .toContain("pictorium-stream2-wow--germany--movies--auto")
+    .toContain("FlameForge-stream2-wow--germany--movies--auto")
   const wowBody = record.bodies.find(
-    (b) => b["catalogId"] === "pictorium-stream2-wow--germany--movies--auto",
+    (b) => b["catalogId"] === "FlameForge-stream2-wow--germany--movies--auto",
   )
   expect(wowBody?.["chartSlug"]).toBe("germany")
   expect(wowBody?.["region"]).toBe("DE")
@@ -851,16 +851,16 @@ test("provider matrix keeps exact identities and never splits overall-only", asy
   await openAddDialog(page)
   await dialog.getByRole("group", { name: "Paese" }).getByRole("button", { name: /Italia/ }).click()
   const primeGroup = providerGroup(dialog, "Prime Video")
-  await expect(choiceBox(primeGroup, /^Top 10 · JustWatch — Film$/)).toBeVisible()
+  await expect(choiceBox(primeGroup, /^Top 10 Â· JustWatch â€” Film$/)).toBeVisible()
   await providerToggle(primeGroup, "Prime Video").check()
   await dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ }).click()
   await scrollNewCardIntoView(page)
   await expect
     .poll(() => record.catalogs, { timeout: 20_000 })
-    .toContain("pictorium-stream-prime-it-movies")
-  expect(record.catalogs).toContain("pictorium-stream-prime-it-movies")
-  expect(record.catalogs).toContain("pictorium-stream-prime-it-series")
-  const primeBody = record.bodies.find((b) => b["catalogId"] === "pictorium-stream-prime-it-movies")
+    .toContain("FlameForge-stream-prime-it-movies")
+  expect(record.catalogs).toContain("FlameForge-stream-prime-it-movies")
+  expect(record.catalogs).toContain("FlameForge-stream-prime-it-series")
+  const primeBody = record.bodies.find((b) => b["catalogId"] === "FlameForge-stream-prime-it-movies")
   expect(primeBody?.["source"]).toBe("justwatch")
   expect(primeBody?.["chartSlug"]).toBe("italy")
   expect(primeBody?.["region"]).toBe("IT")
@@ -873,9 +873,9 @@ test("provider matrix keeps exact identities and never splits overall-only", asy
   await scrollNewCardIntoView(page)
   await expect
     .poll(() => record.catalogs, { timeout: 20_000 })
-    .toContain("pictorium-stream-netflix-it-movies")
-  expect(record.catalogs).toContain("pictorium-stream-netflix-it-movies")
-  expect(record.catalogs).toContain("pictorium-stream-netflix-it-series")
+    .toContain("FlameForge-stream-netflix-it-movies")
+  expect(record.catalogs).toContain("FlameForge-stream-netflix-it-movies")
+  expect(record.catalogs).toContain("FlameForge-stream-netflix-it-series")
   expect(record.catalogs.some((c) => c.includes("netflix--italy"))).toBe(false)
 })
 
@@ -934,7 +934,7 @@ test("cards render original thumbs with honest footer and no poster fetch", asyn
   expect(counterBox!.x).toBeLessThan(trashBox!.x)
   expect(badgeBox!.x).toBeLessThan(trashBox!.x)
   expect(Math.abs(badgeBox!.y - counterBox!.y)).toBeLessThanOrEqual(12)
-  // Unknown source: NO logo, NO visible provider text — screen-reader-only
+  // Unknown source: NO logo, NO visible provider text â€” screen-reader-only
   // pending disclosure (CatalogSourceBadge iconOnly unknown branch).
   await expect(seriesCard.getByRole("img", { name: "FlixPatrol" })).toHaveCount(0)
   await expect(seriesCard.getByRole("img", { name: "JustWatch" })).toHaveCount(0)
@@ -956,7 +956,7 @@ async function awaitAddHulu(page: Page) {
 
 // First Add from a legacy space (absent selections key) REQUIRES explicit
 // consent (test 7a hard-asserts the gate): check it before clicking Add.
-// Call ONLY on the first Add of each test, where the box must exist — a
+// Call ONLY on the first Add of each test, where the box must exist â€” a
 // missing box fails honestly instead of masking a product change.
 async function agreeLegacyConsent(dialog: ReturnType<Page["getByTestId"]>) {
   const consent = dialog.getByRole("checkbox", { name: /Ho capito/ })
@@ -989,12 +989,12 @@ test("paired lists sit side by side, trash is per-list, mixed keeps type", async
   await openAddDialog(page)
   const dialog = page.getByTestId("streaming-catalog-dialog")
   await dialog.getByRole("group", { name: "Paese" }).getByRole("button", { name: /Italia/ }).click()
-  await choiceBox(providerGroup(dialog, "Crunchyroll"), /^Top 10 · FlixPatrol — Film & Serie TV$/).check()
+  await choiceBox(providerGroup(dialog, "Crunchyroll"), /^Top 10 Â· FlixPatrol â€” Film & Serie TV$/).check()
   await dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ }).click()
   await scrollNewCardIntoView(page)
   await expect
     .poll(() => record.catalogs, { timeout: 20_000 })
-    .toContain("pictorium-stream2-crunchyroll--italy--all--auto")
+    .toContain("FlameForge-stream2-crunchyroll--italy--all--auto")
   const filmCard = curatedCard(page, "Hulu Film One", "Film")
   const seriesCard = curatedCard(page, "Hulu Series One", "Serie TV")
   await expect(filmCard.getByRole("img", { name: "Hulu Film One" })).toBeVisible({ timeout: 20_000 })
@@ -1002,7 +1002,7 @@ test("paired lists sit side by side, trash is per-list, mixed keeps type", async
   await filmCard.scrollIntoViewIfNeeded()
   await seriesCard.scrollIntoViewIfNeeded()
   // Desktop: Film physically LEFT of Serie on the SAME row (contained rail
-  // never paints over the sibling — the H4 `--fill` fix).
+  // never paints over the sibling â€” the H4 `--fill` fix).
   const filmBox = await filmCard.boundingBox()
   const seriesBox = await seriesCard.boundingBox()
   expect(filmBox, "film box").not.toBeNull()
@@ -1010,7 +1010,7 @@ test("paired lists sit side by side, trash is per-list, mixed keeps type", async
   expect(filmBox!.x + filmBox!.width).toBeLessThanOrEqual(seriesBox!.x + 1)
   expect(Math.abs(filmBox!.y - seriesBox!.y)).toBeLessThanOrEqual(8)
   await page.screenshot({ path: testInfo.outputPath("paired-desktop.png") })
-  // Mobile: the pair stacks — Serie BELOW Film (both lists still mounted).
+  // Mobile: the pair stacks â€” Serie BELOW Film (both lists still mounted).
   await page.setViewportSize({ width: 390, height: 844 })
   await filmCard.scrollIntoViewIfNeeded()
   await seriesCard.scrollIntoViewIfNeeded()
@@ -1023,7 +1023,7 @@ test("paired lists sit side by side, trash is per-list, mixed keeps type", async
   await page.setViewportSize({ width: 1280, height: 800 })
   // Mixed rows keep their real media types, rank and order.
   const mixedBody = record.bodies.find(
-    (b) => b["catalogId"] === "pictorium-stream2-crunchyroll--italy--all--auto",
+    (b) => b["catalogId"] === "FlameForge-stream2-crunchyroll--italy--all--auto",
   )
   const mixedItems = mixedBody?.["items"] as BrowseItem[]
   expect(mixedItems?.map((i) => [i.tmdbId, i.mediaType, i.rank])).toEqual([
@@ -1075,7 +1075,7 @@ test("general JustWatch rows disclose honestly and reset spares streaming", asyn
   await openCatalogs(page)
   // Both factory slots genuinely resolve to JustWatch by default, so BOTH
   // carry the honest JW mark (footer SVG-only); a custom source would hide
-  // its own slot's mark — never asserted conditionally here.
+  // its own slot's mark â€” never asserted conditionally here.
   await expect(page.getByText("JustWatch Top 20")).toBeVisible({ timeout: 20_000 })
   const jwBadges = page.getByRole("img", { name: "JustWatch" })
   await expect(jwBadges).toHaveCount(2)
@@ -1096,7 +1096,7 @@ test("general JustWatch rows disclose honestly and reset spares streaming", asyn
   await expect(curatedCard(page, "Hulu Series One", "Serie TV")).toBeVisible({ timeout: 20_000 })
   // Disable ONLY the movies factory row via its manager Power toggle
   // (scoped by the JW footer mark, not the first global).
-  await page.getByRole("button", { name: /Priorità & Nomi/ }).click()
+  await page.getByRole("button", { name: /PrioritÃ  & Nomi/ }).click()
   const manager = page.getByTestId("catalog-manager-modal")
   await expect(manager).toBeVisible()
   const jwMoviesRow = managerRow(manager, /Top 20 Italia/, "Film")
@@ -1132,7 +1132,7 @@ test("legacy untouched without consent; hide is not remove; manifest stable", as
   await stubBrowse(page)
   await gotoHome(page, { keyed: true })
   await openCatalogs(page)
-  // Legacy space: the selections key stays ABSENT until an explicit Add —
+  // Legacy space: the selections key stays ABSENT until an explicit Add â€”
   // mounting (and its server GET) never migrates it.
   expect(await readSelections(page)).toBeNull()
   // First Add from legacy REQUIRES explicit consent (hard assert: the
@@ -1155,7 +1155,7 @@ test("legacy untouched without consent; hide is not remove; manifest stable", as
   expect(selections).toHaveLength(2)
   // Manager Hide on the last remaining section preserves the stored entry
   // (config kept, `enabled: false`), then re-enable restores it untouched.
-  await page.getByRole("button", { name: /Priorità & Nomi/ }).click()
+  await page.getByRole("button", { name: /PrioritÃ  & Nomi/ }).click()
   const manager = page.getByTestId("catalog-manager-modal")
   await expect(manager).toBeVisible()
   const huluFilmRow = managerRow(manager, /Hulu USA - Top 10/, "Film")
@@ -1195,25 +1195,25 @@ test("legacy untouched without consent; hide is not remove; manifest stable", as
   await expect(page.getByPlaceholder(/cerca/i)).toBeVisible({ timeout: 30_000 })
   await openCatalogs(page)
   await expect(curatedCard(page, "Hulu Series One", "Serie TV")).toHaveCount(0)
-  // The REAL manifest (via a REAL token) carries Rai only — no Hulu ids —
+  // The REAL manifest (via a REAL token) carries Rai only â€” no Hulu ids â€”
   // and the built-in anime rows stay structurally last.
   const stored = (await readSelections(page)) as unknown as Record<string, unknown>[]
-  const disabled = await page.evaluate(() => localStorage.getItem("pictorium_disabled_catalogs"))
+  const disabled = await page.evaluate(() => localStorage.getItem("FLAMEFORGE_disabled_catalogs"))
   const payload: Record<string, unknown> = {
     streamingSelections: stored,
     ...(disabled ? { disabledCatalogIds: JSON.parse(disabled) } : {}),
   }
   const entries = await manifestEntriesForSelections(page, payload)
   const ids = manifestIds(entries)
-  expect(ids).toContain("pictorium-stream2-rai--italy--series--auto--it")
+  expect(ids).toContain("FlameForge-stream2-rai--italy--series--auto--it")
   expect(ids.some((id) => id.includes("hulu"))).toBe(false)
-  expect(ids).toContain("pictorium-anime-movies")
-  expect(ids).toContain("pictorium-anime")
-  expect(ids.indexOf("pictorium-anime-movies")).toBeGreaterThan(
-    ids.indexOf("pictorium-stream2-rai--italy--series--auto--it"),
+  expect(ids).toContain("FlameForge-anime-movies")
+  expect(ids).toContain("FlameForge-anime")
+  expect(ids.indexOf("FlameForge-anime-movies")).toBeGreaterThan(
+    ids.indexOf("FlameForge-stream2-rai--italy--series--auto--it"),
   )
-  expect(ids.indexOf("pictorium-anime")).toBeGreaterThan(
-    ids.indexOf("pictorium-stream2-rai--italy--series--auto--it"),
+  expect(ids.indexOf("FlameForge-anime")).toBeGreaterThan(
+    ids.indexOf("FlameForge-stream2-rai--italy--series--auto--it"),
   )
 })
 
@@ -1222,14 +1222,14 @@ test("legacy untouched without consent; hide is not remove; manifest stable", as
 // ---------------------------------------------------------------------------
 
 test("genuine new spaces default to JustWatch-only with anime disabled", async ({ page }) => {
-  // Blank device: no keys, no onboarding trace — the ONLY positive
+  // Blank device: no keys, no onboarding trace â€” the ONLY positive
   // new-space evidence the app accepts (failures/locks never qualify).
   // Pristine server catalog domain for the new-space gate below: earlier
   // specs in a shared per-invocation DATA_DIR may have persisted catalog
   // records (e.g. a custom catalog), and the init fires ONLY on a blank
   // server domain (fail-closed, never on error/absence). Serve the blank
-  // domain the test's contract requires — exactly what a fresh instance
-  // returns — without touching the shared server (PUTs stay blackholed
+  // domain the test's contract requires â€” exactly what a fresh instance
+  // returns â€” without touching the shared server (PUTs stay blackholed
   // by the file-level fixture; this shadows only GETs for this test).
   await page.route("**/api/defaults", async (route) => {
     if (route.request().method() === "PUT") {
@@ -1244,7 +1244,7 @@ test("genuine new spaces default to JustWatch-only with anime disabled", async (
   // fires on positive blank-device evidence only, and dismissing the
   // first-visit tour below would itself count as an onboarding trace.
   await expect
-    .poll(async () => page.evaluate(() => localStorage.getItem("pictorium_streaming_selections")), {
+    .poll(async () => page.evaluate(() => localStorage.getItem("FLAMEFORGE_streaming_selections")), {
       timeout: 20_000,
     })
     .toBe("[]")
@@ -1254,10 +1254,10 @@ test("genuine new spaces default to JustWatch-only with anime disabled", async (
   await page.getByTestId("onboarding-close").click()
   await expect(page.getByTestId("onboarding-tour")).toBeHidden()
   await openCatalogs(page)
-  const disabledRaw = await page.evaluate(() => localStorage.getItem("pictorium_disabled_catalogs"))
+  const disabledRaw = await page.evaluate(() => localStorage.getItem("FLAMEFORGE_disabled_catalogs"))
   const disabled = disabledRaw ? (JSON.parse(disabledRaw) as string[]) : []
-  expect(disabled).toContain("pictorium-anime-movies")
-  expect(disabled).toContain("pictorium-anime")
+  expect(disabled).toContain("FlameForge-anime-movies")
+  expect(disabled).toContain("FlameForge-anime")
   // The REAL manifest for that state is JW-only: both factory Top 20 rows
   // present, no anime, no historical platform charts.
   const entries = await manifestEntriesForSelections(page, {
@@ -1265,10 +1265,10 @@ test("genuine new spaces default to JustWatch-only with anime disabled", async (
     disabledCatalogIds: disabled,
   })
   const ids = manifestIds(entries)
-  expect(ids).toContain("pictorium-jw-movies")
-  expect(ids).toContain("pictorium-jw-series")
+  expect(ids).toContain("FlameForge-jw-movies")
+  expect(ids).toContain("FlameForge-jw-series")
   expect(ids.some((id) => id.includes("anime"))).toBe(false)
-  expect(ids.some((id) => id.startsWith("pictorium-stream-"))).toBe(false)
+  expect(ids.some((id) => id.startsWith("FlameForge-stream-"))).toBe(false)
 })
 
 // ---------------------------------------------------------------------------
@@ -1287,15 +1287,15 @@ test("mixed provider-specific sections batch-add exactly", async ({ page }) => {
   await openAddDialog(page)
   const dialog = page.getByTestId("streaming-catalog-dialog")
   await dialog.getByRole("group", { name: "Paese" }).getByRole("button", { name: /Italia/ }).click()
-  // H2: per-provider independent sections — Paramount Mista only.
+  // H2: per-provider independent sections â€” Paramount Mista only.
   const paramount = providerGroup(dialog, "Paramount+")
   await expect(paramount, "H2 provider group Paramount+").toBeVisible()
-  await choiceBox(paramount, /^Top 10 · FlixPatrol — Film & Serie TV$/).check()
+  await choiceBox(paramount, /^Top 10 Â· FlixPatrol â€” Film & Serie TV$/).check()
   // ...plus Netflix Film+Serie in the SAME batch.
   const netflix = providerGroup(dialog, "Netflix")
-  await expect(choiceBox(netflix, /^Top 10 · FlixPatrol — Film$/)).not.toBeChecked()
-  await choiceBox(netflix, /^Top 10 · FlixPatrol — Film$/).check()
-  await choiceBox(netflix, /^Top 10 · FlixPatrol — Serie TV$/).check()
+  await expect(choiceBox(netflix, /^Top 10 Â· FlixPatrol â€” Film$/)).not.toBeChecked()
+  await choiceBox(netflix, /^Top 10 Â· FlixPatrol â€” Film$/).check()
+  await choiceBox(netflix, /^Top 10 Â· FlixPatrol â€” Serie TV$/).check()
   await agreeLegacyConsent(dialog)
   await expect(dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ })).toHaveText(/Aggiungi \(3\)/)
   await dialog.getByRole("button", { name: /Aggiungi \(\d+\)/ }).click()
@@ -1316,13 +1316,13 @@ test("mixed provider-specific sections batch-add exactly", async ({ page }) => {
   const stored = (await readSelections(page)) as unknown as Record<string, unknown>[]
   const entries = await manifestEntriesForSelections(page, { streamingSelections: stored })
   const ids = manifestIds(entries)
-  expect(ids).toContain("pictorium-stream2-paramount--italy--all--auto")
-  expect(ids).toContain("pictorium-stream-netflix-it-movies")
-  expect(ids).toContain("pictorium-stream-netflix-it-series")
-  expect(entries.find((e) => e.id === "pictorium-stream2-paramount--italy--all--auto")?.name).toBe(
-    "🏔️ Paramount+ Italia - Top 10",
+  expect(ids).toContain("FlameForge-stream2-paramount--italy--all--auto")
+  expect(ids).toContain("FlameForge-stream-netflix-it-movies")
+  expect(ids).toContain("FlameForge-stream-netflix-it-series")
+  expect(entries.find((e) => e.id === "FlameForge-stream2-paramount--italy--all--auto")?.name).toBe(
+    "ðŸ”ï¸ Paramount+ Italia - Top 10",
   )
-  expect(record.catalogs).toContain("pictorium-stream2-paramount--italy--all--auto")
+  expect(record.catalogs).toContain("FlameForge-stream2-paramount--italy--all--auto")
 })
 
 // ---------------------------------------------------------------------------
@@ -1337,7 +1337,7 @@ test("streaming names are short, renames verbatim, emoji toggle display-only", a
   await gotoHome(page, { keyed: true })
   await awaitAddHulu(page)
   await expect(curatedCard(page, "Hulu Film One", "Film")).toBeVisible({ timeout: 20_000 })
-  await page.getByRole("button", { name: /Priorità & Nomi/ }).click()
+  await page.getByRole("button", { name: /PrioritÃ  & Nomi/ }).click()
   const manager = page.getByTestId("catalog-manager-modal")
   await expect(manager).toBeVisible()
   // Rename the movies row verbatim (no generated emoji is ever persisted).
@@ -1360,7 +1360,7 @@ test("streaming names are short, renames verbatim, emoji toggle display-only", a
   const renamedFilmRow = managerRow(manager, /Top Hulu USA/)
   await expect(renamedFilmRow.getByText("Top Hulu USA", { exact: true })).toBeVisible()
   const renames = await readRenames(page)
-  expect(renames["pictorium-stream2-hulu--united-states--movies--auto"]).toBe("Top Hulu USA")
+  expect(renames["FlameForge-stream2-hulu--united-states--movies--auto"]).toBe("Top Hulu USA")
   // Sibling keeps the generated short name; emoji toggle strips display
   // emoji only (storage untouched, rename verbatim intact).
   const huluSeriesRow = managerRow(manager, /Hulu USA - Top 10/, "Serie TV")
@@ -1383,7 +1383,7 @@ test("streaming names are short, renames verbatim, emoji toggle display-only", a
     streamingSelections: stored,
     catalogRenames: await readRenames(page),
   })
-  expect(entries.find((e) => e.id === "pictorium-stream2-hulu--united-states--movies--auto")?.name).toBe(
+  expect(entries.find((e) => e.id === "FlameForge-stream2-hulu--united-states--movies--auto")?.name).toBe(
     "Top Hulu USA",
   )
 })
@@ -1434,8 +1434,8 @@ test("rai base film and variant serie pair visually with distinct data", async (
   expect(base?.source ?? "auto").toBe("auto")
   expect(variant).toMatchObject({ service: "rai", sections: ["series"] })
   expect(variant?.source ?? "auto").toBe("auto")
-  expect(record.catalogs).toContain("pictorium-stream2-rai--italy--movies--auto")
-  expect(record.catalogs).toContain("pictorium-stream2-rai--italy--series--auto--it")
+  expect(record.catalogs).toContain("FlameForge-stream2-rai--italy--movies--auto")
+  expect(record.catalogs).toContain("FlameForge-stream2-rai--italy--series--auto--it")
 })
 
 // ---------------------------------------------------------------------------
@@ -1464,14 +1464,14 @@ test("opt-in inventory has no ghosts; bulk move and delete stay per-list", async
   for (const ghost of ["Netflix", "Prime Video", "Disney+", "NOW / Sky", "Apple TV+", "HBO Max", "Paramount+", "Crunchyroll"]) {
     await expect(page.getByRole("button", { name: ghost, exact: true })).toHaveCount(0)
   }
-  await page.getByRole("button", { name: /Priorità & Nomi/ }).click()
+  await page.getByRole("button", { name: /PrioritÃ  & Nomi/ }).click()
   const manager = page.getByTestId("catalog-manager-modal")
   await expect(manager).toBeVisible()
   // Curated-mode note visible while the historical platforms stay hidden.
-  await expect(manager.getByText("Modalità curata: le piattaforme storiche sono nascoste da Stremio.")).toBeVisible()
+  await expect(manager.getByText("ModalitÃ  curata: le piattaforme storiche sono nascoste da Stremio.")).toBeVisible()
   // No historical platform built-in row is listed (toggles persist, served
   // nowhere); the two factory JW rows and the anime rows always stay.
-  for (const ghost of ["Netflix — Film", "Prime Video", "Disney+", "NOW", "Apple TV+", "HBO Max", "Paramount+", "Crunchyroll"]) {
+  for (const ghost of ["Netflix â€” Film", "Prime Video", "Disney+", "NOW", "Apple TV+", "HBO Max", "Paramount+", "Crunchyroll"]) {
     await expect(manager.locator(MANAGER_ROW_CLASS, { hasText: ghost })).toHaveCount(0)
   }
   const rows = manager.locator(MANAGER_ROW_CLASS)
@@ -1508,7 +1508,7 @@ test("opt-in inventory has no ghosts; bulk move and delete stay per-list", async
   // a stale target set). Deselect the MOVIES row so the remaining deletable
   // target is the series section only: the delete must narrow the entry to
   // ["movies"] with the sibling Film list surviving (toggling the series row
-  // here would delete movies instead — the opposite of this test's contract).
+  // here would delete movies instead â€” the opposite of this test's contract).
   const huluFilmRow = managerRow(manager, /Hulu USA - Top 10/, "Film")
   await huluFilmRow.getByRole("button").first().click()
   await expect(manager.getByRole("button", { name: "Elimina 1 selezionati" })).toBeVisible()
@@ -1541,11 +1541,11 @@ test("opt-in inventory has no ghosts; bulk move and delete stay per-list", async
   const stored = (await readSelections(page)) as unknown as Record<string, unknown>[]
   const entries = await manifestEntriesForSelections(page, { streamingSelections: stored })
   const ids = manifestIds(entries)
-  expect(ids.some((id) => /^pictorium-(netflix|prime|disney|now|apple|hbo|paramount|crunchyroll)-(movies|series)$/.test(id))).toBe(false)
-  expect(ids).not.toContain("pictorium-stream2-hulu--united-states--series--auto")
-  expect(ids).toContain("pictorium-stream2-hulu--united-states--movies--auto")
-  expect(ids).toContain("pictorium-anime-movies")
-  expect(ids).toContain("pictorium-anime")
+  expect(ids.some((id) => /^FlameForge-(netflix|prime|disney|now|apple|hbo|paramount|crunchyroll)-(movies|series)$/.test(id))).toBe(false)
+  expect(ids).not.toContain("FlameForge-stream2-hulu--united-states--series--auto")
+  expect(ids).toContain("FlameForge-stream2-hulu--united-states--movies--auto")
+  expect(ids).toContain("FlameForge-anime-movies")
+  expect(ids).toContain("FlameForge-anime")
   await manager.getByRole("button", { name: "Fatto" }).click()
 })
 
@@ -1561,7 +1561,7 @@ test("seasonal keywords stay collapsed with drafts preserved", async ({ page }) 
   await stubBrowse(page)
   await gotoHome(page, { keyed: true })
   await openCatalogs(page)
-  await page.getByRole("button", { name: /Priorità & Nomi/ }).click()
+  await page.getByRole("button", { name: /PrioritÃ  & Nomi/ }).click()
   const manager = page.getByTestId("catalog-manager-modal")
   await expect(manager).toBeVisible()
   // Closed by default (huge area stays collapsed).
@@ -1582,7 +1582,8 @@ test("seasonal keywords stay collapsed with drafts preserved", async ({ page }) 
   await expect(panel).toBeHidden()
   await disclosure.click()
   await expect(manager.getByRole("textbox", { name: "Parole chiave Halloween" })).toHaveValue("spooky")
-  const stored = await page.evaluate(() => localStorage.getItem("pictorium_seasonal_halloween_keywords"))
+  const stored = await page.evaluate(() => localStorage.getItem("FLAMEFORGE_seasonal_halloween_keywords"))
   expect(stored ? (JSON.parse(stored) as string[]) : []).toEqual(["spooky"])
   await manager.getByRole("button", { name: "Fatto" }).click()
 })
+

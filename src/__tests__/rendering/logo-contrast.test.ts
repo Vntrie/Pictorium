@@ -131,3 +131,4 @@ describe("selectLogoTier", () => {
     expect(selectLogoTier([], "he", "en")).toEqual([])
   })
 })
+

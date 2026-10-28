@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { createPortal } from "react-dom"
@@ -118,8 +118,8 @@ export default function EditView() {
   const [mobileSection, setMobileSection] = useState<"poster" | "preview" | "customize">("preview")
   const [activeRightTab, setActiveRightTab] = useState<"logo" | "badge" | "transform" | "stagioni">("logo")
   // Gate profili stile AIO: con multi-user attivo e senza UUID nel path, la
-  // home diventa creazione/selezione spazio — ricerca ed editor restano
-  // bloccati finché non apri il tuo spazio (/u/<uuid>/configure). Il gate
+  // home diventa creazione/selezione spazio â€” ricerca ed editor restano
+  // bloccati finchÃ© non apri il tuo spazio (/u/<uuid>/configure). Il gate
   // NON dipende da `selected`: una selezione arrivata da altre viste
   // (Cataloghi, I Miei Poster) non deve sbloccare l'editor da sola.
   const [pathUuid, setPathUuid] = useState<string | null>(null)
@@ -200,7 +200,7 @@ export default function EditView() {
 
   // Il modale mostra lo stato SALVATO: anche poster/sfondo/formato/logo non
   // ancora salvati divergono dalla preview (Best Fit orizzontale scelto ma
-  // non salvato → Stremio mostra ancora il primo TMDB).
+  // non salvato â†’ Stremio mostra ancora il primo TMDB).
   const previewPosterFilePath = previewPoster?.file_path ?? null
   const previewCustomPosterUrl = previewPosterFilePath && isCustomPosterUrl(previewPosterFilePath) ? previewPosterFilePath : null
   // Landscape current base (same derivation as the portrait one above): a
@@ -314,39 +314,39 @@ export default function EditView() {
   // Dual-format: stash degli slider non salvati per formato. Senza, passare
   // da A a B e ritorno perderebbe in silenzio le modifiche non salvate di A
   // (lo switch caricherebbe i valori salvati di B sopra quelle di A). Lo
-  // stash è per-titolo: cambiando titolo si azzera (identità reale tipo:id).
+  // stash Ã¨ per-titolo: cambiando titolo si azzera (identitÃ  reale tipo:id).
   // Map (non plain object): le mutation via metodi non violano la regola
   // react-hooks/immutability che flaggava l'assegnazione diretta di `.current`.
   const shapeStashRef = useRef(new Map<"poster" | "landscape", LandscapeSettings>())
   // Provenance scala titolo per formato (correzione c1): lo stash sopra salva
-  // il valore mostrato ma non se è auto o esplicito — senza, il ritorno al
+  // il valore mostrato ma non se Ã¨ auto o esplicito â€” senza, il ritorno al
   // formato promuoverebbe un auto a esplicito (setLogoScale di default marca
   // explicit) e un 100 automatico Fresh diventerebbe un 100 Standard baked.
   const shapeLogoExplicitRef = useRef(new Map<"poster" | "landscape", boolean>())
-  // Landscape backdrop-selection stash, per title (landscape → portrait →
+  // Landscape backdrop-selection stash, per title (landscape â†’ portrait â†’
   // landscape): entering portrait always clears selectedBackdrop (the
   // vertical preview must not carry `backdrop=`), but the unsaved landscape
-  // selection must survive the round-trip — custom tiles included. Only
+  // selection must survive the round-trip â€” custom tiles included. Only
   // non-null selections (an intentional clear stays clear and follows the
   // init effect's mapping/auto logic). Identity-gated like the stashes above.
   const backdropStashRef = useRef<{ key: string | null, backdrop: TMDBImage | null }>({ key: null, backdrop: null })
   // Stash per-titolo con reset affidabile al cambio selezione (correzione
-  // ciclo 3): l'azzeramento vive in un effetto guidato dall'identità reale
+  // ciclo 3): l'azzeramento vive in un effetto guidato dall'identitÃ  reale
   // del titolo (tipo:id), non nel solo controllo stale dentro
-  // handleShapeChange — un callback con closure vecchia non può essere
+  // handleShapeChange â€” un callback con closure vecchia non puÃ² essere
   // l'unico reset. Il reset avviene all'apertura del titolo, PRIMA di
   // qualsiasi edit dell'utente sul nuovo titolo: gli edit correnti dopo
   // l'apertura appartengono al nuovo titolo e vanno stashati normalmente
-  // al primo switch di formato (mai scartati). La chiave è uno state (non
+  // al primo switch di formato (mai scartati). La chiave Ã¨ uno state (non
   // un ref assegnato dentro gli hook: react-hooks/immutability vieta
   // `ref.current =` sui valori catturati dagli hook); le Map restano ref
-  // perché le mutation via metodi sono consentite. Dichiarato prima di
-  // handleSave perché la chiave entra nelle sue dipendenze.
+  // perchÃ© le mutation via metodi sono consentite. Dichiarato prima di
+  // handleSave perchÃ© la chiave entra nelle sue dipendenze.
   const [shapeStashKey, setShapeStashKey] = useState<string | null>(null)
   // Per-title identity for the shape stash (local + shared): the user
   // namespace qualifies the title so two spaces editing the same title in
   // one session never share unsaved drafts. New (unsaved) titles still carry
-  // a real media_type:id, so they own a distinct key too — only the
+  // a real media_type:id, so they own a distinct key too â€” only the
   // nothing-selected state shares the inert "new" bucket (no save possible).
   const selectedStashKey = selected ? perTitleDraftKey(currentUserId, selected.media_type, selected.id) : "new"
   // Stable access to the shared draft store (PosterEditorContext callbacks
@@ -367,16 +367,16 @@ export default function EditView() {
   const handleSave = useCallback(async () => {
     if (saveStateRef.current === "saving") return
     // Synchronous guard: the ref assignment above only runs on render, so a
-    // second call before rerender would slip through — mark in-flight now.
+    // second call before rerender would slip through â€” mark in-flight now.
     saveStateRef.current = "saving"
     setSaveState("saving")
     try {
       // Both-shape edits before save: the staged other-shape style values
       // (shape stash, newer than the saved mapping) travel with the save so
-      // the non-editing shape's look is preserved verbatim — never the edited
+      // the non-editing shape's look is preserved verbatim â€” never the edited
       // live value, never dropped. Absent when the other shape was never
       // visited (boundary from the saved mapping). Identity-gated: the stash
-      // belongs to exactly one title (shapeStashKey) — after opening
+      // belongs to exactly one title (shapeStashKey) â€” after opening
       // title B, title A's stash must never be forwarded into B's save.
       const otherShape = ed.posterShape === "landscape" ? "poster" : "landscape"
       const saveKey = selected ? perTitleDraftKey(currentUserId, selected.media_type, selected.id) : "new"
@@ -404,7 +404,7 @@ export default function EditView() {
   // actions disabled while saving); on success the context resets the
   // editor visuals to the global defaults, on failure all edits are kept.
   // Shared in-flight guard (anche per Ctrl+S): nessuna delle due azioni parte
-  // mentre l'altra è in volo.
+  // mentre l'altra Ã¨ in volo.
   const handleSaveCoverOnly = useCallback(async () => {
     if (saveStateRef.current === "saving") return
     saveStateRef.current = "saving"
@@ -429,7 +429,7 @@ export default function EditView() {
 
   // Tile custom di sessione (URL esterni aggiunti via box, non ancora salvati):
   // per-titolo, persistiti in localStorage come i draft (sopravvivono al
-  // reload); la verità resta il mapping dopo Salva.
+  // reload); la veritÃ  resta il mapping dopo Salva.
   const [customTiles, setCustomTiles] = useState<TMDBImage[]>(() => loadCustomTiles(selected?.id))
   useEffect(() => {
     setCustomTiles(loadCustomTiles(selected?.id))
@@ -481,7 +481,7 @@ export default function EditView() {
   }, [customBackdropTiles, savedCustomBackdropUrl])
 
   // Session custom logo tiles (external URLs added via the import box, not
-  // yet saved): same contract as posters — per title, persisted in
+  // yet saved): same contract as posters â€” per title, persisted in
   // localStorage under a separate key; the mapping stays the truth after Save.
   // The key includes the media type (`movie:550`): movie and tv share the
   // numeric id space. The skip flag owns the title switch: without it the
@@ -533,7 +533,7 @@ export default function EditView() {
   //   override that choice with an auto-pick.
   // - Fresh title or legacy (portrait/shapeless) mapping without backdrop:
   //   first VISIBLE backdrop (same eligibility as the BackdropOptions grid:
-  //   clean and not excluded — never an invisible localized tile as the
+  //   clean and not excluded â€” never an invisible localized tile as the
   //   "first image").
   // Init once per title lifecycle in landscape: a voluntary deselection
   // (clear) stays empty, never reselected; leaving landscape clears the mark
@@ -554,7 +554,7 @@ export default function EditView() {
       return
     }
     // Saved landscape custom base: direct restore of the custom tile (never
-    // the TMDB auto-pick, never the fallback backdropPath — the custom is the
+    // the TMDB auto-pick, never the fallback backdropPath â€” the custom is the
     // effective base, like the renderer). Direct, not selectBackdrop (it would
     // reset the mapping/profile scale and offsets).
     const savedCustomBackdrop = selectedMapping?.customBackdropUrl && isCustomPosterUrl(selectedMapping.customBackdropUrl)
@@ -574,7 +574,7 @@ export default function EditView() {
         return
       }
       // Ripristino diretto (NON selectBackdrop: quello azzererebbe
-      // backdropScale/offset già caricati dal mapping).
+      // backdropScale/offset giÃ  caricati dal mapping).
       const saved = ed.backdrops.find((b) => b.file_path === selectedMapping.backdropPath)
       ed.setSelectedBackdrop(saved ?? { file_path: selectedMapping.backdropPath, iso_639_1: null, vote_average: 0, width: 0, height: 0 })
       backdropInitKeyRef.current = selectedMappingKey
@@ -595,14 +595,14 @@ export default function EditView() {
     backdropInitKeyRef.current = selectedMappingKey
   }, [ed.posterShape, ed.selectedBackdrop, hasMapping, selectedMapping, selectedMappingKey, ed.backdrops, ed.excludedBackdrops, selectBackdrop]) // eslint-disable-line react-hooks/exhaustive-deps -- dipendenze granulari intenzionali: `ed` intero rifarebbe scattare l'effetto a ogni tick editor
 
-  // Landscape: senza logo seleziona in automatico il best logo (la base è
-  // il backdrop, senza testo) — parità con l'apertura diretta in Orizzontale
+  // Landscape: senza logo seleziona in automatico il best logo (la base Ã¨
+  // il backdrop, senza testo) â€” paritÃ  con l'apertura diretta in Orizzontale
   // (applyLoadedSelection, ramo defaultPosterShape landscape: stesso
   // selectBestLogo con lang + original_language). Il cambio formato
   // (handleShapeChange) non toccava mai il logo: da portrait senza clean
   // si restava senza logo fino a selezione manuale. Mai quando l'utente ha
   // rimosso il logo a mano (logoDisabled, con o senza mapping salvato) o
-  // ne ha già uno: in portrait senza clean non c'è mai stata
+  // ne ha giÃ  uno: in portrait senza clean non c'Ã¨ mai stata
   // auto-selezione (nessun flag da propagare), la scelta manuale resta.
   useEffect(() => {
     if (ed.posterShape !== "landscape") return
@@ -617,25 +617,25 @@ export default function EditView() {
   // Dual-format: stash degli slider non salvati per formato. Senza, passare
   // da A a B e ritorno perderebbe in silenzio le modifiche non salvate di A
   // (lo switch caricherebbe i valori salvati di B sopra quelle di A). Lo
-  // stash è per-titolo: cambiando titolo si azzera (identità reale tipo:id).
+  // stash Ã¨ per-titolo: cambiando titolo si azzera (identitÃ  reale tipo:id).
   // Map (non plain object): le mutation via metodi non violano la regola
   // react-hooks/immutability che flaggava l'assegnazione diretta di `.current`.
-  // (Dichiarazione spostata sopra handleSave: la chiave di identità entra
+  // (Dichiarazione spostata sopra handleSave: la chiave di identitÃ  entra
   // nelle dipendenze del save e deve precederlo.)
   // Cambio formato: portrait deseleziona sempre lo sfondo (in verticale
   // `poster=` + `backdrop=` comporrebbero la banda sopra il poster),
   // landscape lascia fare all'effetto sopra. Gli slider passano al profilo
-  // del formato scelto (stash non salvato > profilo salvato), così la
+  // del formato scelto (stash non salvato > profilo salvato), cosÃ¬ la
   // preview WYSIWYG mostra il tuning reale di quel formato.
   const handleShapeChange = useCallback((next: "poster" | "landscape") => {
     const prev = ed.posterShape
     if (prev === next) return
-    // Stash per-titolo con identità reale del titolo (namespace + tipo:id
+    // Stash per-titolo con identitÃ  reale del titolo (namespace + tipo:id
     // selezionato via perTitleDraftKey): due titoli nuovi/non salvati non
     // condividono mai lo stash. Solo senza selezione si usa la chiave
     // generica "new". Il reset affidabile vive
     // nell'effetto su selectedStashKey sopra; qui si riallinea solo in caso
-    // di closure/effetto non ancora scattato — e si stashano SEMPRE i live
+    // di closure/effetto non ancora scattato â€” e si stashano SEMPRE i live
     // correnti: dopo l'apertura del nuovo titolo i live appartengono al
     // nuovo titolo (open inizializza sul nuovo), quindi scartarli
     // perderebbe gli edit validi dell'utente prima del primo switch.
@@ -646,7 +646,7 @@ export default function EditView() {
       setShapeStashKey(stashKey)
     }
     // Dopo il riallineamento qui sopra lo stash appartiene per costruzione
-    // al titolo corrente (o era già suo, o è stato appena azzerato): le
+    // al titolo corrente (o era giÃ  suo, o Ã¨ stato appena azzerato): le
     // letture sotto usano le Map direttamente, senza gate stale.
     // Singolo oggetto draft (mai due copie della lista campi): il locale e
     // lo shared store ricevono lo stesso contenuto (clonato dal ricevente).
@@ -668,7 +668,7 @@ export default function EditView() {
       // ricorda la propria veste non salvata senza toccare l'altro).
       showBadges: ed.globalBadges, rankingBadges: ed.rankingBadges,
       badgeGenre: ed.badgeGenre, badgeYear: ed.badgeYear, badgeRating: ed.badgeRating, badgeQuality: ed.badgeQuality,
-      // Badge età per-titolo per formato: ogni formato ricorda la propria
+      // Badge etÃ  per-titolo per formato: ogni formato ricorda la propria
       // scelta non salvata senza toccare l'altro (come gli stili sopra).
       ageBadge: ed.ageBadge, ageCountry: ed.ageCountry, ageBadgeStyle: ed.ageBadgeStyle,
       customRatings: ed.customRatings, separateRatings: ed.separateRatings,
@@ -678,12 +678,12 @@ export default function EditView() {
       // Visuali un tempo condivisi, per-formato come gli stili sopra: ogni
       // formato ricorda i propri non salvati. Accent: solo il manuale viaggia
       // (null = automatico esplicito); un auto effettivo non si congela mai
-      // nello stash — il ripristino materializza l'effettivo (sotto), quindi
-      // un null stashato non è mai un inherit intoccato. Preset a coppia.
+      // nello stash â€” il ripristino materializza l'effettivo (sotto), quindi
+      // un null stashato non Ã¨ mai un inherit intoccato. Preset a coppia.
       customBadge: ed.customBadge,
       accentColor: isManualAccent(accentColor, autoAccentColor) ? accentColor : null,
       // Sfumatura ESCLUSA: ha profili dedicati per formato (flat = portrait,
-      // landscapeBlur = landscape) e non passa più dallo stash.
+      // landscapeBlur = landscape) e non passa piÃ¹ dallo stash.
     }
     shapeLogoExplicitRef.current.set(prev, ed.logoScaleExplicit)
     shapeStashRef.current.set(prev, draft)
@@ -710,7 +710,7 @@ export default function EditView() {
     // globali Orizzontale (solo in landscape: senza, il primo ingresso in
     // landscape mostrerebbe i valori portrait invece dei default Orizzontale).
     // La calibrazione +10/-10 vive nel renderer (invisibile, slider a 0).
-    // La sfumatura è esclusa (profili dedicati flat/landscapeBlur).
+    // La sfumatura Ã¨ esclusa (profili dedicati flat/landscapeBlur).
     const landFallback: Partial<LandscapeSettings> | null = next === "landscape" ? (ed.landscape ?? null) : null
     // Consumo dallo stash appena riallineato (appartiene al titolo corrente
     // per costruzione, vedi sopra): nessuna lettura cross-titolo possibile.
@@ -736,7 +736,7 @@ export default function EditView() {
         ed.setLogoScale(src.logoScale as number)
       }
       // Altrimenti (nessuno stash, nessun valore nel profilo): live e
-      // provenance intatti — mai promuovere/demotivare in silenzio.
+      // provenance intatti â€” mai promuovere/demotivare in silenzio.
       ed.setLogoOffsetX(src.logoOffsetX ?? landFallback?.logoOffsetX ?? ed.logoOffsetX)
       ed.setLogoOffsetY(src.logoOffsetY ?? landFallback?.logoOffsetY ?? ed.logoOffsetY)
       ed.setTopBadgeScale(src.topBadgeScale ?? landFallback?.topBadgeScale ?? ed.topBadgeScale, { materialize: false })
@@ -795,7 +795,7 @@ export default function EditView() {
       ed.setNetworkLogoScale(src.networkLogoScale ?? landFallback?.networkLogoScale ?? ed.networkLogoScale)
       // Effective network view composing the saved mapping with the global
       // defaults (server semantics): with no stash/mapping network keys, a
-      // portrait-fixed flat never leaks its absolutes into landscape — and a
+      // portrait-fixed flat never leaks its absolutes into landscape â€” and a
       // landscape-modified live value never leaks back into portrait. Saved
       // per-shape overrides always win via `src` first.
       const shapeNetView = resolveNetworkEffectiveView(
@@ -825,7 +825,7 @@ export default function EditView() {
     }
     // Stili/toggle per formato, SEMPRE (anche senza stash/salvato/profilo):
     // stash > mapping effettivo salvato > default effettivi di forma >
-    // factory storica — MAI il live editato dell'altro formato. Il live resta
+    // factory storica â€” MAI il live editato dell'altro formato. Il live resta
     // solo come valore di stash per il formato che si lascia (scritto sopra),
     // mai come fallback per il formato di arrivo. `showBadges` legge il
     // profilo globale `globalBadges` (stesso valore, nome del default).
@@ -889,7 +889,7 @@ export default function EditView() {
     }
     // Visuali un tempo condivisi, per-formato come gli stili sopra (SEMPRE,
     // anche senza stash/salvato/profilo): stash > mapping effettivo salvato >
-    // neutro — MAI il live editato dell'altro formato. customBadge null/""
+    // neutro â€” MAI il live editato dell'altro formato. customBadge null/""
     // = automatico per la forma ripristinata; accent null = automatico (solo
     // manuali viaggiano, mai auto congelati); preset a coppia (mai mescolati
     // tra forme). Lo stash porta sempre entrambe le chiavi preset (draft
@@ -948,7 +948,7 @@ export default function EditView() {
     }
   }, [customTiles, handleSelectPoster, previewPoster, posters, savedCustomTile])
 
-  // onRemove del box (custom salvato già azzerato nel mapping): se la preview
+  // onRemove del box (custom salvato giÃ  azzerato nel mapping): se la preview
   // era sul tile rimosso e non resta alcun tile con quell'URL, fallback.
   const handleRemoveCustomPoster = useCallback(() => {
     const current = previewPoster?.file_path ?? null
@@ -987,7 +987,7 @@ export default function EditView() {
 
   // Landscape session-tile removal: when it was the current backdrop, fall
   // back to another custom tile, the saved one, or the first TMDB backdrop
-  // (none → automatic via removeBackdrop, like the grid X).
+  // (none â†’ automatic via removeBackdrop, like the grid X).
   const handleDeleteCustomBackdropTile = useCallback((filePath: string) => {
     setCustomBackdropTiles((prev) => prev.filter((tile) => tile.file_path !== filePath))
     if (ed.selectedBackdrop?.file_path === filePath) {
@@ -1002,7 +1002,7 @@ export default function EditView() {
 
   // Box onRemove for landscape (saved custom already cleared in the mapping):
   // removedUrl arrives explicitly from the box (captured at click) so the
-  // decision never depends on the recommitted mapping — loadMappings resolves
+  // decision never depends on the recommitted mapping â€” loadMappings resolves
   // before the re-render (same staleness documented for logos). Session tiles
   // are left alone (same portrait contract): when the selection lives on a
   // tile it stays; only with no tile does it fall back to TMDB.
@@ -1054,7 +1054,7 @@ export default function EditView() {
 
   // Import-box onRemove (the saved custom logo is already cleared in the
   // mapping when this runs): the removed URL arrives explicitly because the
-  // closure captured before PUT + loadMappings is stale — the old code read
+  // closure captured before PUT + loadMappings is stale â€” the old code read
   // selectedMapping.logoPath === current, which is always true for the logo
   // just removed, so the active custom logo survived and the next Save could
   // resurrect it. Actual removal clears the saved URL from the session tiles
@@ -1124,8 +1124,8 @@ export default function EditView() {
 
   // TVDB id per i dettagli titolo (usa TMDB external_ids via seasonTypes route con tmdbKey)
   // Campi primitivi estratti per il deps array: l'oggetto `selected` cambia
-  // identità a ogni update del parent anche quando i campi rilevanti non
-  // cambiano — dipendere dall'oggetto rifarebbe il fetch TVDB a ogni render.
+  // identitÃ  a ogni update del parent anche quando i campi rilevanti non
+  // cambiano â€” dipendere dall'oggetto rifarebbe il fetch TVDB a ogni render.
   const selectedId = selected?.id
   const selectedImdbId = selected?.imdb_id
   const selectedMediaType = selected?.media_type
@@ -1150,7 +1150,7 @@ export default function EditView() {
         })
         const d = await res.json().catch(() => ({}))
         if (d?.tvdbId && Number.isFinite(d.tvdbId)) return d.tvdbId as number
-        // fallback: se non c'è tvdbId ma ci sono results, prova a inferire da cache? altrimenti null
+        // fallback: se non c'Ã¨ tvdbId ma ci sono results, prova a inferire da cache? altrimenti null
         return null
       } catch { return null }
     }
@@ -1168,7 +1168,7 @@ export default function EditView() {
   const isLandscape = ed.posterShape === "landscape"
 
   // Memoizzato: l'array entra nel deps array dell'effect sotto e non deve
-  // cambiare identità a ogni render (react-hooks/exhaustive-deps).
+  // cambiare identitÃ  a ogni render (react-hooks/exhaustive-deps).
   const rightTabs = useMemo(() => [
     { key: "logo", label: t("ui.logoSection") },
     { key: "badge", label: t("ui.badgeSection") },
@@ -1182,9 +1182,9 @@ export default function EditView() {
     if (!rightTabs.some((tab) => tab.key === activeRightTab)) {
       setActiveRightTab("logo")
     }
-    // `rightTabs` è derivato da selectedLogo/selected?.media_type: dipendere
-    // dall'array (ricreato a ogni render) è equivalente e idempotente — il
-    // body non fa setState quando la tab attiva è ancora valida.
+    // `rightTabs` Ã¨ derivato da selectedLogo/selected?.media_type: dipendere
+    // dall'array (ricreato a ogni render) Ã¨ equivalente e idempotente â€” il
+    // body non fa setState quando la tab attiva Ã¨ ancora valida.
   }, [rightTabs, activeRightTab])
 
   return (
@@ -1196,20 +1196,20 @@ export default function EditView() {
             {/* eslint-disable-next-line @next/next/no-img-element -- logo locale */}
             <img
               onClick={goHome}
-              src="/pictorium.svg"
-              alt="Pictorium"
+              src="/FlameForge.svg"
+              alt="FlameForge"
               decoding="async"
               className="header-logo header-logo-dark h-20 md:h-24 w-auto cursor-pointer hover:brightness-110 active:scale-95 transition-all duration-150 mb-1"
-              title="Pictorium"
+              title="FlameForge"
             />
             {/* eslint-disable-next-line @next/next/no-img-element -- local SVG asset */}
             <img
               onClick={goHome}
-              src="/pictorium-light.svg"
-              alt="Pictorium"
+              src="/FlameForge-light.svg"
+              alt="FlameForge"
               decoding="async"
               className="header-logo header-logo-light h-20 md:h-24 w-auto cursor-pointer hover:brightness-110 active:scale-95 transition-all duration-150 mb-1"
-              title="Pictorium"
+              title="FlameForge"
             />
           </header>
 
@@ -1227,7 +1227,7 @@ export default function EditView() {
               </button>
               <div className="flex-1 min-w-0 text-center px-1">
                 <p className="text-xs font-bold text-zinc-100 truncate">{titleOf(selected)}</p>
-                <p className="text-[10px] text-zinc-400 font-mono">{yearOf(selected)} · {selected.media_type === "movie" ? t("ui.movie") : t("ui.tvSeries")}</p>
+                <p className="text-[10px] text-zinc-400 font-mono">{yearOf(selected)} Â· {selected.media_type === "movie" ? t("ui.movie") : t("ui.tvSeries")}</p>
               </div>
               {previewPoster && (
                 <button
@@ -1347,7 +1347,7 @@ export default function EditView() {
 
             {/* LEFT: Poster (verticale) o Sfondi (orizzontale) */}
             <div className={mobileSection === "poster" ? "block w-full" : "hidden lg:block h-full min-w-0"}>
-              <EditorPanel className="animate-fade-scale-in-panel-left h-full" aria-label={`${selected?.title || ""} — Poster selection`} title={isLandscape ? t("ui.backdropAvailable") : t("ui.posterAvailable")} headerRight={<span className="text-[10px] font-mono text-muted px-1.5 py-0.5 rounded-md bg-white/[0.05] border border-white/10 tabular-nums">{isLandscape ? ed.backdrops.length : posters.length}</span>}>
+              <EditorPanel className="animate-fade-scale-in-panel-left h-full" aria-label={`${selected?.title || ""} â€” Poster selection`} title={isLandscape ? t("ui.backdropAvailable") : t("ui.posterAvailable")} headerRight={<span className="text-[10px] font-mono text-muted px-1.5 py-0.5 rounded-md bg-white/[0.05] border border-white/10 tabular-nums">{isLandscape ? ed.backdrops.length : posters.length}</span>}>
                 {loadingImages ? (
                   <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-8 rounded-lg skeleton-shimmer" />)}</div>
                 ) : isLandscape ? (
@@ -1411,7 +1411,7 @@ export default function EditView() {
                       const hasMapping = mappingsMap.get(key)
                       if (!hasMapping) return null
                       return (
-                        <button type="button" aria-label={t("ui.remove")} onClick={() => { removeMapping(hasMapping).catch((e) => console.error("[pictorium] Remove mapping failed:", e)); setSelected(null); setPreviewPoster(null); setSelectedLogo(null); setPreviewId(null) }} className="flex w-full h-full min-h-[44px] items-center justify-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-2 text-center text-xs font-semibold text-red-300 transition-all hover:border-red-500/40 hover:bg-red-500/15 active:scale-[0.97] cursor-pointer">
+                        <button type="button" aria-label={t("ui.remove")} onClick={() => { removeMapping(hasMapping).catch((e) => console.error("[FlameForge] Remove mapping failed:", e)); setSelected(null); setPreviewPoster(null); setSelectedLogo(null); setPreviewId(null) }} className="flex w-full h-full min-h-[44px] items-center justify-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-2 text-center text-xs font-semibold text-red-300 transition-all hover:border-red-500/40 hover:bg-red-500/15 active:scale-[0.97] cursor-pointer">
                           <Trash2 className="w-[18px] h-[18px] shrink-0" />
                           <span>{t("ui.remove")}</span>
                         </button>
@@ -1495,7 +1495,7 @@ export default function EditView() {
                     <div className={`editor-stage editor-stage-fill isolate ${previewPoster?.file_path ? "editor-stage-glow" : ""} ${saveFlash ? "editor-stage-save-flash" : ""}`}>
                       {/* NuvioDesktop-style depth edge */}
                       <PosterDepthEdge edgeStrength={40} edgeCoverage={10} />
-                      {/* Accent Glow (firma Pictorium: si ritinta col colore dominante) */}
+                      {/* Accent Glow (firma FlameForge: si ritinta col colore dominante) */}
                       <div
                         className="absolute -inset-8 rounded-3xl opacity-45 blur-3xl pointer-events-none transition-all duration-700 ease-out z-0"
                         style={{
@@ -1551,7 +1551,7 @@ export default function EditView() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-zinc-100 truncate">{titleOf(selected)}</p>
-                        <p className="text-[10px] text-zinc-400 font-mono mt-0.5">{yearOf(selected)} · {selected.media_type === "movie" ? t("ui.movie") : t("ui.tvSeries")}</p>
+                        <p className="text-[10px] text-zinc-400 font-mono mt-0.5">{yearOf(selected)} Â· {selected.media_type === "movie" ? t("ui.movie") : t("ui.tvSeries")}</p>
                         <button
                           type="button"
                           onClick={() => setMobileSection("preview")}
@@ -1566,13 +1566,13 @@ export default function EditView() {
                     <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1.5">{t("ui.details")}</h3>
                     <p className="text-sm font-bold tracking-tight text-zinc-50 truncate">{titleOf(selected)}</p>
                     <div ref={animeIdsRowRef} className="text-[11px] font-mono text-zinc-400 mt-1">
-                      {yearOf(selected)} · {selected.media_type === "movie" ? t("ui.movie") : t("ui.tvSeries")} · TMDB <a href={`https://www.themoviedb.org/${selected.media_type}/${selected.id}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">{selected.id}</a>{selected.imdb_id ? <> · IMDB <a href={`https://www.imdb.com/title/${selected.imdb_id}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">{selected.imdb_id}</a></> : ""}{tvdbId ? <> · TVDB <a href={`https://thetvdb.com/?tab=series&id=${tvdbId}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">{tvdbId}</a></> : ""}
+                      {yearOf(selected)} Â· {selected.media_type === "movie" ? t("ui.movie") : t("ui.tvSeries")} Â· TMDB <a href={`https://www.themoviedb.org/${selected.media_type}/${selected.id}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">{selected.id}</a>{selected.imdb_id ? <> Â· IMDB <a href={`https://www.imdb.com/title/${selected.imdb_id}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">{selected.imdb_id}</a></> : ""}{tvdbId ? <> Â· TVDB <a href={`https://thetvdb.com/?tab=series&id=${tvdbId}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">{tvdbId}</a></> : ""}
                       {([
                         { name: "Kitsu", ids: selected.anime_ids?.kitsu ?? [], base: "https://kitsu.app/anime/" },
                         { name: "MAL", ids: selected.anime_ids?.mal ?? [], base: "https://myanimelist.net/anime/" },
                       ]).filter((provider) => provider.ids.length > 0).map((provider) => (
                         <div key={provider.name} className="inline whitespace-nowrap">
-                          {" · "}
+                          {" Â· "}
                           {provider.ids.length === 1 ? (
                             <>{provider.name} <a href={`${provider.base}${provider.ids[0]}`} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-white underline underline-offset-2">{provider.ids[0]}</a></>
                           ) : (
@@ -1748,7 +1748,7 @@ export default function EditView() {
             </div>
             <div className="mt-3">
               <button type="button" onClick={async () => {
-                // copyText non lancia mai: false se la clipboard non è disponibile.
+                // copyText non lancia mai: false se la clipboard non Ã¨ disponibile.
                 if (!(await copyText(stremioPreviewUrl))) return
                 setUrlCopied(true)
                 if (urlCopiedTimerRef.current) clearTimeout(urlCopiedTimerRef.current)
@@ -1762,3 +1762,4 @@ export default function EditView() {
     </div>
   )
 }
+

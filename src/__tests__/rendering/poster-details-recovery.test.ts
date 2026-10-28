@@ -15,7 +15,7 @@
 // - mapping overrides win whether session details resolve before the resize
 //   (synchronous) or the fetch resolves after the resize completed
 //   (deferred, gated on toBuffer settle — not resize start).
-process.env.PICTORIUM_RENDER_TIMEOUT_MS = "2000"
+process.env.FLAMEFORGE_RENDER_TIMEOUT_MS = "2000"
 
 import sharp from "sharp"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
@@ -253,7 +253,7 @@ describe("poster details recovery (networks/studios)", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
     __resetImageBytesForTest()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -560,3 +560,5 @@ describe("poster details recovery (networks/studios)", () => {
     }
   })
 })
+
+

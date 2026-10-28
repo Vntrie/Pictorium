@@ -1,5 +1,5 @@
 /**
- * Task 3B2 correction (real PictoriumRoot regression).
+ * Task 3B2 correction (real FlameForgeRoot regression).
  *
  * Previous `remaining-shape-controls.test.tsx` drove builders and mocked
  * contexts, never the real provider — so the confirmed `context.tsx` gaps
@@ -29,8 +29,8 @@
 import { useEffect } from "react"
 import { render, act, fireEvent, screen } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { BadgeDefaultsSection } from "@/components/settings/BadgeDefaultsSection"
@@ -40,10 +40,10 @@ import type { PosterRenderConfigInput } from "@/lib/poster-config"
 import { buildDefaultsPreviewUrl } from "@/lib/poster-url"
 import { buildStremioPosterUrl } from "@/lib/stremio-poster-url"
 import type { ServerDefaults } from "@/lib/server-defaults"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 import type { Mapping } from "@/lib/types"
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -208,9 +208,9 @@ async function renderRoot() {
   ctx = null
   ed = null
   render(
-    <PictoriumRoot>
+    <FlameForgeRoot>
       <Probe />
-    </PictoriumRoot>,
+    </FlameForgeRoot>,
   )
   await flush()
   expect(ctx, "provider context available").toBeTruthy()
@@ -434,7 +434,7 @@ describe("precedence is unchanged: query > mapping > token > owned profile", () 
       rankingBadgeStyle: "number", extraBadgeStyle: "corner",
       blurEnabled: true, blurIntensity: 20, blurFade: 50, blurDarkness: 30,
       gradientHeight: 30, networkLogo: true, autoRotateClean: false,
-    } as PictoriumUserConfig
+    } as FlameForgeUserConfig
     // Both production builders carry xbs=follow-rank for the sentinel profile.
     const preview = new URL(buildDefaultsPreviewUrl({
       defaultExtraBadgeStyle: "pill",
@@ -483,10 +483,10 @@ describe("logo alignment is Auto-only (no selector in either shape)", () => {
     ctx = null
     ed = null
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
         <BadgeDefaultsSection active shape={shape} />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     const adv = screen.getByTestId("badge-advanced-toggle")
@@ -509,3 +509,5 @@ describe("logo alignment is Auto-only (no selector in either shape)", () => {
     expect(screen.getByTestId("badge-group-style")).toBeInTheDocument()
   })
 })
+
+

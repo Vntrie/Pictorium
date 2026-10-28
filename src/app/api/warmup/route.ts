@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 import crypto from "node:crypto"
 import { getJWRankings } from "@/lib/justwatch"
 import { warmTop250 } from "@/lib/imdb-top250"
 
-// Vercel: il warmup itera decine di poster in batch → richiede il massimo
+// Vercel: il warmup itera decine di poster in batch â†’ richiede il massimo
 // consentito. Su Hobby (10s) non completa comunque; su Pro vale 60s.
 export const maxDuration = 60
 import { buildPosterPublicUrl } from "@/lib/poster-public-url"
@@ -74,9 +74,9 @@ function addTarget(targets: WarmupTarget[], target: WarmupTarget): void {
 }
 
 function buildPosterUrl(input: BuildPosterUrlInput): URL {
-  // C2: origin self-fetch — MAI dalla richiesta (host header injection/SSRF).
+  // C2: origin self-fetch â€” MAI dalla richiesta (host header injection/SSRF).
   // Loopback per locale/VPS; su Vercel il loopback non instrada (istanze
-  // effimere) → VERCEL_URL fornita dalla piattaforma; override esplicito via
+  // effimere) â†’ VERCEL_URL fornita dalla piattaforma; override esplicito via
   // env per custom. Vedi selfFetchOrigin().
   const url = buildPosterPublicUrl(`/api/poster/${input.target.type}/${input.target.id}`, {
     origin: selfFetchOrigin(),
@@ -86,7 +86,7 @@ function buildPosterUrl(input: BuildPosterUrlInput): URL {
   const params = buildStremioPosterSearchParams({
     lang: input.lang,
     // Stesse chiavi servite dai cataloghi (compact, v1.23.0): scaldare le
-    // URL esplicite scalderebbe chiavi che nessuno richiede più.
+    // URL esplicite scalderebbe chiavi che nessuno richiede piÃ¹.
     compactTuning: true,
     globalBadges: defaults.globalBadges,
     rankingBadges: defaults.rankingBadges,
@@ -141,13 +141,13 @@ export async function POST(req: NextRequest) {
   const warmupToken = envWithFallback("WARMUP_TOKEN")
   const isPublic = envWithFallback("PUBLIC_INSTANCE") === "1"
   if (isPublic) {
-    // Fix H3: su istanza pubblica il warmup è un amplificatore (1 req → 500
-    // poster tentati) — PICTORIUM_WARMUP_TOKEN è obbligatorio. Senza token
-    // l'endpoint non è utilizzabile (evita DoS su HF Spaces). Con token
+    // Fix H3: su istanza pubblica il warmup Ã¨ un amplificatore (1 req â†’ 500
+    // poster tentati) â€” FLAMEFORGE_WARMUP_TOKEN Ã¨ obbligatorio. Senza token
+    // l'endpoint non Ã¨ utilizzabile (evita DoS su HF Spaces). Con token
     // configurato, richiede x-warmup-token esatto (non basta checkAdminToken
-    // che su public è fail-open).
+    // che su public Ã¨ fail-open).
     if (!warmupToken) {
-      log.warn("Warmup rejected: PICTORIUM_PUBLIC_INSTANCE=1 requires PICTORIUM_WARMUP_TOKEN")
+      log.warn("Warmup rejected: FLAMEFORGE_PUBLIC_INSTANCE=1 requires FLAMEFORGE_WARMUP_TOKEN")
       return adminAuthResponse()
     }
     const header = req.headers.get("x-warmup-token")
@@ -171,25 +171,25 @@ export async function POST(req: NextRequest) {
 
   const apiKey = resolveRequestApiKey(req)
   const concurrency = boundedInt({ value: req.nextUrl.searchParams.get("concurrency"), fallback: 3, min: 1, max: 8 })
-  // C2: regione per le classifiche JW (prima hardcoded IT) — la cache key
-  // include già `:r<CODE>`, quindi scaldare altre regioni non avvelena IT.
+  // C2: regione per le classifiche JW (prima hardcoded IT) â€” la cache key
+  // include giÃ  `:r<CODE>`, quindi scaldare altre regioni non avvelena IT.
   // La lingua default resta "it" salvo regione esplicita (nessun cambio di
   // comportamento per le chiamate esistenti senza parametri).
   const regionParam = req.nextUrl.searchParams.get("region") || req.nextUrl.searchParams.get("country")
   const warmRegion = normalizeRegion(regionParam || "IT")
   const warmRegionDef = getRegionDef(warmRegion)
   const warmLang = req.nextUrl.searchParams.get("lang") || (regionParam ? warmRegionDef.lang || "it" : "it")
-  // C2: resume — offset nella coda dedup + nextOffset in risposta per
+  // C2: resume â€” offset nella coda dedup + nextOffset in risposta per
   // concatenare chiamate sotto deadline (Vercel Hobby 10s).
   const queueOffset = boundedInt({ value: req.nextUrl.searchParams.get("offset"), fallback: 0, min: 0, max: 10000 })
-  // C2: warm dei cataloghi (default off — upstream costoso). Scalda gli 8
-  // WARMUP_CATALOG_IDS così il primo browse non è freddo N+1; con C1 i body
+  // C2: warm dei cataloghi (default off â€” upstream costoso). Scalda gli 8
+  // WARMUP_CATALOG_IDS cosÃ¬ il primo browse non Ã¨ freddo N+1; con C1 i body
   // finiscono anche in KV cross-istanza. Chiavi pass-through dalla richiesta.
   const warmCatalogs = req.nextUrl.searchParams.get("catalogs") === "1"
   // D2: default dimezzati (~110 target invece di ~340). Prima ogni warmup
   // senza parametri veniva sempre troncato dalla deadline 50s (e su Hobby
-  // 10s non completava nulla), sprecando lavoro e — al boot su 512M —
-  // rischiando OOM contro il traffico reale. Chi vuole di più passa i
+  // 10s non completava nulla), sprecando lavoro e â€” al boot su 512M â€”
+  // rischiando OOM contro il traffico reale. Chi vuole di piÃ¹ passa i
   // parametri espliciti (max invariati).
   const trendingLimit = boundedInt({ value: req.nextUrl.searchParams.get("trending"), fallback: 20, min: 0, max: 100 })
   const justWatchLimit = boundedInt({ value: req.nextUrl.searchParams.get("justwatch"), fallback: 10, min: 0, max: 50 })
@@ -239,18 +239,18 @@ export async function POST(req: NextRequest) {
 
     // Fix M14: deadline complessivo sotto maxDuration (60s). Prima i batch
     // sequenziali con timeout 20s l'uno potevano sommare ~14 min nel caso
-    // peggiore: la funzione serverless veniva terminata a metà senza ritorno.
-    // Dopo WARMUP_DEADLINE_MS non si avviano più nuovi batch (il timeout di
-    // ogni fetch in corso è ridotto al tempo residuo).
-    // C2: resume via ?offset= — la coda è deterministica (stessi target,
-    // stesso ordine) così chiamate successive proseguono da nextOffset.
+    // peggiore: la funzione serverless veniva terminata a metÃ  senza ritorno.
+    // Dopo WARMUP_DEADLINE_MS non si avviano piÃ¹ nuovi batch (il timeout di
+    // ogni fetch in corso Ã¨ ridotto al tempo residuo).
+    // C2: resume via ?offset= â€” la coda Ã¨ deterministica (stessi target,
+    // stesso ordine) cosÃ¬ chiamate successive proseguono da nextOffset.
     const WARMUP_DEADLINE_MS = 50_000
     const deadlineAt = Date.now() + WARMUP_DEADLINE_MS
     const workQueue = queue.slice(queueOffset)
     for (let i = 0; i < workQueue.length; i += concurrency) {
       const remaining = deadlineAt - Date.now()
       if (remaining <= 0) {
-        log.warn("Warmup deadline reached — batch loop truncated", { processed: results.length, total: workQueue.length })
+        log.warn("Warmup deadline reached â€” batch loop truncated", { processed: results.length, total: workQueue.length })
         break
       }
       const batch = workQueue.slice(i, i + concurrency)
@@ -259,11 +259,11 @@ export async function POST(req: NextRequest) {
         try {
           const res = await fetch(buildPosterUrl({ req, target, lang: warmLang }), {
             signal: AbortSignal.timeout(batchTimeout),
-            // Forward the resolved key via header — never in the URL (no secrets in logs).
+            // Forward the resolved key via header â€” never in the URL (no secrets in logs).
             ...(apiKey ? { headers: { "x-api-key": apiKey } } : {}),
           })
           if (!res.ok) return { ...target, status: "fail", statusCode: res.status }
-          // D2: basta scaldare la cache server — il body non serve: cancellarlo
+          // D2: basta scaldare la cache server â€” il body non serve: cancellarlo
           // invece di allocare l'intero JPEG nell'orchestratore (prima
           // `arrayBuffer()` teneva ogni poster in memoria per niente).
           await res.body?.cancel().catch(() => {})
@@ -279,7 +279,7 @@ export async function POST(req: NextRequest) {
     const nextOffset = processedTotal < queue.length ? processedTotal : null
 
     // C2: warm cataloghi (solo con ?catalogs=1). Stesso self-fetch dei poster:
-    // scalda la cache catalogo (L1 + KV via C1) così il primo browse non paga
+    // scalda la cache catalogo (L1 + KV via C1) cosÃ¬ il primo browse non paga
     // N+1 freddo. Chiavi pass-through: senza api_key i cataloghi TMDB tornano
     // vuoti (come da contratto), gli anime/MDBList funzionano comunque.
     let catalogResults: WarmupResult[] | undefined
@@ -324,3 +324,4 @@ export async function POST(req: NextRequest) {
     return new Response("Warmup failed", { status: 500 })
   }
 }
+

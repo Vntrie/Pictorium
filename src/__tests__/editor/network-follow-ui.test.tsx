@@ -17,13 +17,13 @@ import { usePosterSave } from "@/lib/usePosterSave"
 import { saveDefaults } from "@/lib/save-defaults"
 import { captureVisualPreset, visualPresetValuesSchema } from "@/lib/visual-presets"
 import type { Mapping } from "@/lib/types"
-import type { PictoriumCtx } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
 }))
 
-function renderWithProbe(ui: ReactNode, overrides?: Partial<PictoriumCtx>) {
+function renderWithProbe(ui: ReactNode, overrides?: Partial<FlameForgeCtx>) {
   let ctx: PosterEditorCtx | null = null
   function Probe() {
     ctx = usePosterEditor()
@@ -722,3 +722,5 @@ describe("usePosterSave network follow", () => {
     expect(profile.networkLogoOffsetX).toBe(300)
   })
 })
+
+

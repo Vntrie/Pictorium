@@ -106,3 +106,4 @@ describe("eslint config", () => {
     }
   }, ESLINT_TEST_TIMEOUT)
 })
+

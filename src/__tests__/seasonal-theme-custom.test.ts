@@ -192,36 +192,36 @@ describe("catalog-side custom keywords (same matcher, server and client)", () =>
   it("themes a renamed built-in catalog on a custom keyword", () => {
     const renamed = {
       ...base,
-      catalogRenames: { "pictorium-jw-movies": "Spooky Season Top 20" },
+      catalogRenames: { "FlameForge-jw-movies": "Spooky Season Top 20" },
       seasonalKeywords: { halloween: ["spooky season"], christmas: [] },
     }
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-movies", "movie", renamed)).toBe("halloween")
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-movies", "movie", renamed)).toBe("halloween")
     // Same title elsewhere stays unframed.
-    expect(resolveCatalogSeasonalTheme("pictorium-netflix-movies", "movie", renamed)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-netflix-movies", "movie", renamed)).toBeNull()
   })
 
   it("themes custom lists on custom keywords (rename wins)", () => {
     const customs = [custom("cozy", "Pumpkin Spice Nights")]
     const opts = { ...base, customCatalogs: customs, seasonalKeywords: { halloween: [], christmas: ["pumpkin spice"] } }
-    expect(resolveCatalogSeasonalTheme("pictorium-custom-movie-cozy", "movie", opts)).toBe("christmas")
-    expect(resolveCatalogSeasonalTheme("pictorium-custom-series-cozy", "series", opts)).toBeNull()
+    expect(resolveCatalogSeasonalTheme("FlameForge-custom-movie-cozy", "movie", opts)).toBe("christmas")
+    expect(resolveCatalogSeasonalTheme("FlameForge-custom-series-cozy", "series", opts)).toBeNull()
   })
 
   it("keeps mixed names deterministic with custom keywords", () => {
     const opts = {
       ...base,
-      catalogRenames: { "pictorium-jw-movies": "Spooky Season + Pumpkin Spice" },
+      catalogRenames: { "FlameForge-jw-movies": "Spooky Season + Pumpkin Spice" },
       seasonalKeywords: { halloween: ["spooky season"], christmas: ["pumpkin spice"] },
     }
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-movies", "movie", opts)).toBe("halloween")
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-movies", "movie", opts)).toBe("halloween")
   })
 
   it("without custom keywords the behavior is legacy-identical", () => {
-    const renamed = { ...base, catalogRenames: { "pictorium-jw-movies": "Spooky Season Top 20" } }
+    const renamed = { ...base, catalogRenames: { "FlameForge-jw-movies": "Spooky Season Top 20" } }
     // No custom keywords: no match (built-ins untouched).
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-movies", "movie", renamed)).toBeNull()
-    const builtin = { ...base, catalogRenames: { "pictorium-jw-movies": "My Halloween marathon" } }
-    expect(resolveCatalogSeasonalTheme("pictorium-jw-movies", "movie", builtin)).toBe("halloween")
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-movies", "movie", renamed)).toBeNull()
+    const builtin = { ...base, catalogRenames: { "FlameForge-jw-movies": "My Halloween marathon" } }
+    expect(resolveCatalogSeasonalTheme("FlameForge-jw-movies", "movie", builtin)).toBe("halloween")
   })
 })
 
@@ -538,3 +538,5 @@ describe("staged preview precedence over saved mapping (editor WYSIWYG)", () => 
     expect(url.searchParams.get("theme")).toBe("halloween")
   })
 })
+
+

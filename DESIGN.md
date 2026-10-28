@@ -1,4 +1,4 @@
-# Pictorium Design System
+﻿# FlameForge Design System
 
 ## Z-Index Layers
 
@@ -17,11 +17,11 @@
 
 ## Touch Targets
 
-Minimum 44×44px for interactive elements on mobile.
-- Toggle: `w-12 h-7` (48×28px) — uses `role="switch"` + `aria-checked`
+Minimum 44Ã—44px for interactive elements on mobile.
+- Toggle: `w-12 h-7` (48Ã—28px) â€” uses `role="switch"` + `aria-checked`
 - Toolbar buttons: `h-11` (44px)
-- Floating buttons: `h-11 w-11` (44×44px)
-- Search submit: `w-10 h-10` (40×40px)
+- Floating buttons: `h-11 w-11` (44Ã—44px)
+- Search submit: `w-10 h-10` (40Ã—40px)
 - Dropdown items: `py-2.5` minimum
 
 ## Color Tokens
@@ -43,7 +43,7 @@ Minimum 44×44px for interactive elements on mobile.
 | `danger` | `#f87171` | Destructive actions (btn-danger) |
 | `warning` | `#fbbf24` | Amber best-fit badge (`fit-badge-amber`) |
 
-Light mode: `html.light-mode` overrides `background` → `#f5f5f5` and `foreground` → `#1a1a1a`.
+Light mode: `html.light-mode` overrides `background` â†’ `#f5f5f5` and `foreground` â†’ `#1a1a1a`.
 
 ## Modern Surface Classes
 
@@ -79,36 +79,36 @@ Motion should stay subtle: transform/opacity only, usually 150-300ms. The modern
 
 ```
 AppShell
-├── VersionBadge (fixed top-left)
-├── LangPicker (full-screen overlay)
-├── SearchView | MyPostersView | EditView
-├── Floating buttons (fixed bottom-right)
-│   ├── Refresh
-│   ├── Status
-│   └── Language
-├── SettingsPanel (desktop: dropdown, mobile: full-screen)
-└── Mobile settings overlay
+â”œâ”€â”€ VersionBadge (fixed top-left)
+â”œâ”€â”€ LangPicker (full-screen overlay)
+â”œâ”€â”€ SearchView | MyPostersView | EditView
+â”œâ”€â”€ Floating buttons (fixed bottom-right)
+â”‚   â”œâ”€â”€ Refresh
+â”‚   â”œâ”€â”€ Status
+â”‚   â””â”€â”€ Language
+â”œâ”€â”€ SettingsPanel (desktop: dropdown, mobile: full-screen)
+â””â”€â”€ Mobile settings overlay
 ```
 
 ## Hook Architecture
 
-- `useNavigation` — view state, history, poster browser
-- `useTrending` — trending/anime/streaming data (FlixPatrol lazy: batch 2 ogni 300ms, defer 2s)
-- `useSearch` — query, results, error, pagination (solo TMDB, Groq rimosso)
-- `useMappingsStore` — mappings CRUD, persistenza file/KV
-- `useDefaults` — server-side default settings
-- `usePosterSave` — poster save/preview logic
-- `usePosterEditor` (`contexts/PosterEditorContext`) — stato editor (badge/blur/logo/backdrop/rotation)
-- `usePosterFit` — best-fit poster selection (`concurrentMap` limit 5, `withTimeout` unref)
-- `usePosterPreview` — preview reload (XHR blob URL) + toast
-- `useRootColors` — estrazione accent/top-edge color dal poster
-- `useCollections` — poster collections (localStorage)
-- `useCustomCatalogs` — cataloghi personalizzati (customCatalogs, catalogOrder, renames)
-- `useOutsideDismiss` — chiusura dropdown al click esterno
+- `useNavigation` â€” view state, history, poster browser
+- `useTrending` â€” trending/anime/streaming data (FlixPatrol lazy: batch 2 ogni 300ms, defer 2s)
+- `useSearch` â€” query, results, error, pagination (solo TMDB, Groq rimosso)
+- `useMappingsStore` â€” mappings CRUD, persistenza file/KV
+- `useDefaults` â€” server-side default settings
+- `usePosterSave` â€” poster save/preview logic
+- `usePosterEditor` (`contexts/PosterEditorContext`) â€” stato editor (badge/blur/logo/backdrop/rotation)
+- `usePosterFit` â€” best-fit poster selection (`concurrentMap` limit 5, `withTimeout` unref)
+- `usePosterPreview` â€” preview reload (XHR blob URL) + toast
+- `useRootColors` â€” estrazione accent/top-edge color dal poster
+- `useCollections` â€” poster collections (localStorage)
+- `useCustomCatalogs` â€” cataloghi personalizzati (customCatalogs, catalogOrder, renames)
+- `useOutsideDismiss` â€” chiusura dropdown al click esterno
 
 ## i18n
 
-- 17 languages: en, it, pl, fr, de, es, he, ja, ko, pt, cs, ro, ar, tr, nl, sv, vi (vi è solo lingua UI, senza regione chart)
+- 17 languages: en, it, pl, fr, de, es, he, ja, ko, pt, cs, ro, ar, tr, nl, sv, vi (vi Ã¨ solo lingua UI, senza regione chart)
 - Keys prefixed with `ui.` for UI strings, `badge.` for badge labels
 - `__` prefix for badge keys that need translation at render time
 - `createT(lang)` for server-side translation
@@ -120,3 +120,4 @@ AppShell
 - Focus-visible rings on all interactive elements (orange outline)
 - Minimum touch targets 44px on mobile
 - Skeleton loading instead of text spinners
+

@@ -80,7 +80,7 @@ describe("ThemeContext & ThemeToggle", () => {
 
     expect(screen.getByTestId("current-theme").textContent).toBe("light")
     expect(screen.getByTestId("resolved-theme").textContent).toBe("light")
-    expect(localStorage.getItem("pictorium_ui_theme")).toBe("light")
+    expect(localStorage.getItem("FLAMEFORGE_ui_theme")).toBe("light")
     expect(document.documentElement.getAttribute("data-theme")).toBe("light")
     expect(document.documentElement.classList.contains("light")).toBe(true)
     expect(document.documentElement.classList.contains("dark")).toBe(false)
@@ -99,7 +99,7 @@ describe("ThemeContext & ThemeToggle", () => {
 
     expect(screen.getByTestId("current-theme").textContent).toBe("dark")
     expect(screen.getByTestId("resolved-theme").textContent).toBe("dark")
-    expect(localStorage.getItem("pictorium_ui_theme")).toBe("dark")
+    expect(localStorage.getItem("FLAMEFORGE_ui_theme")).toBe("dark")
     expect(document.documentElement.getAttribute("data-theme")).toBe("dark")
     expect(document.documentElement.classList.contains("dark")).toBe(true)
   })
@@ -132,15 +132,15 @@ describe("ThemeContext & ThemeToggle", () => {
   })
 
   it("opens the compact picker, selects a theme and restores focus", () => {
-    localStorage.setItem("pictorium_theme", "dark")
+    localStorage.setItem("FLAMEFORGE_theme", "dark")
     renderWithCtx(<ThemeToggle bottomBar />)
     const trigger = screen.getByRole("button", { name: /Tema|ui\.theme$/i })
     expect(screen.queryByRole("radiogroup")).toBeNull()
     fireEvent.click(trigger)
     expect(trigger).toHaveAttribute("aria-expanded", "true")
     fireEvent.click(screen.getByRole("radio", { name: /Chiaro|ui\.themeLight/i }))
-    expect(localStorage.getItem("pictorium_ui_theme")).toBe("light")
-    expect(localStorage.getItem("pictorium_theme")).toBe("dark")
+    expect(localStorage.getItem("FLAMEFORGE_ui_theme")).toBe("light")
+    expect(localStorage.getItem("FLAMEFORGE_theme")).toBe("dark")
     expect(screen.queryByRole("radiogroup")).toBeNull()
     expect(trigger).toHaveFocus()
     fireEvent.click(trigger)
@@ -152,7 +152,7 @@ describe("ThemeContext & ThemeToggle", () => {
   })
 
   it("ignores invalid stored values and follows storage resets", () => {
-    localStorage.setItem("pictorium_ui_theme", "invalid")
+    localStorage.setItem("FLAMEFORGE_ui_theme", "invalid")
     renderWithCtx(<><TestThemeConsumer /><ThemeToggle showLabels /></>)
     expect(screen.getByTestId("current-theme")).toHaveTextContent("system")
     fireEvent.click(screen.getByRole("radio", { name: /Chiaro|ui\.themeLight/i }))
@@ -171,4 +171,6 @@ describe("ThemeContext & ThemeToggle", () => {
     expect(screen.getByTestId("resolved-theme")).toHaveTextContent("light")
   })
 })
+
+
 

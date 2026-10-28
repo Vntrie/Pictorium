@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 vi.unmock("@/lib/i18n")
 
 import { useEffect } from "react"
-import { PictoriumRoot, useP, type PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP, type FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor, type PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { getLang, registerDictionary, setLang } from "@/lib/i18n"
 import { loadLanguage } from "@/lib/i18n-loader"
@@ -20,7 +20,7 @@ vi.mock("@/lib/i18n-loader", () => ({
 
 const mockedLoad = vi.mocked(loadLanguage)
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let ed: PosterEditorCtx | null = null
 
 function Probe() {
@@ -124,9 +124,9 @@ describe("delayed language commit vs manual region choice", () => {
   it("manual region change while loading wins: lang commits, region choice is preserved", async () => {
     localStorage.setItem("badgeDefaults", JSON.stringify({ region: "IT" }))
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     expect(ctx!.lang).toBe("it")
@@ -175,9 +175,9 @@ describe("delayed language commit vs manual region choice", () => {
   it("normal pick without manual change still applies the language region", async () => {
     localStorage.setItem("badgeDefaults", JSON.stringify({ region: "IT" }))
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -196,3 +196,5 @@ describe("delayed language commit vs manual region choice", () => {
     expect(storedRegion()).toBe("FR")
   })
 })
+
+

@@ -142,3 +142,4 @@ describe("classifyImdbTitleType / isValidImdbId", () => {
     expect(isValidImdbId(null)).toBe(false)
   })
 })
+

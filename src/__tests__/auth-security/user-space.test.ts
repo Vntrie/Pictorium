@@ -54,8 +54,8 @@ describe("user-token secret + password: tutto in memoria, zero localStorage", ()
   it("password solo in memoria (mai in alcuno storage), muore col refresh", () => {
     setStoredUserPassword(UUID_A, "secret-pw-1")
     expect(getStoredUserPassword(UUID_A)).toBe("secret-pw-1")
-    expect(window.localStorage.getItem(`pictorium-user-password:${UUID_A}`)).toBeNull()
-    expect(window.sessionStorage.getItem(`pictorium-user-password:${UUID_A}`)).toBeNull()
+    expect(window.localStorage.getItem(`FlameForge-user-password:${UUID_A}`)).toBeNull()
+    expect(window.sessionStorage.getItem(`FlameForge-user-password:${UUID_A}`)).toBeNull()
     expect(hasStoredCredential(UUID_A)).toBe(true)
     setStoredUserPassword(UUID_A, "")
     expect(getStoredUserPassword(UUID_A)).toBeNull()
@@ -75,11 +75,11 @@ describe("user-token secret + password: tutto in memoria, zero localStorage", ()
     expect(getStoredUserToken(UUID_A)).toBe("tok-1")
     expect(getStoredUserToken(UUID_B)).toBeNull()
     // Scritto in localStorage: resta dopo il refresh (la sessione no).
-    expect(window.localStorage.getItem(`pictorium-user-token:${UUID_A.toLowerCase()}`)).toBe("tok-1")
+    expect(window.localStorage.getItem(`FlameForge-user-token:${UUID_A.toLowerCase()}`)).toBe("tok-1")
     expect(hasStoredCredential(UUID_A)).toBe(true)
     setStoredUserToken(UUID_A, "")
     expect(getStoredUserToken(UUID_A)).toBeNull()
-    expect(window.localStorage.getItem(`pictorium-user-token:${UUID_A.toLowerCase()}`)).toBeNull()
+    expect(window.localStorage.getItem(`FlameForge-user-token:${UUID_A.toLowerCase()}`)).toBeNull()
     expect(hasStoredCredential(UUID_A)).toBe(false)
     // Null-safe.
     expect(getStoredUserToken(null as unknown as string)).toBeNull()
@@ -185,3 +185,5 @@ describe("zero memoria cross-test: reset credenziali", () => {
     expect(hasStoredCredential(UUID_A)).toBe(false)
   })
 })
+
+

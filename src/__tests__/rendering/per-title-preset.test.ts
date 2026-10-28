@@ -376,3 +376,4 @@ describe("logo scale semantics (null = auto-fit request)", () => {
     expect(logo.scale).toBeNull()
   })
 })
+

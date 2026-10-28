@@ -1,13 +1,13 @@
-"use client"
+﻿"use client"
 
 import { createContext, useContext, useMemo } from "react"
-import type { PictoriumCtx } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import type { SearchResult, FlixPatrolChart } from "@/lib/types"
 import type { EnrichedAnimeItem } from "@/lib/validation"
 import { STREAMING_PLATFORMS } from "@/lib/utils"
 
 /**
- * SearchCtx — subset di PictoriumCtx per search + trending.
+ * SearchCtx â€” subset di FlameForgeCtx per search + trending.
  */
 export interface SearchCtx {
   query: string
@@ -39,7 +39,7 @@ const Ctx = createContext<SearchCtx | null>(null)
 
 export function useSearchCtx() {
   const v = useContext(Ctx)
-  if (!v) throw new Error("useSearchCtx must be inside PictoriumProvider")
+  if (!v) throw new Error("useSearchCtx must be inside FlameForgeProvider")
   return v
 }
 
@@ -47,7 +47,7 @@ export function SearchProvider({
   value,
   children,
 }: {
-  value: PictoriumCtx
+  value: FlameForgeCtx
   children: React.ReactNode
 }) {
   const searchCtx = useMemo<SearchCtx>(
@@ -90,3 +90,4 @@ export function SearchProvider({
 
   return <Ctx.Provider value={searchCtx}>{children}</Ctx.Provider>
 }
+

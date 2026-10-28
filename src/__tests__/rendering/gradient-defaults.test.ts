@@ -26,3 +26,4 @@ describe("poster-type defaults (clean vs non-clean)", () => {
     expect(defaultBlurFadeForPoster(undefined)).toBe(80)
   })
 })
+

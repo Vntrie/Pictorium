@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 vi.unmock("@/lib/i18n")
 
 import { useEffect } from "react"
-import { PictoriumRoot, useP, type PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP, type FlameForgeCtx } from "@/lib/context"
 import { getLang, registerDictionary, setLang } from "@/lib/i18n"
 import { loadLanguage } from "@/lib/i18n-loader"
 
@@ -19,7 +19,7 @@ vi.mock("@/lib/i18n-loader", () => ({
 
 const mockedLoad = vi.mocked(loadLanguage)
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 
 function Probe() {
   const v = useP()
@@ -107,9 +107,9 @@ describe("context language race/failure (mocked loader transport)", () => {
   it("init vs picker race: only the last request commits", async () => {
     localStorage.setItem("preferred_lang", "fr")
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush(3)
     // Pending fr init: no optimistic commit.
@@ -143,9 +143,9 @@ describe("context language race/failure (mocked loader transport)", () => {
 
   it("two rapid picks: the second commit wins regardless of resolve order", async () => {
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -171,9 +171,9 @@ describe("context language race/failure (mocked loader transport)", () => {
 
   it("failure keeps the active language and retry commits", async () => {
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -209,9 +209,9 @@ describe("context language race/failure (mocked loader transport)", () => {
     // active — the picker comes back so the user can choose/retry.
     localStorage.setItem("preferred_lang", "ro")
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush(3)
     expect(ctx!.lang).toBe("it")
@@ -247,9 +247,9 @@ describe("context language race/failure (mocked loader transport)", () => {
   it("init unmount never commits global or storage", async () => {
     localStorage.setItem("preferred_lang", "sv")
     const view = render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush(3)
     expect(ctx!.lang).toBe("it")
@@ -269,9 +269,9 @@ describe("context language race/failure (mocked loader transport)", () => {
 
   it("unmount invalidates a pending commit", async () => {
     const view = render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -287,3 +287,5 @@ describe("context language race/failure (mocked loader transport)", () => {
     expect(document.documentElement.lang).toBe(langBefore)
   })
 })
+
+

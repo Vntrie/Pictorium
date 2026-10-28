@@ -10,9 +10,11 @@ describe("GET /api/license", () => {
 
     expect(res.status).toBe(200)
     expect(json.license).toBe("AGPL-3.0-only")
-    expect(json.source).toBe("https://github.com/Eful97/Pictorium")
+    expect(json.source).toBe("https://github.com/Eful97/FlameForge")
     expect(json.licenseFile).toBe("/LICENSE")
     expect(json.noticeFile).toBe("/NOTICE")
     expect(typeof json.notice).toBe("string")
   })
 })
+
+

@@ -1,9 +1,9 @@
-import { test, expect, type APIRequestContext } from "@playwright/test"
+﻿import { test, expect, type APIRequestContext } from "@playwright/test"
 import sharp from "sharp"
 import type { Mapping } from "../src/lib/types"
 
 // List-rank coherence (Top-20-only contract, shared renderer): NO catalog
-// emits an automatic `rk=` anymore — badges resolve live from the
+// emits an automatic `rk=` anymore â€” badges resolve live from the
 // authorized Top-20 sources on both preview and Stremio. Explicit `rk=`
 // (manual/diagnostic) still resolves as explicit `rank=` > valid `rk=`
 // (0..100, 0 = explicit unranked, invalid = absent legacy) > live rank.
@@ -259,7 +259,7 @@ test("rank resolution contract: precedence, suppression, invalid collapse, regio
   // Source country isolation: same rk in another region resolves the same
   // list rank. No ETag-variance claim here: the ETag hashes the FINAL
   // representation, so identical bytes across regions MUST allow an
-  // identical ETag — region in the cache key does not imply different
+  // identical ETag â€” region in the cache key does not imply different
   // pixels. rk=N vs rk=M differences (above) stay hard assertions because
   // those renders provably differ.
   const dIt = await debugJson(request, explicitUrl(ID, { rk: "7", region: "IT" }))
@@ -285,7 +285,7 @@ test("rank resolution contract: precedence, suppression, invalid collapse, regio
 })
 
 test("catalog order carries region without automatic rk; live rank resolves the same final rank", async ({ request }) => {
-  const res = await request.get("/catalog/movie/pictorium-jw-movies.json", {
+  const res = await request.get("/catalog/movie/FlameForge-jw-movies.json", {
     headers: { "x-api-key": "e2e-key" },
   })
   expect(res.ok()).toBeTruthy()
@@ -314,3 +314,4 @@ test("catalog order carries region without automatic rk; live rank resolves the 
     await etagOf(request, `${second.pathname}${second.search}`),
   )
 })
+

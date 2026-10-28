@@ -67,3 +67,4 @@ describe("anime MDBList snoak credit link", () => {
     expect(document.querySelectorAll('img[src="/rating/mdblist.svg"]')).toHaveLength(2)
   })
 })
+

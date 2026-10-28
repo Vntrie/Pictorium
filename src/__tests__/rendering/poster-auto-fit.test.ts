@@ -656,15 +656,15 @@ describe("selectAutoFitCandidates shape", () => {
   })
 })
 
-describe("TMDB_CANDIDATE_COUNT env (PICTORIUM_AUTO_FIT_CANDIDATE_COUNT)", () => {
+describe("TMDB_CANDIDATE_COUNT env (FLAMEFORGE_AUTO_FIT_CANDIDATE_COUNT)", () => {
   // Lettura a module level: re-import con env impostata (stesso pattern di
   // best-fit-config.test.ts). Ripristino dopo ogni caso per non toccare gli altri test.
   async function candidatesWithEnv(value: string | undefined, total: number): Promise<number> {
     if (value === undefined) {
-      delete process.env.PICTORIUM_AUTO_FIT_CANDIDATE_COUNT
-      delete process.env.POSTERIUM_AUTO_FIT_CANDIDATE_COUNT
+      delete process.env.FLAMEFORGE_AUTO_FIT_CANDIDATE_COUNT
+      delete process.env.FLAMEFORGE_AUTO_FIT_CANDIDATE_COUNT
     } else {
-      process.env.PICTORIUM_AUTO_FIT_CANDIDATE_COUNT = value
+      process.env.FLAMEFORGE_AUTO_FIT_CANDIDATE_COUNT = value
     }
     vi.resetModules()
     const mod = await import("@/lib/poster-auto-fit")
@@ -678,8 +678,8 @@ describe("TMDB_CANDIDATE_COUNT env (PICTORIUM_AUTO_FIT_CANDIDATE_COUNT)", () => 
   }
 
   afterEach(() => {
-    delete process.env.PICTORIUM_AUTO_FIT_CANDIDATE_COUNT
-    delete process.env.POSTERIUM_AUTO_FIT_CANDIDATE_COUNT
+    delete process.env.FLAMEFORGE_AUTO_FIT_CANDIDATE_COUNT
+    delete process.env.FLAMEFORGE_AUTO_FIT_CANDIDATE_COUNT
     vi.resetModules()
   })
 
@@ -703,3 +703,5 @@ describe("TMDB_CANDIDATE_COUNT env (PICTORIUM_AUTO_FIT_CANDIDATE_COUNT)", () => 
     expect(await candidatesWithEnv("8", 5)).toBe(5)
   })
 })
+
+

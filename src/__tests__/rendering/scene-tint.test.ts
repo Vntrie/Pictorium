@@ -1,4 +1,4 @@
-ï»¿import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "vitest"
 import sharp from "sharp"
 import { findSceneTint, findAccentColor, isManualAccent, computeBottomLight, hexLuminance, bottomEdgeAverage, isWarmGoldAccent } from "@/lib/accent-color"
 import { extractSceneTint } from "@/lib/poster-render-helpers"
@@ -30,7 +30,7 @@ describe("findSceneTint (same-hue scene tint extraction)", () => {
     expect(tint.b).toBeGreaterThan(tint.g + 30)
   })
 
-  it("amber image (229, 142, 38) -> R max and same-hue (proves non-rotation vs complementary +150Â°)", () => {
+  it("amber image (229, 142, 38) -> R max and same-hue (proves non-rotation vs complementary +150°)", () => {
     const raw = createSolidRawRgba(100, 100, 229, 142, 38)
     const sceneTint = findSceneTint(raw, 100, 100, "Action")
     const accentBadge = findAccentColor(raw, 100, 100, "Action")
@@ -39,7 +39,7 @@ describe("findSceneTint (same-hue scene tint extraction)", () => {
     expect(sceneTint.r).toBeGreaterThan(sceneTint.g)
     expect(sceneTint.g).toBeGreaterThan(sceneTint.b)
 
-    // Contrast with findAccentColor (+150Â° rotation gives cool cyan/blue where B or G dominates R)
+    // Contrast with findAccentColor (+150° rotation gives cool cyan/blue where B or G dominates R)
     expect(accentBadge.b).toBeGreaterThan(accentBadge.r)
   })
 
@@ -104,13 +104,13 @@ describe("findSceneTint (background representative medians)", () => {
     const raw = createTealNavyFrame()
     const tint = findSceneTint(raw, 200, 300, "Crime")
     // Winning-bucket medians = pure teal pixels (navy votes bucket 7,
-    // black is excluded by the filters) â†’ exact background color.
+    // black is excluded by the filters) ? exact background color.
     expect(tint).toEqual({ r: 81, g: 149, b: 163 })
     // Robust threshold vs target (12.7 euclidean measured on the real poster
     // for edge teal-navy blends; 0 here by construction).
     const dR = 81 - tint.r, dG = 149 - tint.g, dB = 163 - tint.b
     expect(Math.sqrt(dR * dR + dG * dG + dB * dB)).toBeLessThan(25)
-    // Teal signature, not navy (navy: g - r â‰ˆ 10).
+    // Teal signature, not navy (navy: g - r ˜ 10).
     expect(tint.g).toBeGreaterThan(tint.r + 30)
   })
 
@@ -129,7 +129,7 @@ describe("findSceneTint (background representative medians)", () => {
       }
     }
     const tint = findSceneTint(raw, w, h, "Crime")
-    // Center lamp = outside the frame â†’ medians = exact dark background,
+    // Center lamp = outside the frame ? medians = exact dark background,
     // darker than the old fixed band (L = 0.26): scenic darkening stays the
     // renderer's job, not the extractor's.
     expect(tint).toEqual({ r: 22, g: 30, b: 52 })
@@ -146,7 +146,7 @@ describe("findSceneTint (background representative medians)", () => {
 describe("findSceneTint (median edge cases)", () => {
   it("even sample count averages the two middle values deterministically", () => {
     // 20x20 with 8px frame margins: paint 12 saturated pixels on the top
-    // frame row, six R=80 + six R=82 (same G/B/hue bucket) â†’ median R is
+    // frame row, six R=80 + six R=82 (same G/B/hue bucket) ? median R is
     // exactly (80 + 82) / 2 = 81, on every run.
     const w = 20, h = 20
     const buf = Buffer.alloc(w * h * 4)
@@ -197,7 +197,7 @@ describe("findSceneTint (median edge cases)", () => {
 
   it("desaturated grey and near-black pixels never vote", () => {
     // The frame is grey + near-black noise; only a small saturated teal
-    // patch at the corner contributes weight â†’ teal wins, medians exact.
+    // patch at the corner contributes weight ? teal wins, medians exact.
     const w = 100, h = 100
     const buf = Buffer.alloc(w * h * 4)
     for (let y = 0; y < h; y++) {
@@ -216,7 +216,7 @@ describe("findSceneTint (median edge cases)", () => {
   })
 
   it("red straddling the 0/360 boundary keeps every sample in-family", () => {
-    // Left half hue â‰ˆ 356.5Â° (bucket 11), right half hue â‰ˆ 3.5Â° (bucket 0):
+    // Left half hue ˜ 356.5° (bucket 11), right half hue ˜ 3.5° (bucket 0):
     // deriving the winner from the mean hue must attribute each sample to
     // its own bucket instead of dropping the red family.
     const w = 100, h = 100
@@ -232,7 +232,7 @@ describe("findSceneTint (median edge cases)", () => {
       }
     }
     const tint = findSceneTint(buf, w, h, "Action")
-    // Whichever side wins, the medians are exactly that side's color â€”
+    // Whichever side wins, the medians are exactly that side's color —
     // never a blend, never the fallback, always red-dominant.
     expect([[200, 30, 40], [200, 40, 30]]).toContainEqual([tint.r, tint.g, tint.b])
     expect(tint.r).toBeGreaterThan(tint.g + 100)
@@ -417,3 +417,4 @@ describe("bottomEdgeAverage", () => {
     expect(b).toBeGreaterThan(150)
   })
 })
+

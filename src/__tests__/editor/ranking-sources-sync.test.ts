@@ -45,8 +45,8 @@ describe("useRankingSources", () => {
 
   it("hydrates from localStorage and keeps explicit empty (JW override)", async () => {
     const store = memStore({
-      pictorium_ranking_source_movie: "cat_movies",
-      pictorium_ranking_source_series: "",
+      FLAMEFORGE_ranking_source_movie: "cat_movies",
+      FLAMEFORGE_ranking_source_series: "",
     })
     const { result } = renderHook(() => useRankingSources(store.get, store.set))
 
@@ -66,8 +66,8 @@ describe("useRankingSources", () => {
     const { result } = renderHook(() => useRankingSources(store.get, store.set))
 
     await waitFor(() => expect(result.current.rankingSourceMovie).toBe("cat_server"))
-    expect(store.raw.get("pictorium_ranking_source_movie")).toBe("cat_server")
-    expect(store.raw.get("pictorium_ranking_source_series")).toBe("")
+    expect(store.raw.get("FLAMEFORGE_ranking_source_movie")).toBe("cat_server")
+    expect(store.raw.get("FLAMEFORGE_ranking_source_series")).toBe("")
   })
 
   it("saves both slots, bumps the nonce only on success", async () => {
@@ -92,7 +92,7 @@ describe("useRankingSources", () => {
   })
 
   it("reverts to the saved values when the PUT fails", async () => {
-    const store = memStore({ pictorium_ranking_source_movie: "cat_old" })
+    const store = memStore({ FLAMEFORGE_ranking_source_movie: "cat_old" })
     mockedFetch.mockImplementation(async (_url: string, init?: RequestInit) =>
       init?.method === "PUT" ? ({ ok: false, status: 500 }) as unknown as Response : okEmptyGet,
     )
@@ -125,7 +125,7 @@ describe("useRankingSources", () => {
   })
 
   it("adopts the server value over a stale local one", async () => {
-    const store = memStore({ pictorium_ranking_source_movie: "cat_stale" })
+    const store = memStore({ FLAMEFORGE_ranking_source_movie: "cat_stale" })
     mockedFetch.mockResolvedValue({
       ok: true,
       json: async () => ({ rankingSourceMovie: "cat_server" }),
@@ -133,7 +133,7 @@ describe("useRankingSources", () => {
     const { result } = renderHook(() => useRankingSources(store.get, store.set))
 
     await waitFor(() => expect(result.current.rankingSourceMovie).toBe("cat_server"))
-    expect(store.raw.get("pictorium_ranking_source_movie")).toBe("cat_server")
+    expect(store.raw.get("FLAMEFORGE_ranking_source_movie")).toBe("cat_server")
   })
 
   it("ignores a late server GET after a user pick", async () => {
@@ -189,3 +189,5 @@ describe("useRankingSources", () => {
     })
   })
 })
+
+

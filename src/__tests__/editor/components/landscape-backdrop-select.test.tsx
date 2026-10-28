@@ -19,7 +19,7 @@ import { BackdropOptions } from "@/components/BackdropOptions"
 import EditView from "@/components/EditView"
 import { usePosterFit, type PosterFitEntry } from "@/lib/usePosterFit"
 import { MOCK_CTX, renderWithCtx } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider, usePosterEditor, type PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import type { Mapping, SearchResult, TMDBImage } from "@/lib/types"
@@ -74,14 +74,14 @@ function BackdropShell({ backdrops, initialSelected, onSelect }: {
   return (
     <ThemeProvider>
       <PosterEditorProvider>
-        <PictoriumProvider value={ctx}>
+        <FlameForgeProvider value={ctx}>
           <BackdropOptions
             backdrops={backdrops}
             backdropActivePath={active}
             selectBackdrop={(i) => { setActive(i.file_path); onSelect?.(i) }}
             clearBackdrop={() => setActive(null)}
           />
-        </PictoriumProvider>
+        </FlameForgeProvider>
       </PosterEditorProvider>
     </ThemeProvider>
   )
@@ -427,7 +427,7 @@ describe("EditView: per-format independent landscape custom (customBackdropUrl)"
       // Session tile pre-seeded (same key as the store): the saved remove
       // must not touch it, so the live selection survives — like portrait.
       localStorage.setItem(
-        "pictorium_custom_backdrops_movie:101",
+        "FLAMEFORGE_custom_backdrops_movie:101",
         JSON.stringify([{ file_path: CUSTOM_URL, iso_639_1: null, vote_average: 0, width: 1920, height: 1080 }]),
       )
       global.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -518,3 +518,5 @@ describe("EditView: per-format independent landscape custom (customBackdropUrl)"
     }
   })
 })
+
+

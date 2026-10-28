@@ -26,3 +26,4 @@ describe("InstallModal with device config token", () => {
     expect(webLink?.getAttribute("href")).toContain("manifest.json")
   })
 })
+

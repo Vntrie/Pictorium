@@ -7,8 +7,8 @@ import { NextRequest } from "next/server"
 import type { Mapping } from "@/lib/types"
 
 const ENV_KEYS = [
-  "PICTORIUM_DATA_DIR",
-  "PICTORIUM_MULTI_USER",
+  "FLAMEFORGE_DATA_DIR",
+  "FLAMEFORGE_MULTI_USER",
   "PROFILE_ENCRYPTION_KEY",
 ] as const
 let savedEnv: Record<string, string | undefined> = {}
@@ -17,9 +17,9 @@ let tempDir: string | undefined
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-first-import-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
-  process.env.PICTORIUM_MULTI_USER = "1"
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-first-import-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
+  process.env.FLAMEFORGE_MULTI_USER = "1"
   process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
 })
 
@@ -84,3 +84,5 @@ describe("POST /api/users: namespace isolato, mai auto-import", () => {
     expect(body.importedMappings).toBe(0)
   })
 })
+
+

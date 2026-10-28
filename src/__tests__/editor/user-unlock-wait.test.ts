@@ -50,3 +50,4 @@ describe("waitForUserUnlock", () => {
     await expect(waitForUserUnlock("", 10)).resolves.toBe(false)
   })
 })
+

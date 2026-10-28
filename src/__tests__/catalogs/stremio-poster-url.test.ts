@@ -310,3 +310,4 @@ describe("buildStremioPosterUrl", () => {  it("adds a mapping version parameter 
     expect(resolveConfig(url, styled).topShade).toBe(80)
   })
 })
+

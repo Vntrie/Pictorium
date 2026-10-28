@@ -1,6 +1,6 @@
-{
-  "name": "Pictorium",
-  "short_name": "Pictorium",
+﻿{
+  "name": "FlameForge",
+  "short_name": "FlameForge",
   "description": "Generatore di poster cinematografici per Stremio",
   "start_url": "/",
   "display": "standalone",
@@ -11,3 +11,4 @@
     { "src": "/App.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
+

@@ -19,14 +19,14 @@
  *   generic custom URLs keep the historical null. No spontaneous rewrites.
  *
  * These tests drive the REAL `useTvdbArtworks` hook, the REAL
- * `usePosterSave` hook, and the REAL provider (`PictoriumRoot`) — never a
+ * `usePosterSave` hook, and the REAL provider (`FlameForgeRoot`) — never a
  * mocked select/save callback.
  */
 import { useEffect, type ReactNode } from "react"
 import { render, renderHook, act, waitFor } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { PictoriumProvider, PictoriumRoot, useP } from "@/lib/context"
-import type { PictoriumCtx } from "@/lib/context"
+import { FlameForgeProvider, FlameForgeRoot, useP } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import { MOCK_CTX } from "@/__tests__/test-utils"
@@ -84,7 +84,7 @@ function DynWrapper({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
       <PosterEditorProvider>
-        <PictoriumProvider value={{ ...MOCK_CTX, selected: hookSel }}>{children}</PictoriumProvider>
+        <FlameForgeProvider value={{ ...MOCK_CTX, selected: hookSel }}>{children}</FlameForgeProvider>
       </PosterEditorProvider>
     </ThemeProvider>
   )
@@ -214,7 +214,7 @@ function stubSaveFetch(posted: { url: string; body: Record<string, unknown> }[])
 
 // ---------- real provider rig (reopen) ----------
 
-let pctx: PictoriumCtx | null = null
+let pctx: FlameForgeCtx | null = null
 function Probe() {
   const v = useP()
   useEffect(() => { pctx = v })
@@ -337,9 +337,9 @@ function tvdbMapping(over: Record<string, unknown> = {}): Mapping {
 async function renderRoot() {
   pctx = null
   render(
-    <PictoriumRoot>
+    <FlameForgeRoot>
       <Probe />
-    </PictoriumRoot>,
+    </FlameForgeRoot>,
   )
   await flush()
   expect(pctx, "provider context available").toBeTruthy()
@@ -591,3 +591,5 @@ describe("TVDB saved-base reopen (real provider)", () => {
     expect(pctx!.selectedLogo).toBeNull()
   })
 })
+
+

@@ -135,7 +135,7 @@ describe("correction1: FP-first per-side isolation (real adapter + renewal)", ()
   beforeEach(async () => {
     vi.restoreAllMocks()
     tmpDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "fp-c1-isolation-"))
-    vi.stubEnv("PICTORIUM_DATA_DIR", tmpDataDir)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", tmpDataDir)
     vi.resetModules()
     fp = await import("@/lib/flixpatrol")
     cg = await import("@/lib/chart-generation")
@@ -312,3 +312,5 @@ describe("correction1: FP-first per-side isolation (real adapter + renewal)", ()
     expect(await cg.isChartFamilyGated(NETFLIX_MOVIE)).toBe(true)
   })
 })
+
+

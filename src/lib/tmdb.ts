@@ -1,4 +1,4 @@
-import { z } from "zod"
+﻿import { z } from "zod"
 import { createHash } from "node:crypto"
 import { createLogger } from "@/lib/logger"
 import { envWithFallback } from "@/lib/env-compat"
@@ -8,16 +8,16 @@ import { timedFetch } from "./outbound-stats"
 
 const log = createLogger("tmdb")
 
-// ── Validazione runtime delle risposte TMDB ─────────────────────────────
-// TMDB v3 è un contratto stabile ma NON viziato: i cast `data as X` ciechi
-// fanno sì che un cambio di forma della risposta propaghi undefined/garbage
+// â”€â”€ Validazione runtime delle risposte TMDB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// TMDB v3 Ã¨ un contratto stabile ma NON viziato: i cast `data as X` ciechi
+// fanno sÃ¬ che un cambio di forma della risposta propaghi undefined/garbage
 // in silenzio. Questi schemi validano SOLO i campi strutturali usati dal
 // codice (quelli che, se mancanti/cambiati di tipo, romperebbero la logica)
 // e passano attraverso tutto il resto (passthrough): l'intera risposta viene
 // preservata, ma un cambio di contratto reale emerge come errore descrittivo
-// nei percorsi try/catch già previsti — non più spazzatura silenziosa.
+// nei percorsi try/catch giÃ  previsti â€” non piÃ¹ spazzatura silenziosa.
 //
-// Il catching dei campi è intenzionalmente permissivo: TMDB omette campi
+// Il catching dei campi Ã¨ intenzionalmente permissivo: TMDB omette campi
 // a seconda del tipo (`title` solo sui film, `name` solo sulle serie, nessun
 // `media_type` su /popular e /trending, ecc.). Gli schemi devono accettare
 // BOTH la forma reale E quella del mock server e2e (e2e/mock-server.mjs).
@@ -32,7 +32,7 @@ const tmdbMediaItemSchema = z.object({
   first_air_date: z.string().nullable().optional(),
   // Campi extra presenti nei payload di search/trending/credits (TMDB li
   // omette a seconda dell'endpoint): servono alle righe di catalogo/ricerca
-  // (rating, backdrop, trama, generi — vedi catalog-handler).
+  // (rating, backdrop, trama, generi â€” vedi catalog-handler).
   vote_average: z.number().nullable().optional(),
   backdrop_path: z.string().nullable().optional(),
   overview: z.string().nullable().optional(),
@@ -133,7 +133,7 @@ const tmdbEpisodeGroupsResponseSchema = z.object({
   results: z.array(tmdbEpisodeGroupItemSchema).default([]),
 }).passthrough()
 
-// I dettagli sono il payload più ricco: la maggior parte dei campi è opzionale
+// I dettagli sono il payload piÃ¹ ricco: la maggior parte dei campi Ã¨ opzionale
 // e varia per tipo di contenuto (film vs serie). `id` resta l'ancora
 // obbligatoria; tutto il resto passa attraverso.
 const tmdbDetailsSchema = z.object({
@@ -208,15 +208,15 @@ const tmdbPersonCreditsSchema = z.object({
  * Valida una risposta TMDB con lo schema dato. Su successo restituisce la
  * risposta (i campi conosciuti tipizzati, il resto passthrough). Su fallimento
  * logga un warning COL nome dell'endpoint e i path dei problemi (mai dati o
- * chiavi API) e lancia un errore descrittivo: i chiamanti hanno già try/catch
- * o `.catch()` per gli errori TMDB, quindi degradano con grazia — ma il cambio
- * di contratto non passa più inosservato.
+ * chiavi API) e lancia un errore descrittivo: i chiamanti hanno giÃ  try/catch
+ * o `.catch()` per gli errori TMDB, quindi degradano con grazia â€” ma il cambio
+ * di contratto non passa piÃ¹ inosservato.
  */
 function parseTmdb<T>(endpoint: string, schema: z.ZodType<unknown>, data: unknown): T {
   const parsed = schema.safeParse(data)
   if (!parsed.success) {
     const problems = parsed.error.issues.slice(0, 5).map((i) => i.path.join(".") || "(root)").join(", ")
-    log.warn(`TMDB ${endpoint}: risposta non conforme allo schema — contratto cambiato?`, { problems })
+    log.warn(`TMDB ${endpoint}: risposta non conforme allo schema â€” contratto cambiato?`, { problems })
     throw new Error(`TMDB ${endpoint}: risposta inattesa dal provider (${problems})`)
   }
   return parsed.data as T
@@ -235,14 +235,14 @@ const CACHE_MAX = 500
 
 /**
  * Risolve la chiave API TMDB dalla richiesta.
- * Priorità: header x-api-key > query param api_key > env PICTORIUM_TMDB_KEY (legacy: POSTERIUM_TMDB_KEY).
+ * PrioritÃ : header x-api-key > query param api_key > env FLAMEFORGE_TMDB_KEY (legacy: FLAMEFORGE_TMDB_KEY).
  * L'header evita che la chiave appaia nei log del proxy/CDN.
  *
- * L'env `PICTORIUM_TMDB_KEY` è un FALLBACK d'istanza (opt-in): pensata per le
+ * L'env `FLAMEFORGE_TMDB_KEY` Ã¨ un FALLBACK d'istanza (opt-in): pensata per le
  * istanze personali (es. deploy Vercel con un solo utente) dove i cataloghi
  * devono funzionare senza che Stremio passi la chiave in ogni richiesta. Per
  * istanze multi-utente pubbliche NON configurarla: la policy storica (nessuna
- * chiave d'istanza) resta valida per quel caso — header/query/profilo bastano.
+ * chiave d'istanza) resta valida per quel caso â€” header/query/profilo bastano.
  */
 export function resolveRequestApiKey(req: { headers: Headers | { get: (name: string) => string | null }; nextUrl?: { searchParams: URLSearchParams } }): string | undefined {
   const headerKey = req.headers.get("x-api-key")
@@ -291,15 +291,15 @@ function searchParamsOf(req: KeyRequest): URLSearchParams | undefined {
 /**
  * Chiave API effettiva per kind (multi-user):
  * esplicita della richiesta > namespace utente (solo con `userId`) > env
- * globale d'istanza (opt-in). Con `userId` null il risultato è identico a
+ * globale d'istanza (opt-in). Con `userId` null il risultato Ã¨ identico a
  * oggi (header/query/env, catene env invariate per kind).
  *
- * Su istanza pubblica multi-user (flag ON) il fallback env è DISABILITATO
+ * Su istanza pubblica multi-user (flag ON) il fallback env Ã¨ DISABILITATO
  * solo per le richieste scoped (`userId` presente): altrimenti ogni `?u=`
  * senza chiave brucia la quota dell'operatore (open-proxy sulla chiave
  * d'istanza). Le richieste globali senza uuid tengono il fallback storico;
- * opt-in esplicito con `PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK=1` per gli
- * operatori che lo vogliono anche sugli scoped. Con flag OFF tutto è
+ * opt-in esplicito con `FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK=1` per gli
+ * operatori che lo vogliono anche sugli scoped. Con flag OFF tutto Ã¨
  * byte-identico a oggi.
  *
  * - tmdb: header `x-api-key` > query `api_key` > namespace.tmdb > env TMDB.
@@ -359,20 +359,20 @@ export async function resolveUserApiKeys(
       if (!out.simkl.key && scoped.simkl) out.simkl = { key: scoped.simkl, source: "namespace" }
       if (!out.fanart.key && scoped.fanart) out.fanart = { key: scoped.fanart, source: "namespace" }
     } catch {
-      // getUserKeys logga già: qui fallback all'env sotto (degraded, mai throw).
+      // getUserKeys logga giÃ : qui fallback all'env sotto (degraded, mai throw).
     }
   }
   // 3. Fallback d'istanza (stesse catene env di oggi, invariate).
-  // Con flag multi-user ON è disabilitato SOLO per le richieste scoped
+  // Con flag multi-user ON Ã¨ disabilitato SOLO per le richieste scoped
   // (`userId` presente): altrimenti ogni `?u=` senza chiave brucia la quota
   // dell'operatore (open-proxy sulla chiave d'istanza). Le richieste globali
   // (senza uuid, path legacy) tengono il fallback invariato; opt-in esplicito
-  // con `PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK=1` per gli operatori che lo
+  // con `FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK=1` per gli operatori che lo
   // vogliono anche sugli scoped.
   const allowEnvFallback = !userId
     || !isMultiUserEnabled()
-    || process.env.PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK === "1"
-    || process.env.POSTERIUM_MULTI_USER_ALLOW_ENV_FALLBACK === "1"
+    || process.env.FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK === "1"
+    || process.env.FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK === "1"
   if (allowEnvFallback && !out.tmdb.key) {
     const env = envWithFallback("TMDB_KEY") || process.env.TMDB_KEY || process.env.TMDB_API_KEY
     if (env) out.tmdb = { key: env, source: "env" }
@@ -419,7 +419,7 @@ export async function resolveRouteApiKey(req: KeyRequest, kind: ApiKeyKind = "tm
 const inflight = new Map<string, Promise<unknown>>()
 
 // Negative cache per chiavi 401 (v1.23.0): un 401 TMDB significa chiave
-// invalida (deterministico, non transient) — senza, un catalogo con chiave
+// invalida (deterministico, non transient) â€” senza, un catalogo con chiave
 // errata spara decine di fetch condannati. Keyed per hash della chiave (mai
 // in chiaro), TTL breve: una chiave corretta nel frattempo si riprende.
 const KEY_401_TTL_MS = 5 * 60 * 1000
@@ -478,8 +478,8 @@ export function getTMDBStats() {
 }
 
 /**
- * Profondità dell'inflight dedup TMDB: early warning per /api/status. Se sale
- * e non scende, un upstream è appeso e i waiter si accumulano.
+ * ProfonditÃ  dell'inflight dedup TMDB: early warning per /api/status. Se sale
+ * e non scende, un upstream Ã¨ appeso e i waiter si accumulano.
  */
 export function getTmdbInflightSize(): number {
   return inflight.size
@@ -493,7 +493,7 @@ async function tmdbFetch(path: string, apiKey?: string, signal?: AbortSignal, ti
   const mockKey = process.env.TMDB_BASE_URL && process.env.NODE_ENV !== "production" ? "mock-key" : undefined
   const key = apiKey || mockKey
   if (!key) throw new Error("TMDB API key is missing")
-  // Chiave già marchiata 401: fallisci subito senza rete (anti-amplificazione).
+  // Chiave giÃ  marchiata 401: fallisci subito senza rete (anti-amplificazione).
   if (isKey401(key)) throw new Error("TMDB fetch failed: 401")
 
   // Cache key is the URL WITHOUT the api_key so that:
@@ -502,7 +502,7 @@ async function tmdbFetch(path: string, apiKey?: string, signal?: AbortSignal, ti
   const neutralUrl = new URL(`${TMDB_BASE}${path}`)
   const cacheKey = neutralUrl.toString()
 
-  // In-memory cache (5 min) — promote on hit for LRU eviction
+  // In-memory cache (5 min) â€” promote on hit for LRU eviction
   const cached = fetchCache.get(cacheKey)
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     tmdbStats.cacheHits++
@@ -524,22 +524,22 @@ async function tmdbFetch(path: string, apiKey?: string, signal?: AbortSignal, ti
   const fetchUrl = new URL(neutralUrl.toString())
   fetchUrl.searchParams.set("api_key", key)
 
-  // Nota: l'inflight coalescing è condiviso tra richieste concorrenti sulla
-  // stessa URL — il transport è unico (signal/timeout dell'owner). Ogni waiter
+  // Nota: l'inflight coalescing Ã¨ condiviso tra richieste concorrenti sulla
+  // stessa URL â€” il transport Ã¨ unico (signal/timeout dell'owner). Ogni waiter
   // applica comunque il proprio cap (signal + timeoutMs) solo sulla propria
-  // attesa: scade senza abortire l'owner né rimuovere l'entry condivisa.
+  // attesa: scade senza abortire l'owner nÃ© rimuovere l'entry condivisa.
   //
   // Deadline FORZATA dell'owner sullo stesso signal del transport: un
   // transport che ignora l'abort o un body che non completa mai (`res.json()`
-  // non ha signal) non devono trattenere l'entry all'infinito — ogni waiter
+  // non ha signal) non devono trattenere l'entry all'infinito â€” ogni waiter
   // futuro sulla stessa chiave coalescerebbe sulla promise morta e scadrebbe
   // al proprio cap, con la chiave avvelenata in modo selettivo (stessa URL
   // 502, permutazioni sane). `raceWithAbort` rigetta al cap senza abortire
   // null'altro; l'entry si libera e la chiave si riprende al retry. Il
   // transport zombie resta orfano in background senza bloccare nessuno.
-  // Nessun timer nuovo: il cap è lo stesso `AbortSignal.timeout` già passato
+  // Nessun timer nuovo: il cap Ã¨ lo stesso `AbortSignal.timeout` giÃ  passato
   // al transport (stesso wall-clock di prima per i transport cooperativi).
-  // `raceWithAbort` su signal già abortito rigetta senza sottoscrivere la
+  // `raceWithAbort` su signal giÃ  abortito rigetta senza sottoscrivere la
   // promise creata comunque dall'argomento, lasciandone il reject orfano
   // (unhandled rejection nei log). L'assorbimento conserva il comportamento
   // osservabile storico (il transport viene comunque tentato e abortisce
@@ -565,8 +565,8 @@ async function tmdbFetch(path: string, apiKey?: string, signal?: AbortSignal, ti
       // Il body non ha signal: stessa deadline totale dell'owner, mai attesa
       // illimitata con l'entry trattenuta.
       const data = await raceOwner(res.json(), transportSignal)
-      // Late settlement dopo un ricambio (scaduto e già liberato): non deve
-      // né cancellare l'entry del nuovo owner né scriverci sopra dati stantii.
+      // Late settlement dopo un ricambio (scaduto e giÃ  liberato): non deve
+      // nÃ© cancellare l'entry del nuovo owner nÃ© scriverci sopra dati stantii.
       if (inflight.get(cacheKey) !== current.promise) return data
       // Evict LRU (first key = least-recently-used) when at capacity
       if (fetchCache.size >= CACHE_MAX) fetchCache.delete(fetchCache.keys().next().value!)
@@ -586,9 +586,9 @@ async function tmdbFetch(path: string, apiKey?: string, signal?: AbortSignal, ti
 
 /**
  * Health check verso un path TMDB: restituisce ok/status/time SENZA esporre la
- * chiave nella risposta né nei messaggi d'errore. Usata da /api/health, che non
- * deve conoscere la chiave reale né interpolarla in URL propri (S9). La chiave
- * in query nell'URL outbound è imposta dalla v3 TMDB (vedi commento tmdbFetch).
+ * chiave nella risposta nÃ© nei messaggi d'errore. Usata da /api/health, che non
+ * deve conoscere la chiave reale nÃ© interpolarla in URL propri (S9). La chiave
+ * in query nell'URL outbound Ã¨ imposta dalla v3 TMDB (vedi commento tmdbFetch).
  */
 export async function checkTmdbEndpoint(path: string, apiKey?: string): Promise<{ ok: boolean; status: number; time: number }> {
   const key = apiKey
@@ -721,8 +721,8 @@ export interface TMDBGenreListResponse {
 
 /**
  * Lista generi TMDB localizzata (`/genre/{movie|tv}/list`). Usata per mappare
- * i `genre_ids` delle risposte di ricerca sui nomi — le liste sono stabili e
- * tmdbFetch le cachа in memoria (LRU 5 min) condividendo l'URL tra richieste.
+ * i `genre_ids` delle risposte di ricerca sui nomi â€” le liste sono stabili e
+ * tmdbFetch le cachÐ° in memoria (LRU 5 min) condividendo l'URL tra richieste.
  */
 export async function getGenreList(mediaType: "movie" | "tv", language = "it-IT", apiKey?: string): Promise<TMDBGenreListResponse> {
   const data = await tmdbFetch(`/genre/${mediaType}/list?language=${toProviderLanguage(language)}`, apiKey)
@@ -886,8 +886,8 @@ export interface TMDBDetails {
   }
   external_ids?: {
     imdb_id?: string | null
-    // Stesso shape di tmdbExternalIdsSchema: lo schema details è passthrough,
-    // quindi tvdb_id/wikidata_id arrivano già a runtime — qui solo il tipo
+    // Stesso shape di tmdbExternalIdsSchema: lo schema details Ã¨ passthrough,
+    // quindi tvdb_id/wikidata_id arrivano giÃ  a runtime â€” qui solo il tipo
     // li ammette.
     tvdb_id?: number | null
     wikidata_id?: string | null
@@ -902,7 +902,7 @@ export async function getDetails(mediaType: "movie" | "tv", id: number, language
 /**
  * Dettagli + external_ids in UN colpo (D4). I cataloghi facevano per ogni
  * titolo `getDetails` + `getExternalIds` (via resolveImdbId): ~40 fetch per
- * catalogo freddo invece di ~20. Solo `external_ids` in append — NON
+ * catalogo freddo invece di ~20. Solo `external_ids` in append â€” NON
  * getFullDetails (credits+videos gonfierebbero payload e validazione per
  * dati che il catalogo scarta).
  */
@@ -1096,3 +1096,4 @@ function resolveFindId(data: { movie_results?: { id?: number }[]; tv_results?: {
     : (data.tv_results?.[0]?.id ?? data.movie_results?.[0]?.id)
   return typeof id === "number" && id > 0 ? id : null
 }
+

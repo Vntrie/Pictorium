@@ -148,12 +148,12 @@ function traktToken(cid: string): string {
 }
 
 function catalogUrl(cid: string, token: string, extra = ""): string {
-  return `http://localhost:3000/catalog/movie/pictorium-custom-movie-${cid}.json?api_key=test-key&config=${token}${extra}`
+  return `http://localhost:3000/catalog/movie/FlameForge-custom-movie-${cid}.json?api_key=test-key&config=${token}${extra}`
 }
 
 async function getCatalog(cid: string, token: string, extra = "") {
   const req = new NextRequest(catalogUrl(cid, token, extra))
-  const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${cid}.json` }) })
+  const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${cid}.json` }) })
   const body = await res.json()
   return { res, body: body as { metas: Array<{ id: string; name: string; genres?: string[]; logo?: string }> } }
 }
@@ -387,7 +387,7 @@ describe("custom catalog shared 10s budget", () => {
     ctrl.abort()
     const req = new NextRequest(catalogUrl(cid, token), { signal: ctrl.signal })
     const start = Date.now()
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${cid}.json` }) })
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${cid}.json` }) })
     const body = await res.json()
     expect(Date.now() - start).toBeLessThan(2000)
     expect(res.status).toBe(200)
@@ -424,7 +424,7 @@ describe("custom catalog shared 10s budget", () => {
     const req = new NextRequest(catalogUrl(cid, token))
     const incomingSignal = (req as unknown as { signal?: AbortSignal }).signal
     const start = Date.now()
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${cid}.json` }) })
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${cid}.json` }) })
     const elapsed = Date.now() - start
     const body = await res.json()
 
@@ -457,7 +457,7 @@ describe("custom catalog shared 10s budget", () => {
     mockRouter({ mdblistItems, findMap, counters })
     const retry = await GET(
       new NextRequest(catalogUrl(cid, token)),
-      { params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${cid}.json` }) },
+      { params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${cid}.json` }) },
     )
     const retryBody = await retry.json()
     expect(retryBody.metas).toHaveLength(5)
@@ -513,7 +513,7 @@ describe("custom catalog shared 10s budget", () => {
     const req = new NextRequest(catalogUrl(cid, token))
     const incomingSignal = (req as unknown as { signal?: AbortSignal }).signal
     const start = Date.now()
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${cid}.json` }) })
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${cid}.json` }) })
     const elapsed = Date.now() - start
     const body = await res.json()
 
@@ -1150,7 +1150,7 @@ describe("deterministic total timeout (trakt path: exactly one root 10s)", () =>
     const req = new NextRequest(catalogUrl(cid, token))
     const incomingSignal = (req as unknown as { signal?: AbortSignal }).signal
     const start = Date.now()
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${cid}.json` }) })
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${cid}.json` }) })
     const elapsed = Date.now() - start
     const body = await res.json()
 
@@ -1210,7 +1210,7 @@ describe("deterministic total timeout (trakt path: exactly one root 10s)", () =>
     const req = new NextRequest(catalogUrl(cid, token))
     const incomingSignal = (req as unknown as { signal?: AbortSignal }).signal
     const start = Date.now()
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `pictorium-custom-movie-${cid}.json` }) })
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: `FlameForge-custom-movie-${cid}.json` }) })
     const elapsed = Date.now() - start
     const body = await res.json()
 
@@ -1278,3 +1278,5 @@ describe("custom provider signal threading (backward-compatible)", () => {
     expect(out.items).toEqual([])
   })
 })
+
+

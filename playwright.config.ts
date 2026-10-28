@@ -1,16 +1,16 @@
-import { defineConfig, devices } from "@playwright/test"
+﻿import { defineConfig, devices } from "@playwright/test"
 import crypto from "node:crypto"
 import path from "path"
 
 const isCi = process.env.CI === "true"
 // C4: reuse dell'app esistente SOLO su opt-in esplicito (PLAYWRIGHT_REUSE_APP=1).
 // Prima `reuseExistingServer: !isCi` riusava in silenzio un dev sporco sulla
-// stessa porta (senza env mock → snapshot flaky senza colpevoli). Default:
-// spawn sempre fresco; se la porta è occupata Playwright fallisce subito con
+// stessa porta (senza env mock â†’ snapshot flaky senza colpevoli). Default:
+// spawn sempre fresco; se la porta Ã¨ occupata Playwright fallisce subito con
 // EADDRINUSE (fail fast) invece di testare l'app sbagliata. Il mock resta
 // riusabile (stateless, nessun env che lo sporca).
 const reuseApp = process.env.PLAYWRIGHT_REUSE_APP === "1"
-// Porta locale dedicata ai test: 3100, così `npm run dev` sulla porta 3000
+// Porta locale dedicata ai test: 3100, cosÃ¬ `npm run dev` sulla porta 3000
 // non viene riusato senza le env del mock server.
 const port = process.env.PLAYWRIGHT_PORT || (isCi ? "41731" : "3100")
 const mockPort = process.env.MOCK_PORT || "8790"
@@ -64,13 +64,12 @@ export default defineConfig({
       reuseExistingServer: reuseApp,
       timeout: 180_000,
       env: {
-        // DistDir separato: `next dev` può girare anche con un altro dev server
+        // DistDir separato: `next dev` puÃ² girare anche con un altro dev server
         // attivo su .next (lock "already running" di Next 16).
         NEXT_DIST_DIR: ".next-e2e",
         // Data dir isolata: i test visivi non devono essere inquinati dallo
         // stato locale (defaults, mapping salvati) in ./data.
-        POSTERIUM_DATA_DIR: testDataDir,
-        PICTORIUM_DATA_DIR: testDataDir,
+        FLAMEFORGE_DATA_DIR: testDataDir,
         TMDB_BASE_URL: `${mockUrl}/3`,
         TMDB_IMG_URL: `${mockUrl}/t/p`,
         NEXT_PUBLIC_TMDB_IMG_URL: `${mockUrl}/t/p`,
@@ -88,22 +87,16 @@ export default defineConfig({
         // Stesso motivo per ADMIN_TOKEN: un token in .env.local metterebbe le
         // route mappings in fail-closed (401 al save) solo su quella macchina.
         TMDB_API_KEY: "",
-        POSTERIUM_TMDB_KEY: "",
-        PICTORIUM_TMDB_KEY: "",
+        FLAMEFORGE_TMDB_KEY: "",
         MDBLIST_API_KEY: "",
-        POSTERIUM_MDBLIST_KEY: "",
-        PICTORIUM_MDBLIST_KEY: "",
+        FLAMEFORGE_MDBLIST_KEY: "",
         TVDB_API_KEY: "",
-        POSTERIUM_TVDB_API_KEY: "",
-        PICTORIUM_TVDB_API_KEY: "",
-        PICTORIUM_ADMIN_TOKEN: "",
-        POSTERIUM_ADMIN_TOKEN: "",
-        PICTORIUM_HOSTED_BY: "",
-        POSTERIUM_HOSTED_BY: "",
-        // Gate profili spento: un .env.local con PICTORIUM_MULTI_USER=1
+        FLAMEFORGE_TVDB_API_KEY: "",
+        FLAMEFORGE_ADMIN_TOKEN: "",
+        FLAMEFORGE_HOSTED_BY: "",
+        // Gate profili spento: un .env.local con FLAMEFORGE_MULTI_USER=1
         // mostrerebbe il gate al posto della home e romperebbe gli snapshot.
-        PICTORIUM_MULTI_USER: "",
-        POSTERIUM_MULTI_USER: "",
+        FLAMEFORGE_MULTI_USER: "",
         JUSTWATCH_API_URL: `${mockUrl}/graphql`,
         WIKIDATA_SPARQL_URL: `${mockUrl}/sparql`,
         WIKIDATA_API_URL: `${mockUrl}/w/api.php`,
@@ -115,7 +108,7 @@ export default defineConfig({
         // value itself is never validated because TRAKT_API_URL above points
         // at the deterministic mock. Without this, the Trakt browser spec
         // would depend on the launching shell's inherited env.
-        PICTORIUM_TRAKT_CLIENT_ID: "e2e-dummy-trakt-client-id",
+        FLAMEFORGE_TRAKT_CLIENT_ID: "e2e-dummy-trakt-client-id",
         SIMKL_API_URL: `${mockUrl}/simkl`,
         ANIZIP_API_URL: `${mockUrl}/anizip`,
         ANILIST_API_URL: `${mockUrl}/anilist`,
@@ -125,3 +118,4 @@ export default defineConfig({
     },
   ],
 })
+

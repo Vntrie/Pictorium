@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 import fs from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
@@ -7,7 +7,7 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const dataFile = path.join(rootDir, "src", "data", "av-specs.json")
 
 async function main() {
-  console.log("=== Pictorium AV Specs Sync Tool ===")
+  console.log("=== FlameForge AV Specs Sync Tool ===")
   const current = JSON.parse(await fs.readFile(dataFile, "utf8"))
   const keys = Object.keys(current)
   console.log(`Current entries: ${keys.length}`)
@@ -35,3 +35,4 @@ main().catch((err) => {
   console.error("Error syncing AV specs:", err)
   process.exit(1)
 })
+

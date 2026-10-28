@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config"
+﻿import { defineConfig } from "vitest/config"
 import path from "path"
 
 export default defineConfig({
@@ -8,10 +8,10 @@ export default defineConfig({
     // (executable contract: they also run as `./scripts/x.mjs`). The Vitest /
     // Rolldown SSR transform prepends an import helper BEFORE the shebang and
     // parsing fails (`Invalid Character !`). This plugin strips only the
-    // first-line shebang inside the test module graph — files on disk and CLI
+    // first-line shebang inside the test module graph â€” files on disk and CLI
     // behavior stay intact, no other semantics change.
     {
-      name: "pictorium-strip-shebang",
+      name: "FlameForge-strip-shebang",
       enforce: "pre",
       transform(code: string, id: string) {
         if (id.endsWith(".mjs") && code.startsWith("#!")) {
@@ -60,3 +60,4 @@ export default defineConfig({
     },
   },
 })
+

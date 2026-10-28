@@ -128,8 +128,8 @@ describe("ranking save lifecycle integrated with trending refresh", () => {
       }
       if (u.includes("/api/mdblist/anime")) {
         return animeResponse(animePayload(), {
-          "x-pictorium-updated-at-movie": "1761331200000",
-          "x-pictorium-updated-at-series": "1761334800000",
+          "x-FlameForge-updated-at-movie": "1761331200000",
+          "x-FlameForge-updated-at-series": "1761334800000",
         })
       }
       return getGate
@@ -241,3 +241,5 @@ describe("ranking save lifecycle integrated with trending refresh", () => {
     expect(result.current.trending.mdblistAnimeList.map((a) => a.id)).toEqual(animeBefore)
   })
 })
+
+

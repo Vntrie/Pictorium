@@ -10,9 +10,9 @@
 import { render, act } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { useEffect } from "react"
-import { PictoriumRoot, useP, type PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP, type FlameForgeCtx } from "@/lib/context"
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 
 function Probe() {
   const v = useP()
@@ -68,9 +68,9 @@ describe("Testa URL Stremio seasonal context (RED-before/GREEN-after)", () => {
 
   it("forwards theme=halloween to /meta from a Halloween list", async () => {
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -87,9 +87,9 @@ describe("Testa URL Stremio seasonal context (RED-before/GREEN-after)", () => {
 
   it("sends no theme from a non-matching list (legacy-identical)", async () => {
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -108,9 +108,9 @@ describe("Testa URL Stremio seasonal context (RED-before/GREEN-after)", () => {
 
   it("revokes stale theme when switching from Halloween to a plain list", async () => {
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -142,3 +142,5 @@ describe("Testa URL Stremio seasonal context (RED-before/GREEN-after)", () => {
     expect(ctx!.stremioPreviewUrl).not.toContain("theme=")
   })
 })
+
+

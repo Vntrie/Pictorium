@@ -23,14 +23,14 @@ import { PosterEditorProvider, usePosterEditor } from "@/lib/contexts/PosterEdit
 import { TranslationProvider } from "@/lib/contexts/TranslationContext"
 import { TagsNetworksSection } from "@/components/settings/TagsNetworksSection"
 import { createT } from "@/lib/i18n"
-import type { PictoriumCtx } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
 }))
 
 function uiWrapper({ children }: { children: ReactNode }) {
-  const fake = { lang: "en", pickLang: () => {}, t: createT("en") } as unknown as PictoriumCtx
+  const fake = { lang: "en", pickLang: () => {}, t: createT("en") } as unknown as FlameForgeCtx
   return (
     <PosterEditorProvider>
       <TranslationProvider value={fake}>{children}</TranslationProvider>
@@ -176,3 +176,5 @@ describe("TagsNetworksSection follow-up", () => {
     ).toBeInTheDocument()
   })
 })
+
+

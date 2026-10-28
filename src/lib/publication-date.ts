@@ -1,14 +1,14 @@
-/**
+﻿/**
  * Publication timestamp formatting (client-safe leaf, no imports).
  *
- * The stamps are Pictorium's own publication times (ms epoch of the served
+ * The stamps are FlameForge's own publication times (ms epoch of the served
  * pinned snapshot: `/api/tmdb/trending` body `updatedAt`, browse
- * `updatedAt`, `/api/mdblist/anime` `X-Pictorium-Updated-At-*` headers) —
+ * `updatedAt`, `/api/mdblist/anime` `X-FlameForge-Updated-At-*` headers) â€”
  * never the upstream source's update time, never the request/page time.
  *
  * Validation is bounded and clock-free: finite positive integers inside
  * [2000-01-01, 2100-01-01) only. Anything else (null, non-numeric,
- * non-positive, non-integer, unparseable, out-of-range/absurd) is invalid →
+ * non-positive, non-integer, unparseable, out-of-range/absurd) is invalid â†’
  * null, so the UI renders the honest "unknown" line instead of inventing
  * freshness. The bound does not judge freshness against the browser clock:
  * a plausible-but-future timestamp inside the range still formats.
@@ -17,7 +17,7 @@
 export interface FormattedPublication {
   /** ISO-8601 instant for the accessible `<time dateTime>`. */
   readonly iso: string
-  /** Localized "synced in Pictorium" caption (no date inside). */
+  /** Localized "synced in FlameForge" caption (no date inside). */
   readonly label: string
   /** Localized date+time in Europe/Rome with short zone name. */
   readonly dateText: string
@@ -29,8 +29,8 @@ const MAX_VALID_MS = Date.UTC(2100, 0, 1)
 /**
  * Strict bounded parse for a publication stamp (ms epoch). Accepts numbers
  * and numeric strings (HTTP headers always arrive as strings); everything
- * else — null, non-numeric, non-positive, non-integer, unparseable,
- * out-of-range — collapses to null (unknown, never fresh). Bounds:
+ * else â€” null, non-numeric, non-positive, non-integer, unparseable,
+ * out-of-range â€” collapses to null (unknown, never fresh). Bounds:
  * [2000-01-01, 2100-01-01): only absurd values are rejected, with no
  * freshness judgment against the browser clock.
  */
@@ -82,3 +82,4 @@ export function formatPublicationDate(
     dateText,
   }
 }
+

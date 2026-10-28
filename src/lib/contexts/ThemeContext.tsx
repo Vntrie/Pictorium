@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { createContext, useContext, useEffect, useState, useTransition, useCallback } from "react"
 
@@ -11,7 +11,7 @@ interface ThemeContextValue {
   setTheme: (theme: ThemeSetting) => void
 }
 
-const STORAGE_KEY = "pictorium_ui_theme"
+const STORAGE_KEY = "FLAMEFORGE_ui_theme"
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
@@ -125,3 +125,4 @@ export function useTheme(): ThemeContextValue {
   }
   return ctx
 }
+

@@ -547,3 +547,4 @@ describe("card advanced geometry gating", () => {
     expect(disabledRanges(el).length).toBe(0)
   })
 })
+

@@ -1,9 +1,9 @@
-/**
+﻿/**
  * Effective-accent metadata (server-only, display sync).
  *
  * The poster renderer computes per-band adaptive badge fills from the fitted
  * canvas (see `poster-service.ts`). The native editor picker must show the
- * hex ACTUALLY painted — never the legacy base, never an OS-dialog value.
+ * hex ACTUALLY painted â€” never the legacy base, never an OS-dialog value.
  * This leaf module (no imports) carries the minimal metadata type, the
  * diagnostic query flag, the completed-record bounds, and the shared
  * validator. Validators prune unknown keys and coerce malformed legacy cache
@@ -17,13 +17,13 @@ export const ACCENT_META_PARAM = "accentmeta"
  * Primary display-sync transport: compact validated JSON on EVERY poster 200
  * (`posterHeaders`/`posterResponse`, HIT/coalesced/fresh/SWR/variant alike).
  * The editor XHR (`usePosterPreview`, `responseType: "blob"`) parses this
- * header from the SAME response that carries the preview bytes — zero extra
+ * header from the SAME response that carries the preview bytes â€” zero extra
  * requests, zero elapsed-TTL dependence, nonce/refetch-safe by construction.
  * The `?accentmeta=1` JSON branch stays as a read-only diagnostic only (never
  * required by the picker). Absent on legacy cache entries (honest unknown);
  * a CDN that drops custom headers degrades to unknown, never to a guess.
  */
-export const ACCENT_META_HEADER = "X-Pictorium-Accent"
+export const ACCENT_META_HEADER = "X-FlameForge-Accent"
 
 /** Completed-record retention: short UI-sync window, memory-only. */
 export const COMPLETED_ACCENT_TTL_MS = 45_000
@@ -46,11 +46,11 @@ export type AccentTopType = "rank" | "extra" | null
  * Minimal effective-accent metadata: the two hexes ACTUALLY painted as badge
  * fills (null when the band paints no automatic accent), per-side paint
  * flags, the top-badge kind, per-side provenance, plus the bottom-gradient
- * (blur tint) hex ACTUALLY mixed into the rendered overlay — null unless the
+ * (blur tint) hex ACTUALLY mixed into the rendered overlay â€” null unless the
  * gradient really paints it (blur enabled with a non-zero tint strength).
  * The gradient entry is the SAME tint hex the renderer passes to `applyBlur`
  * (`blurTintHex`: manual override, else the extracted scene tint, else the
- * genre fallback) — never a remembered or guessed color. Deliberately narrow:
+ * genre fallback) â€” never a remembered or guessed color. Deliberately narrow:
  * no analysisKey, no cache key, no URLs/paths, no user UUIDs/hashes, no
  * provider keys, no band RGB, no luminances.
  */
@@ -91,12 +91,12 @@ export function isValidAccentHex(value: unknown): value is string {
 }
 
 /**
- * Encode sanitized meta as the compact `X-Pictorium-Accent` header value.
+ * Encode sanitized meta as the compact `X-FlameForge-Accent` header value.
  * Returns null when there is nothing honest to send (null/invalid input):
- * the response then carries NO header (legacy/unknown stays unknown — never
+ * the response then carries NO header (legacy/unknown stays unknown â€” never
  * a guessed color, never an empty claim). Only the existing
  * `EffectiveAccentMeta` fields are serialized (no URLs, no analysisKey, no
- * cache keys, no secrets — the validator prunes everything else first).
+ * cache keys, no secrets â€” the validator prunes everything else first).
  */
 export function encodeEffectiveAccentHeader(meta: EffectiveAccentMeta | null | undefined): string | null {
   const clean = sanitizeEffectiveAccentMeta(meta ?? null)
@@ -105,8 +105,8 @@ export function encodeEffectiveAccentHeader(meta: EffectiveAccentMeta | null | u
 }
 
 /**
- * Parse + validate an `X-Pictorium-Accent` header value. Null on
- * absent/empty/malformed input (honest unknown downstream — the picker shows
+ * Parse + validate an `X-FlameForge-Accent` header value. Null on
+ * absent/empty/malformed input (honest unknown downstream â€” the picker shows
  * its placeholder instead of claiming the legacy base as actual).
  */
 export function parseEffectiveAccentHeader(value: string | null | undefined): EffectiveAccentMeta | null {
@@ -146,7 +146,7 @@ export function sanitizeEffectiveAccentMeta(raw: unknown): EffectiveAccentMeta |
   let provGenre = coerceProvenance(r.provGenre)
   let provRank = coerceProvenance(r.provRank)
   // Gradient side (additive, header-compatible): legacy records predate the
-  // entry (absent fields) and read as an honest unknown gradient — never as
+  // entry (absent fields) and read as an honest unknown gradient â€” never as
   // painted, never as a guessed color. An explicitly non-painting gradient
   // keeps its `not-painted` provenance; a painted claim without a valid hex
   // drops to unknown like the badge sides.
@@ -200,3 +200,4 @@ export function sanitizeEffectiveAccentMeta(raw: unknown): EffectiveAccentMeta |
     provGradient,
   }
 }
+

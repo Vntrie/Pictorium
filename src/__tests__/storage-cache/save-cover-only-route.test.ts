@@ -205,3 +205,4 @@ describe("POST /api/mappings cover-only full replacement", () => {
     expect(second.trendRank ?? null).toBeNull()
   })
 })
+

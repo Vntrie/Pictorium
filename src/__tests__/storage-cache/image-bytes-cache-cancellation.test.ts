@@ -324,3 +324,4 @@ describe("fetchImg waiter cancellation (integration through the real path)", () 
     expect(net.fetchSawAbort()).toBe(false)
   })
 })
+

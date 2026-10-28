@@ -75,3 +75,4 @@ describe("SliderRow reset button", () => {
     expect(onDoubleClick).toHaveBeenCalledTimes(1)
   })
 })
+

@@ -128,3 +128,4 @@ describe("format target selector", () => {
     expect(ed.defaultPosterShape).toBe("poster")
   })
 })
+

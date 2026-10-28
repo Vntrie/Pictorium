@@ -86,13 +86,13 @@ describe("GET /catalog/[type]/[id]", () => {
     __resetChartGenerationForTest()
   })
 
-  it("builds Pictorium series poster URLs for JustWatch series catalogs", async () => {
+  it("builds FlameForge series poster URLs for JustWatch series catalogs", async () => {
     vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -106,7 +106,7 @@ describe("GET /catalog/[type]/[id]", () => {
   })
 
   it("serves a rendered landscape banner for Nuvio horizontal mode", async () => {
-    // Il banner è il rendering Pictorium in canvas landscape SENZA logo
+    // Il banner è il rendering FlameForge in canvas landscape SENZA logo
     // baked-in (hideLogo): resta per i client che leggono `banner`.
     // NuvioTV legge invece `landscapePoster` (con logo): i titoli portrait
     // non lo emettono e mantengono il `logo` separato.
@@ -118,8 +118,8 @@ describe("GET /catalog/[type]/[id]", () => {
         logos: [{ file_path: "/hotd-logo.png", iso_639_1: "it" }],
       }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -160,8 +160,8 @@ describe("GET /catalog/[type]/[id]", () => {
         logos: [{ file_path: "/hotd-logo.png", iso_639_1: "it" }],
       }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -191,15 +191,15 @@ describe("GET /catalog/[type]/[id]", () => {
     vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const item = (await res.json()).metas[0]
     expect(item.posterShape).toBe("landscape")
     expect(new URL(item.poster).searchParams.get("shape")).toBe("landscape")
     expect(item.landscapePoster).toBe(item.poster)
   })
 
-  it("serves legacy posterium-* catalog IDs as aliases of pictorium-*", async () => {
+  it("serves legacy posterium-* catalog IDs as aliases of FlameForge-*", async () => {
     // Addon Stremio installati prima del rename chiedono ancora gli ID legacy:
     // devono rispondere come i canonici, senza duplicare la logica.
     vi.spyOn(globalThis, "fetch")
@@ -228,8 +228,8 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key&mdblist_key=mdblist-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key&mdblist_key=mdblist-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -239,14 +239,14 @@ describe("GET /catalog/[type]/[id]", () => {
   })
 
   it("returns a notice card for custom catalogs without any TMDB key", async () => {
-    // Senza chiave niente getDetails e i poster Pictorium risponderebbero 404:
+    // Senza chiave niente getDetails e i poster FlameForge risponderebbero 404:
     // notice esplicita come il ramo JW, mai item rotti o metas:[] silenzioso.
     const savedEnv = {
-      PICTORIUM_TMDB_KEY: process.env.PICTORIUM_TMDB_KEY,
+      FLAMEFORGE_TMDB_KEY: process.env.FLAMEFORGE_TMDB_KEY,
       TMDB_KEY: process.env.TMDB_KEY,
       TMDB_API_KEY: process.env.TMDB_API_KEY,
     }
-    delete process.env.PICTORIUM_TMDB_KEY
+    delete process.env.FLAMEFORGE_TMDB_KEY
     delete process.env.TMDB_KEY
     delete process.env.TMDB_API_KEY
     try {
@@ -273,14 +273,14 @@ describe("GET /catalog/[type]/[id]", () => {
         ],
       })
 
-      const req = new NextRequest(`http://localhost:3000/catalog/movie/pictorium-custom-movie-notice-test.json?config=${token}`)
-      const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-custom-movie-notice-test.json" }) })
+      const req = new NextRequest(`http://localhost:3000/catalog/movie/FlameForge-custom-movie-notice-test.json?config=${token}`)
+      const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-custom-movie-notice-test.json" }) })
       const body = await res.json()
 
       expect(res.status).toBe(200)
       expect(body.metas).toHaveLength(1)
-      expect(body.metas[0].id.startsWith("pictorium:notice:")).toBe(true)
-      expect(body.metas[0].poster).toContain("/pictorium.png")
+      expect(body.metas[0].id.startsWith("FlameForge:notice:")).toBe(true)
+      expect(body.metas[0].poster).toContain("/FlameForge.png")
     } finally {
       for (const [k, v] of Object.entries(savedEnv)) {
         if (v === undefined) delete process.env[k]
@@ -305,8 +305,8 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
     const posterUrl = new URL(body.metas[0].poster)
 
@@ -334,8 +334,8 @@ describe("GET /catalog/[type]/[id]", () => {
       ribbonSide: "right",
     })
 
-    const req = new NextRequest(`http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key&config=${token}`)
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest(`http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key&config=${token}`)
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
     const posterUrl = new URL(body.metas[0].poster)
 
@@ -352,8 +352,8 @@ describe("GET /catalog/[type]/[id]", () => {
 
   it("returns 400 for unknown catalog types instead of silently serving series (C4)", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch")
-    const req = new NextRequest("http://localhost:3000/catalog/garbage/pictorium-jw-series.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "garbage", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/garbage/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "garbage", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(400)
@@ -377,8 +377,8 @@ describe("GET /catalog/[type]/[id]", () => {
       }))
       .mockResolvedValue(Response.json({ id: 123456, logos: [] }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -390,8 +390,8 @@ describe("GET /catalog/[type]/[id]", () => {
 
   it("returns 404 without caching for unknown catalog IDs (C4)", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch")
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-nope-xyz.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-nope-xyz.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-nope-xyz.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-nope-xyz.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(404)
@@ -400,8 +400,8 @@ describe("GET /catalog/[type]/[id]", () => {
 
     // Seconda richiesta identica: ancora 404 senza rete (niente entry cache).
     const res2 = await GET(
-      new NextRequest("http://localhost:3000/catalog/series/pictorium-nope-xyz.json?api_key=settings-key"),
-      { params: Promise.resolve({ type: "series", id: "pictorium-nope-xyz.json" }) },
+      new NextRequest("http://localhost:3000/catalog/series/FlameForge-nope-xyz.json?api_key=settings-key"),
+      { params: Promise.resolve({ type: "series", id: "FlameForge-nope-xyz.json" }) },
     )
     expect(res2.status).toBe(404)
     expect(fetchSpy).not.toHaveBeenCalled()
@@ -412,8 +412,8 @@ describe("GET /catalog/[type]/[id]", () => {
     // (l'alias di tipo è riconosciuto, non 400).
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 404 }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/anime/pictorium-anime.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "anime", id: "pictorium-anime.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/anime/FlameForge-anime.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "anime", id: "FlameForge-anime.json" }) })
     expect(res.status).toBe(200)
   })
 
@@ -431,13 +431,13 @@ describe("GET /catalog/[type]/[id]", () => {
     })
   })
 
-  it("normalizes tv catalog routes to Pictorium series poster URLs", async () => {
+  it("normalizes tv catalog routes to FlameForge series poster URLs", async () => {
     vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(justWatchResponse(94997, "tt11198330"))
       .mockResolvedValueOnce(tmdbShowResponse(94997))
 
-    const req = new NextRequest("http://localhost:3000/catalog/tv/pictorium-jw-series.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "tv", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/tv/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "tv", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -449,7 +449,7 @@ describe("GET /catalog/[type]/[id]", () => {
     expect(body.metas[0].poster).toContain(`rv=${POSTER_URL_VERSION}`)
   })
 
-  it("builds Pictorium poster URLs for platform catalogs even when source posterPath is missing", async () => {
+  it("builds FlameForge poster URLs for platform catalogs even when source posterPath is missing", async () => {
     vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(Response.json({ id: 1715492, imdb_id: "tt1715492" }))
       .mockResolvedValueOnce(Response.json({ id: 1715492, title: "Costa Concordia: incubo in mare", release_date: "2026-01-01" }))
@@ -483,8 +483,8 @@ describe("GET /catalog/[type]/[id]", () => {
       tv: [],
     })
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-netflix-movies.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-netflix-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-netflix-movies.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-netflix-movies.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -527,8 +527,8 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(tmdbMovie(5001, "Five"))
       .mockResolvedValueOnce(tmdbMovie(5021, "Twenty One"))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -572,8 +572,8 @@ describe("GET /catalog/[type]/[id]", () => {
       tv: [],
     })
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-netflix-movies.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-netflix-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-netflix-movies.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-netflix-movies.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -589,8 +589,8 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(tmdbShowResponse(687163))
       .mockResolvedValueOnce(Response.json({ id: 687163, imdb_id: "tt12042730" }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -608,8 +608,8 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(justWatchResponse(8282, "tt0848228"))
       .mockResolvedValueOnce(tmdbShowResponse(8282))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -628,8 +628,8 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(tmdbShowResponse(67890))
       .mockResolvedValueOnce(Response.json({ id: 67890, imdb_id: null }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -655,11 +655,11 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(Response.json({ genres: [{ id: 28, name: "Azione" }] }))
       .mockResolvedValueOnce(Response.json({ id: 550, imdb_id: "tt0137523" }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-movies/search=fight%20club.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-movies/search=fight%20club.json?api_key=settings-key")
     const res = await GET_EXTRA(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-search-movies",
+        id: "FlameForge-search-movies",
         extra: ["search=fight%20club.json"],
       }),
     })
@@ -691,11 +691,11 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(Response.json({ genres: [{ id: 28, name: "Azione" }] }))
       .mockResolvedValueOnce(Response.json({ id: 771, imdb_id: null }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-movies/search=sconosciuto.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-movies/search=sconosciuto.json?api_key=settings-key")
     const res = await GET_EXTRA(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-search-movies",
+        id: "FlameForge-search-movies",
         extra: ["search=sconosciuto.json"],
       }),
     })
@@ -724,11 +724,11 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(Response.json({ genres: [{ id: 28, name: "Azione" }] }))
       .mockResolvedValueOnce(Response.json({ id: 772, imdb_id: "tt123" }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-movies/search=spurio.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-movies/search=spurio.json?api_key=settings-key")
     const res = await GET_EXTRA(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-search-movies",
+        id: "FlameForge-search-movies",
         extra: ["search=spurio.json"],
       }),
     })
@@ -753,11 +753,11 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(Response.json({ genres: [{ id: 28, name: "Azione" }] }))
       .mockRejectedValueOnce(new Error("external_ids boom"))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-movies/search=resiliente.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-movies/search=resiliente.json?api_key=settings-key")
     const res = await GET_EXTRA(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-search-movies",
+        id: "FlameForge-search-movies",
         extra: ["search=resiliente.json"],
       }),
     })
@@ -790,11 +790,11 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(Response.json({ id: 1399, imdb_id: null }))
       .mockResolvedValueOnce(Response.json({ id: 1402, imdb_id: "tt1520211" }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-search-series/search=dramma.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-search-series/search=dramma.json?api_key=settings-key")
     const res = await GET_EXTRA(req, {
       params: Promise.resolve({
         type: "series",
-        id: "pictorium-search-series",
+        id: "FlameForge-search-series",
         extra: ["search=dramma.json"],
       }),
     })
@@ -834,11 +834,11 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(Response.json({ id: 603, imdb_id: "tt0137523" }))
       .mockResolvedValueOnce(Response.json({ id: 27205, imdb_id: "tt1375666" }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-people-movies/search=brad%20pitt.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-people-movies/search=brad%20pitt.json?api_key=settings-key")
     const res = await GET_EXTRA(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-search-people-movies",
+        id: "FlameForge-search-people-movies",
         extra: ["search=brad%20pitt.json"],
       }),
     })
@@ -873,11 +873,11 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(Response.json({ genres: [{ id: 28, name: "Azione" }] }))
       .mockResolvedValueOnce(Response.json({ id: 680, imdb_id: null }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-people-movies/search=brad%20pitt.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-people-movies/search=brad%20pitt.json?api_key=settings-key")
     const res = await GET_EXTRA(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-search-people-movies",
+        id: "FlameForge-search-people-movies",
         extra: ["search=brad%20pitt.json"],
       }),
     })
@@ -894,11 +894,11 @@ describe("GET /catalog/[type]/[id]", () => {
   })
 
   it("returns empty metas when dedicated search catalog is called without a search query", async () => {
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-movies.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-movies.json?api_key=settings-key")
     const res = await GET(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-search-movies.json",
+        id: "FlameForge-search-movies.json",
       }),
     })
     const body = await res.json()
@@ -924,11 +924,11 @@ describe("GET /catalog/[type]/[id]", () => {
       }))
       .mockResolvedValueOnce(Response.json({ genres: [{ id: 28, name: "Azione" }] }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-movies/search=tt0137523.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-movies/search=tt0137523.json?api_key=settings-key")
     const res = await GET_EXTRA(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-search-movies",
+        id: "FlameForge-search-movies",
         extra: ["search=tt0137523.json"],
       }),
     })
@@ -950,11 +950,11 @@ describe("GET /catalog/[type]/[id]", () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(Response.json({ movie_results: [], tv_results: [] }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-movies/search=tt0000000.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-movies/search=tt0000000.json?api_key=settings-key")
     const res = await GET_EXTRA(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-search-movies",
+        id: "FlameForge-search-movies",
         extra: ["search=tt0000000.json"],
       }),
     })
@@ -965,7 +965,7 @@ describe("GET /catalog/[type]/[id]", () => {
     expect(fetchSpy.mock.calls.some(([url]) => String(url).includes("/search/movie"))).toBe(false)
   })
 
-  it("handles pictorium-anime-movies and builds movie poster URLs even without an explicit MDBList key", async () => {
+  it("handles FlameForge-anime-movies and builds movie poster URLs even without an explicit MDBList key", async () => {
     vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(Response.json({
         items: [
@@ -978,11 +978,11 @@ describe("GET /catalog/[type]/[id]", () => {
         release_date: "2025-07-01",
       }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-anime-movies.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-anime-movies.json?api_key=settings-key")
     const res = await GET(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-anime-movies.json",
+        id: "FlameForge-anime-movies.json",
       }),
     })
     const body = await res.json()
@@ -1024,11 +1024,11 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(Response.json({ id: 866398, title: "The Beekeeper", release_date: "2024-01-08" }))
       .mockResolvedValueOnce(Response.json({ id: 1588838, title: "To the Max", release_date: "2026-02-06" }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-netflix-movies.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-netflix-movies.json?api_key=settings-key")
     const res = await GET(req, {
       params: Promise.resolve({
         type: "movie",
-        id: "pictorium-netflix-movies.json",
+        id: "FlameForge-netflix-movies.json",
       }),
     })
     const body = await res.json()
@@ -1046,12 +1046,12 @@ describe("GET /catalog/[type]/[id]", () => {
       .mockResolvedValueOnce(tmdbShowResponse(999))
 
     const { GET: cGET } = await import("@/app/c/[config]/catalog/[type]/[id]/route")
-    const req = new NextRequest("http://localhost:3000/c/testcfg/catalog/movie/pictorium-jw-movies.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/c/testcfg/catalog/movie/FlameForge-jw-movies.json?api_key=settings-key")
     const res = await cGET(req, {
       params: Promise.resolve({
         config: "testcfg",
         type: "movie",
-        id: "pictorium-jw-movies.json",
+        id: "FlameForge-jw-movies.json",
       }),
     })
     const body = await res.json()
@@ -1096,8 +1096,8 @@ describe("GET /catalog/[type]/[id]", () => {
     })
 
     const start = Date.now()
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await GET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -1108,3 +1108,5 @@ describe("GET /catalog/[type]/[id]", () => {
     expect(Date.now() - start).toBeLessThan(9000)
   }, 15000)
 })
+
+

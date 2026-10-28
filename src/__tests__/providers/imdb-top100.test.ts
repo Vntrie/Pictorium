@@ -249,3 +249,4 @@ describe("cache tiers and API parity", () => {
     expect(legacyBody.inTop100).toBeUndefined();
   });
 });
+

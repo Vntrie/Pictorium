@@ -1,20 +1,20 @@
-/**
+﻿/**
  * Default Top 20 lists remove/reset (task G).
  *
  * Pure, client-safe leaf: no imports from server/backend modules, no
  * persistence of its own. Persistence always flows through the existing
  * setters (`useCustomCatalogs` for catalog records, `setRankingSource`
  * for the two Top 20 source slots, `useLocalConfigToken` for the
- * profileless token) — this file only computes the next state slices.
+ * profileless token) â€” this file only computes the next state slices.
  *
  * Scope: ONLY the two general JustWatch Top 20 factory lists
- * (`pictorium-jw-movies` / `pictorium-jw-series`). Added streaming
+ * (`FlameForge-jw-movies` / `FlameForge-jw-series`). Added streaming
  * selections, custom catalogs, API keys, visual/global settings and the
  * anime rows are never touched here.
  */
 
-export const DEFAULT_TOP20_MOVIE_CATALOG_ID = "pictorium-jw-movies"
-export const DEFAULT_TOP20_SERIES_CATALOG_ID = "pictorium-jw-series"
+export const DEFAULT_TOP20_MOVIE_CATALOG_ID = "FlameForge-jw-movies"
+export const DEFAULT_TOP20_SERIES_CATALOG_ID = "FlameForge-jw-series"
 
 /** Factory ids of the two removable/restorable default lists. */
 export const DEFAULT_TOP20_CATALOG_IDS = [
@@ -96,3 +96,4 @@ export function resolveDefaultTop20Visibility(disabledCatalogIds: readonly strin
     showSeries: !disabledCatalogIds.includes(DEFAULT_TOP20_SERIES_CATALOG_ID),
   }
 }
+

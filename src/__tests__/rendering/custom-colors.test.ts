@@ -96,3 +96,4 @@ describe("sampleCustomImageColors", () => {
     expect(calls).toBe(0)
   })
 })
+

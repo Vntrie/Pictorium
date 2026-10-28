@@ -1,43 +1,43 @@
-// Load smoke test per la render pipeline poster (Fase D del piano di hardening).
+﻿// Load smoke test per la render pipeline poster (Fase D del piano di hardening).
 //
-// Avvia il mock server + l'app (o usa PICTORIUM_BASE_URL se già in esecuzione),
+// Avvia il mock server + l'app (o usa FLAMEFORGE_BASE_URL se giÃ  in esecuzione),
 // poi spara N richieste concorrenti su titoli freddi non-mappati e misura:
-//   - % 503 (backpressure dello slot limiter — atteso sotto burst, non un errore)
+//   - % 503 (backpressure dello slot limiter â€” atteso sotto burst, non un errore)
 //   - poster/sec e latenze p50/p95
 //
 // Assert (exit != 0): errori 500/429/404/rete, oppure zero poster serviti.
 // Il mock serve details deterministici per QUALSIASI id numerico: un 404 qui
-// è un bug del render, non un titolo mancante.
+// Ã¨ un bug del render, non un titolo mancante.
 //
-// NOTA heap: non si misura più process.memoryUsage() dell'orchestratore (era
-// il processo sbagliato — lo script non renderizza nulla). Per il consumo
+// NOTA heap: non si misura piÃ¹ process.memoryUsage() dell'orchestratore (era
+// il processo sbagliato â€” lo script non renderizza nulla). Per il consumo
 // reale usare /api/cache/status o metriche del processo app.
 //
 // Uso base (invariato, retrocompatibile):
 //   node scripts/load-smoke.mjs                       # avvia tutto (mock + next dev)
-//   PICTORIUM_BASE_URL=http://127.0.0.1:3100 node scripts/load-smoke.mjs
+//   FLAMEFORGE_BASE_URL=http://127.0.0.1:3100 node scripts/load-smoke.mjs
 //   LOAD_REQUESTS=80 LOAD_CONCURRENCY=20 node scripts/load-smoke.mjs
 //
-// Modalità hardening (LOAD TEST HARDENING):
+// ModalitÃ  hardening (LOAD TEST HARDENING):
 //   LOAD_MODE=coalesce|burst|warm|swr|jitter|soak|all   (default: burst)
 //   LOAD_START=dev|start                (default: dev; start = next build + next start)
 //   LOAD_DIST_DIR=.next-stress          (default: .next-load)
-//   LOAD_SKIP_BUILD=1                   (con LOAD_START=start, salta la build se il distDir è già pronto)
+//   LOAD_SKIP_BUILD=1                   (con LOAD_START=start, salta la build se il distDir Ã¨ giÃ  pronto)
 //   LOAD_WAVES=1,10,25,50               (burst a ondate; assente = burst singolo legacy)
 //   LOAD_SOAK_N=100 LOAD_SOAK_CONC=5 LOAD_SOAK_IDLE_MS=15000
 //   LOAD_POLL_MS=75 LOAD_SETTLE_MS=5000
-//   BENCH_ADMIN_TOKEN=<token>           (per /api/cache/status; inoltrato al figlio come PICTORIUM_ADMIN_TOKEN)
+//   BENCH_ADMIN_TOKEN=<token>           (per /api/cache/status; inoltrato al figlio come FLAMEFORGE_ADMIN_TOKEN)
 //   Esempio bench completo:
 //     LOAD_MODE=all LOAD_START=start LOAD_DIST_DIR=.next-stress LOAD_WAVES=1,10,25,50 \
 //       BENCH_ADMIN_TOKEN=secret node scripts/load-smoke.mjs
 //
 // Range ID disgiunti per isolamento cache (mai overlap tra scenari):
-//   warmup 19990x — coalesce 990001 — burst 91xxxx — soak 92xxxx — warm 930001 — swr 950001 — jitter 94xxxx — legacy 900xxx
+//   warmup 19990x â€” coalesce 990001 â€” burst 91xxxx â€” soak 92xxxx â€” warm 930001 â€” swr 950001 â€” jitter 94xxxx â€” legacy 900xxx
 //
-// Ogni scenario segue il ciclo: health → warmup → snapshot A → scenario
-// (+polling + picchi server-side peakActive/peakQueued) → settle → snapshot B
-// → delta → PASS/FAIL.
-// Lo soak aggiunge idle → snapshot C (stabilizzazione memoria su delta, mai
+// Ogni scenario segue il ciclo: health â†’ warmup â†’ snapshot A â†’ scenario
+// (+polling + picchi server-side peakActive/peakQueued) â†’ settle â†’ snapshot B
+// â†’ delta â†’ PASS/FAIL.
+// Lo soak aggiunge idle â†’ snapshot C (stabilizzazione memoria su delta, mai
 // soglie assolute).
 
 import { spawn } from "node:child_process"
@@ -46,7 +46,7 @@ import { fileURLToPath } from "node:url"
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 
-const BASE_URL = process.env.PICTORIUM_BASE_URL || process.env.POSTERIUM_BASE_URL || ""
+const BASE_URL = process.env.FLAMEFORGE_BASE_URL || process.env.FLAMEFORGE_BASE_URL || ""
 const PORT = Number(process.env.LOAD_PORT) || 3101
 const MOCK_PORT = Number(process.env.LOAD_MOCK_PORT) || 8791
 const N = Number(process.env.LOAD_REQUESTS) || 40
@@ -87,14 +87,14 @@ async function waitFor(url, timeoutMs, label, headers = {}) {
   throw new Error(`Timeout attendendo ${label} (${url})`)
 }
 
-// /api/health risponde 503 senza chiave (S9): in modalità mock va bene una
-// chiave finta (il mock la ignora); per un'istanza già in esecuzione
-// (PICTORIUM_BASE_URL) impostare LOAD_HEALTH_KEY con una chiave valida.
+// /api/health risponde 503 senza chiave (S9): in modalitÃ  mock va bene una
+// chiave finta (il mock la ignora); per un'istanza giÃ  in esecuzione
+// (FLAMEFORGE_BASE_URL) impostare LOAD_HEALTH_KEY con una chiave valida.
 const healthKey = process.env.LOAD_HEALTH_KEY || "mock-key"
 
 // Token admin per /api/cache/status (fail-closed in production senza token).
-// Inoltrato al figlio come PICTORIUM_ADMIN_TOKEN così lo status è leggibile.
-const adminToken = process.env.BENCH_ADMIN_TOKEN || process.env.PICTORIUM_ADMIN_TOKEN || ""
+// Inoltrato al figlio come FLAMEFORGE_ADMIN_TOKEN cosÃ¬ lo status Ã¨ leggibile.
+const adminToken = process.env.BENCH_ADMIN_TOKEN || process.env.FLAMEFORGE_ADMIN_TOKEN || ""
 
 function statusHeaders() {
   return adminToken ? { "x-admin-token": adminToken } : {}
@@ -118,7 +118,7 @@ function printOutboundDelta(before, after) {
     log("Outbound: snapshot non disponibile (status 401? imposta BENCH_ADMIN_TOKEN)")
     return
   }
-  log("Outbound Δ per host (intera sessione scenari):")
+  log("Outbound Î” per host (intera sessione scenari):")
   const hosts = new Set([...Object.keys(before.outbound || {}), ...Object.keys(after.outbound || {})])
   for (const h of [...hosts].sort()) {
     const b = (before.outbound || {})[h] || { requests: 0, errors: 0 }
@@ -126,7 +126,7 @@ function printOutboundDelta(before, after) {
     log(`  ${h}: +${a.requests - b.requests} req, +${a.errors - b.errors} err, avg ${a.avgMs}ms`)
   }
   if (before.rssMb !== null && after.rssMb !== null) {
-    log(`RSS: ${before.rssMb}MB → ${after.rssMb}MB (Δ ${(after.rssMb - before.rssMb).toFixed(1)}MB)`)
+    log(`RSS: ${before.rssMb}MB â†’ ${after.rssMb}MB (Î” ${(after.rssMb - before.rssMb).toFixed(1)}MB)`)
   }
 }
 
@@ -150,7 +150,7 @@ async function shutdown(exitCode) {
     try {
       child.kill()
     } catch {
-      // già terminato
+      // giÃ  terminato
     }
   }
   process.exit(exitCode)
@@ -162,7 +162,7 @@ async function snapshot(label) {
   try {
     const res = await fetch(`${appUrl}/api/cache/status`, { headers: statusHeaders() })
     if (!res.ok) {
-      log(`Snapshot ${label}: /api/cache/status → HTTP ${res.status} (imposta BENCH_ADMIN_TOKEN per le metriche memoria)`)
+      log(`Snapshot ${label}: /api/cache/status â†’ HTTP ${res.status} (imposta BENCH_ADMIN_TOKEN per le metriche memoria)`)
       return null
     }
     return await res.json()
@@ -257,8 +257,8 @@ function deltaStats(a, b) {
 }
 
 // Picchi server-side (poster-runtime-cache.ts, cumulativi da avvio processo):
-// primario rispetto al polling, che può mancare slot brevi. Null se il
-// server non li espone (istanza vecchia) → fallback al solo polling.
+// primario rispetto al polling, che puÃ² mancare slot brevi. Null se il
+// server non li espone (istanza vecchia) â†’ fallback al solo polling.
 function serverPeaks(snap) {
   const p = snap && snap.poster
   if (!p || typeof p.peakActiveRenders !== "number") return null
@@ -275,8 +275,8 @@ function effectivePeaks(snapB, polled) {
   }
 }
 // Polling durante lo scenario: registra i picchi dello slot limiter.
-// Gli snapshot prima/dopo non bastano (activeRenders è istantaneo).
-// Backup dei picchi server-side: copre slot più brevi del POLL_MS.
+// Gli snapshot prima/dopo non bastano (activeRenders Ã¨ istantaneo).
+// Backup dei picchi server-side: copre slot piÃ¹ brevi del POLL_MS.
 function startPolling() {
   const peaks = { maxActive: 0, maxQueued: 0, samples: 0 }
   let stopped = false
@@ -339,8 +339,8 @@ async function fetchPoster(id, extra = {}) {
 // --- Scenari ---------------------------------------------------------------
 
 // Coalescing: N richieste sullo STESSO titolo freddo.
-// Atteso: Δrenders == 1 (tolleranza warn fino a 2 se qualche req arriva dopo
-// il settle), Δhits ≈ N-1, maxActive <= 1, zero 500/404/429/503.
+// Atteso: Î”renders == 1 (tolleranza warn fino a 2 se qualche req arriva dopo
+// il settle), Î”hits â‰ˆ N-1, maxActive <= 1, zero 500/404/429/503.
 async function runCoalesce() {
   const id = 990001
   log(`Coalesce: ${COALESCE_N} richieste su movie/${id} (titolo freddo unico)`)
@@ -369,17 +369,17 @@ async function runCoalesce() {
   log(`Status: ${JSON.stringify(Object.fromEntries(counts))}`)
   log(`Latenza min/p50/p95/p99/max: ${lr.min}/${lr.p50}/${lr.p95}/${lr.p99}/${lr.max}ms`)
   if (d) {
-    log(`Δrequests=${d.requests} Δrenders=${d.renders} Δhits=${d.hits} Δerrors=${d.errors}`)
+    log(`Î”requests=${d.requests} Î”renders=${d.renders} Î”hits=${d.hits} Î”errors=${d.errors}`)
     log(`Coalescing ratio: ${d.requests > 0 ? ((d.hits / d.requests) * 100).toFixed(1) : "n/a"}% servite senza re-render`)
   } else {
-    log("Δstats: n/a (snapshot non disponibili — imposta BENCH_ADMIN_TOKEN)")
+    log("Î”stats: n/a (snapshot non disponibili â€” imposta BENCH_ADMIN_TOKEN)")
   }
   log(`maxActiveRenders=${eff.maxActive} maxQueued=${eff.maxQueued} (poll ${peaks.maxActive}/${peaks.maxQueued} su ${peaks.samples} campioni, server ${eff.server ? `${eff.server.active}/${eff.server.queued} cumulativi` : "n/a"})`)
 
   let fail = ""
   if (bad > 0 || busy > 0) fail = `${bad} errori + ${busy} 503 (atteso zero 5xx/429)`
-  else if (d && d.renders > 2) fail = `Δrenders=${d.renders} (atteso 1)`
-  else if (d && d.renders === 2) log("WARN: Δrenders=2 (tollerato: req arrivata dopo il settle)")
+  else if (d && d.renders > 2) fail = `Î”renders=${d.renders} (atteso 1)`
+  else if (d && d.renders === 2) log("WARN: Î”renders=2 (tollerato: req arrivata dopo il settle)")
   else if (eff.maxActive > 1) fail = `maxActiveRenders=${eff.maxActive} (atteso <= 1)`
 
   recordMatrix({
@@ -444,7 +444,7 @@ async function runBurstWave(label, ids, concurrency) {
   log(`Status: ${JSON.stringify(Object.fromEntries(statusCounts))}`)
   log(`Poster OK: ${ok}/${total} | 503: ${busy} (Retry-After mancante: ${retryAfterMissing}) | errori 500/429/404/rete: ${errors}`)
   log(`Latenza min/p50/p95/p99/max: ${lr.min}/${lr.p50}/${lr.p95}/${lr.p99}/${lr.max}ms`)
-  if (d) log(`Δrenders=${d.renders} Δhits=${d.hits} (atteso Δrenders≈${total} su titoli freddi)`)
+  if (d) log(`Î”renders=${d.renders} Î”hits=${d.hits} (atteso Î”rendersâ‰ˆ${total} su titoli freddi)`)
   log(`maxActiveRenders=${eff.maxActive} maxQueued=${eff.maxQueued} (poll ${peaks.maxActive}/${peaks.maxQueued}, server ${eff.server ? `${eff.server.active}/${eff.server.queued} cumulativi` : "n/a"})`)
 
   let fail = ""
@@ -481,7 +481,7 @@ async function runBurst() {
     for (const size of WAVES) {
       const ids = Array.from({ length: size }, (_, i) => base + i)
       base += size
-      // Concorrenza = dimensione ondata (vera simultaneità sullo slot limiter).
+      // Concorrenza = dimensione ondata (vera simultaneitÃ  sullo slot limiter).
       code = (await runBurstWave(`x${size}`, ids, size)) || code
     }
     return code
@@ -491,8 +491,8 @@ async function runBurst() {
   return runBurstWave(`${N}`, ids, CONCURRENCY)
 }
 
-// Warm burst: 100 richieste concorrenti su un titolo GIÀ SCALDATO (ID 930001).
-// Atteso: 100× 200 OK, Δrenders == 0, Δhits >= 100, maxActiveRenders (polling) == 0,
+// Warm burst: 100 richieste concorrenti su un titolo GIÃ€ SCALDATO (ID 930001).
+// Atteso: 100Ã— 200 OK, Î”renders == 0, Î”hits >= 100, maxActiveRenders (polling) == 0,
 // zero 500/404/429/503.
 async function runWarmBurst() {
   const id = 930001
@@ -530,16 +530,16 @@ async function runWarmBurst() {
   log(`Status: ${JSON.stringify(Object.fromEntries(counts))}`)
   log(`Latenza min/p50/p95/p99/max: ${lr.min}/${lr.p50}/${lr.p95}/${lr.p99}/${lr.max}ms`)
   if (d) {
-    log(`Δrequests=${d.requests} Δrenders=${d.renders} Δhits=${d.hits} Δerrors=${d.errors}`)
+    log(`Î”requests=${d.requests} Î”renders=${d.renders} Î”hits=${d.hits} Î”errors=${d.errors}`)
   } else {
-    log("Δstats: n/a (snapshot non disponibili — imposta BENCH_ADMIN_TOKEN)")
+    log("Î”stats: n/a (snapshot non disponibili â€” imposta BENCH_ADMIN_TOKEN)")
   }
   log(`maxActiveRenders(poll)=${peaks.maxActive} maxQueued(poll)=${peaks.maxQueued} (server ${sp ? `${sp.active}/${sp.queued} cumulativi` : "n/a"})`)
 
   let fail = ""
   if (bad > 0 || busy > 0 || ok !== 100) fail = `${bad} errori + ${busy} 503 (atteso 100x 200 OK)`
-  else if (d && d.renders !== 0) fail = `Δrenders=${d.renders} (atteso 0 su titolo già in cache)`
-  else if (d && d.hits < 100) fail = `Δhits=${d.hits} (atteso >= 100)`
+  else if (d && d.renders !== 0) fail = `Î”renders=${d.renders} (atteso 0 su titolo giÃ  in cache)`
+  else if (d && d.hits < 100) fail = `Î”hits=${d.hits} (atteso >= 100)`
   else if (peaks.maxActive > 0) fail = `maxActiveRenders=${peaks.maxActive} durante il warm burst (atteso 0 slot usati)`
   const p95Slo = START === "start" ? 150 : 600
   const p99Slo = START === "start" ? 250 : 800
@@ -570,7 +570,7 @@ async function runWarmBurst() {
 // SWR benchmark: 100 richieste concorrenti su un poster SCADUTO (ID 950001).
 // Atteso: tutte le 100 richieste servite immediatamente dalla RAM,
 // esattamente 1 background render avviato per refresh (dedup sulle successive 99),
-// ΔstaleHits >= 100, maxActiveRenders (bg) <= 1, zero errori.
+// Î”staleHits >= 100, maxActiveRenders (bg) <= 1, zero errori.
 async function runSwr() {
   const id = 950001
   log(`SWR Benchmark: pre-warm movie/${id}, expire in-memory, poi 100 richieste simultanee`)
@@ -633,9 +633,9 @@ async function runSwr() {
   log(`Status: ${JSON.stringify(Object.fromEntries(counts))}`)
   log(`Latenza min/p50/p95/p99/max: ${lr.min}/${lr.p50}/${lr.p95}/${lr.p99}/${lr.max}ms`)
   if (d) {
-    log(`Δrequests=${d.requests} Δrenders=${d.renders} Δhits=${d.hits} ΔstaleHits=${d.staleHits} Δerrors=${d.errors}`)
+    log(`Î”requests=${d.requests} Î”renders=${d.renders} Î”hits=${d.hits} Î”staleHits=${d.staleHits} Î”errors=${d.errors}`)
   } else {
-    log("Δstats: n/a (snapshot non disponibili — imposta BENCH_ADMIN_TOKEN)")
+    log("Î”stats: n/a (snapshot non disponibili â€” imposta BENCH_ADMIN_TOKEN)")
   }
   log(`maxActiveRenders=${eff.maxActive} maxQueued=${eff.maxQueued} (poll ${peaks.maxActive}/${peaks.maxQueued}, server ${sp ? `${sp.active}/${sp.queued} cumulativi` : "n/a"})`)
 
@@ -643,8 +643,8 @@ async function runSwr() {
   const p99Slo = START === "start" ? 250 : 800
   let fail = ""
   if (bad > 0 || busy > 0 || ok !== 100) fail = `${bad} errori + ${busy} 503 (atteso 100x 200 OK)`
-  else if (d && d.staleHits < 100) fail = `ΔstaleHits=${d.staleHits} (atteso >= 100 stale hits)`
-  else if (d && d.renders !== 1) fail = `Δrenders=${d.renders} (atteso esattamente 1 background refresh)`
+  else if (d && d.staleHits < 100) fail = `Î”staleHits=${d.staleHits} (atteso >= 100 stale hits)`
+  else if (d && d.renders !== 1) fail = `Î”renders=${d.renders} (atteso esattamente 1 background refresh)`
   else if (peaks.maxActive > 1) fail = `maxActiveRenders=${peaks.maxActive} durante SWR burst (atteso <= 1)`
   else if (lr.p95 >= p95Slo) fail = `p95=${lr.p95}ms oltre lo SLO stale ${p95Slo}ms`
   else if (lr.p99 >= p99Slo) fail = `p99=${lr.p99}ms oltre lo SLO stale ${p99Slo}ms`
@@ -656,7 +656,7 @@ async function runSwr() {
     p99: `${lr.p99}ms`,
     renders: d ? `${d.renders} (bg)` : "1 (bg)",
     coalesced: d ? `${Math.max(0, d.staleHits - (d.renders || 1))} (dedup)` : "99 (dedup)",
-    // Finestra scenario (polling), NON i picchi server cumulativi — quelli
+    // Finestra scenario (polling), NON i picchi server cumulativi â€” quelli
     // includono gli scenari precedenti (burst satura a 4/6) e mentirebbero.
     maxActive: `${peaks.maxActive} (bg)`,
     maxQueued: `${peaks.maxQueued}`,
@@ -673,7 +673,7 @@ async function runSwr() {
 }
 
 // Jitter check: verifica distribuzione deterministica TTL su 300 titoli freddi distinti (940001-940300).
-// Atteso: 300× 200 OK, spread (max - min) >= 3600s (60 min), nessun bucket da 60s con > 10% delle chiavi (> 30 chiavi).
+// Atteso: 300Ã— 200 OK, spread (max - min) >= 3600s (60 min), nessun bucket da 60s con > 10% delle chiavi (> 30 chiavi).
 async function runJitterCheck() {
   const count = 300
   const base = 940001
@@ -737,7 +737,7 @@ async function runJitterCheck() {
   let fail = ""
   if (spreadSec < 3600) fail = `spread TTL ${spreadSec}s inferiore a 3600s (60 min)`
   // Soglia 15% (non 10%): gli ID sequenziali del test sono il caso peggiore
-  // per FNV mod clustering (misurato 7.3-9.3% su deploy diversi a parità di
+  // per FNV mod clustering (misurato 7.3-9.3% su deploy diversi a paritÃ  di
   // codice); gli ID TMDB reali di un warmup sono arbitrari e uniformi (~5%).
   else if (maxBucketCount > count * 0.15) fail = `clustering anomalo: bucket da 60s contiene ${maxBucketCount} chiavi (${maxBucketPct}% > 15%)`
 
@@ -763,7 +763,7 @@ async function runJitterCheck() {
 }
 
 // Soak: N titoli freddi a batch piccoli + snapshot A/B/C (stabilizzazione).
-// Criteri solo su delta: Δ(C-B) ≈ 0 dopo idle (niente crescita persistente).
+// Criteri solo su delta: Î”(C-B) â‰ˆ 0 dopo idle (niente crescita persistente).
 async function runSoak() {
   log(`Soak: ${SOAK_N} titoli freddi a batch da ${SOAK_CONC} + idle ${SOAK_IDLE_MS}ms`)
   const ids = Array.from({ length: SOAK_N }, (_, i) => 920000 + i)
@@ -796,12 +796,12 @@ async function runSoak() {
   log(`Latenza min/p50/p95/p99/max: ${lr.min}/${lr.p50}/${lr.p95}/${lr.p99}/${lr.max}ms`)
   log(`maxActiveRenders=${eff.maxActive} maxQueued=${eff.maxQueued} (poll ${peaks.maxActive}/${peaks.maxQueued}, server ${eff.server ? `${eff.server.active}/${eff.server.queued} cumulativi` : "n/a"})`)
   if (dAB) {
-    log(`Δ(A→B): rss ${dAB.rssMb}MB heap ${dAB.heapUsedMb}MB ext ${dAB.externalMb}MB arrBuf ${dAB.arrayBuffersMb}MB entries +${dAB.entries} renders ${dAB.renders}`)
+    log(`Î”(Aâ†’B): rss ${dAB.rssMb}MB heap ${dAB.heapUsedMb}MB ext ${dAB.externalMb}MB arrBuf ${dAB.arrayBuffersMb}MB entries +${dAB.entries} renders ${dAB.renders}`)
   }
   if (dBC) {
-    log(`Δ(B→C idle): rss ${dBC.rssMb}MB heap ${dBC.heapUsedMb}MB ext ${dBC.externalMb}MB arrBuf ${dBC.arrayBuffersMb}MB entries ${dBC.entries >= 0 ? "+" : ""}${dBC.entries}`)
+    log(`Î”(Bâ†’C idle): rss ${dBC.rssMb}MB heap ${dBC.heapUsedMb}MB ext ${dBC.externalMb}MB arrBuf ${dBC.arrayBuffersMb}MB entries ${dBC.entries >= 0 ? "+" : ""}${dBC.entries}`)
   } else {
-    log("Δmemoria: n/a (snapshot non disponibili — imposta BENCH_ADMIN_TOKEN)")
+    log("Î”memoria: n/a (snapshot non disponibili â€” imposta BENCH_ADMIN_TOKEN)")
   }
 
   recordMatrix({
@@ -821,7 +821,7 @@ async function runSoak() {
     log(`FAIL soak: ${errors} errori non-503`)
     return 1
   }
-  log("PASS soak (memoria: valutare Δ sopra — crescita persistente B→C = anomalia)")
+  log("PASS soak (memoria: valutare Î” sopra â€” crescita persistente Bâ†’C = anomalia)")
   return 0
 }
 
@@ -844,19 +844,19 @@ async function run() {
     const dataDir = path.join(rootDir, DIST_DIR, "data")
     const childEnv = {
       NEXT_DIST_DIR: DIST_DIR,
-      POSTERIUM_DATA_DIR: dataDir,
-      PICTORIUM_DATA_DIR: dataDir,
+      FLAMEFORGE_DATA_DIR: dataDir,
+      FLAMEFORGE_DATA_DIR: dataDir,
       NODE_OPTIONS: "--max-old-space-size=384",
       // PORT esplicita: schedulePosterRefresh costruisce il self-fetch di
-      // background su 127.0.0.1:${PORT} (default 3000) — senza, il refresh
+      // background su 127.0.0.1:${PORT} (default 3000) â€” senza, il refresh
       // SWR va a vuoto e lo scenario misura zero render invece di uno.
       PORT: String(PORT),
       MAX_CONCURRENT_RENDERS: process.env.MAX_CONCURRENT_RENDERS || "4",
-      PICTORIUM_MAX_CONCURRENT_RENDERS: process.env.MAX_CONCURRENT_RENDERS || "4",
+      FLAMEFORGE_MAX_CONCURRENT_RENDERS: process.env.MAX_CONCURRENT_RENDERS || "4",
       RENDER_SLOT_WAIT_MS: process.env.RENDER_SLOT_WAIT_MS || "15000",
-      PICTORIUM_RENDER_SLOT_WAIT_MS: process.env.RENDER_SLOT_WAIT_MS || "15000",
+      FLAMEFORGE_RENDER_SLOT_WAIT_MS: process.env.RENDER_SLOT_WAIT_MS || "15000",
       RATELIMIT_POSTER_MAX: process.env.RATELIMIT_POSTER_MAX || "10000",
-      PICTORIUM_RATELIMIT_POSTER_MAX: process.env.RATELIMIT_POSTER_MAX || "10000",
+      FLAMEFORGE_RATELIMIT_POSTER_MAX: process.env.RATELIMIT_POSTER_MAX || "10000",
       TMDB_BASE_URL: `${mockUrl}/3`,
       TMDB_IMG_URL: `${mockUrl}/t/p`,
       NEXT_PUBLIC_TMDB_IMG_URL: `${mockUrl}/t/p`,
@@ -868,7 +868,7 @@ async function run() {
       CINEMETA_API_URL: `${mockUrl}/cinemeta`,
     }
     if (adminToken) {
-      childEnv.PICTORIUM_ADMIN_TOKEN = adminToken
+      childEnv.FLAMEFORGE_ADMIN_TOKEN = adminToken
     }
 
     if (START === "start") {
@@ -896,12 +896,12 @@ async function run() {
       await waitFor(`${appUrl}/api/health`, 120000, "app", { "x-api-key": healthKey })
     }
   } else {
-    log(`Uso app già in esecuzione: ${appUrl}`)
+    log(`Uso app giÃ  in esecuzione: ${appUrl}`)
     await waitFor(`${appUrl}/api/health`, 10000, "app", { "x-api-key": healthKey })
   }
 
   if (!adminToken) {
-    log("WARN: BENCH_ADMIN_TOKEN assente — /api/cache/status può rispondere 401/403 (fail-closed in production; in dev su loopback resta aperto), Δstats e polling degradati a best-effort")
+    log("WARN: BENCH_ADMIN_TOKEN assente â€” /api/cache/status puÃ² rispondere 401/403 (fail-closed in production; in dev su loopback resta aperto), Î”stats e polling degradati a best-effort")
   }
 
   // Warmup: compila le route e riempie la cache TMDB prima dei burst.
@@ -947,3 +947,4 @@ run().catch(async (e) => {
   console.error("[load-smoke] Errore:", e)
   await shutdown(1)
 })
+

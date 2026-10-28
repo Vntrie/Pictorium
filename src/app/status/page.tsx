@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
@@ -132,8 +132,8 @@ export default function StatusPage() {
   const [data, setData] = useState<HealthData | null>(null)
   const [cacheStatus, setCacheStatus] = useState<CacheStatusData | null>(null)
   // 401/403 su /api/cache/status (senza token admin o sessione PIN valida:
-  // l'endpoint è fail-closed anche su istanze pubbliche): le metriche sono
-  // protette, non assenti — si mostra la card di sblocco invece del
+  // l'endpoint Ã¨ fail-closed anche su istanze pubbliche): le metriche sono
+  // protette, non assenti â€” si mostra la card di sblocco invece del
   // generico "non disponibile" (errori di rete/500 restano non disponibile).
   const [cacheLocked, setCacheLocked] = useState(false)
   // Presenza di ADMIN_TOKEN sul server: la card di sblocco ha senso solo se
@@ -143,7 +143,7 @@ export default function StatusPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
   // Fuori dal provider di traduzione: sincronizza la lingua salvata al mount
-  // così la pagina non resta mai in italiano dopo un cambio lingua + refresh.
+  // cosÃ¬ la pagina non resta mai in italiano dopo un cambio lingua + refresh.
   const [, setLangTick] = useState(0)
   useEffect(() => {
     let cancelled = false
@@ -188,14 +188,14 @@ export default function StatusPage() {
 
   const [uuid, setUuid] = useState<string | null>(null)
   useEffect(() => {
-    const id = currentPathUuid() || (typeof window !== "undefined" ? window.sessionStorage?.getItem("pictorium_active_space") : null)
+    const id = currentPathUuid() || (typeof window !== "undefined" ? window.sessionStorage?.getItem("FLAMEFORGE_active_space") : null)
     if (id) setUuid(id)
   }, [])
 
   const loadHealth = useCallback(async () => {
-    // Risolve la chiave TMDB: priorità a localStorage (single-user / override),
+    // Risolve la chiave TMDB: prioritÃ  a localStorage (single-user / override),
     // poi allo spazio personale attivo (?u= + x-user-token/password) risolto da /api/health.
-    const id = currentPathUuid() || (typeof window !== "undefined" ? window.sessionStorage?.getItem("pictorium_active_space") : null)
+    const id = currentPathUuid() || (typeof window !== "undefined" ? window.sessionStorage?.getItem("FLAMEFORGE_active_space") : null)
     const key = typeof window !== "undefined" ? (localStorage.getItem("tmdb_key") || "") : ""
     const headers: Record<string, string> = {}
     if (key) headers["x-api-key"] = key
@@ -264,11 +264,11 @@ export default function StatusPage() {
           <div>
             <h1 className="text-2xl font-bold mb-1">{t("ui.statusTitle")}</h1>
             <p className="text-xs text-zinc-500 font-mono" data-testid="status-build">
-              v{APP_VERSION} · {APP_COMMIT}
+              v{APP_VERSION} Â· {APP_COMMIT}
             </p>
             {uuid && (
               <p className="text-[11px] text-zinc-400 mt-1 font-mono">
-                <span className="text-zinc-500">Spazio:</span> {uuid.slice(0, 8)}…
+                <span className="text-zinc-500">Spazio:</span> {uuid.slice(0, 8)}â€¦
               </p>
             )}
           </div>
@@ -356,10 +356,10 @@ export default function StatusPage() {
               </div>
               {data.tmdb.apiKey ? (
                 <div className="space-y-1">
-                  <StatusRow label={t("ui.statusTrending")} ok={data.tmdb.trending.ok} extra={<>{data.tmdb.trending.status} — {data.tmdb.trending.time}ms</>} />
-                  <StatusRow label={t("ui.statusSearch")} ok={data.tmdb.search.ok} extra={<>{data.tmdb.search.status} — {data.tmdb.search.time}ms</>} />
-                  <StatusRow label={t("ui.statusPopular")} ok={data.tmdb.popular.ok} extra={<>{data.tmdb.popular.status} — {data.tmdb.popular.time}ms</>} />
-                  <StatusRow label={t("ui.statusExternalIds")} ok={data.tmdb.externalIds.ok} extra={<>{data.tmdb.externalIds.status} — {data.tmdb.externalIds.time}ms</>} />
+                  <StatusRow label={t("ui.statusTrending")} ok={data.tmdb.trending.ok} extra={<>{data.tmdb.trending.status} â€” {data.tmdb.trending.time}ms</>} />
+                  <StatusRow label={t("ui.statusSearch")} ok={data.tmdb.search.ok} extra={<>{data.tmdb.search.status} â€” {data.tmdb.search.time}ms</>} />
+                  <StatusRow label={t("ui.statusPopular")} ok={data.tmdb.popular.ok} extra={<>{data.tmdb.popular.status} â€” {data.tmdb.popular.time}ms</>} />
+                  <StatusRow label={t("ui.statusExternalIds")} ok={data.tmdb.externalIds.ok} extra={<>{data.tmdb.externalIds.status} â€” {data.tmdb.externalIds.time}ms</>} />
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -371,8 +371,8 @@ export default function StatusPage() {
             <div className="surface-card border-white/10 rounded-2xl p-5 shadow-xl">
               <h2 className="text-base font-semibold mb-3">{t("ui.statusStreaming")}</h2>
               <div className="space-y-1">
-                <StatusRow label={t("ui.statusJustwatch")} ok={data.tmdb.apiKey ? data.streaming.justwatch.ok : null} extra={data.tmdb.apiKey ? <>{data.streaming.justwatch.status} — {data.streaming.justwatch.time}ms</> : t("ui.statusTmdbKeyMissing")} />
-                <StatusRow label={t("ui.statusFlixpatrol")} ok={data.tmdb.apiKey ? data.streaming.flixpatrol.ok : null} extra={data.tmdb.apiKey ? <>{data.streaming.flixpatrol.status} — {data.streaming.flixpatrol.time}ms</> : t("ui.statusTmdbKeyMissing")} />
+                <StatusRow label={t("ui.statusJustwatch")} ok={data.tmdb.apiKey ? data.streaming.justwatch.ok : null} extra={data.tmdb.apiKey ? <>{data.streaming.justwatch.status} â€” {data.streaming.justwatch.time}ms</> : t("ui.statusTmdbKeyMissing")} />
+                <StatusRow label={t("ui.statusFlixpatrol")} ok={data.tmdb.apiKey ? data.streaming.flixpatrol.ok : null} extra={data.tmdb.apiKey ? <>{data.streaming.flixpatrol.status} â€” {data.streaming.flixpatrol.time}ms</> : t("ui.statusTmdbKeyMissing")} />
               </div>
             </div>
 
@@ -382,8 +382,8 @@ export default function StatusPage() {
                 {data.storage.mode === "kv"
                   ? <StatusRow label={t("ui.statusStorageMode")} ok extra={t("ui.statusStorageKv")} />
                   : (() => {
-                      // Installazione fresca: il file nasce al primo save —
-// "not found" con 0 poster è lo stato iniziale sano, non un
+                      // Installazione fresca: il file nasce al primo save â€”
+// "not found" con 0 poster Ã¨ lo stato iniziale sano, non un
 // errore (pallino neutro invece che rosso).
                       const freshInstall = !data.storage.dataFileExists && data.storage.mappingsCount === 0
                       const fileOk = freshInstall ? null : !!data.storage.dataFileExists
@@ -575,3 +575,4 @@ export default function StatusPage() {
     </div>
   )
 }
+

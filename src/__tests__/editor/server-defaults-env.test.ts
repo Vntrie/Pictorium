@@ -13,12 +13,12 @@ vi.mock("@vercel/kv", () => ({
 }))
 
 // ENV_DEFAULTS è letto a module-load (vedi best-fit-config.test.ts): reset + reimport.
-// POSTERIUM_DATA_DIR punta a una dir vuota così getServerDefaults non legge il
+// FLAMEFORGE_DATA_DIR punta a una dir vuota così getServerDefaults non legge il
 // defaults.json reale del repo (che vincerebbe sull'env per design).
 const EMPTY_DIR = "__empty_defaults_dir__"
 async function importDefaults() {
   vi.resetModules()
-  process.env.POSTERIUM_DATA_DIR = EMPTY_DIR
+  process.env.FLAMEFORGE_DATA_DIR = EMPTY_DIR
   return import("@/lib/server-defaults")
 }
 
@@ -26,13 +26,13 @@ describe("server-defaults — ENV_DEFAULTS (default di stile d'istanza)", () => 
   afterEach(() => {
     vi.restoreAllMocks()
     for (const name of [
-      "POSTERIUM_GLOBAL_BADGES", "POSTERIUM_RANKING_BADGES", "POSTERIUM_BADGE_GENRE",
-      "POSTERIUM_BADGE_YEAR", "POSTERIUM_BADGE_RATING", "POSTERIUM_BLUR_ENABLED",
-      "POSTERIUM_NETWORK_LOGO", "POSTERIUM_AUTO_ROTATE_CLEAN", "POSTERIUM_LOGO_FIT_ENABLED",
-      "POSTERIUM_BADGE_STYLE", "POSTERIUM_RANKING_BADGE_STYLE", "POSTERIUM_RIBBON_SIDE",
-      "POSTERIUM_BLUR_INTENSITY", "POSTERIUM_BLUR_FADE", "POSTERIUM_BLUR_DARKNESS",
-      "POSTERIUM_GRADIENT_HEIGHT", "POSTERIUM_DATA_DIR",
-      "POSTERIUM_DISABLE_CLEAN_POSTERS", "PICTORIUM_DISABLE_CLEAN_POSTERS",
+      "FLAMEFORGE_GLOBAL_BADGES", "FLAMEFORGE_RANKING_BADGES", "FLAMEFORGE_BADGE_GENRE",
+      "FLAMEFORGE_BADGE_YEAR", "FLAMEFORGE_BADGE_RATING", "FLAMEFORGE_BLUR_ENABLED",
+      "FLAMEFORGE_NETWORK_LOGO", "FLAMEFORGE_AUTO_ROTATE_CLEAN", "FLAMEFORGE_LOGO_FIT_ENABLED",
+      "FLAMEFORGE_BADGE_STYLE", "FLAMEFORGE_RANKING_BADGE_STYLE", "FLAMEFORGE_RIBBON_SIDE",
+      "FLAMEFORGE_BLUR_INTENSITY", "FLAMEFORGE_BLUR_FADE", "FLAMEFORGE_BLUR_DARKNESS",
+      "FLAMEFORGE_GRADIENT_HEIGHT", "FLAMEFORGE_DATA_DIR",
+      "FLAMEFORGE_DISABLE_CLEAN_POSTERS", "FLAMEFORGE_DISABLE_CLEAN_POSTERS",
       "KV_REST_API_URL", "KV_REST_API_TOKEN",
     ]) {
       delete process.env[name]
@@ -42,12 +42,12 @@ describe("server-defaults — ENV_DEFAULTS (default di stile d'istanza)", () => 
   })
 
   it("getServerDefaults ritorna i valori da env quando non ci sono salvati", async () => {
-    process.env.POSTERIUM_GLOBAL_BADGES = "0"
-    process.env.POSTERIUM_RANKING_BADGES = "0"
-    process.env.POSTERIUM_BADGE_GENRE = "0"
-    process.env.POSTERIUM_BADGE_YEAR = "0"
-    process.env.POSTERIUM_NETWORK_LOGO = "0"
-    process.env.POSTERIUM_BLUR_INTENSITY = "8"
+    process.env.FLAMEFORGE_GLOBAL_BADGES = "0"
+    process.env.FLAMEFORGE_RANKING_BADGES = "0"
+    process.env.FLAMEFORGE_BADGE_GENRE = "0"
+    process.env.FLAMEFORGE_BADGE_YEAR = "0"
+    process.env.FLAMEFORGE_NETWORK_LOGO = "0"
+    process.env.FLAMEFORGE_BLUR_INTENSITY = "8"
 
     const { getServerDefaults } = await importDefaults()
     const sd = getServerDefaults()
@@ -61,8 +61,8 @@ describe("server-defaults — ENV_DEFAULTS (default di stile d'istanza)", () => 
   })
 
   it("valori on/true/1 sono riconosciuti", async () => {
-    process.env.POSTERIUM_GLOBAL_BADGES = "true"
-    process.env.POSTERIUM_BADGE_YEAR = "1"
+    process.env.FLAMEFORGE_GLOBAL_BADGES = "true"
+    process.env.FLAMEFORGE_BADGE_YEAR = "1"
     const { getServerDefaults } = await importDefaults()
     const sd = getServerDefaults()
     expect(sd.globalBadges).toBe(true)
@@ -70,9 +70,9 @@ describe("server-defaults — ENV_DEFAULTS (default di stile d'istanza)", () => 
   })
 
   it("valori non validi vengono ignorati (nessun campo forzato)", async () => {
-    process.env.POSTERIUM_BADGE_STYLE = "not-a-real-style"
-    process.env.POSTERIUM_RIBBON_SIDE = "up"
-    process.env.POSTERIUM_BLUR_INTENSITY = "abc"
+    process.env.FLAMEFORGE_BADGE_STYLE = "not-a-real-style"
+    process.env.FLAMEFORGE_RIBBON_SIDE = "up"
+    process.env.FLAMEFORGE_BLUR_INTENSITY = "abc"
     const { getServerDefaults } = await importDefaults()
     const sd = getServerDefaults()
     expect(sd.badgeStyle).toBeUndefined()
@@ -85,8 +85,8 @@ describe("server-defaults — ENV_DEFAULTS (default di stile d'istanza)", () => 
     expect(getServerDefaults()).toEqual({})
   })
 
-  it("PICTORIUM_DISABLE_CLEAN_POSTERS abilita l'esclusione dei clean", async () => {
-    process.env.PICTORIUM_DISABLE_CLEAN_POSTERS = "1"
+  it("FLAMEFORGE_DISABLE_CLEAN_POSTERS abilita l'esclusione dei clean", async () => {
+    process.env.FLAMEFORGE_DISABLE_CLEAN_POSTERS = "1"
     const { getServerDefaults } = await importDefaults()
     expect(getServerDefaults().disableCleanPosters).toBe(true)
   })
@@ -122,3 +122,5 @@ describe("server-defaults — ENV_DEFAULTS (default di stile d'istanza)", () => 
     expect((await mod.getServerDefaultsChecked()).blurIntensity).toBe(77)
   })
 })
+
+

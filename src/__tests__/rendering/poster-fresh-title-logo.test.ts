@@ -556,3 +556,4 @@ describe("editor Fresh-100 wiring (shared resolver, no baked 75)", () => {
     expect(body.logoScale).toBe(75)
   })
 })
+

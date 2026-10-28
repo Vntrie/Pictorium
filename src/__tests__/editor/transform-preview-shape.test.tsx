@@ -502,3 +502,4 @@ describe("SettingsPanel reale: tab Trasforma → Orizzontale → slider live →
     expect(ed.defaultTopBadgeScale).toBe(100)
   })
 })
+

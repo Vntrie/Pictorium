@@ -1,4 +1,4 @@
-import type { TMDBImage } from "./types"
+﻿import type { TMDBImage } from "./types"
 
 /**
  * Selects the best logo from a list based on language preference.
@@ -11,8 +11,8 @@ import type { TMDBImage } from "./types"
  *
  * L'italiano stava al secondo posto per ogni lingua: un utente ebraico (o
  * giapponese, o coreano) senza logo nella propria lingua riceveva il logo
- * italiano prima di quello inglese. Ora l'italiano non è più privilegiato —
- * per `lang === "it"` il tier 1 lo copre già e l'ordine resta identico a prima.
+ * italiano prima di quello inglese. Ora l'italiano non Ã¨ piÃ¹ privilegiato â€”
+ * per `lang === "it"` il tier 1 lo copre giÃ  e l'ordine resta identico a prima.
  *
  * Returns `undefined` when `logos` is empty.
  */
@@ -25,14 +25,14 @@ export function selectBestLogo(
 }
 
 /**
- * Il livello di lingua vincente, come LISTA anziché come singolo logo.
+ * Il livello di lingua vincente, come LISTA anzichÃ© come singolo logo.
  *
  * La lingua decide da sola quale gruppo si usa, e dentro al gruppo vale
- * l'ordine di TMDB: il default è sempre il primo logo del gruppo, senza
- * re-ranking (la scelta per leggibilità è stata rimossa di proposito, così
+ * l'ordine di TMDB: il default Ã¨ sempre il primo logo del gruppo, senza
+ * re-ranking (la scelta per leggibilitÃ  Ã¨ stata rimossa di proposito, cosÃ¬
  * client e server rendono lo stesso logo).
  *
- * Ritorna una lista vuota quando non c'è nessun logo.
+ * Ritorna una lista vuota quando non c'Ã¨ nessun logo.
  */
 export function selectLogoTier(
   logos: TMDBImage[],
@@ -83,7 +83,7 @@ export function logoBestLogoFallbackReason(
 }
 
 /**
- * Seleziona il miglior logo e, quando il match non è esatto, emette un warning
+ * Seleziona il miglior logo e, quando il match non Ã¨ esatto, emette un warning
  * tramite `warn`. Unisce selectBestLogo + logoBestLogoFallbackReason + i
  * tre rami di warn che prima erano duplicati nei due rami di openPosterBrowser
  * (mapping esistente vs item nuovo).
@@ -93,7 +93,7 @@ export function autoLogoSelection(
   lang: string,
   origLang: string | null | undefined,
   itemLabel: string,
-  warn: (msg: string) => void = (msg) => console.warn(`[pictorium] ${msg}`),
+  warn: (msg: string) => void = (msg) => console.warn(`[FlameForge] ${msg}`),
 ): TMDBImage | undefined {
   const autoLogo = selectBestLogo(logos || [], lang, origLang)
   const reason = logoBestLogoFallbackReason(autoLogo, lang, origLang)
@@ -106,14 +106,14 @@ export function autoLogoSelection(
 /**
  * Scala di default del logo (in %) data la sua proporzione: curva sublineare
  * `37.5 * aspect^(2/3)` con cap a 75%. La vecchia lineare `37.5 * aspect`
- * saturava al cap per QUALSIASI logo più largo di 2:1 (tutti i wordmark
+ * saturava al cap per QUALSIASI logo piÃ¹ largo di 2:1 (tutti i wordmark
  * panoramici uscivano identici a 75); la potenza differenzia i larghi tra loro
- * (2:1 → 60, 2.5:1 → 69, 3:1+ al cap) lasciando quadrati/stretti invariati
- * (`1^p` è sempre 1). Esponente 2/3 (non 1/2): con la sqrt un 2:1 usciva 53,
+ * (2:1 â†’ 60, 2.5:1 â†’ 69, 3:1+ al cap) lasciando quadrati/stretti invariati
+ * (`1^p` Ã¨ sempre 1). Esponente 2/3 (non 1/2): con la sqrt un 2:1 usciva 53,
  * troppo piccolo per i wordmark pieni.
  * Ritorna null quando il logo non ha dimensioni (nessuna scala calcolabile);
  * i call site usano `?? 75` come default. Deduplica la formula che ricorreva
- * in context.tsx (2×), TransformControls e usePosterSave.
+ * in context.tsx (2Ã—), TransformControls e usePosterSave.
  * SINGLE SOURCE OF TRUTH (Golden Rule): poster-service.ts, poster-auto-fit.ts
  * e scripts/backfill-wide-logo-scale.mjs DEVONO usare
  * `logoDefaultScaleFromAspect`, mai ricopiare la formula.
@@ -131,7 +131,7 @@ export function logoDefaultScale(logo: TMDBImage): number | null {
 /**
  * Default scala titolo per layout SELEZIONATO (legacy rank-agnostic, task8a).
  *
- * ATTENZIONE (correzione c1): NON usarla per gli auto per-titolo — con layout
+ * ATTENZIONE (correzione c1): NON usarla per gli auto per-titolo â€” con layout
  * Fresh selezionato ma rank assente/ignoto (fallback Standard effettivo)
  * forzerebbe un 100 baked sui titoli Standard (regressione utente "vedo anche
  * gli altri al 100"). Gli auto usano `logoEffectiveAutoScale` (Fresh
@@ -162,8 +162,8 @@ export function clampTitleLogoScale(
 }
 
 /**
- * Rank mostrato per l'eleggibilità Fresh EFFETTIVA (client mirror del service
- * priority in poster-service.ts: `topBadge.type === "rank" ? rank : null`, già
+ * Rank mostrato per l'eleggibilitÃ  Fresh EFFETTIVA (client mirror del service
+ * priority in poster-service.ts: `topBadge.type === "rank" ? rank : null`, giÃ 
  * rankingEnabled-gated). Il client conosce trendRank + rank anime: il primo
  * numerale valido 1..100 vince; ranking spento, rank assente/invalido o
  * ignoto (fetch ancora in volo) = null = fallback Standard sotto scope
@@ -178,7 +178,7 @@ export function resolveLogoDisplayedRank(input: {
    * `topBadge` priority, never a second rank resolution): when the service
    * shows an extra badge (custom text, award/new/extra bucket win) or the
    * Coming Soon extra (pre-release without theatrical upcoming), there is no
-   * displayed numeral even with valid rank data — return null so the slider
+   * displayed numeral even with valid rank data â€” return null so the slider
    * never promises Fresh-100 while the service renders Standard. Absent =
    * legacy rank-only behavior (backward compatible). Unknown/pending rank
    * state stays null (auto sentinel / UI pending, never a false promise).
@@ -201,13 +201,13 @@ export function resolveLogoDisplayedRank(input: {
 export interface LogoEffectiveFreshInput {
   posterLayout?: string | null
   posterFreshScope?: string | null
-  /** Rank GIÀ rankingEnabled-gated (usare resolveLogoDisplayedRank). */
+  /** Rank GIÃ€ rankingEnabled-gated (usare resolveLogoDisplayedRank). */
   displayedRank?: number | null
 }
 
 /**
- * Eleggibilità Fresh EFFETTIVA (client-safe mirror di isEffectiveFreshLayout
- * in fresh-layout.ts, che importa sharp e non può entrare nel bundle client):
+ * EleggibilitÃ  Fresh EFFETTIVA (client-safe mirror di isEffectiveFreshLayout
+ * in fresh-layout.ts, che importa sharp e non puÃ² entrare nel bundle client):
  * layout fresh E (scope "all" esplicito O numerale valido mostrato). Scope
  * assente = "ranked" (fail-closed, default condiviso). Rank ignoto/pending =
  * non-Fresh sotto ranked (il chiamante tiene il sentinel auto, mai un 100
@@ -225,7 +225,7 @@ export function isEffectiveFreshForLogo(input: LogoEffectiveFreshInput): boolean
  * altrimenti la curva aspect storica (`logoDefaultScale ?? 75`). Rank
  * ignoto/pending sotto scope ranked = aspect Standard (mai 100 baked):
  * la preview auto (`scale=0`) risolve comunque 100 sul server quando il rank
- * c'è, e l'effetto al rank-arrival riallinea lo slider (solo auto, mai gli
+ * c'Ã¨, e l'effetto al rank-arrival riallinea lo slider (solo auto, mai gli
  * espliciti). Espliciti (anche 75/100/150/200) vincono sempre a monte.
  */
 export function logoEffectiveAutoScale(
@@ -245,3 +245,4 @@ export function logoAutoScaleForLayout(
   if (!logo?.width || !logo?.height) return 75
   return logoDefaultScaleFromAspect(logo.width, logo.height) ?? 75
 }
+

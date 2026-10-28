@@ -93,3 +93,4 @@ describe("pre-digital preview explicit false (Coming Soon parity)", () => {
     expect(buildStremioPosterSearchParams({ preRelease: true }).get("pre")).toBe("1")
   })
 })
+

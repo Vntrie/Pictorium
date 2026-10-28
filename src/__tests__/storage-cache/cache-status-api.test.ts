@@ -80,7 +80,7 @@ describe("GET /api/cache/status", () => {
   })
 
   it("stays fail-closed without token even on public instances", async () => {
-    // Nessun ADMIN_TOKEN (ma POSTERIUM_PUBLIC_INSTANCE=1 dal setup): la
+    // Nessun ADMIN_TOKEN (ma FLAMEFORGE_PUBLIC_INSTANCE=1 dal setup): la
     // telemetria non è più aperta a chiunque come con checkAdminToken.
     const req = new Request("http://localhost:3000/api/cache/status")
     const res = await GET(req as never)
@@ -116,3 +116,4 @@ describe("GET /api/cache/status", () => {
     })
   })
 })
+

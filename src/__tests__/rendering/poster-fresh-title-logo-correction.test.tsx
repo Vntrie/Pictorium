@@ -36,7 +36,7 @@ import { normalizePosterCacheParams } from "@/lib/poster-runtime-cache"
 import { buildPreviewUrl, buildDefaultsPreviewUrl } from "@/lib/poster-url"
 import { mappingSchema } from "@/lib/validation"
 import { usePosterEditor, type PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
-import { PictoriumRoot } from "@/lib/context"
+import { FlameForgeRoot } from "@/lib/context"
 import { usePosterSave } from "@/lib/usePosterSave"
 import { TransformControls } from "@/components/TransformControls"
 import { BadgeControls } from "@/components/BadgeControls"
@@ -434,13 +434,13 @@ describe("c1 editor provenance + UI 150/200 + save/reload (actual provider)", ()
     vi.useFakeTimers()
   })
 
-  it("PictoriumRoot reale monta con scala auto iniziale (mai baked)", async () => {
+  it("FlameForgeRoot reale monta con scala auto iniziale (mai baked)", async () => {
     let edCtx: PosterEditorCtx | null = null
     function RootProbe() {
       edCtx = usePosterEditor()
       return null
     }
-    render(createElement(PictoriumRoot, null, createElement(RootProbe)))
+    render(createElement(FlameForgeRoot, null, createElement(RootProbe)))
     await act(async () => {})
     expect(edCtx).not.toBeNull()
     expect(edCtx!.logoScale).toBe(75)
@@ -726,3 +726,5 @@ describe("c1 editor provenance + UI 150/200 + save/reload (actual provider)", ()
     expect(reloaded.logoScale).toBe(200)
   })
 })
+
+

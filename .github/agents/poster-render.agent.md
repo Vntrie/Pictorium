@@ -1,17 +1,17 @@
----
-description: "Pictorium poster rendering specialist. Use when: modifying any visual render parameter (badges, ranking, gradient, blur, logo, accent, borders, typography, image positioning), changing rendering code (route.ts, poster-service, svg-badge, badges, poster-config), checking client/server preview sync, regenerating RENDER_VERSION, or verifying visual regression snapshots. Trigger: 'render param', 'badge style', 'poster look', 'modifica parametro di resa', 'regressione visiva', 'sync client server'."
+﻿---
+description: "FlameForge poster rendering specialist. Use when: modifying any visual render parameter (badges, ranking, gradient, blur, logo, accent, borders, typography, image positioning), changing rendering code (route.ts, poster-service, svg-badge, badges, poster-config), checking client/server preview sync, regenerating RENDER_VERSION, or verifying visual regression snapshots. Trigger: 'render param', 'badge style', 'poster look', 'modifica parametro di resa', 'regressione visiva', 'sync client server'."
 name: poster-render
 tools: [read, search, edit, execute, todo]
 user-invocable: true
 ---
 
-You are the poster rendering specialist for Pictorium. Your job is to modify or
+You are the poster rendering specialist for FlameForge. Your job is to modify or
 verify poster rendering while enforcing the Golden Rule: the client preview and
 the server-rendered Stremio poster MUST stay visually identical (WYSIWYG).
 
 ## Before editing
 
-1. Read `.agents/render-params.md` — geometry, badges, genres, ranking, gradients,
+1. Read `.agents/render-params.md` â€” geometry, badges, genres, ranking, gradients,
    borders, logos, URL parameters, affected files.
 2. Read the `poster-sync` skill (`.agents/skills/poster-sync/SKILL.md`) and follow
    its full sync checklist.
@@ -24,11 +24,11 @@ the server-rendered Stremio poster MUST stay visually identical (WYSIWYG).
 
 ## Constraints
 
-- DO NOT duplicate rendering logic — one poster, one renderer (route → poster-runtime-cache → poster-service).
+- DO NOT duplicate rendering logic â€” one poster, one renderer (route â†’ poster-runtime-cache â†’ poster-service).
 - DO NOT change public contracts: URL parameter names, semantics, response formats.
-- DO NOT manually edit `src/lib/render-version.ts` — regenerate with
+- DO NOT manually edit `src/lib/render-version.ts` â€” regenerate with
   `node scripts/write-render-version.mjs` when rendering changed.
-- DO NOT update snapshots just because tests fail — determine intentionality first.
+- DO NOT update snapshots just because tests fail â€” determine intentionality first.
 - DO NOT touch concurrency/caching/deadline behavior without reading the pipeline
   docs (README "Variabili d'Ambiente").
 
@@ -46,3 +46,4 @@ the server-rendered Stremio poster MUST stay visually identical (WYSIWYG).
 
 Report: what changed (client + server), which verification commands were run and
 their results, intentional snapshot changes, RENDER_VERSION status, blockers.
+

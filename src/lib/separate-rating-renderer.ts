@@ -1,4 +1,4 @@
-import fs from "node:fs"
+﻿import fs from "node:fs"
 import path from "node:path"
 import sharp from "sharp"
 import { escSvg, estimateTextWidth, fontFamilyFor, normalizeBadgeFont, satinPillStops } from "./badge-svg-shared"
@@ -6,7 +6,7 @@ import { renderSVG } from "./svg-badge"
 import { formatSeparateValue, MAX_SEPARATE_RATINGS } from "./ratings"
 import type { BadgeFont, SeparateBottomVariant } from "./badge-styles"
 
-/** Mappa fonte → asset logo (stesso riuso di RatingSourceIcon: metacriticuser→metacritic, filmwebcritics→filmweb). */
+/** Mappa fonte â†’ asset logo (stesso riuso di RatingSourceIcon: metacriticuserâ†’metacritic, filmwebcriticsâ†’filmweb). */
 const SEPARATE_RATING_ICON_FILES: Record<string, string> = {
   imdb: "imdb.svg",
   tmdb: "tmdb.svg",
@@ -29,8 +29,8 @@ const SEPARATE_RATING_ICON_FILES: Record<string, string> = {
 const RATINGS_DIR = path.join(process.cwd(), "public", "rating")
 
 /**
- * Ombra dedicata ai pill separati: più stretta della 3D standard dei badge
- * (dx=3, dy=3, blur 3.5) — su pill da ~40px con gap verticale di 5px
+ * Ombra dedicata ai pill separati: piÃ¹ stretta della 3D standard dei badge
+ * (dx=3, dy=3, blur 3.5) â€” su pill da ~40px con gap verticale di 5px
  * l'ombra standard sborda sul pill successivo e agli angoli sembra un
  * blocco squadrato. Con dy=2 + blur 2 l'estensione (~4px) resta nel gap.
  */
@@ -116,9 +116,9 @@ export interface SeparateRatingStack {
 /**
  * Colonna rating separati in UN solo bitmap: pill verticali (logo sopra,
  * punteggio sotto, centrati) TUTTE della stessa larghezza (la max dei
- * contenuti + padding), così la colonna è dritta e non dentellata.
+ * contenuti + padding), cosÃ¬ la colonna Ã¨ dritta e non dentellata.
  * Stile quality-badge (satinato polarizzato, bordo 1.5px, ombra 3D singola).
- * Fonti senza asset logo skippate; se nessuna resta → null.
+ * Fonti senza asset logo skippate; se nessuna resta â†’ null.
  */
 export async function renderSeparateRatingStack(
   items: readonly { id: string; value: number }[],
@@ -156,7 +156,7 @@ export async function renderSeparateRatingStack(
   }
   if (rows.length === 0) return null
 
-  // Larghezza UNIFORME: max dei contenuti + padding — la colonna è dritta.
+  // Larghezza UNIFORME: max dei contenuti + padding â€” la colonna Ã¨ dritta.
   const colW = Math.max(...rows.map((r) => Math.max(r.logo.w, r.textW))) + px * 2
   const r = Math.round(Math.max(...rows.map((row) => row.pillH)) * 0.32)
   const totalH = rows.reduce((acc, row) => acc + row.pillH, 0) + SEPARATE_STACK_GAP * (rows.length - 1)
@@ -183,27 +183,27 @@ export async function renderSeparateRatingStack(
 }
 
 /**
- * Riga rating separati in basso (modalità bottom): logo provider + valore
+ * Riga rating separati in basso (modalitÃ  bottom): logo provider + valore
  * affiancati in linea, max MAX_SEPARATE_RATINGS (=5, clamp anche su chiamate
- * dirette), vuota → null (mai placeholder senza dati).
+ * dirette), vuota â†’ null (mai placeholder senza dati).
  *
- * Quattro varianti in stile Pictorium (mai clone di layout esterni):
+ * Quattro varianti in stile FlameForge (mai clone di layout esterni):
  * - `bottom-bar`: fascia satinata a tutta larghezza `width` sul bordo
  *   inferiore, celle equidistanti centrate (logo + valore inline);
  * - `bottom-pills`: 1-5 pill orizzontali satinate con contorno sottile e
  *   ombra coerente, riga centrata di larghezza naturale (max `width`).
  * - `bottom-mono` / `bottom-color`: icone tonde + voto senza pillola/barra
- *   né contenitore (mono = piastra grigia + voto monocolore, color = piastra
+ *   nÃ© contenitore (mono = piastra grigia + voto monocolore, color = piastra
  *   brand originale + voto chiaro su scuro); base font 23 (15 per bar/pills).
  *
  * Riuso esistente: loghi brand `loadSeparateRatingLogo`, `formatSeparateValue`
  * (percent per la famiglia percent), `estimateTextWidth`/`fontFamilyFor` per
  * font, `satinPillStops(bottomLight)` + ombra `seps` per i materiali. Materiale
- * satinato adattivo come il badge genere (fondo chiaro → pill scura con testo
- * chiaro, fondo scuro → pill chiara con testo scuro): loghi brand invariati.
+ * satinato adattivo come il badge genere (fondo chiaro â†’ pill scura con testo
+ * chiaro, fondo scuro â†’ pill chiara con testo scuro): loghi brand invariati.
  * Scala % nativa via font 10..200 (a 100 percorso
  * identico); se la riga non entra in `width` (valori lunghi tipo `100%`,
- * cinque provider, scala max) fit sul font + shrink proporzionale del bitmap —
+ * cinque provider, scala max) fit sul font + shrink proporzionale del bitmap â€”
  * mai clipping, mai numeri minuscoli a scala 100.
  */
 export async function renderSeparateRatingsBottom(
@@ -220,8 +220,8 @@ export async function renderSeparateRatingsBottom(
    */
   width?: number,
   /**
-   * Polarità del materiale (stessa convenzione del badge genere: fondo chiaro
-   * → pill scura). Default `true` = resa dark storica (chiamate esistenti invariate).
+   * PolaritÃ  del materiale (stessa convenzione del badge genere: fondo chiaro
+   * â†’ pill scura). Default `true` = resa dark storica (chiamate esistenti invariate).
    */
   bottomLight: boolean = true,
 ): Promise<SeparateRatingStack | null> {
@@ -233,8 +233,8 @@ export async function renderSeparateRatingsBottom(
   const baseFs = Math.round(Math.max((isBare ? 23 : 15) * pw / 380, 11))
   const scale = Number.isFinite(scalePct) ? Math.min(Math.max(Math.round(scalePct), 10), 200) : 130
   const reqFs = scale === 100 ? baseFs : Math.max(1, Math.round(baseFs * scale / 100))
-  // Materiale adattivo (stessa convenzione del badge genere): fondo chiaro →
-  // pill scura + testo chiaro, fondo scuro → pill chiara + testo scuro.
+  // Materiale adattivo (stessa convenzione del badge genere): fondo chiaro â†’
+  // pill scura + testo chiaro, fondo scuro â†’ pill chiara + testo scuro.
   const fg = isBare
     ? (bottomLight ? "#202020" : "#d0d0d0")
     : (bottomLight ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.88)")
@@ -242,7 +242,7 @@ export async function renderSeparateRatingsBottom(
   const bandW = Math.max(1, Math.round(width ?? pw))
   const maxW = Math.max(1, Math.round(width ?? pw))
   // Fit sul font (come il loop max-iterazioni delle pill genere): a scala max
-  // o con valori lunghi il font scende finché la riga entra — mai overlap tra
+  // o con valori lunghi il font scende finchÃ© la riga entra â€” mai overlap tra
   // celle, mai numeri minuscoli a scala 100 (il loop non scatta mai al default
   // su larghezze normali). Ultima rete: shrink proporzionale del bitmap.
   const floorFs = Math.max(8, Math.round(baseFs * 0.55))
@@ -357,7 +357,7 @@ export async function renderSeparateRatingsBottom(
       `</svg>`
   }
   // Ultima rete di sicurezza: se (per arrotondamenti/aspect estremi) la riga
-  // eccede ancora `width`, shrink proporzionale del bitmap — mai clipping,
+  // eccede ancora `width`, shrink proporzionale del bitmap â€” mai clipping,
   // aspect preservato, una sola ricampionatura.
   const fitScale = natW > maxW ? maxW / natW : 1
   const outW = Math.max(1, Math.round(natW * fitScale))
@@ -367,3 +367,4 @@ export async function renderSeparateRatingsBottom(
   const shrunk = await sharp(png).resize(outW, outH).toBuffer()
   return { png: shrunk, w: outW, h: outH }
 }
+

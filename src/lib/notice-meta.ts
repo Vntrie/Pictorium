@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Notice cards Stremio: un singolo meta informativo quando un catalogo
  * richiede la chiave TMDB ma la richiesta non ne ha una.
  *
@@ -6,12 +6,12 @@
  * errori transienti upstream (401/429) restano vuoti con retry.
  *
  * Nessuna chiamata upstream, nessun rendering poster (asset statico
- * `/pictorium.png`), nessuna scrittura in cache: i rami key-missing
- * ritornano prima di ogni `cacheSet`, e la chiave effettiva è già
- * frammento del cache key — configurata la chiave, la notice sparisce.
+ * `/FlameForge.png`), nessuna scrittura in cache: i rami key-missing
+ * ritornano prima di ogni `cacheSet`, e la chiave effettiva Ã¨ giÃ 
+ * frammento del cache key â€” configurata la chiave, la notice sparisce.
  */
 
-export const NOTICE_ID_PREFIX = "pictorium:notice:"
+export const NOTICE_ID_PREFIX = "FlameForge:notice:"
 
 export const NOTICE_MISSING_TMDB_KEY = "missing-tmdb-key"
 export const NOTICE_MISSING_TVDB_KEY = "missing-tvdb-key"
@@ -30,19 +30,19 @@ export const NOTICE_MISSING_KEY_TITLE = "Chiave TMDB richiesta"
 
 export const NOTICE_MISSING_KEY_DESCRIPTION =
   "Questo catalogo richiede una chiave API TMDB gratuita. " +
-  "Configurala nella pagina impostazioni di Pictorium e ricarica."
+  "Configurala nella pagina impostazioni di FlameForge e ricarica."
 
 export const NOTICE_MISSING_TVDB_KEY_TITLE = "Chiave TVDB necessaria"
 
 export const NOTICE_MISSING_TVDB_KEY_DESCRIPTION =
   "Questo catalogo legge una lista TheTVDB e richiede la tua chiave API TVDB. " +
-  "Aggiungila nelle impostazioni di Pictorium e ricarica."
+  "Aggiungila nelle impostazioni di FlameForge e ricarica."
 
 export const NOTICE_CUSTOM_RANKING_UNAVAILABLE_TITLE = "Classifica non disponibile"
 
 export const NOTICE_CUSTOM_RANKING_UNAVAILABLE_DESCRIPTION =
   "La lista personalizzata di questa classifica ha risposto con un errore. " +
-  "Riprova più tardi o seleziona di nuovo JustWatch nelle impostazioni."
+  "Riprova piÃ¹ tardi o seleziona di nuovo JustWatch nelle impostazioni."
 
 export interface NoticeCatalogMeta {
   id: string
@@ -107,3 +107,4 @@ export function buildNoticeDetail(options: {
     description: options.description ?? fallbackDescription,
   }
 }
+

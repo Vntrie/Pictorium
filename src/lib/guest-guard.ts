@@ -1,13 +1,13 @@
-"use client"
+﻿"use client"
 
 import { currentPathUuid, getStoredUserPassword, getStoredUserToken, isUserUnlocked } from "./user-token"
 import { hasAdminToken } from "./admin-token"
 import { t } from "./i18n"
 
 // Guard ospite: impedisce che un visitatore da link altrui sovrascriva
-// silenziosamente i default server (es. cambio lingua → cambio regione →
+// silenziosamente i default server (es. cambio lingua â†’ cambio regione â†’
 // auto-PUT /api/defaults). La scrittura locale avviene sempre (il browser
-// dell'ospite deve funzionare); a saltare è solo il sync server.
+// dell'ospite deve funzionare); a saltare Ã¨ solo il sync server.
 //
 // Client-safe: solo window.location + GET /api/auth/pin (endpoint pubblico,
 // il cookie HttpOnly di sessione viaggia da solo nella fetch).
@@ -21,7 +21,7 @@ export interface AdminState {
 
 let foreignCache: boolean | null = null
 
-/** True se l'app è stata aperta da link altrui (?u/?user/?config/?c o path /u/ /c/). */
+/** True se l'app Ã¨ stata aperta da link altrui (?u/?user/?config/?c o path /u/ /c/). */
 export function isForeignUrl(): boolean {
   if (typeof window === "undefined") return false
   if (foreignCache !== null) return foreignCache
@@ -41,7 +41,7 @@ let adminCache: Promise<AdminState> | null = null
 // A PIN unlock/lock changes `authenticated`: drop the memo so the next sync
 // check sees the new session instead of a stale "not authenticated".
 if (typeof window !== "undefined") {
-  window.addEventListener("pictorium:pin-change", () => {
+  window.addEventListener("FlameForge:pin-change", () => {
     adminCache = null
   })
 }
@@ -56,7 +56,7 @@ export function fetchAdminState(): Promise<AdminState> {
         authenticated: d?.authenticated === true,
         hasAdminToken: d?.hasAdminToken === true,
       }))
-    // Fallimento (rete/server): non congelarlo — il PUT fallirebbe comunque
+    // Fallimento (rete/server): non congelarlo â€” il PUT fallirebbe comunque
     // e il percorso d'errore esistente gestisce retry/toast.
     adminCache.catch(() => {
       adminCache = null
@@ -72,22 +72,22 @@ export function fetchAdminState(): Promise<AdminState> {
  *
  * Multi-user: su path `/u/<uuid>` il proprietario SBLOCCATO in sessione
  * (token valido salvato + unlock via modal/recovery, verificato via status
- * chiavi) non è mai ospite; senza unlock è ospite read-only (mai sovrascrivere
- * il namespace altrui) anche con secret persistito — chiudere il modal con la
+ * chiavi) non Ã¨ mai ospite; senza unlock Ã¨ ospite read-only (mai sovrascrivere
+ * il namespace altrui) anche con secret persistito â€” chiudere il modal con la
  * X non lascia sync attivi. Con flag OFF (endpoint 404) vale il percorso
  * legacy invariato.
  * Direzione fail del ramo multi-user: su errore di rete si salta il sync
- * (fail-closed per le write altrui — il contrario del ramo legacy, dove il
- * PUT fallirebbe da sé e il non-skip preserva il retry). Fail-closed qui è
+ * (fail-closed per le write altrui â€” il contrario del ramo legacy, dove il
+ * PUT fallirebbe da sÃ© e il non-skip preserva il retry). Fail-closed qui Ã¨
  * voluto: meglio un default locale che un PUT su un namespace non verificato.
  */
 export async function shouldSkipServerSync(): Promise<boolean> {
   const uuid = currentPathUuid()
   if (uuid) {
     // Pre-unlock (hard gate ancora aperto, in attesa di sblocco): niente
-    // sync e niente validazioni di rete — locale soltanto, senza toast 401.
+    // sync e niente validazioni di rete â€” locale soltanto, senza toast 401.
     // Lo sblocco (password, secret, recovery) emette USER_UNLOCK_EVENT e i
-    // caller ritentano da lì.
+    // caller ritentano da lÃ¬.
     if (!isUserUnlocked(uuid)) {
       try {
         if (await isMultiUserServer()) return true
@@ -102,7 +102,7 @@ export async function shouldSkipServerSync(): Promise<boolean> {
       // I fallimenti non si memoizzano (retry al prossimo tick come il PUT).
       const valid = await checkOwnerToken(uuid, token)
       if (valid === true) return false
-      // null = endpoint 404 (flag OFF) → percorso legacy sotto (byte-identico).
+      // null = endpoint 404 (flag OFF) â†’ percorso legacy sotto (byte-identico).
       if (valid === null) {
         // fallthrough al percorso legacy
       } else if (await checkOwnerPasswordFallback(uuid)) {
@@ -126,7 +126,7 @@ export async function shouldSkipServerSync(): Promise<boolean> {
           return true
         }
       } else {
-        // Senza credenziali: ospite solo se il multi-user è attivo (altrimenti i
+        // Senza credenziali: ospite solo se il multi-user Ã¨ attivo (altrimenti i
         // link /u/ legacy continuano a sincronizzare come prima).
         try {
           if (await isMultiUserServer()) return true
@@ -176,7 +176,7 @@ export function isMultiUserServer(): Promise<boolean> {
 
 // Validazione token proprietario memoizzata per (uuid, token): true =
 // proprietario, false = token errato/revocato (ospite), null = endpoint 404
-// (flag OFF → percorso legacy). Solo i `true` si memoizzano (un 401 da
+// (flag OFF â†’ percorso legacy). Solo i `true` si memoizzano (un 401 da
 // wipe/revoke deve rivalutarsi al prossimo tick); gli errori di rete
 // ritornano false senza memo (retry come il PUT).
 // TTL 5 min sui `true`: una revoke ha al massimo 5 min di finestra residua
@@ -209,9 +209,9 @@ async function checkOwnerToken(uuid: string, token: string): Promise<boolean | n
 }
 
 /**
- * Fallback password quando il token è stato rifiutato: true = proprietario
+ * Fallback password quando il token Ã¨ stato rifiutato: true = proprietario
  * (password di sessione valida), false/null = resta il verdetto del token
- * (null = flag OFF → percorso legacy). Evita che un secret stantio oscuri
+ * (null = flag OFF â†’ percorso legacy). Evita che un secret stantio oscuri
  * una password fresca sul solo autosave.
  */
 async function checkOwnerPasswordFallback(uuid: string): Promise<boolean> {
@@ -300,7 +300,7 @@ export function resetGuestGuardForTests(): void {
 /**
  * Invalida il memo owner-check per un UUID (rotate secret/password, forget
  * spazio, wipe account): senza, un `true` memoizzato (TTL 5 min) direbbe
- * ancora "proprietario" per il vecchio token dopo la revoca — con autosave
+ * ancora "proprietario" per il vecchio token dopo la revoca â€” con autosave
  * che continua a scrivere per minuti. Le write server restano autenticate
  * per-richiesta (rifiutano subito il vecchio token), ma il memo non deve
  * sopravvivere alla revoca nemmeno sul solo autosave.
@@ -314,3 +314,4 @@ export function invalidateOwnerCheck(uuid: string): void {
     }
   }
 }
+

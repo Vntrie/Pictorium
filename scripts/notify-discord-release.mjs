@@ -1,10 +1,10 @@
-import fs from "node:fs/promises"
+﻿import fs from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 
 export const DISCORD_MAX_LENGTH = 2000
 export const DEFAULT_AVATAR_URL =
-  "https://raw.githubusercontent.com/Eful97/Pictorium/master/public/icon-192.png"
-export const DEFAULT_USERNAME = "Pictorium Releases"
+  "https://raw.githubusercontent.com/Eful97/FlameForge/master/public/icon-192.png"
+export const DEFAULT_USERNAME = "FlameForge Releases"
 
 /**
  * Pure: formats the Discord webhook JSON payload.
@@ -18,9 +18,9 @@ export function formatDiscordPayload({
   username = DEFAULT_USERNAME,
 }) {
   const cleanTag = tag ? (tag.startsWith("v") ? tag : `v${tag}`) : ""
-  const title = cleanTag ? `# 🚀 Pictorium ${cleanTag} is now available!\n\n` : "# 🚀 New Pictorium Release!\n\n"
+  const title = cleanTag ? `# ðŸš€ FlameForge ${cleanTag} is now available!\n\n` : "# ðŸš€ New FlameForge Release!\n\n"
   const releaseUrl = repo && cleanTag ? `https://github.com/${repo}/releases/tag/${cleanTag}` : ""
-  const footer = releaseUrl ? `\n\n🔗 **GitHub Release**: ${releaseUrl}` : ""
+  const footer = releaseUrl ? `\n\nðŸ”— **GitHub Release**: ${releaseUrl}` : ""
 
   const overhead = title.length + footer.length
   const maxNotesLen = DISCORD_MAX_LENGTH - overhead
@@ -67,7 +67,7 @@ export async function sendDiscordNotification({ webhookUrl, payload, fetchImpl =
 async function main() {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL?.trim()
   if (!webhookUrl) {
-    console.log("[discord] DISCORD_WEBHOOK_URL not set — skipping Discord notification")
+    console.log("[discord] DISCORD_WEBHOOK_URL not set â€” skipping Discord notification")
     process.exit(0)
   }
 
@@ -101,3 +101,4 @@ if (isMain) {
     process.exit(1)
   })
 }
+

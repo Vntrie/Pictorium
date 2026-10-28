@@ -1,18 +1,18 @@
-# Security Policy
+﻿# Security Policy
 
 ## Supported Versions
 
 Only the latest `main` branch is supported with security updates.
 Tagged releases receive fixes exclusively through an update to `main`
-— we do not backport patches to older tags.
+â€” we do not backport patches to older tags.
 
 ## Reporting a Vulnerability
 
 **Do not open a public issue** for security reports.
 
 Report privately via
-[GitHub Security Advisories](https://github.com/Eful97/Pictorium/security/advisories/new)
-(`Security` tab → `Report a vulnerability`).
+[GitHub Security Advisories](https://github.com/Eful97/FlameForge/security/advisories/new)
+(`Security` tab â†’ `Report a vulnerability`).
 
 Please include:
 
@@ -47,7 +47,8 @@ Out of scope:
 
 ## Hardening for public instances
 
-See `README.md` → Security and Environment Variables
+See `README.md` â†’ Security and Environment Variables
 (`PUBLIC_INSTANCE=0` + `ADMIN_TOKEN`, `TRUST_PROXY` + pinned
 `CLIENT_IP_HEADER` behind Cloudflare, `PUBLIC_STATS=0`,
 `FRAME_ANCESTORS`, `PREVIEW_AUTH`).
+

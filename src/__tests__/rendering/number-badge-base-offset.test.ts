@@ -435,3 +435,4 @@ describe("TransformControls per-title X slider (number baseline)", () => {
     expect(ctx().topBadgeOffsetX).toBe(10)
   })
 })
+

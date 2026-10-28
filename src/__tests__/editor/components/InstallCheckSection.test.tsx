@@ -37,13 +37,13 @@ function imageResponse(bytes: Uint8Array, type = "image/png"): Response {
 }
 
 const MANIFEST = {
-  id: "org.pictorium.123e4567",
+  id: "org.FlameForge.123e4567",
   version: "1.25.8",
-  name: "Pictorium",
+  name: "FlameForge",
   resources: ["catalog", { name: "meta", types: ["movie"], idPrefixes: ["tmdb:", "tt"] }],
   types: ["movie", "series"],
   idPrefixes: ["tmdb:", "tt"],
-  catalogs: [{ id: "pictorium-jw-movies", name: "Top", type: "movie" }],
+  catalogs: [{ id: "FlameForge-jw-movies", name: "Top", type: "movie" }],
 }
 
 type RouteHandler = (url: string, init?: RequestInit) => Promise<Response> | Response
@@ -205,7 +205,7 @@ describe("InstallCheckSection", () => {
   })
 
   it("sends the selected installation context and space credentials with the key check", async () => {
-    window.localStorage.setItem(`pictorium-user-token:${UUID}`, "tok123")
+    window.localStorage.setItem(`FlameForge-user-token:${UUID}`, "tok123")
     let keyBody: Record<string, unknown> = {}
     let keyHeaders: Record<string, string> = {}
     mockFetch((url, init) => {
@@ -446,9 +446,9 @@ describe("InstallCheckSection", () => {
       ],
       types: ["movie", "series", "anime.movie", "anime.series", "anime", "all"],
       catalogs: [
-        { id: "pictorium-jw-movies", name: "Top", type: "movie" },
+        { id: "FlameForge-jw-movies", name: "Top", type: "movie" },
         {
-          id: "pictorium-stream2-netflix--italy--all--auto",
+          id: "FlameForge-stream2-netflix--italy--all--auto",
           name: "Netflix Italia - Top 10",
           type: "all",
         },
@@ -549,7 +549,7 @@ describe("InstallCheckSection", () => {
     })
     await act(async () => {
       const event = new Event("storage") as StorageEvent
-      Object.defineProperty(event, "key", { value: `pictorium-user-token:${UUID}` })
+      Object.defineProperty(event, "key", { value: `FlameForge-user-token:${UUID}` })
       window.dispatchEvent(event)
     })
     for (const step of ["key", "manifest", "poster"] as const) {
@@ -878,12 +878,12 @@ describe("isInstallCheckManifestValid (pure)", () => {
     expect(
       isInstallCheckManifestValid({
         ...MANIFEST,
-        catalogs: [{ id: "pictorium-jw-movies", name: "Top", type: "bogus" }],
+        catalogs: [{ id: "FlameForge-jw-movies", name: "Top", type: "bogus" }],
       }),
     ).toBe(false)
   })
 
-  it("still rejects a non-Pictorium id and a missing meta resource", () => {
+  it("still rejects a non-FlameForge id and a missing meta resource", () => {
     expect(isInstallCheckManifestValid({ ...MANIFEST, id: "org.other.addon" })).toBe(false)
     expect(isInstallCheckManifestValid({ ...MANIFEST, resources: ["catalog"] })).toBe(false)
   })
@@ -927,9 +927,9 @@ describe("isInstallCheckManifestValid (pure)", () => {
       ],
       types: ["movie", "series", "anime.movie", "anime.series", "anime", "all"],
       catalogs: [
-        { id: "pictorium-jw-movies", name: "Top", type: "movie" },
+        { id: "FlameForge-jw-movies", name: "Top", type: "movie" },
         {
-          id: "pictorium-stream2-netflix--italy--all--auto",
+          id: "FlameForge-stream2-netflix--italy--all--auto",
           name: "Netflix Italia - Top 10",
           type: "all",
         },
@@ -947,3 +947,5 @@ describe("isInstallCheckManifestValid (pure)", () => {
     expect(isInstallCheckManifestValid(bad)).toBe(false)
   })
 })
+
+

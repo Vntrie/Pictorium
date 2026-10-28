@@ -129,3 +129,4 @@ describe("StatusPage poster latency section", () => {
     expect(within(card).getAllByText("ui.statusPosterLatencyNoData")).toHaveLength(2)
   })
 })
+

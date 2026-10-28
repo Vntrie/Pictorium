@@ -83,8 +83,8 @@ vi.mock("@vercel/kv", () => ({
 }))
 
 const CLIENT_ID = "test-trakt-client-id"
-const REDIRECT_DUCK = "https://pictorium.duckdns.org/api/trakt/callback"
-const REDIRECT_ELF = "https://pictorium.elfhosted.com/api/trakt/callback"
+const REDIRECT_DUCK = "https://FlameForge.duckdns.org/api/trakt/callback"
+const REDIRECT_ELF = "https://FlameForge.elfhosted.com/api/trakt/callback"
 
 const TOKEN_REPLY = {
   access_token: "test-oauth-access-0123456789abcdef",
@@ -96,26 +96,26 @@ const TOKEN_REPLY = {
 }
 
 const ENV_KEYS = [
-  "PICTORIUM_DATA_DIR",
-  "PICTORIUM_MULTI_USER",
-  "PICTORIUM_RATELIMIT_KV",
+  "FLAMEFORGE_DATA_DIR",
+  "FLAMEFORGE_MULTI_USER",
+  "FLAMEFORGE_RATELIMIT_KV",
   // Alias KV keys read by the storage/rate-limit modules but never cleaned
-  // before F7: a leaked REDIS_URL (or POSTERIUM_RATELIMIT_KV) flips
+  // before F7: a leaked REDIS_URL (or FLAMEFORGE_RATELIMIT_KV) flips
   // getStorageMode()/isKvStore() for every later test in the worker.
-  "POSTERIUM_RATELIMIT_KV",
-  "PICTORIUM_REDIS_URL",
-  "POSTERIUM_REDIS_URL",
+  "FLAMEFORGE_RATELIMIT_KV",
+  "FLAMEFORGE_REDIS_URL",
+  "FLAMEFORGE_REDIS_URL",
   "REDIS_URL",
   "PROFILE_ENCRYPTION_KEY",
-  "PICTORIUM_TRAKT_CLIENT_ID",
-  "POSTERIUM_TRAKT_CLIENT_ID",
+  "FLAMEFORGE_TRAKT_CLIENT_ID",
+  "FLAMEFORGE_TRAKT_CLIENT_ID",
   "TRAKT_CLIENT_ID",
-  "PICTORIUM_TRAKT_CLIENT_SECRET",
-  "POSTERIUM_TRAKT_CLIENT_SECRET",
-  "PICTORIUM_TRAKT_REDIRECT_URI",
-  "POSTERIUM_TRAKT_REDIRECT_URI",
+  "FLAMEFORGE_TRAKT_CLIENT_SECRET",
+  "FLAMEFORGE_TRAKT_CLIENT_SECRET",
+  "FLAMEFORGE_TRAKT_REDIRECT_URI",
+  "FLAMEFORGE_TRAKT_REDIRECT_URI",
   "TRAKT_API_URL",
-  "PICTORIUM_TRAKT_TIMEOUT_MS",
+  "FLAMEFORGE_TRAKT_TIMEOUT_MS",
   "KV_REST_API_URL",
   "KV_REST_API_TOKEN",
 ] as const
@@ -127,34 +127,34 @@ const BODY_MARKER = "BODY_MARKER_should_never_be_logged"
 const CODE_MARKER = "CODE_MARKER_should_never_be_logged"
 
 function setValidConfig(redirect = REDIRECT_DUCK) {
-  process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
-  process.env.PICTORIUM_TRAKT_REDIRECT_URI = redirect
+  process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
+  process.env.FLAMEFORGE_TRAKT_REDIRECT_URI = redirect
   // Leftover pre-PKCE secret on purpose: it must be ignored everywhere —
   // never required, never sent, never logged.
-  process.env.PICTORIUM_TRAKT_CLIENT_SECRET = DISTINCT_SECRET
+  process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET = DISTINCT_SECRET
 }
 
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-traktoauth-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
-  process.env.PICTORIUM_MULTI_USER = "1"
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-traktoauth-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
+  process.env.FLAMEFORGE_MULTI_USER = "1"
   process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
-  delete process.env.PICTORIUM_RATELIMIT_KV
-  delete process.env.POSTERIUM_RATELIMIT_KV
-  delete process.env.PICTORIUM_REDIS_URL
-  delete process.env.POSTERIUM_REDIS_URL
+  delete process.env.FLAMEFORGE_RATELIMIT_KV
+  delete process.env.FLAMEFORGE_RATELIMIT_KV
+  delete process.env.FLAMEFORGE_REDIS_URL
+  delete process.env.FLAMEFORGE_REDIS_URL
   delete process.env.REDIS_URL
-  delete process.env.PICTORIUM_TRAKT_CLIENT_ID
-  delete process.env.POSTERIUM_TRAKT_CLIENT_ID
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
   delete process.env.TRAKT_CLIENT_ID
-  delete process.env.PICTORIUM_TRAKT_CLIENT_SECRET
-  delete process.env.POSTERIUM_TRAKT_CLIENT_SECRET
-  delete process.env.PICTORIUM_TRAKT_REDIRECT_URI
-  delete process.env.POSTERIUM_TRAKT_REDIRECT_URI
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
+  delete process.env.FLAMEFORGE_TRAKT_REDIRECT_URI
+  delete process.env.FLAMEFORGE_TRAKT_REDIRECT_URI
   delete process.env.TRAKT_API_URL
-  delete process.env.PICTORIUM_TRAKT_TIMEOUT_MS
+  delete process.env.FLAMEFORGE_TRAKT_TIMEOUT_MS
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
   setValidConfig()
@@ -229,15 +229,15 @@ async function startFlow(
   expect(res.status).toBe(200)
   const body = (await res.json()) as { authorizeUrl: string; expiresIn: number }
   const setCookie = res.headers.get("set-cookie")
-  expect(setCookie).toContain("pictorium_trakt_oauth=")
-  const nonce = /pictorium_trakt_oauth=([^;]+)/.exec(setCookie!)?.[1]
+  expect(setCookie).toContain("FLAMEFORGE_trakt_oauth=")
+  const nonce = /FLAMEFORGE_trakt_oauth=([^;]+)/.exec(setCookie!)?.[1]
   expect(nonce).toBeTruthy()
   const params = new URL(body.authorizeUrl).searchParams
   const state = params.get("state")
   const codeChallenge = params.get("code_challenge")
   expect(state).toBeTruthy()
   expect(codeChallenge).toBeTruthy()
-  return { authorizeUrl: body.authorizeUrl, state: state!, nonce: nonce!, cookie: `pictorium_trakt_oauth=${nonce}`, codeChallenge: codeChallenge! }
+  return { authorizeUrl: body.authorizeUrl, state: state!, nonce: nonce!, cookie: `FLAMEFORGE_trakt_oauth=${nonce}`, codeChallenge: codeChallenge! }
 }
 
 function stubExchangeSuccess(reply: unknown = TOKEN_REPLY): { urls: string[]; bodies: unknown[] } {
@@ -295,7 +295,7 @@ describe("POST /api/users/[uuid]/trakt/authorize", () => {
     expect(JSON.stringify(body)).not.toContain(DISTINCT_SECRET)
     // Binding cookie: HttpOnly, SameSite=Lax, callback-path scoped, host-only.
     const setCookie = res.headers.get("set-cookie")!
-    expect(setCookie).toContain("pictorium_trakt_oauth=")
+    expect(setCookie).toContain("FLAMEFORGE_trakt_oauth=")
     expect(setCookie).toContain("HttpOnly")
     expect(setCookie).toContain("SameSite=Lax")
     expect(setCookie).toContain("Path=/api/trakt/callback")
@@ -325,8 +325,8 @@ describe("POST /api/users/[uuid]/trakt/authorize", () => {
 
   it("starts with NO secret configured (PKCE public client)", async () => {
     // The app under test registers no secret at all — the supported shape.
-    delete process.env.PICTORIUM_TRAKT_CLIENT_SECRET
-    delete process.env.POSTERIUM_TRAKT_CLIENT_SECRET
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
     vi.resetModules()
     const fresh = await loadAll()
     const created = await fresh.auth.createUser()
@@ -356,14 +356,14 @@ describe("POST /api/users/[uuid]/trakt/authorize", () => {
     const ctxA = { params: Promise.resolve({ uuid: a.uuid }) }
 
     // Multi-user off → 404, no state minted.
-    process.env.PICTORIUM_MULTI_USER = "0"
+    process.env.FLAMEFORGE_MULTI_USER = "0"
     vi.resetModules()
     const off = await import("@/app/api/users/[uuid]/trakt/authorize/route")
     const offRes = await off.POST(postAuthorize(`http://localhost/api/users/${a.uuid}/trakt/authorize`, a.secret), ctxA)
     expect(offRes.status).toBe(404)
     expect(offRes.headers.get("cache-control")).toBe("no-store")
-    delete process.env.PICTORIUM_MULTI_USER
-    process.env.PICTORIUM_MULTI_USER = "1"
+    delete process.env.FLAMEFORGE_MULTI_USER
+    process.env.FLAMEFORGE_MULTI_USER = "1"
 
     // Bad UUID → 400.
     expect(
@@ -393,15 +393,15 @@ describe("POST /api/users/[uuid]/trakt/authorize", () => {
     const url = `http://localhost/api/users/${created.uuid}/trakt/authorize`
 
     // No client ID (the leftover secret decoy alone configures nothing).
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     vi.resetModules()
     const uncfg = await import("@/app/api/users/[uuid]/trakt/authorize/route")
     expect((await uncfg.POST(postAuthorize(url, created.secret), ctx)).status).toBe(503)
     setValidConfig()
 
     // A missing secret NEVER blocks the start (PKCE needs none).
-    delete process.env.PICTORIUM_TRAKT_CLIENT_SECRET
-    delete process.env.POSTERIUM_TRAKT_CLIENT_SECRET
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
     vi.resetModules()
     const nosecret = await import("@/app/api/users/[uuid]/trakt/authorize/route")
     expect((await nosecret.POST(postAuthorize(url, created.secret), ctx)).status).toBe(200)
@@ -464,7 +464,7 @@ describe("GET /api/users/[uuid]/trakt/status (secret-free)", () => {
     expect(await degraded.json()).toEqual({ configured: true, status: "unavailable" })
 
     // Unconfigured deployment still answers honestly (never throws).
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     vi.resetModules()
     const status3 = await import("@/app/api/users/[uuid]/trakt/status/route")
     const uncfg = await status3.GET(new NextRequest(urlA, { headers: { "x-user-token": a.secret } }), {
@@ -491,7 +491,7 @@ describe("GET /api/trakt/callback", () => {
     expect(res.headers.get("location")).toBe(`/u/${a.uuid}/configure?trakt=connected`)
     expect(res.headers.get("cache-control")).toBe("no-store")
     const cleared = res.headers.get("set-cookie")!
-    expect(cleared).toContain("pictorium_trakt_oauth=;")
+    expect(cleared).toContain("FLAMEFORGE_trakt_oauth=;")
     expect(cleared).toContain("Max-Age=0")
     expect(cleared).toContain("Path=/api/trakt/callback")
 
@@ -599,7 +599,7 @@ describe("GET /api/trakt/callback", () => {
     const wc = await callback.GET(
       getCallback(
         `http://localhost/api/trakt/callback?code=x&state=${wrongCookie.state}`,
-        "pictorium_trakt_oauth=wrongnonce",
+        "FLAMEFORGE_trakt_oauth=wrongnonce",
       ),
     )
     expect(wc.headers.get("location")).toBe("/?trakt=failed")
@@ -623,7 +623,7 @@ describe("GET /api/trakt/callback", () => {
     // Directly minted already-expired state (no sleeping).
     const old = await oauthState.createTraktOAuthState(a.uuid, REDIRECT_DUCK, { ttlMs: -1000 })
     const res = await callback.GET(
-      getCallback(`http://localhost/api/trakt/callback?code=x&state=${old.state}`, `pictorium_trakt_oauth=${old.nonce}`),
+      getCallback(`http://localhost/api/trakt/callback?code=x&state=${old.state}`, `FLAMEFORGE_trakt_oauth=${old.nonce}`),
     )
     expect(res.headers.get("location")).toBe("/?trakt=failed")
     // Expired consume burns the record; the live flow still completes.
@@ -683,7 +683,7 @@ describe("GET /api/trakt/callback", () => {
     stubExchangeSuccess()
 
     // Deployment now registers the OTHER confirmed redirect URI.
-    process.env.PICTORIUM_TRAKT_REDIRECT_URI = REDIRECT_ELF
+    process.env.FLAMEFORGE_TRAKT_REDIRECT_URI = REDIRECT_ELF
     vi.resetModules()
     const callback2 = await import("@/app/api/trakt/callback/route")
     const res = await callback2.GET(getCallback(`http://localhost/api/trakt/callback?code=x&state=${flow.state}`, flow.cookie))
@@ -727,7 +727,7 @@ describe("GET /api/trakt/callback", () => {
 
     // Hang with a tiny cap → timeout → failed (fast, no 8s wait). The stub
     // emulates real fetch abort semantics (reject on abort signal).
-    process.env.PICTORIUM_TRAKT_TIMEOUT_MS = "100"
+    process.env.FLAMEFORGE_TRAKT_TIMEOUT_MS = "100"
     vi.resetModules()
     const mod2 = await loadAll()
     flow = await startFlow(mod2.authorize, a.uuid, a.secret)
@@ -747,7 +747,7 @@ describe("GET /api/trakt/callback", () => {
     expect(res.headers.get("location")).toBe(`/u/${a.uuid}/configure?trakt=failed`)
     expect(await mod2.trakt.getTraktTokenStatus(a.uuid)).toBe("disconnected")
     vi.restoreAllMocks()
-    delete process.env.PICTORIUM_TRAKT_TIMEOUT_MS
+    delete process.env.FLAMEFORGE_TRAKT_TIMEOUT_MS
 
     // 200 with invalid schema (missing refresh_token, bad expiry) → failed, never persisted.
     vi.resetModules()
@@ -801,7 +801,7 @@ describe("GET /api/trakt/callback", () => {
   it("KV backend: full link + replay + object-form consume, no disk files", async () => {
     process.env.KV_REST_API_URL = "https://example.upstash.io"
     process.env.KV_REST_API_TOKEN = "test-token"
-    process.env.PICTORIUM_RATELIMIT_KV = "0"
+    process.env.FLAMEFORGE_RATELIMIT_KV = "0"
     const { auth, authorize, callback, trakt } = await loadAll()
     const a = await auth.createUser()
     const flow = await startFlow(authorize, a.uuid, a.secret)
@@ -828,7 +828,7 @@ describe("GET /api/trakt/callback", () => {
   it("KV EVAL failure is fail-closed: no get/del fallback, no exchange, no tokens", async () => {
     process.env.KV_REST_API_URL = "https://example.upstash.io"
     process.env.KV_REST_API_TOKEN = "test-token"
-    process.env.PICTORIUM_RATELIMIT_KV = "0"
+    process.env.FLAMEFORGE_RATELIMIT_KV = "0"
     const { auth, authorize, callback, trakt, oauthState } = await loadAll()
     const a = await auth.createUser()
     const flow = await startFlow(authorize, a.uuid, a.secret)
@@ -872,7 +872,7 @@ describe("GET /api/trakt/callback", () => {
   it("KV concurrent consume: atomic EVAL lets exactly one consumer win", async () => {
     process.env.KV_REST_API_URL = "https://example.upstash.io"
     process.env.KV_REST_API_TOKEN = "test-token"
-    process.env.PICTORIUM_RATELIMIT_KV = "0"
+    process.env.FLAMEFORGE_RATELIMIT_KV = "0"
     const { auth, oauthState } = await loadAll()
     const a = await auth.createUser()
     const created = await oauthState.createTraktOAuthState(a.uuid, REDIRECT_DUCK)
@@ -908,7 +908,7 @@ describe("GET /api/trakt/callback", () => {
   it("KV concurrent callbacks link exactly once", async () => {
     process.env.KV_REST_API_URL = "https://example.upstash.io"
     process.env.KV_REST_API_TOKEN = "test-token"
-    process.env.PICTORIUM_RATELIMIT_KV = "0"
+    process.env.FLAMEFORGE_RATELIMIT_KV = "0"
     const { auth, authorize, callback, trakt } = await loadAll()
     const a = await auth.createUser()
     stubExchangeSuccess()
@@ -960,7 +960,7 @@ describe("GET /api/trakt/callback", () => {
     expect(limited.headers.get("cache-control")).toBe("no-store")
     expect(limited.headers.get("retry-after")).toBe("7")
     const cleared = limited.headers.get("set-cookie")!
-    expect(cleared).toContain("pictorium_trakt_oauth=;")
+    expect(cleared).toContain("FLAMEFORGE_trakt_oauth=;")
     expect(cleared).toContain("Max-Age=0")
     expect(cleared).toContain("Path=/api/trakt/callback")
     // Nothing burned, nothing exchanged, nothing persisted: no fetch at all
@@ -1156,7 +1156,7 @@ describe("trakt oauth cookie builders", () => {
   it("binding cookie is HttpOnly/Lax/path-scoped/host-only; clear cookie expires it", async () => {
     const { oauthState } = await loadAll()
     const set = oauthState.buildTraktOAuthCookie("nonce-value-123")
-    expect(set).toContain("pictorium_trakt_oauth=nonce-value-123")
+    expect(set).toContain("FLAMEFORGE_trakt_oauth=nonce-value-123")
     expect(set).toContain("HttpOnly")
     expect(set).toContain("SameSite=Lax")
     expect(set).toContain("Path=/api/trakt/callback")
@@ -1166,7 +1166,7 @@ describe("trakt oauth cookie builders", () => {
     expect(set).not.toContain("Secure")
 
     const clear = oauthState.buildClearTraktOAuthCookie()
-    expect(clear).toContain("pictorium_trakt_oauth=;")
+    expect(clear).toContain("FLAMEFORGE_trakt_oauth=;")
     expect(clear).toContain("Max-Age=0")
     expect(clear).toContain("Path=/api/trakt/callback")
     expect(clear).toContain("HttpOnly")
@@ -1179,3 +1179,5 @@ describe("trakt oauth cookie builders", () => {
     expect(oauthState.buildTraktOAuthCookie("n")).toContain("Secure")
   })
 })
+
+

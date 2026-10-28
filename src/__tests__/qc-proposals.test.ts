@@ -714,3 +714,4 @@ describe("output protection: JSON-only, never inside the repo", () => {
     expect(fs.existsSync(inside)).toBe(false)
   })
 })
+

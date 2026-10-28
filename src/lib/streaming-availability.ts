@@ -1,4 +1,4 @@
-/**
+﻿/**
  * FlixPatrol availability-index discovery for opt-in streaming catalogs.
  *
  * Server-only (filesystem cache). Reads ONE fixed index document:
@@ -15,10 +15,10 @@
  * - `ok`: freshly generated index (`generated_at` within 24h), `fpChart` is
  *   a real boolean per section.
  * - `stale`: cached document served OR freshly fetched but ancient/unknown
- *   `generated_at` — coverage flags are best-effort and marked stale. Index
+ *   `generated_at` â€” coverage flags are best-effort and marked stale. Index
  *   coverage alone is NEVER a chart-freshness guarantee (per-side chart-date
  *   freshness still applies at serving time).
- * - `error`: no document at all — `fpChart` is `"unknown"`, never false
+ * - `error`: no document at all â€” `fpChart` is `"unknown"`, never false
  *   (unknown must not read as known-missing).
  *
  * "Index existence means chart coverage, not commercial availability": the
@@ -77,7 +77,7 @@ const INDEX_MAX_BYTES = 1024 * 1024
 /**
  * Source-age honesty: the upstream index is regenerated daily. A document
  * whose `generated_at` is missing/invalid/in the future or older than this is
- * served as `stale` (best-effort coverage), never `ok` — index coverage alone
+ * served as `stale` (best-effort coverage), never `ok` â€” index coverage alone
  * (FP chart listed) is NOT a chart-freshness guarantee (the per-side
  * chart-date freshness in `flixpatrol.ts` still applies at serving time).
  */
@@ -94,7 +94,7 @@ function isStrictBoolean(v: unknown): v is boolean {
 
 /**
  * Validate ONE persisted section-coverage record. Persisted disk entries
- * store ALREADY-NORMALIZED booleans (`{ movies: true, … }`) — never the raw
+ * store ALREADY-NORMALIZED booleans (`{ movies: true, â€¦ }`) â€” never the raw
  * upstream variant forms (`[]`/`"it"`/records) that `parseAvailabilityIndex`
  * accepts. Only strict booleans validate; anything else (including the raw
  * source shapes) is rejected per entry so a persisted `true` can never
@@ -140,7 +140,7 @@ function parsePersistedAvailabilityCache(raw: unknown): AvailabilityCache | null
   // (`{ regions.italy.rai.series: true }`) with no `variants` key; accepting
   // them with `variants: {}` would make `hasBase()` read `true + []` as a
   // real base chart and advertise a fictitious base for variant-only
-  // categories (verified: `italy.rai.series: ["it"]` — the real country doc
+  // categories (verified: `italy.rai.series: ["it"]` â€” the real country doc
   // carries only `rai.series-it`, no `rai.series` base). A missing `variants`
   // key is a legacy snapshot: reject it (return null) so the loader forces a
   // bounded refetch instead of trusting a base that was never proven. When
@@ -173,7 +173,7 @@ const CACHE_FILE = (() => {
     fs.accessSync(DATA_DIR, fs.constants.W_OK)
     return path.join(DATA_DIR, "streaming-availability.json")
   } catch {
-    return path.join(os.tmpdir(), "pictorium-streaming-availability.json")
+    return path.join(os.tmpdir(), "FlameForge-streaming-availability.json")
   }
 })()
 
@@ -182,9 +182,9 @@ type SectionCoverage = { movies: boolean; series: boolean; overall: boolean }
 /**
  * Feed variant ids per section (Task F generic universe): the non-empty
  * variant arrays carried by the upstream index (e.g. `series: ["it"]`,
- * `overall: ["amazon-channels"]`). Sparse — only pairs with at least one
+ * `overall: ["amazon-channels"]`). Sparse â€” only pairs with at least one
  * non-empty variant array appear here. Sorted for determinism. Bounded like
- * the coverage parse (≤64 ids, ≤128 chars each); anything else is dropped,
+ * the coverage parse (â‰¤64 ids, â‰¤128 chars each); anything else is dropped,
  * never invented.
  */
 export interface SectionVariants {
@@ -235,7 +235,7 @@ function isRecord(v: unknown): v is Record<string, unknown> {
  * Bounded parse of the fixed index document (real upstream shape:
  * `{ schema_version: 1, generated_at, regions[countrySlug][serviceId] }`,
  * where each section (`movies`/`series`/`overall`) carries variant ids).
- * Presence of a section key means chart COVERAGE exists — an EMPTY variant
+ * Presence of a section key means chart COVERAGE exists â€” an EMPTY variant
  * array (`[]`) proves the BASE chart (verified against the live index:
  * `italy.netflix.movies: []`, `italy.paramount.overall: []`,
  * `italy.crunchyroll.overall: []`). A NON-EMPTY variant array (`["it"]`)
@@ -247,7 +247,7 @@ function isRecord(v: unknown): v is Record<string, unknown> {
  * country slugs, 64 service ids per country, key/value length bounds.
  * Feed variant ids are collected alongside for the generic universe
  * (Task F) without changing base-chart semantics. Anything malformed
- * (wrong `schema_version`, non-object regions) → null (error, never
+ * (wrong `schema_version`, non-object regions) â†’ null (error, never
  * partial trust).
  */
 export function parseAvailabilityIndex(doc: unknown): Omit<AvailabilityCache, "fetchedAt"> | null {
@@ -291,7 +291,7 @@ export function parseAvailabilityIndex(doc: unknown): Omit<AvailabilityCache, "f
         series: has(rec["series"]),
         overall: has(rec["overall"]),
       }
-      // Feed variant ids (Task F): non-empty ARRAY forms only — the variant
+      // Feed variant ids (Task F): non-empty ARRAY forms only â€” the variant
       // chart catalogs (`<service>.<cat>-<variant>`) the generic universe
       // serves. String/record shapes count as coverage (base chart exists)
       // but carry no enumerable variant id, so they contribute none here.
@@ -403,7 +403,7 @@ async function fetchIndexDocument(): Promise<Omit<AvailabilityCache, "fetchedAt"
     const res = await fetch(STREAMING_AVAILABILITY_URL, { signal: AbortSignal.timeout(INDEX_TIMEOUT_MS) })
     if (!res.ok) return null
     // Bounded read (fixed-URL policy): the byte cap applies to the stream
-    // itself — a missing or lying content-length can never cause an
+    // itself â€” a missing or lying content-length can never cause an
     // unbounded buffering (early cancel, never a truncated parse).
     const bounded = await readBoundedResponseText(res, INDEX_MAX_BYTES)
     if (!bounded.ok) return null
@@ -436,7 +436,7 @@ function loadDiskCache(): AvailabilityCache | null {
     if (stat.size > INDEX_MAX_BYTES) return null
     const raw = JSON.parse(fs.readFileSync(CACHE_FILE, "utf-8")) as AvailabilityCache
     // Re-validate the persisted regions against the PERSISTED schema
-    // (normalized booleans) — never through the raw-variant source parse,
+    // (normalized booleans) â€” never through the raw-variant source parse,
     // which rejects booleans and would reload every persisted `true` as
     // `false` after a restart.
     return parsePersistedAvailabilityCache(raw)
@@ -472,14 +472,14 @@ async function saveDiskCache(data: AvailabilityCache): Promise<void> {
 }
 
 /**
- * Load the index (memory → disk → network, 12h fetchedAt TTL). Never throws:
+ * Load the index (memory â†’ disk â†’ network, 12h fetchedAt TTL). Never throws:
  * transport or parse failure resolves to `stale` (cached document) or
  * `error` (no document). Source-age honesty: a document whose `generated_at`
  * is missing/invalid/future or older than INDEX_SOURCE_MAX_AGE_MS reports
- * `stale` even when freshly fetched — index coverage is chart coverage, never
+ * `stale` even when freshly fetched â€” index coverage is chart coverage, never
  * a chart-freshness guarantee. Persistence is awaited inside the owning
  * request lifecycle (no detached writes); concurrent callers share one
- * upstream fetch. No mass provider probing — this is the single fetch.
+ * upstream fetch. No mass provider probing â€” this is the single fetch.
  */
 export async function loadStreamingAvailability(): Promise<{ status: StreamingIndexStatus } & AvailabilityCache> {
   const now = Date.now()
@@ -515,7 +515,7 @@ export function __clearStreamingAvailabilityCache(): void {
 
 /**
  * Test hook: drop ONLY the in-memory index (and any in-flight fetch) while
- * preserving the disk file — simulates a process restart against the same
+ * preserving the disk file â€” simulates a process restart against the same
  * DATA_DIR. Unlike `__clearStreamingAvailabilityCache` (which also deletes
  * the disk file), this keeps the persisted snapshot so disk-reload
  * roundtrips can be verified.
@@ -558,10 +558,10 @@ export interface StreamingAvailabilityResponse {
 const SECTION_LABEL: Record<StreamingSection, string> = { movies: "Film", series: "Serie TV" }
 
 /**
- * All selectable service × country × section choices for the supported
- * subset (declared services × regions with a RegionDef). Unknown indexed
+ * All selectable service Ã— country Ã— section choices for the supported
+ * subset (declared services Ã— regions with a RegionDef). Unknown indexed
  * countries outside the supported subset are never promised: they simply
- * have no choice here. Hulu/Peacock are not mapped services — no choice
+ * have no choice here. Hulu/Peacock are not mapped services â€” no choice
  * claims them (unsupported, not "every-country" claims).
  */
 export function buildStreamingChoices(
@@ -584,11 +584,11 @@ export function buildStreamingChoices(
         const potential: StreamingPotentialSource =
           fpChart === true ? "flixpatrol" : jwFallback ? "justwatch" : "unavailable"
         const note = overallOnly
-          ? "Solo classifica complessiva (overall): non esposta come Film/Serie TV — dividere la lista inventerebbe i rank."
+          ? "Solo classifica complessiva (overall): non esposta come Film/Serie TV â€” dividere la lista inventerebbe i rank."
           : potential === "unavailable"
             ? fpChart === "unknown"
               ? "Indice non disponibile e nessun fallback JustWatch noto per questa coppia."
-              : "Nessuna copertura FlixPatrol né fallback JustWatch noto per questa coppia."
+              : "Nessuna copertura FlixPatrol nÃ© fallback JustWatch noto per questa coppia."
             : null
         out.push({
           service,
@@ -602,8 +602,8 @@ export function buildStreamingChoices(
           fpChart,
           jwFallback,
           potential,
-          displayFp: `${STREAMING_SOURCE_LABEL_FP} — ${SECTION_LABEL[section]}`,
-          displayJw: `${STREAMING_SOURCE_LABEL_JW} — ${SECTION_LABEL[section]}`,
+          displayFp: `${STREAMING_SOURCE_LABEL_FP} â€” ${SECTION_LABEL[section]}`,
+          displayJw: `${STREAMING_SOURCE_LABEL_JW} â€” ${SECTION_LABEL[section]}`,
           overallOnly,
           note,
         })
@@ -620,7 +620,7 @@ export function buildStreamingChoices(
  * `amazon-prime` and `hulu` vs `hulu-nippon` stay distinct) + chart slug +
  * section (movies/series/all distinct: mixed `all` never merges with a
  * split) + auto policy + variant (null base vs exact variant ids distinct).
- * Backend field/type/schema/id formats are untouched — this only decides
+ * Backend field/type/schema/id formats are untouched â€” this only decides
  * which already-built descriptors survive the final auto composition.
  */
 function autoChoiceCanonicalKey(
@@ -666,7 +666,7 @@ export async function getStreamingAvailability(filters?: {
   // Absent source = `auto` (compatibility: legacy auto ids retained).
   // A PRESENT-but-invalid source fails closed (empty choices): silently
   // switching intent to `auto` would promise charts under a policy the caller
-  // never asked for. Strict modes carry ONLY requested-policy encoded ids —
+  // never asked for. Strict modes carry ONLY requested-policy encoded ids â€”
   // legacy auto ids never leak, cross potentials never substitute.
   const rawSource = filters?.source
   const source: StreamingSourceMode | null =
@@ -682,7 +682,7 @@ export async function getStreamingAvailability(filters?: {
     // generic `chartExists === false` entries skip the in-emit legacy guard
     // and duplicate the identical legacy JW-fallback pair -> 5 chips instead
     // of 3). Canonical identity is service-index-id (prime->amazon-prime,
-    // apple->apple-tv, hbo->hbo-max via the existing alias map — never
+    // apple->apple-tv, hbo->hbo-max via the existing alias map â€” never
     // amazon vs amazon-prime nor hulu vs hulu-nippon) + chart slug + section
     // + auto policy + variant. First (legacy) wins, so legacy-identical
     // entries keep their stable legacy ids; genuinely distinct providers,
@@ -723,14 +723,14 @@ export async function getStreamingAvailability(filters?: {
 }
 
 // ---------------------------------------------------------------------------
-// Generic universe choices (Task F): the dynamic availability-index union —
+// Generic universe choices (Task F): the dynamic availability-index union â€”
 // every indexed (service, chart-country) pair, base + variant charts,
-// `all`/mixed for overall — filtered by an explicit source policy.
+// `all`/mixed for overall â€” filtered by an explicit source policy.
 //
 // Additive: the legacy builder above is untouched (legacy 8x22 entries keep
 // byte-identical fields/ids). Generic entries whose (service, slug, section,
 // source, variant) is legacy-identical are SUPPRESSED here (the legacy entry
-// already covers them); everything else gets `pictorium-stream2-*` ids.
+// already covers them); everything else gets `FlameForge-stream2-*` ids.
 // ---------------------------------------------------------------------------
 
 /** Legacy availability service id -> curated service (reverse index map). */
@@ -793,7 +793,7 @@ const GENERIC_SECTION_LABEL: Record<GenericStreamingSection, string> = {
  * The dynamic registry is the index itself: every allowlisted slug x every
  * safe service id found in the fetched document. Fail-closed throughout:
  * non-allowlisted slugs/service shapes are skipped (never promised, never
- * Italy). `source` selects the potential policy — strict modes never
+ * Italy). `source` selects the potential policy â€” strict modes never
  * substitute silently (`flixpatrol` never reports `justwatch` potential and
  * vice versa; `justwatch` omits unsupported pairs entirely).
  */
@@ -860,10 +860,10 @@ export function buildGenericStreamingChoices(
 
       // Base existence is proven ONLY by an empty variant array (`[]`) or a
       // non-array coverage form: a NON-EMPTY variant array (e.g.
-      // `series: ["it"]`) means variant-only charts — the base `catalog_id`
+      // `series: ["it"]`) means variant-only charts â€” the base `catalog_id`
       // (here `rai.series`) does not exist upstream (the real country doc
       // carries only `rai.series-it`). Category presence alone never proves
-      // a base, so only the exact variant choices emit — never a fictitious
+      // a base, so only the exact variant choices emit â€” never a fictitious
       // base, never a duplicate base+variant at equal meaning.
       const varsFor = (section: "movies" | "series" | "overall"): readonly string[] =>
         pairVariants?.[section] ?? []
@@ -894,7 +894,7 @@ export function buildGenericStreamingChoices(
         }
         // Mixed `all` is FP-only by design in every source mode: blending
         // separate JW movies+shows charts would invent ranks, so a
-        // justwatch-only request can never serve it — omit the choice
+        // justwatch-only request can never serve it â€” omit the choice
         // (unsupported, never a silent substitution or a fake JW promise).
         if (source === "justwatch" && (section === "all" || !jwEligible)) return
         const fpChart: boolean | "unknown" = !indexKnown ? "unknown" : chartExists
@@ -908,17 +908,17 @@ export function buildGenericStreamingChoices(
         }
         const overallOnly =
           section !== "all" && !hasAny("movies") && !hasAny("series") && hasAny("overall")
-        const variantSuffix = variant ? ` · ${genericVariantLabel(variant)}` : ""
+        const variantSuffix = variant ? ` Â· ${genericVariantLabel(variant)}` : ""
         const note = overallOnly
-          ? "Solo classifica complessiva (overall): non esposta come Film/Serie TV — dividere la lista inventerebbe i rank."
+          ? "Solo classifica complessiva (overall): non esposta come Film/Serie TV â€” dividere la lista inventerebbe i rank."
           : potential === "unavailable"
             ? fpChart === "unknown"
               ? "Indice non disponibile e nessun fallback JustWatch noto per questa coppia."
               : source === "flixpatrol"
-                ? "Nessuna classifica FlixPatrol per questa coppia/versione (modalità solo-FlixPatrol: nessun fallback)."
+                ? "Nessuna classifica FlixPatrol per questa coppia/versione (modalitÃ  solo-FlixPatrol: nessun fallback)."
                 : source === "justwatch"
-                  ? "Nessun supporto JustWatch verificato per questa coppia (modalità solo-JustWatch: nessuna sostituzione)."
-                  : "Nessuna copertura FlixPatrol né fallback JustWatch noto per questa coppia."
+                  ? "Nessun supporto JustWatch verificato per questa coppia (modalitÃ  solo-JustWatch: nessuna sostituzione)."
+                  : "Nessuna copertura FlixPatrol nÃ© fallback JustWatch noto per questa coppia."
             : null
         if (variant === null) emittedBase.add(`${serviceId}|${chartSlug}|${section}`)
         out.push({
@@ -937,8 +937,8 @@ export function buildGenericStreamingChoices(
           fpChart,
           jwFallback: jwEligible,
           potential,
-          displayFp: `${STREAMING_SOURCE_LABEL_FP} — ${GENERIC_SECTION_LABEL[section]}${variantSuffix}`,
-          displayJw: `${STREAMING_SOURCE_LABEL_JW} — ${GENERIC_SECTION_LABEL[section]}${variantSuffix}`,
+          displayFp: `${STREAMING_SOURCE_LABEL_FP} â€” ${GENERIC_SECTION_LABEL[section]}${variantSuffix}`,
+          displayJw: `${STREAMING_SOURCE_LABEL_JW} â€” ${GENERIC_SECTION_LABEL[section]}${variantSuffix}`,
           overallOnly,
           note,
         })
@@ -950,7 +950,7 @@ export function buildGenericStreamingChoices(
       for (const v of varsFor("series")) emit("series", v, varsFor("series"), true)
       if (hasBase("overall")) emit("all", null, varsFor("overall"), true)
       for (const v of varsFor("overall")) emit("all", v, varsFor("overall"), true)
-      // Overall-only pairs (no movies/series split — splitting would
+      // Overall-only pairs (no movies/series split â€” splitting would
       // invent ranks): report both sections as explicitly unavailable with
       // the overallOnly capability, like the legacy builder.
       if (!hasAny("movies") && !hasAny("series") && hasAny("overall")) {
@@ -997,8 +997,8 @@ export function buildGenericStreamingChoices(
             fpChart: !indexKnown ? "unknown" : false,
             jwFallback: true,
             potential: "justwatch",
-            displayFp: `${STREAMING_SOURCE_LABEL_FP} — ${GENERIC_SECTION_LABEL[section]}`,
-            displayJw: `${STREAMING_SOURCE_LABEL_JW} — ${GENERIC_SECTION_LABEL[section]}`,
+            displayFp: `${STREAMING_SOURCE_LABEL_FP} â€” ${GENERIC_SECTION_LABEL[section]}`,
+            displayJw: `${STREAMING_SOURCE_LABEL_JW} â€” ${GENERIC_SECTION_LABEL[section]}`,
             overallOnly: false,
             note: null,
           })
@@ -1008,3 +1008,4 @@ export function buildGenericStreamingChoices(
   }
   return out
 }
+

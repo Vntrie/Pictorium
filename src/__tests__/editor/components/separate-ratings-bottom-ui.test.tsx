@@ -212,3 +212,4 @@ describe("BadgeDefaultsSection Orizzontale: barra disabilitata (edit target)", (
     expect(bar).toHaveAttribute("aria-pressed", "true")
   })
 })
+

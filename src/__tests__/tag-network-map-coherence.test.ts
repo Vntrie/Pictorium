@@ -78,3 +78,4 @@ describe("network filename registry coherence", () => {
     expect(NETWORK_MARK_FILES["mgm_plus"]).toBe("MGM+_logo.svg")
   })
 })
+

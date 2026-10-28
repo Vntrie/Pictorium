@@ -123,12 +123,12 @@ describe("Server-Timing diagnostics (Fase 6)", () => {
   })
 })
 
-describe("dynamic poster TTL via POSTERIUM_DYNAMIC_POSTER_TTL_MS", () => {
-  const originalTtl = process.env.POSTERIUM_DYNAMIC_POSTER_TTL_MS
+describe("dynamic poster TTL via FLAMEFORGE_DYNAMIC_POSTER_TTL_MS", () => {
+  const originalTtl = process.env.FLAMEFORGE_DYNAMIC_POSTER_TTL_MS
 
   afterEach(() => {
-    if (originalTtl === undefined) delete process.env.POSTERIUM_DYNAMIC_POSTER_TTL_MS
-    else process.env.POSTERIUM_DYNAMIC_POSTER_TTL_MS = originalTtl
+    if (originalTtl === undefined) delete process.env.FLAMEFORGE_DYNAMIC_POSTER_TTL_MS
+    else process.env.FLAMEFORGE_DYNAMIC_POSTER_TTL_MS = originalTtl
     vi.resetModules()
   })
 
@@ -139,7 +139,7 @@ describe("dynamic poster TTL via POSTERIUM_DYNAMIC_POSTER_TTL_MS", () => {
   }
 
   it("derives the dynamic cache headers from the configured TTL", async () => {
-    process.env.POSTERIUM_DYNAMIC_POSTER_TTL_MS = "600000" // 10 min
+    process.env.FLAMEFORGE_DYNAMIC_POSTER_TTL_MS = "600000" // 10 min
     const { posterHeaders } = await importCache()
     const headers = posterHeaders("\"etag\"", false, false, true)
 
@@ -149,7 +149,7 @@ describe("dynamic poster TTL via POSTERIUM_DYNAMIC_POSTER_TTL_MS", () => {
   })
 
   it("clamps values below the 5 min floor back to the 6h default", async () => {
-    process.env.POSTERIUM_DYNAMIC_POSTER_TTL_MS = "1000"
+    process.env.FLAMEFORGE_DYNAMIC_POSTER_TTL_MS = "1000"
     const { posterHeaders } = await importCache()
     const headers = posterHeaders("\"etag\"", false, false, true)
 
@@ -157,7 +157,7 @@ describe("dynamic poster TTL via POSTERIUM_DYNAMIC_POSTER_TTL_MS", () => {
   })
 
   it("clamps values above the 24h ceiling back to the 6h default", async () => {
-    process.env.POSTERIUM_DYNAMIC_POSTER_TTL_MS = "999999999"
+    process.env.FLAMEFORGE_DYNAMIC_POSTER_TTL_MS = "999999999"
     const { posterHeaders } = await importCache()
     const headers = posterHeaders("\"etag\"", false, false, true)
 
@@ -165,7 +165,7 @@ describe("dynamic poster TTL via POSTERIUM_DYNAMIC_POSTER_TTL_MS", () => {
   })
 
   it("falls back to the 6h default on non-numeric values", async () => {
-    process.env.POSTERIUM_DYNAMIC_POSTER_TTL_MS = "abc"
+    process.env.FLAMEFORGE_DYNAMIC_POSTER_TTL_MS = "abc"
     const { posterHeaders } = await importCache()
     const headers = posterHeaders("\"etag\"", false, false, true)
 
@@ -328,15 +328,15 @@ describe("poster image format negotiation (WebP / AVIF)", () => {
     }
   })
 
-  describe("PICTORIUM_IMAGE_FORMAT default (opt-in operatore)", () => {
+  describe("FLAMEFORGE_IMAGE_FORMAT default (opt-in operatore)", () => {
     afterEach(() => {
       vi.unstubAllEnvs()
       vi.resetModules()
     })
 
     async function resolveWithEnv(env: string | undefined) {
-      if (env === undefined) vi.stubEnv("PICTORIUM_IMAGE_FORMAT", "")
-      else vi.stubEnv("PICTORIUM_IMAGE_FORMAT", env)
+      if (env === undefined) vi.stubEnv("FLAMEFORGE_IMAGE_FORMAT", "")
+      else vi.stubEnv("FLAMEFORGE_IMAGE_FORMAT", env)
       vi.resetModules()
       const fresh = await import("@/lib/poster-runtime-cache")
       expect(fresh.DEFAULT_IMAGE_FORMAT).toBeDefined()
@@ -351,7 +351,7 @@ describe("poster image format negotiation (WebP / AVIF)", () => {
       expect(fresh.resolveImageFormat("image/avif")).toBe("webp")
     })
 
-    it("serves jpeg to generic clients with PICTORIUM_IMAGE_FORMAT=jpeg", async () => {
+    it("serves jpeg to generic clients with FLAMEFORGE_IMAGE_FORMAT=jpeg", async () => {
       const fresh = await resolveWithEnv("jpeg")
       expect(fresh.DEFAULT_IMAGE_FORMAT).toBe("jpeg")
       expect(fresh.resolveImageFormat(null)).toBe("jpeg")
@@ -505,3 +505,5 @@ describe("normalizePosterCacheParams", () => {
     expect(normalized.get("rs")).toBe("netflix")
   })
 })
+
+

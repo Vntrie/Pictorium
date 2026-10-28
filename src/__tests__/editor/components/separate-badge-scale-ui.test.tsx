@@ -147,3 +147,4 @@ describe("TransformPanel separate default scale", () => {
     expect(slider.getAttribute("aria-valuetext")).toBe("100%")
   })
 })
+

@@ -5,19 +5,19 @@ import itDict from "@/lib/translations/it.json"
 import { InstallModal } from "@/components/InstallModal"
 import { renderWithCtx } from "@/__tests__/test-utils"
 
-const TMDB = "https://pictorium.test/api/poster/{type}/{tmdb_id}?lang=it&rv=1"
-const IMDB = "https://pictorium.test/api/poster/{type}/{imdb_id}?lang=it&rv=1"
-const AUTO = "https://pictorium.test/api/poster/{type}/{tmdb_id|imdb_id}?lang=it&rv=1"
-const NUVIO_TMDB = "https://pictorium.test/api/poster/{type}/{tmdb_id}?lang=it&rv=1&shape={shape}"
-const NUVIO_IMDB = "https://pictorium.test/api/poster/{type}/{imdb_id}?lang=it&rv=1&shape={shape}"
-const NUVIO_AUTO = "https://pictorium.test/api/poster/{type}/{tmdb_id|imdb_id}?lang=it&rv=1&shape={shape}"
+const TMDB = "https://FlameForge.test/api/poster/{type}/{tmdb_id}?lang=it&rv=1"
+const IMDB = "https://FlameForge.test/api/poster/{type}/{imdb_id}?lang=it&rv=1"
+const AUTO = "https://FlameForge.test/api/poster/{type}/{tmdb_id|imdb_id}?lang=it&rv=1"
+const NUVIO_TMDB = "https://FlameForge.test/api/poster/{type}/{tmdb_id}?lang=it&rv=1&shape={shape}"
+const NUVIO_IMDB = "https://FlameForge.test/api/poster/{type}/{imdb_id}?lang=it&rv=1&shape={shape}"
+const NUVIO_AUTO = "https://FlameForge.test/api/poster/{type}/{tmdb_id|imdb_id}?lang=it&rv=1&shape={shape}"
 
 function renderModal() {
   renderWithCtx(
     <InstallModal
       isOpen={true}
       onClose={vi.fn()}
-      manifestUrl="https://pictorium.test/manifest.json"
+      manifestUrl="https://FlameForge.test/manifest.json"
       posterUrlPattern={TMDB}
       posterUrlPatternImdb={IMDB}
       posterUrlPatternAuto={AUTO}
@@ -57,7 +57,7 @@ describe("InstallModal", () => {
         <InstallModal
           isOpen={true}
           onClose={vi.fn()}
-          manifestUrl="https://pictorium.test/manifest.json"
+          manifestUrl="https://FlameForge.test/manifest.json"
           hasUserSpace={true}
           linkMode={mode}
           onLinkModeChange={setMode}
@@ -87,10 +87,10 @@ describe("InstallModal", () => {
 
   it("does not render the GitHub star gratification footer", () => {
     renderWithCtx(
-      <InstallModal isOpen={true} onClose={vi.fn()} manifestUrl="https://pictorium.test/manifest.json" />
+      <InstallModal isOpen={true} onClose={vi.fn()} manifestUrl="https://FlameForge.test/manifest.json" />
     )
 
-    expect(screen.queryByLabelText("Star Pictorium on GitHub")).not.toBeInTheDocument()
+    expect(screen.queryByLabelText("Star FlameForge on GitHub")).not.toBeInTheDocument()
     expect(screen.queryByText("Lascia una stella su GitHub")).not.toBeInTheDocument()
   })
 
@@ -109,7 +109,7 @@ describe("InstallModal", () => {
 
   it("hides the tabs when no poster templates are available", () => {
     renderWithCtx(
-      <InstallModal isOpen={true} onClose={vi.fn()} manifestUrl="https://pictorium.test/manifest.json" />
+      <InstallModal isOpen={true} onClose={vi.fn()} manifestUrl="https://FlameForge.test/manifest.json" />
     )
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument()
     expect(screen.queryByRole("tabpanel")).not.toBeInTheDocument()
@@ -174,12 +174,12 @@ describe("InstallModal", () => {
     const writeTextMock = vi.fn().mockResolvedValue(undefined)
     Object.assign(navigator, { clipboard: { writeText: writeTextMock } })
     renderWithCtx(
-      <InstallModal isOpen={true} onClose={vi.fn()} manifestUrl="https://pictorium.test/manifest.json" />
+      <InstallModal isOpen={true} onClose={vi.fn()} manifestUrl="https://FlameForge.test/manifest.json" />
     )
     fireEvent.click(screen.getByRole("button", { name: /ui.modeCatalogs/ }))
     fireEvent.click(screen.getByRole("button", { name: /ui.copyManifest/ }))
     await waitFor(() => {
-      expect(writeTextMock).toHaveBeenCalledWith("https://pictorium.test/manifest.json?mode=catalogs")
+      expect(writeTextMock).toHaveBeenCalledWith("https://FlameForge.test/manifest.json?mode=catalogs")
     })
   })
 
@@ -216,7 +216,7 @@ describe("InstallModal", () => {
       <InstallModal
         isOpen={true}
         onClose={vi.fn()}
-        manifestUrl="https://pictorium.test/manifest.json"
+        manifestUrl="https://FlameForge.test/manifest.json"
         posterUrlPattern={TMDB}
         posterUrlPatternAuto={AUTO}
       />
@@ -232,7 +232,7 @@ describe("InstallModal", () => {
       <InstallModal
         isOpen={true}
         onClose={vi.fn()}
-        manifestUrl="https://pictorium.test/manifest.json"
+        manifestUrl="https://FlameForge.test/manifest.json"
         posterUrlPatternAuto={AUTO}
       />,
       { t: (key) => (itDict as Record<string, string>)[key] ?? key }
@@ -242,4 +242,6 @@ describe("InstallModal", () => {
     expect(aioPanel.textContent).toContain("Art Providers → Poster URL Pattern")
   })
 })
+
+
 

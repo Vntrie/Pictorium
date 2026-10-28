@@ -107,3 +107,4 @@ describe("retired Badge Lab: legacy params are inert", () => {
     ).toBe(false)
   })
 })
+

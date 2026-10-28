@@ -77,3 +77,4 @@ describe("poster render helpers", () => {
     expect(() => imgSrc("http://image.tmdb.org/t/p/w500/a.jpg")).toThrow()
   })
 })
+

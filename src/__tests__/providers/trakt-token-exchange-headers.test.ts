@@ -10,7 +10,7 @@ import { APP_VERSION } from "@/generated/app-version"
 
 const CALLER_CLIENT_ID = "caller-config-client-id-xyz"
 const ENV_DECOY_CLIENT_ID = "env-decoy-client-id-must-not-leak"
-const REDIRECT = "https://pictorium.duckdns.org/api/trakt/callback"
+const REDIRECT = "https://FlameForge.duckdns.org/api/trakt/callback"
 const VERIFIER = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk" // 43 unreserved chars
 const CODE = "auth-code-value-0123456789abcdef"
 const OLD_REFRESH = "lifecycle-old-refresh-0123456789abcdef"
@@ -50,7 +50,7 @@ function stubFetch(reply: () => Response) {
 
 function expectRequiredHeaders(headers: Record<string, string>) {
   expect(headers["content-type"]).toBe("application/json")
-  expect(headers["user-agent"]).toBe(`Pictorium/${APP_VERSION}`)
+  expect(headers["user-agent"]).toBe(`FlameForge/${APP_VERSION}`)
   expect(headers["trakt-api-version"]).toBe("2")
   // The caller config client ID — never the env decoy, never a secret.
   expect(headers["trakt-api-key"]).toBe(CALLER_CLIENT_ID)
@@ -59,11 +59,11 @@ function expectRequiredHeaders(headers: Record<string, string>) {
 
 beforeEach(() => {
   vi.resetModules()
-  process.env.PICTORIUM_TRAKT_CLIENT_ID = ENV_DECOY_CLIENT_ID
+  process.env.FLAMEFORGE_TRAKT_CLIENT_ID = ENV_DECOY_CLIENT_ID
 })
 
 afterEach(() => {
-  delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
   delete process.env.TRAKT_API_URL
   vi.restoreAllMocks()
   vi.resetModules()
@@ -141,3 +141,5 @@ describe("trakt oauth required headers", () => {
     expectRequiredHeaders(seen[0].headers)
   })
 })
+
+

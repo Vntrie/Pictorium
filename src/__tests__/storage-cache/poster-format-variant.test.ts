@@ -155,7 +155,7 @@ describe("GET poster variant through the format gate (mocked encoder)", () => {
     vi.mocked(fetchCustomRatings).mockReset().mockResolvedValue([])
     vi.mocked(fetchAggregatedRating).mockReset().mockResolvedValue(null)
     vi.mocked(renderMultiRatings).mockClear()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
   })
 
   afterEach(() => {
@@ -232,3 +232,5 @@ describe("GET poster variant through the format gate (mocked encoder)", () => {
     expect(retry.headers.get("Content-Type")).toBe("image/jpeg")
   })
 })
+
+

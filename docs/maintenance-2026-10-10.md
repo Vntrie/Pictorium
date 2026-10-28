@@ -1,4 +1,4 @@
-# Maintenance record — 2026-10-10
+﻿# Maintenance record â€” 2026-10-10
 
 Docs-only record of the stability batch staged in the working tree on 2026-10-10.
 No source, test, or config changes are made by this file; it only describes work
@@ -29,7 +29,7 @@ already present in the tree plus the one residual risk the user explicitly accep
 - **Dev brace-expansion / browserslist remediation:** dev-side dependency
   refresh for the brace-expansion chain (see residual risk below).
 
-## Deadline contract (`PICTORIUM_RENDER_TIMEOUT_MS`)
+## Deadline contract (`FLAMEFORGE_RENDER_TIMEOUT_MS`)
 
 The poster route watchdog answers the **original caller** with a bounded `503`
 plus `Retry-After` once the configured remaining deadline
@@ -66,8 +66,8 @@ in `src/app/api/poster/[type]/[id]/route.ts` is the source of truth.
 ## Dependency audit and accepted residual risk
 
 - Full `npm audit`: 5 HIGH affected package nodes from one underlying advisory, all nodes of one underlying dev-only
-  braces chain (`braces` → `micromatch` → `fast-glob` → `@next`
-  plugin → `eslint-config-next`, GHSA-vfj7-8cjw-p6xm).
+  braces chain (`braces` â†’ `micromatch` â†’ `fast-glob` â†’ `@next`
+  plugin â†’ `eslint-config-next`, GHSA-vfj7-8cjw-p6xm).
 - Runtime `npm audit --omit=dev`: 0 vulnerabilities.
 - The newest `braces` release available on the npm registry as of 2026-10-10
   (3.0.3) is still unpatched for this advisory, so no compatible patched
@@ -84,7 +84,7 @@ in `src/app/api/poster/[type]/[id]/route.ts` is the source of truth.
 - **Historical (2026-10-10, BEFORE the D2 lockfile update and the H2 route
   change):** full unit suite, visual suite (100), and functional suite (18)
   passed. These totals are historical only and are **not** the current final
-  gate — the tree changed afterwards (dependency lockfile + route), so the
+  gate â€” the tree changed afterwards (dependency lockfile + route), so the
   result expired by definition.
 - **Actual narrow evidence for this batch:** the new H2 non-cooperative
   render tests (4 tests: original-caller 503, no late cache, no late 200 /
@@ -94,21 +94,21 @@ in `src/app/api/poster/[type]/[id]/route.ts` is the source of truth.
   route, and this file's DOC1 terminology fix were all in place before the
   batch ran; only this gate-record section was written afterwards, which is
   doc-only and does not invalidate code/lock/render verification.
-  - `node scripts/write-render-version.mjs` — regenerated via script only
+  - `node scripts/write-render-version.mjs` â€” regenerated via script only
     (exit 0).
-  - `npm run verify` — tsc + eslint + full unit suite (421 files / 4757
-    tests passed) + `next build` (52/52 static pages) — exit 0.
-  - `npm run e2e:visual:clean` — fresh `.next-e2e` rebuild, 100/100 passed
-    with snapshots UNCHANGED (no `--update-snapshots`) — exit 0.
-  - `npx --no-install playwright test e2e/ --workers=1` — full serial suite
+  - `npm run verify` â€” tsc + eslint + full unit suite (421 files / 4757
+    tests passed) + `next build` (52/52 static pages) â€” exit 0.
+  - `npm run e2e:visual:clean` â€” fresh `.next-e2e` rebuild, 100/100 passed
+    with snapshots UNCHANGED (no `--update-snapshots`) â€” exit 0.
+  - `npx --no-install playwright test e2e/ --workers=1` â€” full serial suite
     (23 spec files): first run 212 passed / 1 failed on
     `badge-format-defaults.spec.ts:521` (30 s `nextPreview` predicate timeout
     under a loaded 6-minute run); isolated retry of that spec 6/6 passed;
-    second full run **213/213 passed** — exit 0. No code or test change was
+    second full run **213/213 passed** â€” exit 0. No code or test change was
     made for the flake; no tests skipped, weakened, or re-snapshotted.
-  - `npm audit --json` — 5 HIGH affected package nodes from the single
+  - `npm audit --json` â€” 5 HIGH affected package nodes from the single
     dev-only `braces` advisory (GHSA-vfj7-8cjw-p6xm), nothing else;
-    `npm audit --omit=dev --json` — 0 vulnerabilities.
+    `npm audit --omit=dev --json` â€” 0 vulnerabilities.
 - **Truthful remaining limits:** the one full-suite flake above shows the UI
   timing predicate can time out under load; it passed on retry and on the
   clean re-run with no code change. The accepted residual dev-only `braces`
@@ -132,3 +132,4 @@ npm run verify
 npm run e2e:visual:clean
 npx playwright test e2e/
 ```
+

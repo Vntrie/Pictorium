@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+﻿import { expect, test } from "@playwright/test"
 import { putDefaultsWithRetry } from "./defaults-retry"
 import { DEFAULT_BADGE_STYLE, DEFAULT_RANKING_BADGE_STYLE } from "../src/lib/badge-styles"
 import { DEFAULT_RATING_SOURCES } from "../src/lib/rating-weights"
@@ -47,9 +47,9 @@ test.describe("Button interactions and immediate updates", () => {
     await page.addInitScript(() => {
       try {
         localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
-        localStorage.setItem("pictorium_profile_id", "e2e-buttons-profile")
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", "e2e-buttons-profile")
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", "it")
       } catch {}
     })
@@ -63,7 +63,7 @@ test.describe("Button interactions and immediate updates", () => {
     const installBtn = page.getByRole("button", { name: /Installa Hub/i })
     await expect(installBtn).toBeVisible()
     await installBtn.click()
-    const modalHeading = page.getByRole("heading", { name: /Collega Pictorium|Installa Pictorium/i })
+    const modalHeading = page.getByRole("heading", { name: /Collega FlameForge|Installa FlameForge/i })
     await expect(modalHeading).toBeVisible()
     // Close modal via accessible close button
     const closeBtn = page.getByRole("button", { name: "Chiudi" }).first()
@@ -75,13 +75,13 @@ test.describe("Button interactions and immediate updates", () => {
     await cataloghiBtn.click()
     await expect(page.getByRole("heading", { name: "Cataloghi", exact: true })).toBeVisible()
 
-    // In Cataloghi: test "Priorità & Nomi" modal open & close
-    const managerBtn = page.getByRole("button", { name: /Priorità & Nomi/i })
+    // In Cataloghi: test "PrioritÃ  & Nomi" modal open & close
+    const managerBtn = page.getByRole("button", { name: /PrioritÃ  & Nomi/i })
     await managerBtn.click()
-    await expect(page.getByText(/Priorità & Nomi Cataloghi Stremio/i)).toBeVisible()
+    await expect(page.getByText(/PrioritÃ  & Nomi Cataloghi Stremio/i)).toBeVisible()
     const closeManagerBtn = page.getByRole("button", { name: "Chiudi" }).first()
     await closeManagerBtn.click()
-    await expect(page.getByText(/Priorità & Nomi Cataloghi Stremio/i)).not.toBeVisible()
+    await expect(page.getByText(/PrioritÃ  & Nomi Cataloghi Stremio/i)).not.toBeVisible()
 
     // In Cataloghi: test "Aggiungi Catalogo" modal open & close
     const addCatBtn = page.getByRole("button", { name: /Aggiungi Catalogo/i })
@@ -189,12 +189,12 @@ test.describe("Button interactions and immediate updates", () => {
     await expect(page.getByText(/16\/16/).first()).toBeVisible()
 
     // Click "Solo IMDb" (reset a 1 provider: il vecchio "Disabilita tutti"
-    // non esiste più — rimozione intenzionale, vedi SettingsPanel.test.tsx)
+    // non esiste piÃ¹ â€” rimozione intenzionale, vedi SettingsPanel.test.tsx)
     const imdbOnlyBtn = page.getByRole("button", { name: "Solo IMDb", exact: true })
     await imdbOnlyBtn.click()
     await expect(page.getByText(/1\/16/).first()).toBeVisible()
 
-    // Test rank side control: position radios Sinistra/Destra (defaults-only —
+    // Test rank side control: position radios Sinistra/Destra (defaults-only â€”
     // shared by the ribbon AND the Numero numeral, T5 RankingAppearanceSelector).
     // The rank appearance lives on the Classifiche tab (macro-groups are
     // always open in settings: no disclosure toggle).
@@ -231,7 +231,7 @@ test.describe("Button interactions and immediate updates", () => {
     await page.getByRole("tab", { name: /Trasforma/i }).click()
 
     // Test Blur toggle switch ("Sfocatura": lo switch; "Sfocatura predefinita"
-    // è solo l'intestazione della sezione slider nel tab Trasforma)
+    // Ã¨ solo l'intestazione della sezione slider nel tab Trasforma)
     const blurToggle = page.getByRole("switch", { name: "Sfocatura", exact: true })
     const initialBlurChecked = await blurToggle.getAttribute("aria-checked")
     await blurToggle.click()
@@ -241,7 +241,7 @@ test.describe("Button interactions and immediate updates", () => {
     await blurToggle.click()
     expect(await blurToggle.getAttribute("aria-checked")).toBe(initialBlurChecked)
 
-    // Switch back to Badge tab (il tab "Stile" non esiste più: rinominato Badge)
+    // Switch back to Badge tab (il tab "Stile" non esiste piÃ¹: rinominato Badge)
     await page.getByRole("tab", { name: "Badge", exact: true }).click()
 
     // T4 footer (staged-session era: no Fine button, no autosave). The
@@ -259,7 +259,7 @@ test.describe("Button interactions and immediate updates", () => {
     await page.goto("/")
     // Arrange deterministico via API reale: il test precedente imposta
     // ranking=bordo nei default globali (autosave) e l'editor per-titolo lo
-    // eredita — senza reset l'assert su Pill non è significativo.
+    // eredita â€” senza reset l'assert su Pill non Ã¨ significativo.
     await putDefaultsWithRetry(page, "reset defaults", { rankingBadgeStyle: "default" })
     await page.goto("/")
     const search = page.getByPlaceholder(/cerca/i)
@@ -289,7 +289,7 @@ test.describe("Button interactions and immediate updates", () => {
     await expect(page.getByText(/Stile badge/i).first()).toBeVisible()
 
     // Inside Badge tab: unified rank presentation (Nastro/Numero/Badge +
-    // Fresh/Card, T5 RankingAppearanceSelector — no separate style grid, no
+    // Fresh/Card, T5 RankingAppearanceSelector â€” no separate style grid, no
     // per-title side). All five are exclusive radios with identical behavior.
     const seen: string[] = []
     page.on("request", (req) => {
@@ -379,3 +379,4 @@ test.describe("Button interactions and immediate updates", () => {
     await expect(removeBtn).toBeVisible({ timeout: 10_000 })
   })
 })
+

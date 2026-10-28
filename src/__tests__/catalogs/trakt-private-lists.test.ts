@@ -145,7 +145,7 @@ describe("Trakt private catalogs: owning-user watchlist", () => {
   beforeEach(() => {
     vi.restoreAllMocks()
     cacheClear()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     process.env.TRAKT_API_URL = "http://trakt.test"
     traktCtl.token = "owner-access-token"
     traktCtl.mode = "token"
@@ -171,7 +171,7 @@ describe("Trakt private catalogs: owning-user watchlist", () => {
   })
 
   afterEach(() => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     delete process.env.TRAKT_API_URL
     cacheClear()
   })
@@ -499,3 +499,5 @@ describe("Trakt private catalogs: owning-user watchlist", () => {
     expect(fetchCalls).toHaveLength(1)
   })
 })
+
+

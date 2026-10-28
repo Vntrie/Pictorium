@@ -512,3 +512,4 @@ describe("Full user recipe: Nastro + minimal, both shapes", () => {
     expect(new Set(lands).size).toBe(1)
   })
 })
+

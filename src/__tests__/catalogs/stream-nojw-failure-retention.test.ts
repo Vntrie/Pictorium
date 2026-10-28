@@ -103,7 +103,7 @@ describe("correction2/c2: stream no-JW failure retention (real adapters)", () =>
   beforeEach(async () => {
     vi.restoreAllMocks()
     tmpDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "chartfam-stream-"))
-    vi.stubEnv("PICTORIUM_DATA_DIR", tmpDataDir)
+    vi.stubEnv("FLAMEFORGE_DATA_DIR", tmpDataDir)
     vi.resetModules()
     cg = await import("@/lib/chart-generation")
     renewal = await import("@/lib/chart-renewal")
@@ -187,3 +187,5 @@ describe("correction2/c2: stream no-JW failure retention (real adapters)", () =>
     expect(pin.snapshot?.provenance ?? null).toBeNull()
   })
 })
+
+

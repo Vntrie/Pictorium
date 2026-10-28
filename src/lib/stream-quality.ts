@@ -1,8 +1,8 @@
-import { getJWTitleQualityResult } from "./justwatch"
+﻿import { getJWTitleQualityResult } from "./justwatch"
 import { envWithFallback } from "./env-compat"
 
 // Tier/soglia in quality-tiers.ts (zero dipendenze): qui solo re-export per
-// compatibilità degli import esistenti (+ import type per l'uso locale).
+// compatibilitÃ  degli import esistenti (+ import type per l'uso locale).
 import type { StreamQuality } from "./quality-tiers"
 export type { StreamQuality } from "./quality-tiers"
 export { parseMinQuality, isQualityAtLeast, applyMinQuality } from "./quality-tiers"
@@ -15,7 +15,7 @@ const STREAM_CACHE_TTL_NULL = 2 * 60 * 1000 // 2 minutes for null (evita cache a
 // "torrentio" (and any unknown value) is deterministically normalized to
 // "justwatch": it NEVER triggers a live Torrentio call. Torrentio data is
 // used ONLY to expand/update the local database (av-specs.json) via the
-// operator-invoked offline scripts in scripts/torrentio-*.mjs — never at
+// operator-invoked offline scripts in scripts/torrentio-*.mjs â€” never at
 // runtime. Module level: restart. The local AV database (av-specs.json)
 // stays first upstream (poster route: qQuality > av-specs.json > live).
 const QUALITY_SOURCE_RAW = (envWithFallback("QUALITY_SOURCE") || "justwatch").toLowerCase().trim()
@@ -23,16 +23,16 @@ const QUALITY_SOURCE_NORMALIZED: "justwatch" | "none" =
   QUALITY_SOURCE_RAW === "none" ? "none" : "justwatch"
 if (QUALITY_SOURCE_RAW !== "justwatch" && QUALITY_SOURCE_RAW !== "none") {
   console.warn(
-    `[pictorium] PICTORIUM_QUALITY_SOURCE="${QUALITY_SOURCE_RAW}" is deprecated/unknown: ` +
+    `[FlameForge] FLAMEFORGE_QUALITY_SOURCE="${QUALITY_SOURCE_RAW}" is deprecated/unknown: ` +
       `normalized to "justwatch" (live Torrentio is disabled; Torrentio feeds only the offline DB import)`,
   )
 }
 const QUALITY_SOURCE = QUALITY_SOURCE_NORMALIZED
 
-// Esito del rilevamento qualità: "resolved" = chiamata completata (anche con
+// Esito del rilevamento qualitÃ : "resolved" = chiamata completata (anche con
 // quality null = esito negativo accertato, es. film 1950 senza stream);
 // "timeout" = abort per deadline; "error" = HTTP non-OK / rete. Solo
-// resolved-null può cachare a lungo: timeout/error danno render degradato con
+// resolved-null puÃ² cachare a lungo: timeout/error danno render degradato con
 // TTL effimero (vedi route poster), altrimenti un outage di 10s avvelena la
 // cache per 6h.
 export type QualityStatus = "resolved" | "timeout" | "error"
@@ -55,9 +55,9 @@ function qualityCacheSet(key: string, value: { quality: StreamQualityResult; tim
   qualityCache.set(key, value)
 }
 
-/** True se l'errore è uno scatto di deadline (AbortSignal.timeout / race). */
+/** True se l'errore Ã¨ uno scatto di deadline (AbortSignal.timeout / race). */
 export function isQualityTimeout(err: unknown): boolean {
-  // DOMException di abort/timeout (fetch): in Node NON è instanceof Error,
+  // DOMException di abort/timeout (fetch): in Node NON Ã¨ instanceof Error,
   // quindi il check sul nome viene prima e copre entrambi i nomi standard.
   if (err instanceof DOMException && (err.name === "AbortError" || err.name === "TimeoutError")) return true
   if (typeof DOMException !== "undefined" && (err as DOMException)?.name === "AbortError") return true
@@ -69,8 +69,8 @@ export function isQualityTimeout(err: unknown): boolean {
 }
 
 /**
- * Token grezzi (es. ["2160p","4k"]) dai label dichiarati degli stream — pure
- * helpers tenuti qui per compatibilità/test, nessun fetch runtime.
+ * Token grezzi (es. ["2160p","4k"]) dai label dichiarati degli stream â€” pure
+ * helpers tenuti qui per compatibilitÃ /test, nessun fetch runtime.
  */
 export function extractRawQualityTokens(
   streams: Array<{ name?: string; title?: string; behaviorHints?: { filename?: string; bingeGroup?: string } }>,
@@ -82,7 +82,7 @@ export function extractRawQualityTokens(
     for (const m of text.matchAll(/\b(2160[pi]?|1080[pi]?|fhd|fullhd|720[pi]?|hdtv|hd|480[pi]?|576[pi]?|sd|dvdrip|cam|ts)\b/gi)) {
       found.add(m[1].toLowerCase())
     }
-    // Token 4K attaccati (4KHDR, 4kDV, 2160pHDR, UHD4K…): il \b fallisce tra
+    // Token 4K attaccati (4KHDR, 4kDV, 2160pHDR, UHD4Kâ€¦): il \b fallisce tra
     // due word-char, quindi substring sul testo normalizzato.
     const low = text.toLowerCase().replace(/[._\-+]+/g, " ")
     if (low.includes("2160")) found.add("2160p")
@@ -95,11 +95,11 @@ export function extractRawQualityTokens(
 const STREAM_TIER_RANK: Record<StreamQuality, number> = { SD: 0, HD: 1, FHD: 2, "4K": 3 }
 
 /**
- * Qualità di un singolo stream da label dichiarati (offline/import + debug).
+ * QualitÃ  di un singolo stream da label dichiarati (offline/import + debug).
  * Regola unica: la risoluzione numerica esplicita vince sulla parola di
- * sorgente — un `UHD BluRay 1080p` o un `4K Remaster 1080p` è un file 1080p
- * (FHD), non un 4K. I token 4K attaccati (4KHDR, 2160pHDR…) sono rilevati via
- * substring perché `\b` fallisce tra word-char.
+ * sorgente â€” un `UHD BluRay 1080p` o un `4K Remaster 1080p` Ã¨ un file 1080p
+ * (FHD), non un 4K. I token 4K attaccati (4KHDR, 2160pHDRâ€¦) sono rilevati via
+ * substring perchÃ© `\b` fallisce tra word-char.
  */
 export function parseSingleStreamQuality(
   s: { name?: string; title?: string; behaviorHints?: { filename?: string; bingeGroup?: string } }
@@ -137,7 +137,7 @@ export async function resolveStreamQuality(
   searchTitle?: string | null,
   signal?: AbortSignal,
   seasonCount?: number | null,
-  /** Paese JustWatch (default "IT"): la qualità streaming dipende dal catalogo regionale. */
+  /** Paese JustWatch (default "IT"): la qualitÃ  streaming dipende dal catalogo regionale. */
   region?: string | null,
 ): Promise<StreamQualityResult> {
   const lastSeason = seasonCount != null ? Math.trunc(seasonCount) : NaN
@@ -146,7 +146,7 @@ export async function resolveStreamQuality(
   const cached = qualityCache.get(cacheKey)
   if (cached) {
     // TTL differenziato per esito: resolved (anche null) 30min, timeout/error
-    // 2min — un outage non deve restare appiccicato alla chiave.
+    // 2min â€” un outage non deve restare appiccicato alla chiave.
     const ttl = cached.quality.status === "resolved" ? STREAM_CACHE_TTL : STREAM_CACHE_TTL_NULL
     if (Date.now() - cached.timestamp < ttl) return cached.quality
   }
@@ -162,9 +162,9 @@ export async function resolveStreamQuality(
   }
 
   // Live chain: SOLO JustWatch (local DB first resta nel poster route:
-  // qQuality > av-specs.json > live). Il legacy "torrentio" è già
+  // qQuality > av-specs.json > live). Il legacy "torrentio" Ã¨ giÃ 
   // normalizzato a "justwatch" a livello modulo: nessun fetch Torrentio qui.
-  // Niente getExternalIds: la qualità JW si risolve per tmdbId, senza
+  // Niente getExternalIds: la qualitÃ  JW si risolve per tmdbId, senza
   // network extra per l'IMDb ID.
   if (tmdbId) {
     try {
@@ -176,11 +176,11 @@ export async function resolveStreamQuality(
         signal
       )
       if (jw.quality) {
-        // Qualità accertata → resolved con TTL pieno.
+        // QualitÃ  accertata â†’ resolved con TTL pieno.
         return store({ quality: jw.quality, status: "resolved", source: "justwatch" })
       }
       // ok=false (breaker aperto o trasporto fallito) = incertezza, NON miss:
-      // error effimero. Solo ok=true con quality null è esito negativo accertato.
+      // error effimero. Solo ok=true con quality null Ã¨ esito negativo accertato.
       if (!jw.ok) {
         return store({
           quality: null,
@@ -200,3 +200,4 @@ export async function resolveStreamQuality(
 export function __resetStreamQualityCache() {
   qualityCache.clear()
 }
+

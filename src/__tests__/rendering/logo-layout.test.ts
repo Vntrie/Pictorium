@@ -157,3 +157,4 @@ describe("logo layout", () => {
     expect(shifted.top).toBe(base.top + 55)
   })
 })
+

@@ -6,7 +6,7 @@ import {
   type StremioItemMeta,
 } from "@/lib/addon-proxy"
 
-const DOMAIN = "https://pictorium.app"
+const DOMAIN = "https://FlameForge.app"
 const USER = "12345678-1234-1234-1234-123456789abc"
 const DV = "a1b2c3d4"
 
@@ -97,3 +97,5 @@ describe("anime proxy rewrite (local snapshot, zero network)", () => {
     expect(target).toEqual({ tmdbId: 26209, mediaType: "series" })
   })
 })
+
+

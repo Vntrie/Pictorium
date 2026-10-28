@@ -60,8 +60,8 @@ describe("proxy resource forwarding — strip chiavi API (M6)", () => {
     const res = await GET(req, { params: Promise.resolve({ path: ["manifest"] }) })
     expect(res.status).toBe(200)
     const body = (await res.json()) as { id: string; name: string }
-    expect(body.id.startsWith("org.pictorium.proxy.")).toBe(true)
-    expect(body.name).toContain("(Pictorium)")
+    expect(body.id.startsWith("org.FlameForge.proxy.")).toBe(true)
+    expect(body.name).toContain("(FlameForge)")
   })
   it("non inoltra api_key/mdblist_key/param di controllo al target, ma preserva gli altri", async () => {    const target = encodeURIComponent("https://addon.example.com/manifest.json")
     const req = new NextRequest(
@@ -101,3 +101,5 @@ describe("proxy resource forwarding — strip chiavi API (M6)", () => {
     expect(res.headers.get("content-security-policy")).toContain("default-src 'none'")
   })
 })
+
+

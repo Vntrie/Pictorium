@@ -1,4 +1,4 @@
-import fs from "node:fs"
+﻿import fs from "node:fs"
 import fsp from "node:fs/promises"
 import os from "node:os"
 import path from "node:path"
@@ -38,9 +38,9 @@ const SUPPORTED_COUNTRIES = new Set([
 
 const catalogUrl = (country: string) => `${CATALOG_BASE}/${country}.json`
 
-// Cache su filesystem: se DATA_DIR non è scrivibile (es. runtime serverless
-// read-only di Vercel) usa /tmp — è solo una cache, la perdita a ogni cold
-// start è accettabile. La persistenza vera (mapping/profili) resta a KV.
+// Cache su filesystem: se DATA_DIR non Ã¨ scrivibile (es. runtime serverless
+// read-only di Vercel) usa /tmp â€” Ã¨ solo una cache, la perdita a ogni cold
+// start Ã¨ accettabile. La persistenza vera (mapping/profili) resta a KV.
 const cacheFile = (() => {
   try {
     fs.mkdirSync(DATA_DIR, { recursive: true })
@@ -48,8 +48,8 @@ const cacheFile = (() => {
     return (country: string) => path.join(DATA_DIR, `flixpatrol_cache_${country}.json`)
   } catch {
     const fallbackDir = os.tmpdir()
-    log.warn(`DATA_DIR non scrivibile — cache flixpatrol su ${fallbackDir}`)
-    return (country: string) => path.join(fallbackDir, `pictorium-flixpatrol_cache_${country}.json`)
+    log.warn(`DATA_DIR non scrivibile â€” cache flixpatrol su ${fallbackDir}`)
+    return (country: string) => path.join(fallbackDir, `FlameForge-flixpatrol_cache_${country}.json`)
   }
 })()
 
@@ -58,7 +58,7 @@ const TMDB_CACHE_TTL = 5 * 60 * 1000
 const TMDB_CACHE_MAX = 500
 
 /** Cache key neutra: l'URL senza api_key. La chiave non deve contenere il
- *  segreto (S9, stesso principio di tmdb.ts) e la cache è condivisa tra chiavi
+ *  segreto (S9, stesso principio di tmdb.ts) e la cache Ã¨ condivisa tra chiavi
  *  diverse: i dati TMDB sono pubblici, la chiave solo un gate di accesso. */
 function tmdbCacheKey(url: string): string {
   const u = new URL(url)
@@ -79,7 +79,7 @@ const memCache = new Map<string, CacheData>()
  *   cooldown a refetch is allowed so a healed feed recovers WITHOUT waiting
  *   the normal 12h success TTL. Module-memory only (no distributed
  *   guarantee): a restart drops the markers, but a poisoned disk document is
- *   still never trusted — the first read after boot refetches (coalesced)
+ *   still never trusted â€” the first read after boot refetches (coalesced)
  *   and either heals or re-arms the cooldown. Concurrent processes may each
  *   spend one fetch per cooldown window: bounded, never a storm.
  * - `fetchInflight`: single-flight coalescing for same-country fetches, so
@@ -131,7 +131,7 @@ export interface CatalogChart {
 export interface CatalogData {
   /** Document top-level date (same format); fallback when a chart carries none. */
   date?: string
-  /** Crawl instant; informational only — NEVER used for freshness decisions. */
+  /** Crawl instant; informational only â€” NEVER used for freshness decisions. */
   scraped_at_utc?: string
   charts: CatalogChart[]
 }
@@ -218,8 +218,8 @@ async function tmdbCachedFetch(url: string): Promise<unknown | null> {
   }
 }
 
-// C4: cap di concorrenza per l'enrichment dei cataloghi. ~40 voci × fino a 2
-// fetch TMDB a voce = ~80 richieste in parallelo su cold cache → satura il
+// C4: cap di concorrenza per l'enrichment dei cataloghi. ~40 voci Ã— fino a 2
+// fetch TMDB a voce = ~80 richieste in parallelo su cold cache â†’ satura il
 // rate limit TMDB. Con mapLimit il burst resta sotto controllo.
 const ENRICH_CONCURRENCY = 6
 
@@ -246,8 +246,8 @@ function tmdbLangForCountry(country: string): string {
  * Narrow cycle-3 guard: a FlixPatrol country document is valid only when it
  * is an object carrying a `charts` array. A valid array with no platform
  * rows is a legitimate missing-platform empty; anything else (null body,
- * wrong-typed field, error object) is malformed and — on the fixed-cycle
- * path (`freshOrThrow`) — throws instead of publishing a fake empty.
+ * wrong-typed field, error object) is malformed and â€” on the fixed-cycle
+ * path (`freshOrThrow`) â€” throws instead of publishing a fake empty.
  * Legacy callers without the flag keep the old fail-open [] behavior.
  */
 function isValidFlixCatalogDoc(doc: unknown): doc is CatalogData {
@@ -268,7 +268,7 @@ function flixEntriesHaveValidId(entries: unknown): boolean {
  *
  * A whole country document with zero `charts` is quarantined as an
  * integrity failure, never trusted as data. Policy rationale (no claim is
- * made about what the upstream served at any given moment — only the
+ * made about what the upstream served at any given moment â€” only the
  * received document shape is judged): the per-chart contract already covers
  * genuine "nothing to show" cases at finer granularity (absent split, stale
  * date, malformed entries), while acting on an entirely chartless document
@@ -285,7 +285,7 @@ function flixEntriesHaveValidId(entries: unknown): boolean {
  *   never overwritten by the empty one; retry after a bounded 60s negative
  *   cooldown reuses the established failure patterns (MDBList 60s
  *   error-negatives, `CHART_FAILURE_RETRY_MS`), never the normal 12h
- *   success TTL — a healed feed recovers without waiting 12h.
+ *   success TTL â€” a healed feed recovers without waiting 12h.
  *
  * A chart that is PRESENT + fresh with `entries: []` remains a genuine
  * supported empty (unchanged). Malformed documents and entry collections
@@ -305,8 +305,8 @@ export function isEmptyCountryDocument(doc: unknown): doc is CatalogData {
 // just after midnight Rome the newest chart can still be yesterday's.
 // Anything older than yesterday is stale; any future date is rejected
 // (crawler clock error). `scraped_at_utc` and fetch/cache timestamps are
-// NEVER used (no fetched-at laundering): a freshly fetched old chart — or
-// a TTL-fresh cache hit of one — is still stale. Bounded: a chart is trusted
+// NEVER used (no fetched-at laundering): a freshly fetched old chart â€” or
+// a TTL-fresh cache hit of one â€” is still stale. Bounded: a chart is trusted
 // at most ~48h past its date.
 // ---------------------------------------------------------------------------
 
@@ -325,7 +325,7 @@ export interface FlixChartDay {
  * Parse an upstream fp-crawler chart date. The crawler emits English long
  * dates ("October 22, 2026", also in page_title and per-chart `date`
  * fields); ISO "YYYY-MM-DD" is accepted as a fallback. Anything else
- * (including non-strings) is invalid → null. The real calendar day is
+ * (including non-strings) is invalid â†’ null. The real calendar day is
  * validated (Feb 30 etc. rejected).
  */
 export function parseFlixChartDate(raw: unknown): FlixChartDay | null {
@@ -369,7 +369,7 @@ export function romeDayNumber(nowMs: number = Date.now()): number {
 /**
  * True when a chart date is fresh per the bounded rule above: the chart-level
  * date wins; the document top-level date fills in only when the chart carries
- * none (absent/blank) — a present-but-unparseable chart date is stale, never
+ * none (absent/blank) â€” a present-but-unparseable chart date is stale, never
  * rescued by the document date. Anything unparseable (or a future day) fails.
  */
 export function isFreshFlixChartDate(chartDateRaw: unknown, docDateRaw: unknown, nowMs: number = Date.now()): boolean {
@@ -395,11 +395,11 @@ export interface FlixSideMiss {
    * Why the side missed (structured outcome for fixed-cycle callers that
    * must distinguish outage/integrity failure from genuine absence):
    * - `absent`: no chart for this platform+category (e.g. overall-only
-   *   platforms carry no movies/tv split) — genuine unavailable;
-   * - `stale`: chart present but its date is stale/invalid — genuine
+   *   platforms carry no movies/tv split) â€” genuine unavailable;
+   * - `stale`: chart present but its date is stale/invalid â€” genuine
    *   unavailable for this cycle (never laundered as fresh);
    * - `invalid`: chart entries malformed (not an array, or a nonempty list
-   *   with zero usable tmdbIds) — unusable source, NOT a genuine empty.
+   *   with zero usable tmdbIds) â€” unusable source, NOT a genuine empty.
    * Legacy constructions without a reason keep the historic fail-open
    * meaning (treated as non-integrity misses by fixed-cycle callers).
    */
@@ -421,7 +421,7 @@ export interface FlixPlatformSidesResult {
   /**
    * The country document could not be used at all (malformed payload: not
    * an object with a `charts` array). Fixed-cycle callers with no JW
-   * fallback must throw on this (integrity failure → retention), never
+   * fallback must throw on this (integrity failure â†’ retention), never
    * publish it as a genuine empty. FW/JW-fallback callers keep treating it
    * as a miss (JW owns the decision; only a JW failure on top throws).
    */
@@ -444,17 +444,17 @@ interface FlixDocLoad {
 }
 
 /**
- * Load ONE country catalog document (memory → disk → network, 12h TTL,
+ * Load ONE country catalog document (memory â†’ disk â†’ network, 12h TTL,
  * cycle-aware floor). Transport failures never throw here: with no document
  * they resolve to `loadFailed` (the caller falls back to JW and throws only
  * when JW fails too); a stale cached document is served fail-open for legacy
  * callers but reported as failed for strict ones (never laundered as fresh).
- * A malformed document is NOT an error here — it resolves to a miss (no
+ * A malformed document is NOT an error here â€” it resolves to a miss (no
  * document), so the caller falls back to JW per media type; only a JW failure
  * on top of that throws downstream (both sources down).
  * A country-wide EMPTY document (`charts: []`) is quarantined (see
  * `isEmptyCountryDocument`): never trusted as data, never stored, never
- * overwriting a last-good cache — handling mirrors a transport failure with
+ * overwriting a last-good cache â€” handling mirrors a transport failure with
  * the same previous state (last-good fail-open / retention when previous
  * data exists, miss + `docInvalid` for strict when cold), with retry after
  * a bounded 60s negative cooldown instead of the normal 12h success TTL.
@@ -465,7 +465,7 @@ async function loadFlixCatalogDoc(country: string, minFetchedAtMs: number | unde
   const freshSinceOk = (ts: number): boolean =>
     now - ts <= TWELVE_HOURS && (minFetchedAtMs === undefined || ts >= minFetchedAtMs)
   let cached = memCache.get(country)
-  // Memoria stantia → prova il file su disco (fallback persistente) prima di rifare fetch.
+  // Memoria stantia â†’ prova il file su disco (fallback persistente) prima di rifare fetch.
   if (!cached?.catalog || (cached && !freshSinceOk(cached.timestamp))) {
     const disk = loadCache(country)
     if (disk.catalog && freshSinceOk(disk.timestamp)) {
@@ -476,7 +476,7 @@ async function loadFlixCatalogDoc(country: string, minFetchedAtMs: number | unde
   let catalog = cached?.catalog
 
   // Cycle-3: a cached malformed document must never serve as a successful
-  // empty on the fixed-cycle path — treat it as a miss so the fetch below
+  // empty on the fixed-cycle path â€” treat it as a miss so the fetch below
   // runs (and throws when it cannot produce a valid document).
   const cachedValid = isValidFlixCatalogDoc(catalog)
   if (freshOrThrow && catalog && !cachedValid) {
@@ -488,7 +488,7 @@ async function loadFlixCatalogDoc(country: string, minFetchedAtMs: number | unde
   // document is never trusted as data. While the bounded negative cooldown
   // is active it reports unusable WITHOUT a refetch (no storm); once the
   // cooldown lapses the fetch below runs and a healthy payload heals the
-  // cache — never a 12h wait for a suspicious observation. Last-good
+  // cache â€” never a 12h wait for a suspicious observation. Last-good
   // timestamps are never touched here.
   if (catalog && isEmptyCountryDocument(catalog)) {
     if (now < (quarantineUntilMs.get(country) ?? 0)) {
@@ -554,19 +554,19 @@ async function loadFlixCatalogDoc(country: string, minFetchedAtMs: number | unde
       log.error("Failed to fetch fresh catalog", { error: e instanceof Error ? e.message : String(e), country })
       if (!catalog) return { doc: null, loadFailed: true, loadError: e }
       // Fixed-cycle renewal (freshOrThrow) forbids laundering a pre-floor stale catalog as a
-      // fresh fetch — the caller routes to the JW fallback (failure retention: 60s gate,
+      // fresh fetch â€” the caller routes to the JW fallback (failure retention: 60s gate,
       // old pin kept, no new generation) instead of publishing stale rows.
       // Legacy callers without the flag keep the stale fail-open fallback.
       if (freshOrThrow) return { doc: null, loadFailed: true, loadError: e }
       return { doc: catalog, loadFailed: false }
     }
-    // Integrity boundary: a malformed payload — or a quarantined
-    // country-wide empty (`charts: []`, handled above) — is a miss (no usable
-    // document), not an error — the caller falls back to JW per media type
+    // Integrity boundary: a malformed payload â€” or a quarantined
+    // country-wide empty (`charts: []`, handled above) â€” is a miss (no usable
+    // document), not an error â€” the caller falls back to JW per media type
     // and only a JW failure on top throws downstream (both sources down,
     // never a fake empty). Legacy and strict share this outcome. The miss
     // carries `docInvalid` so fixed-cycle callers WITHOUT a JW fallback
-    // can throw (integrity failure → retention) instead of publishing a
+    // can throw (integrity failure â†’ retention) instead of publishing a
     // fake empty.
     if (!isValidFlixCatalogDoc(catalog)) {
       return { doc: null, loadFailed: false, docInvalid: true }
@@ -585,19 +585,19 @@ function flixCategoryFor(mediaType: FlixMediaType): string {
  * the series fallback or vice versa, and an opposite-side integrity failure
  * never blocks the requested side):
  * - no chart for the platform+category (including overall-only platforms
- *   such as Crunchyroll/hayu, which carry no movies/tv split) → miss
+ *   such as Crunchyroll/hayu, which carry no movies/tv split) â†’ miss
  *   (absence of a split is a fallback, never a genuine FP empty);
  * - chart present but date stale/invalid (chart-level `date`, else the
  *   document top-level `date`; cache hits gated exactly like network
- *   payloads) → miss;
+ *   payloads) â†’ miss;
  * - chart entries malformed (not an array, or a nonempty list with zero
- *   usable tmdbIds) → miss for THIS side only (the caller falls back to JW
- *   for this media; only a JW failure on top throws downstream — both
+ *   usable tmdbIds) â†’ miss for THIS side only (the caller falls back to JW
+ *   for this media; only a JW failure on top throws downstream â€” both
  *   sources down, never a fake empty);
  * - otherwise hit (possibly zero entries = genuine supported empty).
  *
  * Correction 1: integrity violations no longer throw per-side (strict or
- * legacy) — throwing here aborted the REQUESTED side when only the opposite
+ * legacy) â€” throwing here aborted the REQUESTED side when only the opposite
  * side was malformed, and threw before the strict JW fallback was ever
  * attempted. `freshOrThrow` is kept for signature compatibility and ignored.
  */
@@ -615,7 +615,7 @@ function resolveSideFromDoc(
     return { kind: "miss", reason: "invalid" }
   }
   // A nonempty collection with zero valid tmdb ids is unusable (provider
-  // error), not an authoritative empty — fall back to JW for this side
+  // error), not an authoritative empty â€” fall back to JW for this side
   // instead of serving unresolvable rows (unreleased/dedup filtering happens
   // later, on real ids).
   if (chart.entries.length > 0 && !flixEntriesHaveValidId(chart.entries)) {
@@ -628,7 +628,7 @@ function resolveSideFromDoc(
  * FP-first resolution of BOTH platform sides from a SINGLE catalog fetch.
  * Never touches JW: sides without a fresh usable chart resolve to miss so
  * the caller falls back to JW per media type (no blending within one chart).
- * Only programmer errors throw (unknown platform/country) — every data
+ * Only programmer errors throw (unknown platform/country) â€” every data
  * problem (transport failure, absent split, stale/invalid date, malformed
  * document/entries, charts with zero usable tmdbIds) resolves to miss, even
  * strict; the caller throws only when the JW fallback fails too (both
@@ -663,7 +663,7 @@ export async function resolveFlixPlatformSides(
     return { movie: { kind: "miss" }, tv: { kind: "miss" }, loadFailed: loaded.loadFailed, loadError: loaded.loadError, docInvalid: loaded.docInvalid }
   }
   // A malformed document is a miss for both sides (JW fallback owns the
-  // decision; only a JW failure on top throws downstream) — never a throw
+  // decision; only a JW failure on top throws downstream) â€” never a throw
   // that would block a usable chart, and never a fake FP empty. Each side
   // below resolves independently in its own guard so an opposite-side
   // failure can never block the requested side.
@@ -727,7 +727,7 @@ export interface ResolveGenericFlixChartsOptions {
 
 /**
  * Resolve ONE generic chart from a fixed country document. Transport failures
- * resolve to `loadFailed` (never throw here — the caller owns the error
+ * resolve to `loadFailed` (never throw here â€” the caller owns the error
  * policy); an unsupported country slug throws (programmer error: catalog ids
  * are pre-validated against the same allowlist).
  */
@@ -796,15 +796,15 @@ export async function getTop10(platformSlug: string, country = "italy", apiKey?:
   const platformName = SLUG_TO_PLATFORM[platformSlug]
   if (!platformName) throw new Error(`Unknown platform: ${platformSlug}`)
   // Fail-closed: un paese fuori dalla lista non viene mai cercato su disco,
-  // in cache o su rete — evitiamo sia URL arbitrari (path traversal) sia il
+  // in cache o su rete â€” evitiamo sia URL arbitrari (path traversal) sia il
   // vecchio comportamento che restituiva sempre dati italiani.
   const globalChart = country === GLOBAL_REGION.flixSlug
   if (!globalChart && !SUPPORTED_COUNTRIES.has(country)) {
     throw new Error(`Unsupported country: ${country}`)
   }
-  // C6: enrich:false → nessuna chiamata TMDB per titolo (il catalogo Stremio
-  // costruisce il poster via pictoriumPosterUrl e non usa né posterPath né il
-  // titolo italiano: restituire la voce grezza taglia ~2 fetch TMDB × titolo).
+  // C6: enrich:false â†’ nessuna chiamata TMDB per titolo (il catalogo Stremio
+  // costruisce il poster via FlameForgePosterUrl e non usa nÃ© posterPath nÃ© il
+  // titolo italiano: restituire la voce grezza taglia ~2 fetch TMDB Ã— titolo).
   const enrich = options?.enrich ?? true
 
   const tmdbLang = globalChart ? GLOBAL_REGION.lang : tmdbLangForCountry(country)
@@ -850,8 +850,8 @@ export async function getTop10(platformSlug: string, country = "italy", apiKey?:
       ])
       jwMovies = fetchedMovies
       jwShows = fetchedShows
-      // Se la classifica giornaliera JustWatch è scarsa (<5 titoli, es. RaiPlay),
-      // arricchisce/ripiega sui titoli più popolari della piattaforma per garantire 10 voci.
+      // Se la classifica giornaliera JustWatch Ã¨ scarsa (<5 titoli, es. RaiPlay),
+      // arricchisce/ripiega sui titoli piÃ¹ popolari della piattaforma per garantire 10 voci.
       if (!globalChart && needJwMovie && jwMovies.length < 5) {
         try {
           const popMovies = await getJWTitles({
@@ -934,7 +934,7 @@ export async function getTop10(platformSlug: string, country = "italy", apiKey?:
   }
 
   // The fp-crawler document was already loaded once above
-  // (resolveFlixPlatformSides: memory → disk → network, 12h TTL,
+  // (resolveFlixPlatformSides: memory â†’ disk â†’ network, 12h TTL,
   // cycle-aware floor). The per-side composition below needs no second load.
 
   const toItem = async (entry: CatalogEntry, type: "movie" | "tv"): Promise<FlixPatrolEnrichedItem> => {
@@ -979,7 +979,7 @@ export async function getTop10(platformSlug: string, country = "italy", apiKey?:
   }
 
   // Per-side composition: FP-hit sides keep their rows (the intentional
-  // priority flip); miss sides keep the JW fallback rows above — never
+  // priority flip); miss sides keep the JW fallback rows above â€” never
   // blended within one chart. A hit with zero entries is a genuine supported
   // empty (no JW fetch was spent on it).
   const [movies, tv] = await Promise.all([
@@ -995,7 +995,7 @@ export async function getTop10(platformSlug: string, country = "italy", apiKey?:
   // failed source underneath, surface the error instead of an empty that
   // would read as a genuine chart. A transport failure with no catalog
   // document at all throws the load error (historical); a malformed/missing
-  // FP side whose JW fallback ALSO failed throws the JW error — but only for
+  // FP side whose JW fallback ALSO failed throws the JW error â€” but only for
   // strict callers (failure retention + gate). A successful JW empty stays a
   // genuine empty, and legacy serving callers keep the fail-open path (their
   // own catch turns the throw into a short-lived empty).
@@ -1027,3 +1027,4 @@ export function __clearFlixpatrolCache(): void {
   quarantineUntilMs.clear()
   fetchInflight.clear()
 }
+

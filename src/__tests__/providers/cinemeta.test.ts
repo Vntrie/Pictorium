@@ -537,3 +537,4 @@ describe("cinemeta (voto IMDb gratis senza chiave)", () => {
     expect(seen.some((u) => u.includes("/meta/"))).toBe(false)
   })
 })
+

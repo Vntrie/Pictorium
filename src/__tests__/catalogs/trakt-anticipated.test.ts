@@ -86,12 +86,12 @@ describe("fetchUnifiedCatalogResult: Trakt anticipated via official API", () => 
 
   beforeEach(() => {
     vi.restoreAllMocks()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
     delete process.env.TRAKT_API_URL
   })
 
   afterEach(() => {
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     delete process.env.TRAKT_API_URL
     cacheInvalidate("custom_catalogs")
   })
@@ -226,11 +226,11 @@ describe("fetchUnifiedCatalogResult: Trakt anticipated via official API", () => 
 
   it("maps key_missing/private/not_found/rate_limited distinctly", async () => {
     // key_missing: never hits the network.
-    delete process.env.PICTORIUM_TRAKT_CLIENT_ID
+    delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
     global.fetch = vi.fn(() => Promise.reject(new Error("must not fetch"))) as unknown as typeof fetch
     expect((await fetchUnifiedCatalogResult(ANTICIPATED_URL)).status).toBe("key_missing")
     expect(global.fetch).not.toHaveBeenCalled()
-    process.env.PICTORIUM_TRAKT_CLIENT_ID = CLIENT_ID
+    process.env.FLAMEFORGE_TRAKT_CLIENT_ID = CLIENT_ID
 
     for (const [status, expected] of [
       [401, "private"],
@@ -281,3 +281,5 @@ describe("fetchUnifiedCatalogResult: Trakt anticipated via official API", () => 
     expect(global.fetch).not.toHaveBeenCalled()
   })
 })
+
+

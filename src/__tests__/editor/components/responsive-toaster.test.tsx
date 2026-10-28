@@ -105,3 +105,4 @@ describe("ResponsiveToaster position (desktop bottom-right, mobile top-center)",
     expect(listeners.size).toBe(0)
   })
 })
+

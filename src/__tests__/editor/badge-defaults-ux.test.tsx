@@ -400,7 +400,7 @@ describe("rank restore keeps the custom position (per target, master-independent
     expect(switches).toHaveLength(2)
     fireEvent.click(switches[1])
     expect(ctx().defaultSashOrder).toEqual(["extra", "new", "award"])
-    expect(JSON.parse(localStorage.getItem("pictorium_rank_sash_stash") ?? "null")).toEqual(custom)
+    expect(JSON.parse(localStorage.getItem("FLAMEFORGE_rank_sash_stash") ?? "null")).toEqual(custom)
     fireEvent.click(switches[0])
     expect(ctx().defaultSashOrder).toEqual(custom)
   })
@@ -411,13 +411,13 @@ describe("rank restore keeps the custom position (per target, master-independent
     await act(async () => {})
     fireEvent.click(badgeSwitch("ui.sash_rank")) // rank OFF
     expect(ctx().defaultSashOrder).toEqual(["extra", "new", "award"])
-    expect(localStorage.getItem("pictorium_rank_sash_stash")).not.toBeNull()
-    expect(localStorage.getItem("pictorium_trend_sash_stash")).toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_rank_sash_stash")).not.toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_trend_sash_stash")).toBeNull()
     fireEvent.click(badgeSwitch("ui.topBadge")) // master OFF (own stash)
     expect(ctx().defaultSashOrder).toEqual([])
-    expect(localStorage.getItem("pictorium_trend_sash_stash")).not.toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_trend_sash_stash")).not.toBeNull()
     // Rank stash survived the master cycle untouched.
-    expect(JSON.parse(localStorage.getItem("pictorium_rank_sash_stash") ?? "null")).toEqual(custom)
+    expect(JSON.parse(localStorage.getItem("FLAMEFORGE_rank_sash_stash") ?? "null")).toEqual(custom)
     fireEvent.click(badgeSwitch("ui.topBadge")) // master ON restores rank-less stash
     expect(ctx().defaultSashOrder).toEqual(["extra", "new", "award"])
     fireEvent.click(badgeSwitch("ui.sash_rank")) // rank ON restores exact custom order
@@ -431,8 +431,8 @@ describe("rank restore keeps the custom position (per target, master-independent
     fireEvent.click(badgeSwitch("ui.sash_rank"))
     expect(ctx().landscape.sashOrder).toEqual(["extra", "new", "award"])
     expect(ctx().defaultSashOrder).toEqual(custom)
-    expect(localStorage.getItem("pictorium_rank_sash_stash:landscape")).not.toBeNull()
-    expect(localStorage.getItem("pictorium_rank_sash_stash")).toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_rank_sash_stash:landscape")).not.toBeNull()
+    expect(localStorage.getItem("FLAMEFORGE_rank_sash_stash")).toBeNull()
     fireEvent.click(badgeSwitch("ui.sash_rank"))
     expect(ctx().landscape.sashOrder).toEqual(custom)
     expect(ctx().defaultSashOrder).toEqual(custom)
@@ -618,3 +618,5 @@ describe("nastro standard/colorato (U1)", () => {
     })
   })
 })
+
+

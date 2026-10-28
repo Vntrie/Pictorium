@@ -3,7 +3,7 @@ import { StrictMode, useState } from "react"
 import { fireEvent, screen, waitFor, act, render } from "@testing-library/react"
 import en from "@/lib/translations/en.json"
 import { OnboardingTour } from "@/components/OnboardingTour"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { consumeSettingsTab } from "@/lib/settings-tab"
 import {
   ONBOARDING_DONE_KEY,
@@ -313,9 +313,9 @@ describe("OnboardingTour (action-based first use)", () => {
         ...extra,
       } as never
       return (
-        <PictoriumProvider value={ctx}>
+        <FlameForgeProvider value={ctx}>
           <OnboardingTour onOpenInstall={onOpenInstall} />
-        </PictoriumProvider>
+        </FlameForgeProvider>
       )
     }
     const onOpenInstall = vi.fn()
@@ -466,12 +466,12 @@ describe("OnboardingTour explicit replay (Repeat guided setup)", () => {
     } as never
     const { unmount } = render(
       <StrictMode>
-        <PictoriumProvider value={ctx}>
+        <FlameForgeProvider value={ctx}>
           <OnboardingTour
             onOpenInstall={vi.fn()}
             replayRequest={{ nonce: 11, userId: null }}
           />
-        </PictoriumProvider>
+        </FlameForgeProvider>
       </StrictMode>,
     )
     // Fully complete, yet the explicit replay stays inspectable.
@@ -529,7 +529,7 @@ describe("OnboardingTour replay owner lifetime (AppShell intent)", () => {
       currentUserId: uid,
     } as never
     return (
-      <PictoriumProvider value={ctx}>
+      <FlameForgeProvider value={ctx}>
         {wizardOpen && <div data-testid="fake-wizard" />}
         {!wizardOpen && (
           <OnboardingTour
@@ -538,7 +538,7 @@ describe("OnboardingTour replay owner lifetime (AppShell intent)", () => {
             onReplayClosed={replay.clearActiveReplay}
           />
         )}
-      </PictoriumProvider>
+      </FlameForgeProvider>
     )
   }
 
@@ -630,3 +630,5 @@ describe("OnboardingTour replay owner lifetime (AppShell intent)", () => {
     unmount()
   })
 })
+
+

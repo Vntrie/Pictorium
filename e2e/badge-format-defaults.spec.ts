@@ -1,11 +1,11 @@
-import { test, expect, type Locator, type Page, type Route } from "@playwright/test"
+﻿import { test, expect, type Locator, type Page, type Route } from "@playwright/test"
 import { putDefaultsWithRetry } from "./defaults-retry"
 
 // T6 badge-format-final: Badge tab per-format editing (Verticale/Orizzontale),
 // rank Numero + extra Angolo + quality toggle isolation, per-title rules, and
 // rs/xbs API semantics. Transport-level only (preview query params + backend
-// defaults JSON + poster bytes): no snapshots here — pixel baselines live in
-// pictorium-visual.spec.ts. External APIs come from the mock server.
+// defaults JSON + poster bytes): no snapshots here â€” pixel baselines live in
+// FlameForge-visual.spec.ts. External APIs come from the mock server.
 //
 // Actual five-tab settings (staged, explicit Save only): the dialog opens on
 // the Preset tab (never Badge); rank lives in Classifiche (unified
@@ -97,9 +97,9 @@ async function seed(page: Page, profile: string, tmdbKey = "") {
     ({ p, key }: { p: string; key: string }) => {
       try {
         localStorage.clear()
-        localStorage.setItem("pictorium_profile_id", p)
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", p)
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", "it")
         localStorage.setItem("tmdb_key", key)
       } catch {}
@@ -129,7 +129,7 @@ async function getDefaults(page: Page): Promise<Record<string, unknown>> {
  * Teardown-only 429 tolerance for the final restore verify: the serial file
  * run legitimately bursts the shared `defaults` bucket (boot GETs per
  * navigation + staged PUTs + client hydration retries), so a 429 here is
- * runtime-expected, never an app bug — honor Retry-After and retry (same
+ * runtime-expected, never an app bug â€” honor Retry-After and retry (same
  * rule as putDefaultsWithRetry). Any other status throws immediately, and an
  * exhausted loop throws with status details: a failed restore never silently
  * becomes a pass. Test bodies keep the strict getDefaults (a 429 mid-test
@@ -159,20 +159,20 @@ async function getDefaultsWithRetry(page: Page, label: string): Promise<Record<s
 /**
  * Global-defaults isolation. /api/defaults is a single instance namespace
  * (MULTI_USER is off in E2E, so there is no ?user= scoping) and the seeded
- * DEMO_PROFILE localStorage id never reaches the API — it is client-only.
+ * DEMO_PROFILE localStorage id never reaches the API â€” it is client-only.
  * PUT shallow-merges the root and replaces `landscape` wholesale, so a
  * snapshot-restore via PUT cannot delete keys (restoring `{}` is a no-op)
  * and retry loops only trip the defaults rate limiter. Worse: the debounced
  * UI autosave persists FULL state (including factory echoes like
  * gradientHeight:30/blurFade:50 and the edits under test), so after any UI
- * test the stored state is RESET ∪ autosave-extras — later specs inherit it
+ * test the stored state is RESET âˆª autosave-extras â€” later specs inherit it
  * (gradient echoes shadow landscape code defaults 20/70; observed in serial
  * runs via debug-JSON appearance diff). Hence every test starts from the
  * deterministic SEED_PAYLOAD below, and the afterEach restores the canonical
- * FACTORY payload (every autosaveable key at its factory value — verified
+ * FACTORY payload (every autosaveable key at its factory value â€” verified
  * with toMatchObject so drift fails loudly): merge-safe, single PUT + single
  * verify GET, no pollution. Keys outside this spec's mutation surface
- * (badgeStyle, ratingSources, …) are covered by the factory restore by
+ * (badgeStyle, ratingSources, â€¦) are covered by the factory restore by
  * design. Pure-API tests never PUT (defaultsDirty stays false) and inherit
  * the canonical state left behind.
  */
@@ -251,7 +251,7 @@ test.afterEach(async ({ page }) => {
   if (!defaultsDirty) return
   defaultsDirty = false
   // Settle trailing debounced UI autosaves BEFORE the restore PUT: poll for
-  // server-state stability (600ms steps, bounded) instead of a fixed sleep —
+  // server-state stability (600ms steps, bounded) instead of a fixed sleep â€”
   // the 500ms debounce flush is observed, never guessed. Navigation then
   // unmounts the editor so pending timers are cleared and can never fire
   // after the restore.
@@ -267,7 +267,7 @@ test.afterEach(async ({ page }) => {
   await page.goto("/")
   await putDefaultsWithRetry(page, "restore defaults", FACTORY_RESTORE)
   await page.goto("/")
-  // Verify the full canonical surface — a mismatch is a real leak
+  // Verify the full canonical surface â€” a mismatch is a real leak
   // (merge-only PUT cannot delete keys, so every autosaved key must be
   // covered above with its factory value). 429-tolerant: serial-run heat is
   // retried, never weakened.
@@ -301,7 +301,7 @@ async function gotoTab(dialog: Locator, name: string) {
 /**
  * Explicit staged Save: the single footer PUT. Draft edits never persist on
  * their own (no autosave), so every persistence assertion below first clicks
- * this button and awaits the PUT ACK — a passing waitDefaults afterwards
+ * this button and awaits the PUT ACK â€” a passing waitDefaults afterwards
  * proves the save, never an implicit write.
  */
 async function explicitSave(page: Page, scope: Locator) {
@@ -320,7 +320,7 @@ async function explicitSave(page: Page, scope: Locator) {
  * Seed per test (stato di PARTENZA, non di restore): portrait flats
  * (delivery-relevant) + a landscape profile that starts identical to the
  * flats, so every landscape edit is an observable delta and portrait/delivery
- * must stay byte-identical. Il restore a fine test è FACTORY_RESTORE sopra
+ * must stay byte-identical. Il restore a fine test Ã¨ FACTORY_RESTORE sopra
  * (i downstream ereditano il factory, mai i valori di questo seed).
  */
 const SEED_PAYLOAD = {
@@ -357,7 +357,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
 
     // Portrait baseline: pill + legacy (no xbs emitted) + quality on.
     // NOTE (race deterministica): il capture-window di nextPreview parte
-    // PRIMA dell'apertura del dialog — le request preview del mount non
+    // PRIMA dell'apertura del dialog â€” le request preview del mount non
     // possono perdersi (prima si perdeva la prima request su boot veloci e
     // il poll scadeva a 30s). Il pred include rs==pill: aspetta lo stato
     // assestato post-idratazione, non un transient di factory.
@@ -418,7 +418,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
 
     // Staged backend baseline BEFORE any draft edit: portrait flats plus a
     // landscape profile identical to the flats. Every draft step below must
-    // move the preview URL only — the backend stays here until explicit Save.
+    // move the preview URL only â€” the backend stays here until explicit Save.
     const baseline = await getDefaults(page)
     expect(baseline.posterShape).toBe("poster")
     expect(baseline.rankingBadgeStyle).toBe("pill")
@@ -431,7 +431,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
     })
 
     // Rank lives in Classifiche (unified Nastro/Numero/Badge/Fresh/Card over
-    // the same rs contract — never renamed to fit this spec). Five-tab Badge
+    // the same rs contract â€” never renamed to fit this spec). Five-tab Badge
     // renders bare: no macro-group disclosures to expand, controls are direct.
     await gotoTab(dialog, "Classifiche")
     const presentation = dialog.getByTestId("ranking-presentation")
@@ -440,7 +440,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
     // Orizzontale: same values (profile inherits flats), landscape shape.
     // Settled-state pred (rs==pill && bq==1): the staged session opens on the
     // pre-hydration outer and rebases asynchronously, so the first landscape
-    // emissions are factory transients (rs=default, xbs=follow-rank, bq=0) —
+    // emissions are factory transients (rs=default, xbs=follow-rank, bq=0) â€”
     // same post-hydration wait as the portrait baseline above, never the
     // first transient.
     p = await nextPreview(
@@ -491,7 +491,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
     ).toBeVisible()
 
     // Draft truth: preview moved to the landscape target only, backend still
-    // the pre-edit baseline (staged — no autosave).
+    // the pre-edit baseline (staged â€” no autosave).
     draft = await getDefaults(page)
     expect(draft).toMatchObject({
       posterShape: "poster",
@@ -530,7 +530,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
     // Landscape edit 3 (Informazioni home): quality toggle off -> bq=0.
     await gotoTab(dialog, "Informazioni")
     const qualitySwitch = dialog
-      .getByRole("switch", { name: "Qualità streaming" })
+      .getByRole("switch", { name: "QualitÃ  streaming" })
       .filter({ visible: true })
     await expect(qualitySwitch).toBeVisible()
     p = await nextPreview(
@@ -572,7 +572,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
     expect(d.badgeQuality).toBe(true)
 
     // Tab switch keeps the edit target: the shared preview is already loaded
-    // for this exact landscape URL, so no refetch is expected — the kept
+    // for this exact landscape URL, so no refetch is expected â€” the kept
     // target (pressed state) plus the last preview transport prove it.
     await dialog.getByRole("tab", { name: "Trasforma", exact: true }).click()
     await expect(dialog.getByRole("tabpanel", { name: "Trasforma" })).toBeVisible()
@@ -586,7 +586,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
     expect(lastTrasforma!.get("xbs")).toBe("corner")
 
     // Back to Classifiche: same landscape URL is already loaded, so no
-    // refetch is expected — assert the retained target + values in UI and
+    // refetch is expected â€” assert the retained target + values in UI and
     // the last preview transport instead of waiting for a new request.
     await gotoTab(dialog, "Classifiche")
     await expect(dialog.getByTestId("ranking-presentation")).toBeVisible()
@@ -606,7 +606,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
     expect(lastLand!.get("bq")).toBe("0")
 
     // Badge home still shows the saved extra choice; Informazioni still shows
-    // quality off — same shared target, no refetch, no extra edit.
+    // quality off â€” same shared target, no refetch, no extra edit.
     await gotoTab(dialog, "Badge")
     await expect(
       dialog.getByTestId("badge-extra-style-wrap").filter({ visible: true }),
@@ -618,7 +618,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
     await gotoTab(dialog, "Informazioni")
     await expect(
       dialog
-        .getByRole("switch", { name: "Qualità streaming" })
+        .getByRole("switch", { name: "QualitÃ  streaming" })
         .filter({ visible: true }),
     ).toHaveAttribute("aria-checked", "false")
 
@@ -710,7 +710,7 @@ test.describe("Badge Verticale/Orizzontale: isolation + persistence", () => {
     await gotoTab(dialog2, "Informazioni")
     await expect(
       dialog2
-        .getByRole("switch", { name: "Qualità streaming" })
+        .getByRole("switch", { name: "QualitÃ  streaming" })
         .filter({ visible: true }),
     ).toHaveAttribute("aria-checked", "false")
   })
@@ -893,7 +893,7 @@ function apiPoster(
   return `/api/poster/${mediaType}/${id}?${qs.toString()}`
 }
 
-test.describe("poster API — rs number / xbs corner semantics", () => {
+test.describe("poster API â€” rs number / xbs corner semantics", () => {
   test("ranked rs=number + xbs=corner stays numeral (xbs touches only extra)", async ({
     request,
   }) => {
@@ -1047,8 +1047,8 @@ test.describe("Per-title late load preserves user drafts (deferred title data)",
    * Load-completion signal: artwork published by the post-load continuation
    * (the loaded poster tile appears as the poster param of a fresh preview
    * URL). Rank/awards arrivals cannot produce this param, so waiting for it
-   * proves the continuation itself landed — including any clobber on the
-   * unfixed code — before the next user edit.
+   * proves the continuation itself landed â€” including any clobber on the
+   * unfixed code â€” before the next user edit.
    */
   async function awaitLoadedArtwork(seen: Seen, from: number) {
     let out: URLSearchParams | null = null
@@ -1110,7 +1110,7 @@ test.describe("Per-title late load preserves user drafts (deferred title data)",
         (u) => u.searchParams.get("demosamples") !== "1",
       )
       // Semantic assertions: on the unfixed code the late wipe reset the rank
-      // to the stored default, so rs reads "default" here — a value failure,
+      // to the stored default, so rs reads "default" here â€” a value failure,
       // never a timeout.
       expect(p.get("rs")).toBe("number")
       expect(p.get("xbs")).toBe("corner")
@@ -1167,3 +1167,4 @@ test.describe("Per-title late load preserves user drafts (deferred title data)",
     }
   })
 })
+

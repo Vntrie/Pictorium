@@ -16,7 +16,7 @@ import {
   selectWarmupCatalogs,
 } from "../../../scripts/chart-warmup.mjs"
 
-const ORIGIN = "https://pictorium.example"
+const ORIGIN = "https://FlameForge.example"
 
 function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(body), {
@@ -32,17 +32,17 @@ interface CapturedCall {
 function manifestFixture() {
   return {
     catalogs: [
-      { id: "pictorium-jw-movies", type: "movie" },
-      { id: "pictorium-netflix-series", type: "series" },
-      { id: "pictorium-anime", type: "series" },
-      { id: "pictorium-crunchyroll-movies", type: "movie" },
-      { id: "pictorium-custom-movie-abc", type: "movie" },
-      { id: "pictorium-search-movies", type: "movie" },
-      { id: "pictorium-search-people-movies", type: "movie" },
+      { id: "FlameForge-jw-movies", type: "movie" },
+      { id: "FlameForge-netflix-series", type: "series" },
+      { id: "FlameForge-anime", type: "series" },
+      { id: "FlameForge-crunchyroll-movies", type: "movie" },
+      { id: "FlameForge-custom-movie-abc", type: "movie" },
+      { id: "FlameForge-search-movies", type: "movie" },
+      { id: "FlameForge-search-people-movies", type: "movie" },
       { id: "external-addon-catalog", type: "movie" },
       { id: "", type: "movie" },
-      { id: "pictorium-jw-series", type: "episode" },
-      { id: "pictorium-prime-movies", type: "movie", extra: [{ name: "search", isRequired: true }] },
+      { id: "FlameForge-jw-series", type: "episode" },
+      { id: "FlameForge-prime-movies", type: "movie", extra: [{ name: "search", isRequired: true }] },
     ],
   }
 }
@@ -122,7 +122,7 @@ describe("chart-warmup.mjs — manifest discovery", () => {
   it("keeps built-ins only: custom/search/people/external/invalid excluded", () => {
     const selected = selectWarmupCatalogs(manifestFixture().catalogs, 100)
     expect(selected.map((c) => c.id).sort()).toEqual(
-      ["pictorium-anime", "pictorium-crunchyroll-movies", "pictorium-jw-movies", "pictorium-netflix-series"].sort(),
+      ["FlameForge-anime", "FlameForge-crunchyroll-movies", "FlameForge-jw-movies", "FlameForge-netflix-series"].sort(),
     )
   })
 
@@ -132,12 +132,12 @@ describe("chart-warmup.mjs — manifest discovery", () => {
   })
 
   it("prefix contract mirrors built-in families, no platform inventory", () => {
-    expect(isWarmupCatalogId("pictorium-jw-movies")).toBe(true)
-    expect(isWarmupCatalogId("pictorium-anime")).toBe(true)
-    expect(isWarmupCatalogId("pictorium-netflix-movies")).toBe(true)
-    expect(isWarmupCatalogId("pictorium-custom-movie-x")).toBe(false)
-    expect(isWarmupCatalogId("pictorium-search-movies")).toBe(false)
-    expect(isWarmupCatalogId("pictorium-search-people-series")).toBe(false)
+    expect(isWarmupCatalogId("FlameForge-jw-movies")).toBe(true)
+    expect(isWarmupCatalogId("FlameForge-anime")).toBe(true)
+    expect(isWarmupCatalogId("FlameForge-netflix-movies")).toBe(true)
+    expect(isWarmupCatalogId("FlameForge-custom-movie-x")).toBe(false)
+    expect(isWarmupCatalogId("FlameForge-search-movies")).toBe(false)
+    expect(isWarmupCatalogId("FlameForge-search-people-series")).toBe(false)
     expect(isWarmupCatalogId("something-else")).toBe(false)
   })
 })
@@ -149,8 +149,8 @@ describe("chart-warmup.mjs — URLs carry context, never API secrets", () => {
     expect(manifest).toContain("u=uuid+1") // URLSearchParams encodes space as +
     expect(manifest).not.toContain("api_key")
     expect(manifest).not.toContain("mdblist_key")
-    const catalog = buildCatalogUrl(ORIGIN, "movie", "pictorium-jw-movies", { user: "uuid 1" })
-    expect(catalog).toBe(`${ORIGIN}/catalog/movie/pictorium-jw-movies.json?u=uuid+1`)
+    const catalog = buildCatalogUrl(ORIGIN, "movie", "FlameForge-jw-movies", { user: "uuid 1" })
+    expect(catalog).toBe(`${ORIGIN}/catalog/movie/FlameForge-jw-movies.json?u=uuid+1`)
     expect(catalog).not.toContain("api_key")
   })
 
@@ -199,7 +199,7 @@ describe("chart-warmup.mjs — runOnce", () => {
   it("manifest without catalogs array / over cap / HTTP error fails closed", async () => {
     for (const manifest of [
       jsonResponse({ catalogs: null }),
-      jsonResponse({ catalogs: new Array(MAX_MANIFEST_CATALOGS + 1).fill({ id: "pictorium-jw-movies", type: "movie" }) }),
+      jsonResponse({ catalogs: new Array(MAX_MANIFEST_CATALOGS + 1).fill({ id: "FlameForge-jw-movies", type: "movie" }) }),
       jsonResponse({ nope: true }, 500),
     ]) {
       const { calls, fetchImpl } = mockFetchRouter({ manifest })
@@ -212,7 +212,7 @@ describe("chart-warmup.mjs — runOnce", () => {
 
   it("manifest with no eligible catalogs fails honestly (nothing warmed)", async () => {
     const { calls, fetchImpl } = mockFetchRouter({
-      manifest: jsonResponse({ catalogs: [{ id: "pictorium-search-movies", type: "movie" }] }),
+      manifest: jsonResponse({ catalogs: [{ id: "FlameForge-search-movies", type: "movie" }] }),
     })
     const res = await runOnce({ baseUrl: ORIGIN }, { fetchImpl })
     expect(res.ok).toBe(false)
@@ -222,7 +222,7 @@ describe("chart-warmup.mjs — runOnce", () => {
 
   it("HTTP 429 stops the queue: remaining catalogs skipped, not hammered", async () => {
     const { calls, fetchImpl } = mockFetchRouter({
-      catalog: (id) => (id === "pictorium-netflix-series"
+      catalog: (id) => (id === "FlameForge-netflix-series"
         ? jsonResponse({ metas: [] }, 429, { "retry-after": "5" })
         : jsonResponse({ metas: [] }, 200)),
     })
@@ -238,7 +238,7 @@ describe("chart-warmup.mjs — runOnce", () => {
   it("per-request timeout marks the catalog failed, other catalogs still warm", async () => {
     const { fetchImpl } = mockFetchRouter({
       catalog: (_id, url, init) => {
-        if (url.includes("pictorium-jw-movies")) {
+        if (url.includes("FlameForge-jw-movies")) {
           // Hangs until the runner's timeout aborts it (like a real fetch).
           return new Promise<never>((_resolve, reject) => {
             init?.signal?.addEventListener("abort", () => {
@@ -410,7 +410,7 @@ describe("chart-warmup.mjs — runWatch", () => {
       }
       catalogFetchAt.push(nowMs)
       const id = decodeURIComponent(/\/catalog\/(?:movie|series)\/(.+)\.json$/.exec(parsed.pathname)?.[1] ?? "")
-      if (runs === 1 && id === "pictorium-jw-movies") {
+      if (runs === 1 && id === "FlameForge-jw-movies") {
         return jsonResponse({ metas: [] }, 429, { "retry-after": "180" })
       }
       return jsonResponse({ metas: [] }, 200)
@@ -450,7 +450,7 @@ describe("chart-warmup.mjs — runWatch", () => {
   it("HTTP-date Retry-After is honored at runOnce level (not capped to 120s)", async () => {
     const future = new Date(Date.now() + 180_000).toUTCString()
     const { fetchImpl } = mockFetchRouter({
-      catalog: (id) => (id === "pictorium-jw-movies"
+      catalog: (id) => (id === "FlameForge-jw-movies"
         ? jsonResponse({ metas: [] }, 429, { "retry-after": future })
         : jsonResponse({ metas: [] }, 200)),
     })
@@ -501,13 +501,13 @@ describe("chart-warmup.mjs — bounded manifest + safe logs", () => {
 
   it("malicious errors and control-char IDs leak no secrets and touch no foreign URLs", async () => {
     const SECRET = `cfg-secret-ABC123-${Date.now()}`
-    const evilId = "pictorium-jw-movies\u0007"
+    const evilId = "FlameForge-jw-movies\u0007"
     const calls: string[] = []
     const fetchImpl = async (url: string): Promise<Response> => {
       calls.push(url)
       const parsed = new URL(url)
       if (parsed.pathname === "/manifest.json") {
-        return jsonResponse({ catalogs: [{ id: evilId, type: "movie" }, { id: "pictorium-jw-movies", type: "movie" }] })
+        return jsonResponse({ catalogs: [{ id: evilId, type: "movie" }, { id: "FlameForge-jw-movies", type: "movie" }] })
       }
       throw new Error(`boom ${ORIGIN}/catalog/movie/x.json?config=${SECRET}`)
     }
@@ -647,3 +647,5 @@ describe("chart-warmup.mjs — correction2: manifest 429 + safe error categories
     expect(argMessage).toMatch(/unknown argument/)
   })
 })
+
+

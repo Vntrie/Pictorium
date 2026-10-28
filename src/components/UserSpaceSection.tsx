@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -19,9 +19,9 @@ import {
 } from "@/lib/user-token"
 
 /**
- * Spazio utente (stile AIOmetadata, zero memoria): identità su `/u/<uuid>`,
- * gate crea/entri su pagina globale. Null quando il multi-user è spento
- * (endpoint 404 → sezione nascosta, come UserKeysSection).
+ * Spazio utente (stile AIOmetadata, zero memoria): identitÃ  su `/u/<uuid>`,
+ * gate crea/entri su pagina globale. Null quando il multi-user Ã¨ spento
+ * (endpoint 404 â†’ sezione nascosta, come UserKeysSection).
  */
 export function UserSpaceSection() {
   const [uuid, setUuid] = useState<string | null>(null)
@@ -117,8 +117,8 @@ function UserIdentityCard({ uuid }: { uuid: string }) {
   }, [refresh])
 
   // Flag OFF o fetch fallita: hasPassword resta null (solo UUID visibile).
-  // Guest (mai unlock): UUID visibile (è già nell'URL), secret e password
-  // nascosti — niente bypass da X.
+  // Guest (mai unlock): UUID visibile (Ã¨ giÃ  nell'URL), secret e password
+  // nascosti â€” niente bypass da X.
   const unlocked = isUserUnlocked(uuid)
   const ready = hasPassword !== null
 
@@ -171,7 +171,7 @@ function UserIdentityCard({ uuid }: { uuid: string }) {
 
   return (
     <div
-      id="pictorium-uuid-section"
+      id="FlameForge-uuid-section"
       className="bg-surface/50 border border-surface2/60 rounded-xl p-3.5 space-y-2.5 shadow-sm scroll-mt-4"
     >
       <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
@@ -230,7 +230,7 @@ function UserIdentityCard({ uuid }: { uuid: string }) {
               autoComplete="new-password"
               value={next}
               onChange={(e) => setNext(e.target.value)}
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               // Space password: Latin machine string, LTR under RTL document.
               dir="ltr"
               className="w-full font-mono text-xs py-1.5 px-3 rounded-lg bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-accent-orange/50"
@@ -244,7 +244,7 @@ function UserIdentityCard({ uuid }: { uuid: string }) {
                 autoComplete="current-password"
                 value={current}
                 onChange={(e) => setCurrent(e.target.value)}
-                placeholder="••••••••"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                 // Current password / recovery key: LTR under RTL document.
                 dir="ltr"
                 className="w-full font-mono text-xs py-1.5 px-3 rounded-lg bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-accent-orange/50"
@@ -297,10 +297,10 @@ export function UserSpacesList() {
   const [loginBusy, setLoginBusy] = useState(false)
   const { copied, copy } = useCopyUuid()
   // Shortcut spazio attivo di sessione (zero memoria persistente): AppShell
-  // scrive pictorium_active_space in sessionStorage; se è sbloccato in
+  // scrive FLAMEFORGE_active_space in sessionStorage; se Ã¨ sbloccato in
   // memoria, il gate mostra un banner per tornarci senza ridigitare.
   // Solo lettura: nessuna scrittura in localStorage (anti-leak, vedi
-  // expectNoTrustedMemory). Il prefill del login resta comodità senza
+  // expectNoTrustedMemory). Il prefill del login resta comoditÃ  senza
   // bypass (la password resta sempre obbligatoria).
   const [sessionSpace, setSessionSpace] = useState<string | null>(null)
 
@@ -314,7 +314,7 @@ export function UserSpacesList() {
     const readSpace = (): string | null => {
       let id: string | null = null
       try {
-        id = window.sessionStorage?.getItem("pictorium_active_space")
+        id = window.sessionStorage?.getItem("FLAMEFORGE_active_space")
       } catch {
         id = null
       }
@@ -325,7 +325,7 @@ export function UserSpacesList() {
     const readLast = (): string | null => {
       let id: string | null = null
       try {
-        id = window.sessionStorage?.getItem("pictorium_active_space")
+        id = window.sessionStorage?.getItem("FLAMEFORGE_active_space")
       } catch {
         id = null
       }
@@ -453,7 +453,7 @@ export function UserSpacesList() {
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") void create() }}
               maxLength={128}
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               // New space password: LTR under RTL document.
               dir="ltr"
               className="w-full font-mono text-xs py-1.5 px-3 rounded-lg bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-accent-orange/50"
@@ -496,7 +496,7 @@ export function UserSpacesList() {
               onChange={(e) => setLoginPassword(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") void login() }}
               maxLength={128}
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               // Login password: LTR under RTL document.
               dir="ltr"
               className="w-full font-mono text-xs py-1.5 px-3 rounded-lg bg-black/40 border border-white/10 text-white placeholder-zinc-600 focus:outline-none focus:border-accent-orange/50"
@@ -515,3 +515,4 @@ export function UserSpacesList() {
     </div>
   )
 }
+

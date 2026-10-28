@@ -261,3 +261,4 @@ describe("useTrending stati e refresh", () => {
     expect(mockToast).toHaveBeenCalledWith("ui.refreshRateLimit")
   })
 })
+

@@ -21,7 +21,7 @@ import EditView from "@/components/EditView"
 import { renderWithCtx } from "@/__tests__/test-utils"
 import { usePosterEditor, type PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { selectBestLogo } from "@/lib/logo-selection"
-import type { PictoriumCtx } from "@/lib/context"
+import type { FlameForgeCtx } from "@/lib/context"
 import type { SearchResult, TMDBImage } from "@/lib/types"
 
 const mockSelected: SearchResult = {
@@ -38,7 +38,7 @@ const logoEn: TMDBImage = { file_path: "/logo-en.png", iso_639_1: "en", vote_ave
 const logoIt: TMDBImage = { file_path: "/logo-it.png", iso_639_1: "it", vote_average: 0, width: 800, height: 300 }
 const logos = [logoEn, logoIt]
 
-function renderEditor(overrides?: Partial<PictoriumCtx>) {
+function renderEditor(overrides?: Partial<FlameForgeCtx>) {
   let editorCtx: PosterEditorCtx | null = null
   function Probe() {
     editorCtx = usePosterEditor()
@@ -113,3 +113,5 @@ describe("landscape logo autoselect", () => {
     expect(removeBackdrop).toHaveBeenCalled()
   })
 })
+
+

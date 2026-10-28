@@ -155,3 +155,4 @@ describe("anime-id-map resolver (lookup semantics)", () => {
     expect(parseAnimeNamespace(null)).toBeNull()
   })
 })
+

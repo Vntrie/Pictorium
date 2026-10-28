@@ -3,7 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { useState } from "react"
 import EditView from "@/components/EditView"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import { MOCK_CTX } from "@/__tests__/test-utils"
@@ -86,7 +86,7 @@ function renderRealEditor(opts: {
     return (
       <ThemeProvider>
         <PosterEditorProvider>
-          <PictoriumProvider
+          <FlameForgeProvider
             value={{
               ...MOCK_CTX,
               selected,
@@ -101,7 +101,7 @@ function renderRealEditor(opts: {
             }}
           >
             <EditView />
-          </PictoriumProvider>
+          </FlameForgeProvider>
         </PosterEditorProvider>
       </ThemeProvider>
     )
@@ -151,3 +151,5 @@ describe("custom logo removal (real EditView, after loadMappings)", () => {
     )
   })
 })
+
+

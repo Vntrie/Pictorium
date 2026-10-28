@@ -72,3 +72,4 @@ describe("Ko-fi Goal API & Lib", () => {
     expect(goal.updatedAt).toBe("2026-01-01T00:00:00.000Z")
   })
 })
+

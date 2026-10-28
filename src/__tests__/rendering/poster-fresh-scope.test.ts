@@ -37,7 +37,7 @@ import {
 } from "@/lib/types"
 import { isEffectiveFreshLayout, isFreshRank } from "@/lib/fresh-layout"
 import { mappingSchema, validatePosterQuery } from "@/lib/validation"
-import { configTokenSchema, decodeConfig, encodeConfig, type PictoriumUserConfig } from "@/lib/config-token"
+import { configTokenSchema, decodeConfig, encodeConfig, type FlameForgeUserConfig } from "@/lib/config-token"
 import { normalizePosterCacheParams } from "@/lib/poster-runtime-cache"
 import { POSTER_CACHE_ALLOWLIST, hardenPosterSearchParams } from "@/lib/poster-params-hardening"
 import { buildStremioPosterSearchParams } from "@/lib/stremio-poster-params"
@@ -72,7 +72,7 @@ function mapping(over: Partial<Mapping> = {}): Mapping {
 
 function resolveScope(
   query: string,
-  opts: { mapping?: Mapping | null; config?: PictoriumUserConfig | null; sd?: ServerDefaults; shape?: "poster" | "landscape" } = {},
+  opts: { mapping?: Mapping | null; config?: FlameForgeUserConfig | null; sd?: ServerDefaults; shape?: "poster" | "landscape" } = {},
 ) {
   return resolvePosterFreshScope(
     new URLSearchParams(query),
@@ -83,7 +83,7 @@ function resolveScope(
   )
 }
 
-const TOKEN_BASE: PictoriumUserConfig = {
+const TOKEN_BASE: FlameForgeUserConfig = {
   globalBadges: true,
   rankingBadges: true,
   badgeStyle: "shadow",
@@ -906,3 +906,5 @@ describe("save freezes the scope per shape", () => {
     expect("posterFreshScope" in landscapeBody).toBe(false)
   })
 })
+
+

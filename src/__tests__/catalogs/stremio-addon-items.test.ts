@@ -51,3 +51,4 @@ describe("GET /api/stremio-addon/items pagination", () => {
     expect(new Set(ids).size).toBe(50)
   })
 })
+

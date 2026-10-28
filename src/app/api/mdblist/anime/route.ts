@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 import { rateLimit, rateLimitKey, rateLimitResponse } from "@/lib/rate-limit"
 import { cacheGet, cacheSet } from "@/lib/cache"
 import { createLogger } from "@/lib/logger"
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 
   // Publication metadata (T1 backend contract): per-slot last successful
   // publication time (ms epoch) of the SAME pinned snapshot(s) the rows
-  // come from — Pictorium's publication, NOT MDBList's update, NOT the
+  // come from â€” FlameForge's publication, NOT MDBList's update, NOT the
   // request/page time. The array body stays byte-identical (Stremio shape);
   // stamps travel as headers, each absent with no genuine pin for that slot.
   // The combined header is kept for backcompat (oldest served snapshot);
@@ -56,11 +56,11 @@ export async function GET(req: NextRequest) {
     ? (pins["anime:series"]?.snapshot?.publishedAt ?? null)
     : null
   const headers: Record<string, string> = {}
-  if (typeof stampMovie === "number") headers["X-Pictorium-Updated-At-Movie"] = String(stampMovie)
-  if (typeof stampSeries === "number") headers["X-Pictorium-Updated-At-Series"] = String(stampSeries)
+  if (typeof stampMovie === "number") headers["X-FlameForge-Updated-At-Movie"] = String(stampMovie)
+  if (typeof stampSeries === "number") headers["X-FlameForge-Updated-At-Series"] = String(stampSeries)
   const stamps = [stampMovie, stampSeries].filter((v): v is number => typeof v === "number")
   if (stamps.length === neededFamilies.length && stamps.length > 0) {
-    headers["X-Pictorium-Updated-At"] = String(Math.min(...stamps))
+    headers["X-FlameForge-Updated-At"] = String(Math.min(...stamps))
   }
 
   const cached = cacheGet<EnrichedAnimeItem[]>(cacheKey)
@@ -113,3 +113,4 @@ export async function GET(req: NextRequest) {
     return Response.json([])
   }
 }
+

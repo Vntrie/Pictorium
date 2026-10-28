@@ -41,9 +41,9 @@ describe("cache L2 condivisa (C1)", () => {
   afterEach(() => {
     delete process.env.KV_REST_API_URL
     delete process.env.KV_REST_API_TOKEN
-    delete process.env.PICTORIUM_REDIS_URL
-    delete process.env.PICTORIUM_KV_CACHE
-    delete process.env.POSTERIUM_KV_CACHE
+    delete process.env.FLAMEFORGE_REDIS_URL
+    delete process.env.FLAMEFORGE_KV_CACHE
+    delete process.env.FLAMEFORGE_KV_CACHE
     redisStore.clear()
     vi.resetModules()
   })
@@ -66,7 +66,7 @@ describe("cache L2 condivisa (C1)", () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(kvMock.set).toHaveBeenCalledTimes(1)
     const [key, json, opts] = kvMock.set.mock.calls[0] as [string, string, { ex: number }]
-    expect(key).toBe("pictorium:cache:cat1")
+    expect(key).toBe("FlameForge:cache:cat1")
     // Envelope KV: i dati viaggiano in `d` con timestamp/TTL originali.
     expect(JSON.parse(json).d).toEqual({ metas: [] })
     expect(opts.ex).toBeGreaterThanOrEqual(60)
@@ -103,11 +103,11 @@ describe("cache L2 condivisa (C1)", () => {
   })
 
   it("backend Redis nativo: write-through + read-through cross-istanza", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
     const { cacheSet } = await importCache()
     cacheSet("rcat1", { metas: [] }, ["stremio", "catalog"], 60_000)
     await new Promise((r) => setTimeout(r, 10))
-    expect(JSON.parse(redisStore.get("pictorium:cache:rcat1") as string).d).toEqual({ metas: [] })
+    expect(JSON.parse(redisStore.get("FlameForge:cache:rcat1") as string).d).toEqual({ metas: [] })
 
     // Altra istanza: L1 vuota, legge dal Redis condiviso e ripopola la L1.
     const fresh = await importCache()
@@ -116,23 +116,23 @@ describe("cache L2 condivisa (C1)", () => {
   })
 
   it("KV_CACHE=0 with Redis: no write-through, no read-through, L1 still works", async () => {
-    process.env.PICTORIUM_REDIS_URL = "redis://localhost:6379/0"
-    process.env.PICTORIUM_KV_CACHE = "0"
-    redisStore.set("pictorium:cache:shared", JSON.stringify({ metas: ["x"] }))
+    process.env.FLAMEFORGE_REDIS_URL = "redis://localhost:6379/0"
+    process.env.FLAMEFORGE_KV_CACHE = "0"
+    redisStore.set("FlameForge:cache:shared", JSON.stringify({ metas: ["x"] }))
     const { cacheSet, cacheGetShared } = await importCache()
     cacheSet("rcat2", { metas: [] }, ["stremio", "catalog"], 60_000)
     await new Promise((r) => setTimeout(r, 10))
-    expect(redisStore.has("pictorium:cache:rcat2")).toBe(false)
+    expect(redisStore.has("FlameForge:cache:rcat2")).toBe(false)
     expect(await cacheGetShared("rcat2")).toEqual({ metas: [] })
     expect(await cacheGetShared("shared")).toBeNull()
   })
 
-  it("KV_CACHE accepts FALSE/off and the legacy POSTERIUM_ prefix", async () => {
+  it("KV_CACHE accepts FALSE/off and the legacy FLAMEFORGE_ prefix", async () => {
     process.env.KV_REST_API_URL = "https://example.upstash.io"
     process.env.KV_REST_API_TOKEN = "test-token"
-    for (const [name, value] of [["PICTORIUM_KV_CACHE", "FALSE"], ["PICTORIUM_KV_CACHE", "off"], ["POSTERIUM_KV_CACHE", "0"]] as const) {
-      delete process.env.PICTORIUM_KV_CACHE
-      delete process.env.POSTERIUM_KV_CACHE
+    for (const [name, value] of [["FLAMEFORGE_KV_CACHE", "FALSE"], ["FLAMEFORGE_KV_CACHE", "off"], ["FLAMEFORGE_KV_CACHE", "0"]] as const) {
+      delete process.env.FLAMEFORGE_KV_CACHE
+      delete process.env.FLAMEFORGE_KV_CACHE
       process.env[name] = value
       const { cacheSet } = await importCache()
       cacheSet(`c-${name}-${value}`, { metas: [] }, ["stremio", "catalog"], 60_000)
@@ -144,7 +144,7 @@ describe("cache L2 condivisa (C1)", () => {
   it("KV_CACHE=false with Upstash KV: no calls", async () => {
     process.env.KV_REST_API_URL = "https://example.upstash.io"
     process.env.KV_REST_API_TOKEN = "test-token"
-    process.env.PICTORIUM_KV_CACHE = "false"
+    process.env.FLAMEFORGE_KV_CACHE = "false"
     const { cacheSet, cacheGetShared } = await importCache()
     cacheSet("cat9", { metas: [] }, ["stremio", "catalog"], 60_000)
     await new Promise((r) => setTimeout(r, 10))
@@ -153,3 +153,5 @@ describe("cache L2 condivisa (C1)", () => {
     expect(kvMock.get).not.toHaveBeenCalled()
   })
 })
+
+

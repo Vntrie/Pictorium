@@ -87,7 +87,7 @@ interface ReviewedFixtureOverrides {
 }
 
 function makeReviewedFixture(overrides: ReviewedFixtureOverrides = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pictorium-avimport-reviewed-"))
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "FlameForge-avimport-reviewed-"))
   const ids = overrides.ids ?? ["tt0000007", "tt0000008", "tt0000009"]
   const db: Record<string, { quality: string; formats: string[] }> = {}
   for (const id of ids) db[id] = { quality: "4K", formats: ["dv"] }
@@ -329,8 +329,8 @@ describe("CLI reviewed offline gating (subprocess, no network)", () => {
 
   function strippedEnv() {
     const env = { ...process.env }
-    delete env.PICTORIUM_TMDB_KEY
-    delete env.POSTERIUM_TMDB_KEY
+    delete env.FLAMEFORGE_TMDB_KEY
+    delete env.FLAMEFORGE_TMDB_KEY
     delete env.TMDB_KEY
     delete env.TMDB_API_KEY
     delete env.TMDB_BASE_URL
@@ -361,3 +361,5 @@ describe("CLI reviewed offline gating (subprocess, no network)", () => {
     expect(fs.readFileSync(f.dbPath, "utf-8")).toBe(f.dbText)
   })
 })
+
+

@@ -151,3 +151,4 @@ describe("poster latency rolling observations", () => {
     expect(poster.latency.cached).toEqual({ count: 0, p50Ms: null, p95Ms: null })
   })
 })
+

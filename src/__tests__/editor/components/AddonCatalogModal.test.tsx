@@ -224,3 +224,4 @@ describe("AddonCatalogModal manifest binding", () => {
     }
   })
 })
+

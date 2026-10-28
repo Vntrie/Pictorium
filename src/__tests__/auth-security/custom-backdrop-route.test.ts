@@ -182,7 +182,7 @@ describe("GET /api/poster custom landscape base", () => {
     vi.mocked(fetchCustomRatings).mockReset().mockResolvedValue([])
     vi.mocked(fetchAggregatedRating).mockReset().mockResolvedValue(null)
     vi.mocked(renderMultiRatings).mockClear()
-    vi.stubEnv("PICTORIUM_CUSTOM_RATING_ENABLED", "false")
+    vi.stubEnv("FLAMEFORGE_CUSTOM_RATING_ENABLED", "false")
     mockedGetDetails.mockResolvedValue({
       id: 42,
       title: "Test Movie",
@@ -283,3 +283,5 @@ describe("GET /api/poster custom landscape base", () => {
     expect(changed).toBeGreaterThan(total * 0.9)
   })
 })
+
+

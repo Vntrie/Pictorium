@@ -1,9 +1,9 @@
-import { normalizeCatalogId } from "./catalog-definitions"
+﻿import { normalizeCatalogId } from "./catalog-definitions"
 import type { PosterShape } from "./types"
 
 /**
  * Per-catalog card format override, keyed by the actual manifest/route
- * catalog id (e.g. `pictorium-jw-movies`, `pictorium-custom-movie-<base>`).
+ * catalog id (e.g. `FlameForge-jw-movies`, `FlameForge-custom-movie-<base>`).
  * Persisted values are ONLY `poster` (vertical) or `landscape` (horizontal);
  * an absent/deleted key means "follow the global setting".
  *
@@ -22,7 +22,7 @@ export type CatalogShapeOverride = PosterShape
 
 export type CatalogShapes = Record<string, CatalogShapeOverride>
 
-export const CATALOG_SHAPES_STORAGE_KEY = "pictorium_catalog_shapes"
+export const CATALOG_SHAPES_STORAGE_KEY = "FLAMEFORGE_catalog_shapes"
 
 /** Reasonable cap mirroring the existing catalog record bounds. */
 export const MAX_CATALOG_SHAPES = 200
@@ -45,7 +45,7 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 
 /**
  * Strict client/import sanitizer: drops prototype-pollution keys, legacy
- * `posterium-*` keys are normalized to `pictorium-*`, over-long keys,
+ * `posterium-*` keys are normalized to `FlameForge-*`, over-long keys,
  * unknown enums and over-cap entries are skipped (never defaulted).
  */
 export function sanitizeCatalogShapes(input: unknown): CatalogShapes {
@@ -110,3 +110,4 @@ export function getExplicitCatalogShape(
   const value = (shapes as Record<string, unknown>)[key]
   return isCatalogShapeOverride(value) ? value : undefined
 }
+

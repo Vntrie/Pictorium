@@ -126,3 +126,4 @@ describe("SetupWizard", () => {
     expect(onDone).toHaveBeenCalledTimes(1)
   })
 })
+

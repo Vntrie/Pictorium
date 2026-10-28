@@ -62,3 +62,4 @@ describe("EditView profile gate segue la navigazione senza remount", () => {
     expect(await screen.findByText("ui.profileGateTitle")).toBeInTheDocument()
   })
 })
+

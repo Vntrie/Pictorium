@@ -76,3 +76,4 @@ describe("resolveUnmappedQualityBadgeOffsets (F4)", () => {
     ).toEqual({ qualityBadgeOffsetX: -10, qualityBadgeOffsetY: 7 })
   })
 })
+

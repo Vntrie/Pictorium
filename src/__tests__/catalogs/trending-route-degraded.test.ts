@@ -64,3 +64,4 @@ describe("GET /api/tmdb/trending (D6 — risposta degradata non cachata)", () =>
     spy.mockRestore()
   })
 })
+

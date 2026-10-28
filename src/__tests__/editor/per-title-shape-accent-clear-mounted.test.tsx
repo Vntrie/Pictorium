@@ -21,7 +21,7 @@ import { render, act, screen, waitFor } from "@testing-library/react"
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
 import { MOCK_CTX } from "@/__tests__/test-utils"
-import { PictoriumProvider, useP } from "@/lib/context"
+import { FlameForgeProvider, useP } from "@/lib/context"
 import { PosterEditorProvider, usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
@@ -234,7 +234,7 @@ function Host(props: {
   return (
     <ThemeProvider>
       <PosterEditorProvider>
-        <PictoriumProvider value={value}>
+        <FlameForgeProvider value={value}>
           <EditView />
           <Probes
             selected={props.selected}
@@ -244,7 +244,7 @@ function Host(props: {
             autoAccentColor={autoAccentColor}
             userId={null}
           />
-        </PictoriumProvider>
+        </FlameForgeProvider>
       </PosterEditorProvider>
     </ThemeProvider>
   )
@@ -414,3 +414,5 @@ describe("mounted manual->auto clear survives switch + save + autosave", () => {
     void u
   })
 })
+
+

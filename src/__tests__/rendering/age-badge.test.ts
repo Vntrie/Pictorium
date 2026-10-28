@@ -632,3 +632,4 @@ describe("renderQualityBadgeGroup age style + order (quality, age, formats)", ()
     expect(bandMean(rows, TOP_SHADOW_PAD, TOP_SHADOW_PAD + va)).toBeGreaterThan(180)
   })
 })
+

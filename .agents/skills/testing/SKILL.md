@@ -1,7 +1,7 @@
----
+﻿---
 name: testing
 description: >
-  Test commands and workflow for Pictorium — Vitest unit suite, Playwright E2E (pictorium-visual.spec.ts + pictorium-smoke.spec.ts + pictorium-catalog-meta.spec.ts),
+  Test commands and workflow for FlameForge â€” Vitest unit suite, Playwright E2E (FlameForge-visual.spec.ts + FlameForge-smoke.spec.ts + FlameForge-catalog-meta.spec.ts),
   the deterministic mock server (e2e/mock-server.mjs), snapshot update policy,
   and the full `npm run verify` gate (tsc + eslint + vitest + next build).
   Trigger: "run tests", "vitest", "playwright", "snapshot", "e2e", "test fails",
@@ -32,11 +32,11 @@ npx vitest run --coverage
 
 ```bash
 npx playwright install chromium     # first time
-npx playwright test e2e/pictorium-visual.spec.ts    # UI and poster visual regression
-npx playwright test e2e/pictorium-visual.spec.ts --grep "<area>"   # focused visual subset during work
-npx playwright test e2e/pictorium-visual.spec.ts:<line>            # single visual test
-npx playwright test e2e/pictorium-parity.spec.ts    # preview vs mapped Stremio parity
-npx playwright test e2e/pictorium-smoke.spec.ts     # functional smoke
+npx playwright test e2e/FlameForge-visual.spec.ts    # UI and poster visual regression
+npx playwright test e2e/FlameForge-visual.spec.ts --grep "<area>"   # focused visual subset during work
+npx playwright test e2e/FlameForge-visual.spec.ts:<line>            # single visual test
+npx playwright test e2e/FlameForge-parity.spec.ts    # preview vs mapped Stremio parity
+npx playwright test e2e/FlameForge-smoke.spec.ts     # functional smoke
 npx playwright test e2e/ --workers=1   # everything (full serial suite)
 npm run e2e:ui                      # Playwright UI runner
 ```
@@ -48,7 +48,7 @@ Area filters and rules for focused runs live in `.agents/visual-testing.md`.
   even with `npm run dev` running.
 - **Update snapshots** (only for INTENTIONAL appearance changes):
   ```bash
-  npx playwright test e2e/pictorium-visual.spec.ts --update-snapshots
+  npx playwright test e2e/FlameForge-visual.spec.ts --update-snapshots
   ```
   Review the `.png` diffs before committing them.
 
@@ -64,11 +64,11 @@ Area filters and rules for focused runs live in `.agents/visual-testing.md`.
 npm run verify    # tsc --noEmit && eslint --cache . && vitest run && build isolata (.next-verify)
 ```
 
-The isolated build (`npm run build:verify` → `scripts/build-verify.mjs`) lets the
+The isolated build (`npm run build:verify` â†’ `scripts/build-verify.mjs`) lets the
 local batch run while `next dev` keeps `.next`; CI and Docker still use the plain
 `next build`.
 
-Scheduling is defined ONLY by `AGENTS.md` → Verification Strategy (single source
+Scheduling is defined ONLY by `AGENTS.md` â†’ Verification Strategy (single source
 of truth): focused runs during work, the full batch before push/integration.
 Docs-only tasks need static read + `git diff`. On failure: fix a regression in
 your own diff immediately with a narrow rerun; isolate and report pre-existing
@@ -78,10 +78,11 @@ snapshots to pass. Implementation-ready without the required gate is
 
 ## Rules
 
-- Never update snapshots to hide a real divergence — fix the code instead.
+- Never update snapshots to hide a real divergence â€” fix the code instead.
 - Render-affecting changes require the final visual gate before push/integration.
   Follow `AGENTS.md` for scheduling and `.agents/visual-testing.md` for commands.
 - URL, mapping or precedence changes also require the relevant URL unit tests and
-  `e2e/pictorium-parity.spec.ts` in the final batch; API screenshots alone do not
+  `e2e/FlameForge-parity.spec.ts` in the final batch; API screenshots alone do not
   establish preview/final parity. The CI visual job runs only the visual spec.
-- Mock server is deterministic — don't rely on the live network in tests.
+- Mock server is deterministic â€” don't rely on the live network in tests.
+

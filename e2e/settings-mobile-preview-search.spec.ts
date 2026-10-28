@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Locator } from "@playwright/test"
+﻿import { test, expect, type Page, type Locator } from "@playwright/test"
 
 // Mobile settings floating preview: title-search dialog (preview-only).
 // Transport-level only (mock TMDB via mock-server + page.route on
@@ -31,9 +31,9 @@ async function seed(page: Page) {
   await page.addInitScript(() => {
     try {
       localStorage.clear()
-      localStorage.setItem("pictorium_profile_id", "e2e-mobile-preview-search")
-      localStorage.setItem("pictorium_profile_stateless", "1")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_profile_id", "e2e-mobile-preview-search")
+      localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       localStorage.setItem("preferred_lang", "it")
       localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
     } catch {}
@@ -241,3 +241,4 @@ test("mobile 320px landscape: floating search fits narrow viewport, preview-only
   await expect(dialog.getByTestId("defaults-preview-media")).toHaveClass(/aspect-video/)
   await expect(page.getByTestId("settings-save")).toBeDisabled()
 })
+

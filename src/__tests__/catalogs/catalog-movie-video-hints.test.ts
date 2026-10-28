@@ -88,8 +88,8 @@ describe("movie video-navigation hints (Easy parity)", () => {
       .mockResolvedValueOnce(justWatchResponse(550, "tt0137523"))
       .mockResolvedValueOnce(movieDetailsResponse(550))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=settings-key")
-    const res = await catalogGET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=settings-key")
+    const res = await catalogGET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -107,8 +107,8 @@ describe("movie video-navigation hints (Easy parity)", () => {
       .mockResolvedValueOnce(movieDetailsResponse(67890))
       .mockResolvedValueOnce(Response.json({ id: 67890, imdb_id: null }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-jw-movies.json?api_key=settings-key")
-    const res = await catalogGET(req, { params: Promise.resolve({ type: "movie", id: "pictorium-jw-movies.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-jw-movies.json?api_key=settings-key")
+    const res = await catalogGET(req, { params: Promise.resolve({ type: "movie", id: "FlameForge-jw-movies.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -129,8 +129,8 @@ describe("movie video-navigation hints (Easy parity)", () => {
         first_air_date: "2022-08-21",
       }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/series/pictorium-jw-series.json?api_key=settings-key")
-    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "pictorium-jw-series.json" }) })
+    const req = new NextRequest("http://localhost:3000/catalog/series/FlameForge-jw-series.json?api_key=settings-key")
+    const res = await catalogGET(req, { params: Promise.resolve({ type: "series", id: "FlameForge-jw-series.json" }) })
     const body = await res.json()
 
     expect(res.status).toBe(200)
@@ -151,9 +151,9 @@ describe("movie video-navigation hints (Easy parity)", () => {
       .mockResolvedValueOnce(Response.json({ genres: [{ id: 18, name: "Dramma" }] }))
       .mockResolvedValueOnce(Response.json({ id: 550, imdb_id: "tt0137523" }))
 
-    const req = new NextRequest("http://localhost:3000/catalog/movie/pictorium-search-movies/search=fight%20club.json?api_key=settings-key")
+    const req = new NextRequest("http://localhost:3000/catalog/movie/FlameForge-search-movies/search=fight%20club.json?api_key=settings-key")
     const res = await catalogExtraGET(req, {
-      params: Promise.resolve({ type: "movie", id: "pictorium-search-movies", extra: ["search=fight%20club.json"] }),
+      params: Promise.resolve({ type: "movie", id: "FlameForge-search-movies", extra: ["search=fight%20club.json"] }),
     })
     const body = await res.json()
 
@@ -251,3 +251,5 @@ describe("movie video-navigation hints (Easy parity)", () => {
     expect(body.meta.videos[0]).toMatchObject({ season: 1, episode: 1 })
   })
 })
+
+

@@ -86,7 +86,7 @@ describe("profileless editor on a multi-user instance", () => {
     mockServer({ multiUser: true, hasPin: true, pinAuthenticated: false })
     expect(await isProfilelessOnMultiUser()).toBe(true)
     mockServer({ multiUser: true, hasPin: true, pinAuthenticated: true })
-    window.dispatchEvent(new CustomEvent("pictorium:pin-change", { detail: { unlocked: true } }))
+    window.dispatchEvent(new CustomEvent("FlameForge:pin-change", { detail: { unlocked: true } }))
     expect(await isProfilelessOnMultiUser()).toBe(false)
   })
 
@@ -132,3 +132,5 @@ describe("profileless editor on a multi-user instance", () => {
     expect(calls.some((c) => c.url.includes("/api/defaults") && c.method === "PUT")).toBe(true)
   })
 })
+
+

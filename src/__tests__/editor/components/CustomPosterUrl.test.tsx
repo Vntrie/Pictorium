@@ -209,3 +209,4 @@ describe("CustomPosterUrl in landscape", () => {
     expect(JSON.parse(String(put!.init!.body))).toEqual({ customBackdropUrl: null })
   })
 });
+

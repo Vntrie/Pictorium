@@ -530,3 +530,4 @@ describe("preset orientation isolation", () => {
     expect(styleQuery(unfrozen)).toEqual({ bfont: "inter", qbs: "standard", formats: "hdr" })
   })
 })
+

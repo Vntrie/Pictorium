@@ -42,7 +42,7 @@ vi.mock("@vercel/kv", () => ({
         }
         return h
       }
-      if (script.includes("pictorium:mapping-upsert:v1")) {
+      if (script.includes("FlameForge:mapping-upsert:v1")) {
         if (keys.length !== 1 || args.length !== 3) throw new Error("unsupported mapping-upsert args in fake eval")
         const [hashK] = keys
         const [maxRaw, field, json] = args
@@ -55,7 +55,7 @@ vi.mock("@vercel/kv", () => ({
         h.set(field, JSON.parse(json))
         return 0
       }
-      if (script.includes("pictorium:mapping-import:v1")) {
+      if (script.includes("FlameForge:mapping-import:v1")) {
         if (keys.length !== 1 || args.length < 1 || (args.length - 1) % 2 !== 0)
           throw new Error("unsupported mapping-import args in fake eval")
         const [hashK] = keys
@@ -66,7 +66,7 @@ vi.mock("@vercel/kv", () => ({
         for (let i = 1; i < args.length; i += 2) h.set(args[i], JSON.parse(args[i + 1]))
         return 0
       }
-      if (script.includes("pictorium:alias-set:v1")) {
+      if (script.includes("FlameForge:alias-set:v1")) {
         if (keys.length !== 2 || args.length !== 3) throw new Error("unsupported alias-set args in fake eval")
         const [aliasK, mapK] = keys
         const ah = hashOf(aliasK)
@@ -87,22 +87,22 @@ vi.mock("@vercel/kv", () => ({
 const UUID_A = "11111111-1111-1111-1111-111111111111"
 const UUID_B = "22222222-2222-2222-2222-222222222222"
 
-const originalDataDir = process.env.POSTERIUM_DATA_DIR
-const originalMax = process.env.PICTORIUM_MAX_MAPPINGS_PER_USER
+const originalDataDir = process.env.FLAMEFORGE_DATA_DIR
+const originalMax = process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER
 let tempDir: string | undefined
 
 async function freshStore() {
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-alias-"))
-  process.env.POSTERIUM_DATA_DIR = tempDir
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-alias-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
   vi.resetModules()
   return import("@/lib/store")
 }
 
 afterEach(async () => {
-  if (originalDataDir === undefined) delete process.env.POSTERIUM_DATA_DIR
-  else process.env.POSTERIUM_DATA_DIR = originalDataDir
-  if (originalMax === undefined) delete process.env.PICTORIUM_MAX_MAPPINGS_PER_USER
-  else process.env.PICTORIUM_MAX_MAPPINGS_PER_USER = originalMax
+  if (originalDataDir === undefined) delete process.env.FLAMEFORGE_DATA_DIR
+  else process.env.FLAMEFORGE_DATA_DIR = originalDataDir
+  if (originalMax === undefined) delete process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER
+  else process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER = originalMax
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
   kvHashes.clear()
@@ -150,7 +150,7 @@ describe("imdb alias store", () => {
   })
 
   it("condivide la quota con i mapping", async () => {
-    process.env.PICTORIUM_MAX_MAPPINGS_PER_USER = "1"
+    process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER = "1"
     const store = await freshStore()
     await store.upsert(mapping(1), UUID_A)
     await expect(
@@ -207,13 +207,13 @@ describe("imdb alias KV quota guards (Q2b2 atomic EVAL)", () => {
   // tests below overwrite must come back verbatim — never a bare `delete`
   // that would drop a caller value.
   const origQuotaEnv = new Map<string, string | undefined>([
-    ["PICTORIUM_REDIS_URL", process.env.PICTORIUM_REDIS_URL],
-    ["POSTERIUM_REDIS_URL", process.env.POSTERIUM_REDIS_URL],
+    ["FLAMEFORGE_REDIS_URL", process.env.FLAMEFORGE_REDIS_URL],
+    ["FLAMEFORGE_REDIS_URL", process.env.FLAMEFORGE_REDIS_URL],
     ["REDIS_URL", process.env.REDIS_URL],
     ["KV_REST_API_URL", process.env.KV_REST_API_URL],
     ["KV_REST_API_TOKEN", process.env.KV_REST_API_TOKEN],
-    ["PICTORIUM_MAX_MAPPINGS_PER_USER", process.env.PICTORIUM_MAX_MAPPINGS_PER_USER],
-    ["POSTERIUM_MAX_MAPPINGS_PER_USER", process.env.POSTERIUM_MAX_MAPPINGS_PER_USER],
+    ["FLAMEFORGE_MAX_MAPPINGS_PER_USER", process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER],
+    ["FLAMEFORGE_MAX_MAPPINGS_PER_USER", process.env.FLAMEFORGE_MAX_MAPPINGS_PER_USER],
   ])
 
   function restoreQuotaEnv(): void {
@@ -228,12 +228,12 @@ describe("imdb alias KV quota guards (Q2b2 atomic EVAL)", () => {
     // wins over KV in getKv(), so blank the Redis selectors ("" trims to
     // unset in resolveRedisUrl) to force the mocked @vercel/kv path — never
     // an accidental real Redis when the parent env is configured.
-    vi.stubEnv("PICTORIUM_REDIS_URL", "")
-    vi.stubEnv("POSTERIUM_REDIS_URL", "")
+    vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+    vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
     vi.stubEnv("REDIS_URL", "")
     vi.stubEnv("KV_REST_API_URL", "https://example.upstash.io")
     vi.stubEnv("KV_REST_API_TOKEN", "test-token")
-    vi.stubEnv("PICTORIUM_MAX_MAPPINGS_PER_USER", max)
+    vi.stubEnv("FLAMEFORGE_MAX_MAPPINGS_PER_USER", max)
     vi.resetModules()
     return import("@/lib/store")
   }
@@ -291,3 +291,5 @@ describe("imdb alias KV quota guards (Q2b2 atomic EVAL)", () => {
     expect(await store.getById("tv", 9, UUID_A)).toMatchObject({ title: "T9" })
   })
 })
+
+

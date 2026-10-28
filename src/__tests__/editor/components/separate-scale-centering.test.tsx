@@ -194,3 +194,4 @@ describe("T1 legacy raw preservati on read", () => {
     expect(ctx().separateBadgeScale).toBe(200)
   })
 })
+

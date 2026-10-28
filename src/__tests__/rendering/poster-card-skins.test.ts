@@ -314,3 +314,4 @@ describe("poster card skins (shared glass backgrounds)", () => {
     expect(src).not.toMatch(/catalogKey/)
   })
 })
+

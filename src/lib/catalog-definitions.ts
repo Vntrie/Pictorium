@@ -1,40 +1,40 @@
 import type { RegionDef } from "./regions"
 
-export const CATALOG_ID_PREFIX = "pictorium-"
+export const CATALOG_ID_PREFIX = "FlameForge-"
 
 /** Prefisso legacy pre-rename: accettato in ingresso (alias), mai più emesso. */
 export const LEGACY_CATALOG_ID_PREFIX = "posterium-"
 
-export type PictoriumCatalogType = "movie" | "series"
+export type FlameForgeCatalogType = "movie" | "series"
 
-export type PictoriumCatalogDefinition = {
+export type FlameForgeCatalogDefinition = {
   readonly id: string
   readonly name: string
-  readonly type: PictoriumCatalogType
+  readonly type: FlameForgeCatalogType
 }
 
-export const PICTORIUM_CATALOGS = [
-  { id: "pictorium-jw-movies", name: "🇮🇹 Top 20 Italia — Film", type: "movie" },
-  { id: "pictorium-jw-series", name: "🇮🇹 Top 20 Italia — Serie TV", type: "series" },
-  { id: "pictorium-netflix-movies", name: "🔴 Netflix — Film", type: "movie" },
-  { id: "pictorium-netflix-series", name: "🔴 Netflix — Serie TV", type: "series" },
-  { id: "pictorium-prime-movies", name: "📦 Prime Video — Film", type: "movie" },
-  { id: "pictorium-prime-series", name: "📦 Prime Video — Serie TV", type: "series" },
-  { id: "pictorium-disney-movies", name: "🏰 Disney+ — Film", type: "movie" },
-  { id: "pictorium-disney-series", name: "🏰 Disney+ — Serie TV", type: "series" },
-  { id: "pictorium-now-movies", name: "☁️ Sky Go / NOW — Film", type: "movie" },
-  { id: "pictorium-now-series", name: "☁️ Sky Go / NOW — Serie TV", type: "series" },
-  { id: "pictorium-apple-movies", name: "🍎 Apple TV+ — Film", type: "movie" },
-  { id: "pictorium-apple-series", name: "🍎 Apple TV+ — Serie TV", type: "series" },
-  { id: "pictorium-hbo-movies", name: "🟣 HBO Max — Film", type: "movie" },
-  { id: "pictorium-hbo-series", name: "🟣 HBO Max — Serie TV", type: "series" },
-  { id: "pictorium-paramount-movies", name: "🏔️ Paramount+ — Film", type: "movie" },
-  { id: "pictorium-paramount-series", name: "🏔️ Paramount+ — Serie TV", type: "series" },
-  { id: "pictorium-crunchyroll-series", name: "🍥 Crunchyroll — Anime & Serie", type: "series" },
-  { id: "pictorium-crunchyroll-movies", name: "🍥 Crunchyroll — Film Anime", type: "movie" },
-  { id: "pictorium-anime-movies", name: "⛩️ Top 20 Film Anime", type: "movie" },
-  { id: "pictorium-anime", name: "⛩️ Top 20 Serie Anime", type: "series" },
-] as const satisfies readonly PictoriumCatalogDefinition[]
+export const FLAMEFORGE_CATALOGS = [
+  { id: "FlameForge-jw-movies", name: "🇮🇹 Top 20 Italia — Film", type: "movie" },
+  { id: "FlameForge-jw-series", name: "🇮🇹 Top 20 Italia — Serie TV", type: "series" },
+  { id: "FlameForge-netflix-movies", name: "🔴 Netflix — Film", type: "movie" },
+  { id: "FlameForge-netflix-series", name: "🔴 Netflix — Serie TV", type: "series" },
+  { id: "FlameForge-prime-movies", name: "📦 Prime Video — Film", type: "movie" },
+  { id: "FlameForge-prime-series", name: "📦 Prime Video — Serie TV", type: "series" },
+  { id: "FlameForge-disney-movies", name: "🏰 Disney+ — Film", type: "movie" },
+  { id: "FlameForge-disney-series", name: "🏰 Disney+ — Serie TV", type: "series" },
+  { id: "FlameForge-now-movies", name: "☁️ Sky Go / NOW — Film", type: "movie" },
+  { id: "FlameForge-now-series", name: "☁️ Sky Go / NOW — Serie TV", type: "series" },
+  { id: "FlameForge-apple-movies", name: "🍎 Apple TV+ — Film", type: "movie" },
+  { id: "FlameForge-apple-series", name: "🍎 Apple TV+ — Serie TV", type: "series" },
+  { id: "FlameForge-hbo-movies", name: "🟣 HBO Max — Film", type: "movie" },
+  { id: "FlameForge-hbo-series", name: "🟣 HBO Max — Serie TV", type: "series" },
+  { id: "FlameForge-paramount-movies", name: "🏔️ Paramount+ — Film", type: "movie" },
+  { id: "FlameForge-paramount-series", name: "🏔️ Paramount+ — Serie TV", type: "series" },
+  { id: "FlameForge-crunchyroll-series", name: "🍥 Crunchyroll — Anime & Serie", type: "series" },
+  { id: "FlameForge-crunchyroll-movies", name: "🍥 Crunchyroll — Film Anime", type: "movie" },
+  { id: "FlameForge-anime-movies", name: "⛩️ Top 20 Film Anime", type: "movie" },
+  { id: "FlameForge-anime", name: "⛩️ Top 20 Serie Anime", type: "series" },
+] as const satisfies readonly FlameForgeCatalogDefinition[]
 
 export type StremioCatalogExtra = {
   readonly name: string
@@ -42,43 +42,43 @@ export type StremioCatalogExtra = {
   readonly options?: readonly string[]
 }
 
-export type PictoriumManifestCatalog = {
+export type FlameForgeManifestCatalog = {
   id: string
   name: string
-  type: PictoriumCatalogType
+  type: FlameForgeCatalogType
   extra?: readonly StremioCatalogExtra[]
 }
 
-export const PICTORIUM_SEARCH_CATALOGS = [
-  { id: "pictorium-search-movies", name: "🔍 Pictorium — Cerca Film", type: "movie" },
-  { id: "pictorium-search-series", name: "🔍 Pictorium — Cerca Serie TV", type: "series" },
-] as const satisfies readonly PictoriumCatalogDefinition[]
+export const FLAMEFORGE_SEARCH_CATALOGS = [
+  { id: "FlameForge-search-movies", name: "🔍 FlameForge — Cerca Film", type: "movie" },
+  { id: "FlameForge-search-series", name: "🔍 FlameForge — Cerca Serie TV", type: "series" },
+] as const satisfies readonly FlameForgeCatalogDefinition[]
 
-export const PICTORIUM_PEOPLE_SEARCH_CATALOGS = [
-  { id: "pictorium-search-people-movies", name: "🔍 Pictorium — Cerca per Persona (Film)", type: "movie" },
-  { id: "pictorium-search-people-series", name: "🔍 Pictorium — Cerca per Persona (Serie TV)", type: "series" },
-] as const satisfies readonly PictoriumCatalogDefinition[]
+export const FLAMEFORGE_PEOPLE_SEARCH_CATALOGS = [
+  { id: "FlameForge-search-people-movies", name: "🔍 FlameForge — Cerca per Persona (Film)", type: "movie" },
+  { id: "FlameForge-search-people-series", name: "🔍 FlameForge — Cerca per Persona (Serie TV)", type: "series" },
+] as const satisfies readonly FlameForgeCatalogDefinition[]
 
 export const WARMUP_CATALOG_IDS = [
-  "pictorium-jw-movies",
-  "pictorium-jw-series",
-  "pictorium-netflix-movies",
-  "pictorium-netflix-series",
-  "pictorium-prime-movies",
-  "pictorium-prime-series",
-  "pictorium-anime-movies",
-  "pictorium-anime",
+  "FlameForge-jw-movies",
+  "FlameForge-jw-series",
+  "FlameForge-netflix-movies",
+  "FlameForge-netflix-series",
+  "FlameForge-prime-movies",
+  "FlameForge-prime-series",
+  "FlameForge-anime-movies",
+  "FlameForge-anime",
 ] as const
 
 const WARMUP_CATALOG_ID_SET: ReadonlySet<string> = new Set(WARMUP_CATALOG_IDS)
 
-export function getWarmupCatalogs(): readonly PictoriumCatalogDefinition[] {
-  return PICTORIUM_CATALOGS.filter((catalog) => WARMUP_CATALOG_ID_SET.has(catalog.id))
+export function getWarmupCatalogs(): readonly FlameForgeCatalogDefinition[] {
+  return FLAMEFORGE_CATALOGS.filter((catalog) => WARMUP_CATALOG_ID_SET.has(catalog.id))
 }
 
 /**
  * Normalizza un ID catalogo: gli ID legacy `posterium-*` (addon già installati,
- * config salvate, localStorage) vengono mappati al canonico `pictorium-*`.
+ * config salvate, localStorage) vengono mappati al canonico `FlameForge-*`.
  * Gli ID già canonici o custom senza prefisso passano invariati.
  */
 export function normalizeCatalogId(id: string): string {
@@ -90,8 +90,8 @@ export function normalizeCatalogId(id: string): string {
 
 /** Canonical built-in anime Top 10 ids (service-agnostic, both modes). */
 const ANIME_BUILTIN_CATALOG_IDS: ReadonlySet<string> = new Set<string>([
-  "pictorium-anime-movies",
-  "pictorium-anime",
+  "FlameForge-anime-movies",
+  "FlameForge-anime",
 ]);
 
 /**
@@ -138,13 +138,6 @@ export function normalizeCatalogIdKeys(record: Record<string, string> | undefine
   return out
 }
 
-/** @deprecated Alias legacy — usare PICTORIUM_CATALOGS. */
-export const POSTERIUM_CATALOGS = PICTORIUM_CATALOGS
-/** @deprecated Alias legacy — usare PICTORIUM_SEARCH_CATALOGS. */
-export const POSTERIUM_SEARCH_CATALOGS = PICTORIUM_SEARCH_CATALOGS
-/** @deprecated Alias legacy — usare PICTORIUM_PEOPLE_SEARCH_CATALOGS. */
-export const POSTERIUM_PEOPLE_SEARCH_CATALOGS = PICTORIUM_PEOPLE_SEARCH_CATALOGS
-
 /**
  * Nome dei cataloghi Top 20 / Ultime Uscite JustWatch nella lingua/regione
  * attiva (bandiera dinamica). Ritorna null per i cataloghi non-JW (nome statico).
@@ -152,9 +145,9 @@ export const POSTERIUM_PEOPLE_SEARCH_CATALOGS = PICTORIUM_PEOPLE_SEARCH_CATALOGS
  * (client): la classifica segue la regione, il nome deve seguirla.
  */
 export function regionJwName(id: string, type: "movie" | "series", region: RegionDef): string | null {
-  if (id.startsWith("pictorium-jw-new-")) {
+  if (id.startsWith("FlameForge-jw-new-")) {
     return `${region.flag} Ultime Uscite ${region.label} — ${type === "movie" ? "Film" : "Serie TV"}`
   }
-  if (!id.startsWith("pictorium-jw-")) return null
+  if (!id.startsWith("FlameForge-jw-")) return null
   return `${region.flag} Top 20 ${region.label} — ${type === "movie" ? "Film" : "Serie TV"}`
 }

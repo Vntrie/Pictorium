@@ -1,15 +1,15 @@
-import { test, expect, type Page } from "@playwright/test"
+﻿import { test, expect, type Page } from "@playwright/test"
 import { putDefaultsWithRetry } from "./defaults-retry"
 
-// P10 FINAL GATE — Card cover layouts (provider-glass / nuvio /
-// stremio) × portrait + landscape, deterministic via the shared mock server
+// P10 FINAL GATE â€” Card cover layouts (provider-glass / nuvio /
+// stremio) Ã— portrait + landscape, deterministic via the shared mock server
 // (e2e/mock-server.mjs, started by playwright.config.ts). No TMDB_API_KEY,
 // no live network.
 //
-// - 8 visual goldens (3 skins × 2 shapes + 2 rank-4 clean regressions): NEW baselines, existing
-//   Fresh/Standard goldens in pictorium-visual.spec.ts are untouched.
+// - 8 visual goldens (3 skins Ã— 2 shapes + 2 rank-4 clean regressions): NEW baselines, existing
+//   Fresh/Standard goldens in FlameForge-visual.spec.ts are untouched.
 //   P8 intentional: nuvio portrait + landscape carry the 5-rating aggregate
-//   (ONE inline `GENRE • ★ score`, no source labels). P9 intentional: big
+//   (ONE inline `GENRE â€¢ â˜… score`, no source labels). P9 intentional: big
 //   hollow-glass doubles keep reference double height with horizontal
 //   condense (rank 11 regression for the old "tiny 11" gutter-fit shrink,
 //   rank 20 in BOTH shapes across skins: nuvio portrait+landscape and
@@ -57,8 +57,8 @@ async function renderPoster(page: Page, url: string) {
   return page.locator("#poster")
 }
 
-test.describe("card layouts — visual regression (3 skins × 2 shapes)", () => {
-  test("provider-glass portrait, rank 1 — screenshot", async ({ page }) => {
+test.describe("card layouts â€” visual regression (3 skins Ã— 2 shapes)", () => {
+  test("provider-glass portrait, rank 1 â€” screenshot", async ({ page }) => {
     const url = cardUrl({
       genreName: "Action",
       voteAverage: "7.8",
@@ -72,7 +72,7 @@ test.describe("card layouts — visual regression (3 skins × 2 shapes)", () => 
     await expect(poster).toHaveScreenshot("card-provider-glass-portrait.png", { maxDiffPixelRatio: 0.10 })
   })
 
-  test("nuvio portrait, rank 20 + five ratings — screenshot", async ({ page }) => {
+  test("nuvio portrait, rank 20 + five ratings â€” screenshot", async ({ page }) => {
     const url = cardUrl(
       {
         genreName: "Action",
@@ -96,7 +96,7 @@ test.describe("card layouts — visual regression (3 skins × 2 shapes)", () => 
     await expect(poster).toHaveScreenshot("card-nuvio-portrait.png", { maxDiffPixelRatio: 0.10 })
   })
 
-  test("stremio portrait, rank 11 — screenshot (double-digit regression)", async ({ page }) => {
+  test("stremio portrait, rank 11 â€” screenshot (double-digit regression)", async ({ page }) => {
     const url = cardUrl(
       {
         genreName: "Action",
@@ -116,7 +116,7 @@ test.describe("card layouts — visual regression (3 skins × 2 shapes)", () => 
     await expect(poster).toHaveScreenshot("card-stremio-portrait.png", { maxDiffPixelRatio: 0.10 })
   })
 
-  test("provider-glass landscape, rank 20 — screenshot", async ({ page }) => {
+  test("provider-glass landscape, rank 20 â€” screenshot", async ({ page }) => {
     const url = cardUrl(
       {
         backdrop: BACKDROP_PATH,
@@ -138,7 +138,7 @@ test.describe("card layouts — visual regression (3 skins × 2 shapes)", () => 
     await expect(poster).toHaveScreenshot("card-provider-glass-landscape.png", { maxDiffPixelRatio: 0.10 })
   })
 
-  test("nuvio landscape, rank 20 + five ratings — screenshot", async ({ page }) => {
+  test("nuvio landscape, rank 20 + five ratings â€” screenshot", async ({ page }) => {
     const url = cardUrl(
       {
         backdrop: BACKDROP_PATH,
@@ -164,7 +164,7 @@ test.describe("card layouts — visual regression (3 skins × 2 shapes)", () => 
     await expect(poster).toHaveScreenshot("card-nuvio-landscape.png", { maxDiffPixelRatio: 0.10 })
   })
 
-  test("stremio landscape, rank 1 — screenshot", async ({ page }) => {
+  test("stremio landscape, rank 1 â€” screenshot", async ({ page }) => {
     const url = cardUrl({
       backdrop: BACKDROP_PATH,
       shape: "landscape",
@@ -180,7 +180,7 @@ test.describe("card layouts — visual regression (3 skins × 2 shapes)", () => 
     await expect(poster).toHaveScreenshot("card-stremio-landscape.png", { maxDiffPixelRatio: 0.10 })
   })
 
-  test("provider-glass portrait, rank 4 — screenshot (clean-4 regression)", async ({ page }) => {
+  test("provider-glass portrait, rank 4 â€” screenshot (clean-4 regression)", async ({ page }) => {
     const url = cardUrl(
       {
         genreName: "Action",
@@ -200,7 +200,7 @@ test.describe("card layouts — visual regression (3 skins × 2 shapes)", () => 
     await expect(poster).toHaveScreenshot("card-provider-glass-portrait-rank4.png", { maxDiffPixelRatio: 0.10 })
   })
 
-  test("provider-glass landscape, rank 4 — screenshot (clean-4 regression)", async ({ page }) => {
+  test("provider-glass landscape, rank 4 â€” screenshot (clean-4 regression)", async ({ page }) => {
     const url = cardUrl(
       {
         backdrop: BACKDROP_PATH,
@@ -223,7 +223,7 @@ test.describe("card layouts — visual regression (3 skins × 2 shapes)", () => 
   })
 })
 
-test.describe("card layouts — scope and rank contracts", () => {
+test.describe("card layouts â€” scope and rank contracts", () => {
   const base = { genreName: "Action", voteAverage: "7.8", badges: "1", ranking: "0" }
 
   test("ranked default without a rank falls back to byte-identical Standard", async ({ request }) => {
@@ -270,7 +270,7 @@ test.describe("card layouts — scope and rank contracts", () => {
     expect(Buffer.from(await cardLandRes.body()).equals(Buffer.from(await stdLandRes.body()))).toBe(false)
   })
 
-  test("rank 11 renders Card (differs from Standard) in both shapes — double-digit regression", async ({ request }) => {
+  test("rank 11 renders Card (differs from Standard) in both shapes â€” double-digit regression", async ({ request }) => {
     // The old gutter-fit shrank portrait doubles to ~91px ("tiny 11"): an
     // explicit rank-11 Card must differ from Standard in BOTH shapes (the
     // condensed double numeral paints at reference height, never a shrink).
@@ -291,7 +291,7 @@ test.describe("card layouts — scope and rank contracts", () => {
 
   test("the three skins render distinctly from each other (same rank)", async ({ request }) => {
     // Avatar carries the deterministic mock trendRank 1, so the rank channel
-    // is identical for all three — bytes isolate the skin.
+    // is identical for all three â€” bytes isolate the skin.
     const baseRanked = { ...base, ranking: "1", layout: "standard" }
     const stdBuf = Buffer.from(await (await request.get(cardUrl(baseRanked))).body())
     const skins = ["provider-glass", "nuvio", "stremio"] as const
@@ -309,11 +309,11 @@ test.describe("card layouts — scope and rank contracts", () => {
   })
 })
 
-test.describe("card layouts — settings selection (portrait + landscape)", () => {
+test.describe("card layouts â€” settings selection (portrait + landscape)", () => {
   // Isolation: this UI test writes posterLayout/posterFreshScope through the
   // debounced autosave. Capture the pre-test server state, seed a
   // deterministic start, and restore the captured state in afterEach (PUT +
-  // unmount + verify of OUR managed keys only — never a shared-data wipe).
+  // unmount + verify of OUR managed keys only â€” never a shared-data wipe).
   const CARD_SEED = {
     posterLayout: "standard",
     posterFreshScope: "ranked",
@@ -352,9 +352,9 @@ test.describe("card layouts — settings selection (portrait + landscape)", () =
     await page.addInitScript(() => {
       try {
         localStorage.clear()
-        localStorage.setItem("pictorium_profile_id", "e2e-card-layout")
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", "e2e-card-layout")
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", "it")
         localStorage.setItem("tmdb_key", "")
       } catch {}
@@ -374,7 +374,7 @@ test.describe("card layouts — settings selection (portrait + landscape)", () =
     cardBaseline = null
     // Settle the trailing debounced autosave BEFORE the restore PUT: the last
     // UI action of the test restores Standard, so await that flush (no fixed
-    // sleeps — the debounce is 500ms, the poll observes its effect).
+    // sleeps â€” the debounce is 500ms, the poll observes its effect).
     await waitDefaults(page, (d) => d.posterLayout === "standard").catch(() => null)
     await page.goto("/")
     // Merge cannot delete keys: materialize OUR managed landscape keys with
@@ -471,7 +471,7 @@ test.describe("card layouts — settings selection (portrait + landscape)", () =
     // Landscape edit target keeps shape isolation (never follows the flat).
     // Strict shape independence: a PORTRAIT Card pick freezes the pre-edit
     // landscape look (previous STANDARD) into the profile instead of following
-    // the flat — production must NOT be changed to follow the flat again. So
+    // the flat â€” production must NOT be changed to follow the flat again. So
     // after the portrait Nuvio pick above, landscape is expected to stay
     // Standard (skins hidden); the Card skin is then selected EXPLICITLY in
     // the landscape target below.
@@ -533,3 +533,4 @@ test.describe("card layouts — settings selection (portrait + landscape)", () =
     await saveStaged(page)
   })
 })
+

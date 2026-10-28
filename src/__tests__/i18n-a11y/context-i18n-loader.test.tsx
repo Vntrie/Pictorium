@@ -9,14 +9,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 vi.unmock("@/lib/i18n")
 
 import { StrictMode, useEffect } from "react"
-import { PictoriumRoot, useP, type PictoriumCtx } from "@/lib/context"
+import { FlameForgeRoot, useP, type FlameForgeCtx } from "@/lib/context"
 import { usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import { createT, getLang, resolveLabelFor, setLang } from "@/lib/i18n"
 import frDict from "@/lib/translations/fr.json"
 import deDict from "@/lib/translations/de.json"
 import ptDict from "@/lib/translations/pt.json"
 
-let ctx: PictoriumCtx | null = null
+let ctx: FlameForgeCtx | null = null
 let editorRegion: string | null = null
 
 function Probe() {
@@ -68,9 +68,9 @@ describe("context i18n loader integration (real dictionaries)", () => {
     localStorage.setItem("badgeDefaults", JSON.stringify({ region: "IT" }))
     localStorage.setItem("preferred_lang", "fr")
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     // The fr chunk resolves via dynamic import outside microtasks: poll for
     // the commit (same eventual predicate as the tests below) instead of a
@@ -89,9 +89,9 @@ describe("context i18n loader integration (real dictionaries)", () => {
   it("pickLang non-default loads first, then applies lang/global/region together", async () => {
     localStorage.setItem("badgeDefaults", JSON.stringify({ region: "IT" }))
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     expect(ctx!.lang).toBe("it")
@@ -119,9 +119,9 @@ describe("context i18n loader integration (real dictionaries)", () => {
     localStorage.setItem("preferred_lang", "pt")
     render(
       <StrictMode>
-        <PictoriumRoot>
+        <FlameForgeRoot>
           <Probe />
-        </PictoriumRoot>
+        </FlameForgeRoot>
       </StrictMode>,
     )
     await vi.waitFor(() => expect(ctx!.lang).toBe("pt"))
@@ -133,9 +133,9 @@ describe("context i18n loader integration (real dictionaries)", () => {
 
   it("it/en stay synchronous", async () => {
     render(
-      <PictoriumRoot>
+      <FlameForgeRoot>
         <Probe />
-      </PictoriumRoot>,
+      </FlameForgeRoot>,
     )
     await flush()
     await act(async () => {
@@ -149,3 +149,5 @@ describe("context i18n loader integration (real dictionaries)", () => {
     expect(ctx!.lang).toBe("it")
   })
 })
+
+

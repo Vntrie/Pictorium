@@ -1,8 +1,8 @@
 // Test della coda bounded del limiter render (F5, opzionale): con
-// POSTERIUM_RENDER_QUEUE=N, i waiter oltre N ricevono 503 immediato.
+// FLAMEFORGE_RENDER_QUEUE=N, i waiter oltre N ricevono 503 immediato.
 // Env impostata PRIMA del dynamic import (letture a module level).
-process.env.POSTERIUM_RENDER_QUEUE = "1"
-process.env.POSTERIUM_RENDER_SLOT_WAIT_MS = "500"
+process.env.FLAMEFORGE_RENDER_QUEUE = "1"
+process.env.FLAMEFORGE_RENDER_SLOT_WAIT_MS = "500"
 
 import { afterEach, describe, expect, it } from "vitest"
 
@@ -41,3 +41,4 @@ describe("bounded render queue", () => {
     releases.slice(1).forEach((r) => r())
   })
 })
+

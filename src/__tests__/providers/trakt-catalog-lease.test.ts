@@ -44,15 +44,15 @@ const ACCESS_A = "lease-test-access-token-alpha-0123456789"
 const REFRESH_A = "lease-test-refresh-token-alpha-0123456789"
 
 const ENV_KEYS = [
-  "PICTORIUM_DATA_DIR",
+  "FLAMEFORGE_DATA_DIR",
   "PROFILE_ENCRYPTION_KEY",
-  "PICTORIUM_TRAKT_CLIENT_ID",
-  "POSTERIUM_TRAKT_CLIENT_ID",
+  "FLAMEFORGE_TRAKT_CLIENT_ID",
+  "FLAMEFORGE_TRAKT_CLIENT_ID",
   "TRAKT_CLIENT_ID",
-  "PICTORIUM_TRAKT_CLIENT_SECRET",
-  "POSTERIUM_TRAKT_CLIENT_SECRET",
-  "PICTORIUM_TRAKT_REDIRECT_URI",
-  "POSTERIUM_TRAKT_REDIRECT_URI",
+  "FLAMEFORGE_TRAKT_CLIENT_SECRET",
+  "FLAMEFORGE_TRAKT_CLIENT_SECRET",
+  "FLAMEFORGE_TRAKT_REDIRECT_URI",
+  "FLAMEFORGE_TRAKT_REDIRECT_URI",
   "KV_REST_API_URL",
   "KV_REST_API_TOKEN",
 ] as const
@@ -62,16 +62,16 @@ let tempDir: string | undefined
 beforeEach(async () => {
   savedEnv = {}
   for (const k of ENV_KEYS) savedEnv[k] = process.env[k]
-  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-lease-"))
-  process.env.PICTORIUM_DATA_DIR = tempDir
+  tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-lease-"))
+  process.env.FLAMEFORGE_DATA_DIR = tempDir
   process.env.PROFILE_ENCRYPTION_KEY = crypto.randomBytes(32).toString("hex")
-  delete process.env.PICTORIUM_TRAKT_CLIENT_ID
-  delete process.env.POSTERIUM_TRAKT_CLIENT_ID
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_ID
   delete process.env.TRAKT_CLIENT_ID
-  delete process.env.PICTORIUM_TRAKT_CLIENT_SECRET
-  delete process.env.POSTERIUM_TRAKT_CLIENT_SECRET
-  delete process.env.PICTORIUM_TRAKT_REDIRECT_URI
-  delete process.env.POSTERIUM_TRAKT_REDIRECT_URI
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
+  delete process.env.FLAMEFORGE_TRAKT_CLIENT_SECRET
+  delete process.env.FLAMEFORGE_TRAKT_REDIRECT_URI
+  delete process.env.FLAMEFORGE_TRAKT_REDIRECT_URI
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
   genMock.impl = null
@@ -200,3 +200,5 @@ describe("getTraktCatalogLease: coherent token+generation snapshot (task 4 corre
     await expect(trakt.getTraktCatalogLease("not-a-uuid")).rejects.toThrow()
   })
 })
+
+

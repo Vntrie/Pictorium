@@ -101,3 +101,4 @@ describe("TraktCallbackNotice", () => {
     expect(setSettingsOpen).not.toHaveBeenCalled()
   })
 })
+

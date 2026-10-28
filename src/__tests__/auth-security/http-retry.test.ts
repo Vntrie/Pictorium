@@ -189,3 +189,4 @@ describe("http retry", () => {
     expect(getStoredUserToken(UUID_B)).toBe("token-B")
   })
 })
+

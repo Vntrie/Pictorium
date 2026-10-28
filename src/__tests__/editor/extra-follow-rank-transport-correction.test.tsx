@@ -22,7 +22,7 @@ import { buildPreviewUrl } from "@/lib/poster-url"
 import { buildStremioPosterUrl } from "@/lib/stremio-poster-url"
 import { mappingSchema } from "@/lib/validation"
 import type { Mapping } from "@/lib/types"
-import type { PictoriumUserConfig } from "@/lib/config-token"
+import type { FlameForgeUserConfig } from "@/lib/config-token"
 
 const noop = () => {}
 
@@ -168,7 +168,7 @@ const mapping = (partial: Partial<Mapping> = {}): Mapping => ({
   ...partial,
 })
 
-const token = (partial: Partial<PictoriumUserConfig> = {}): PictoriumUserConfig => ({
+const token = (partial: Partial<FlameForgeUserConfig> = {}): FlameForgeUserConfig => ({
   globalBadges: true, rankingBadges: true, badgeStyle: "shadow",
   rankingBadgeStyle: "default",
   blurEnabled: true, blurIntensity: 20, blurFade: 50, blurDarkness: 30,
@@ -322,3 +322,5 @@ describe("follow-rank transport correction: real save + production reload", () =
     })).extraBadgeStyle).toBe("pill")
   })
 })
+
+

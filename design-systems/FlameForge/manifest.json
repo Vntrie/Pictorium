@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "od-design-system-project/v1",
+  "id": "FlameForge",
+  "name": "FlameForge",
+  "category": "Media & Entertainment",
+  "description": "Dark glassmorphism design system for FlameForge, the Stremio poster manager: near-black layered surfaces, warm orange accent (#e85d2a), adaptive accent theming driven by poster colors, compact dense UI.",
+  "source": {
+    "type": "user",
+    "origin": "FlameForge repository (github.com/Eful97/FlameForge) v0.15.2 â€” extracted from src/app/globals.css and DESIGN.md. Regenerate from the source repo; values must stay in sync with globals.css."
+  },
+  "files": {
+    "design": "DESIGN.md",
+    "tokens": "tokens.css"
+  }
+}
+

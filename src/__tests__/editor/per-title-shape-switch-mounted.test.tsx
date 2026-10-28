@@ -16,7 +16,7 @@ import { render, act, screen, waitFor } from "@testing-library/react"
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import userEvent from "@testing-library/user-event"
 import { MOCK_CTX } from "@/__tests__/test-utils"
-import { PictoriumProvider } from "@/lib/context"
+import { FlameForgeProvider } from "@/lib/context"
 import { PosterEditorProvider, usePosterEditor } from "@/lib/contexts/PosterEditorContext"
 import type { PosterEditorCtx } from "@/lib/contexts/PosterEditorContext"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
@@ -47,10 +47,10 @@ function renderSwitchableEditor(first: Record<string, unknown>) {
     return (
       <ThemeProvider>
         <PosterEditorProvider>
-          <PictoriumProvider value={value}>
+          <FlameForgeProvider value={value}>
             <EditView />
             <SwitchProbe />
-          </PictoriumProvider>
+          </FlameForgeProvider>
         </PosterEditorProvider>
       </ThemeProvider>
     )
@@ -346,3 +346,5 @@ describe("mounted EditView badge shape-switch independence (real handler)", () =
     expect(editor().videoFormats).toEqual(["hdr"])
   })
 })
+
+

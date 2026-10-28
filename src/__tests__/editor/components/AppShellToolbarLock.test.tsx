@@ -79,3 +79,4 @@ describe("toolbar lock pre-auth", () => {
     expect(proxyBtns.length).toBeGreaterThanOrEqual(2)
   })
 })
+

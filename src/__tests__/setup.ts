@@ -1,4 +1,4 @@
-import { expect, afterEach, vi } from "vitest"
+﻿import { expect, afterEach, vi } from "vitest"
 import { cleanup } from "@testing-library/react"
 import * as matchers from "@testing-library/jest-dom/matchers"
 
@@ -18,9 +18,28 @@ vi.mock("next/font/google", () => {
   }
 })
 
+// Stub scroll methods that JSDOM does not implement
+Object.defineProperty(window, 'scrollTo', { value: vi.fn(), writable: true });
+Object.defineProperty(window, 'scroll', { value: vi.fn(), writable: true });
+
+// Stub matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
 // I test simulano un'istanza pubblica (route admin aperte senza ADMIN_TOKEN):
-// la modalità deve essere esplicita via POSTERIUM_PUBLIC_INSTANCE=1 (vedi auth.ts).
-process.env.POSTERIUM_PUBLIC_INSTANCE = "1"
+// la modalitÃ  deve essere esplicita via FLAMEFORGE_PUBLIC_INSTANCE=1 (vedi auth.ts).
+process.env.FLAMEFORGE_PUBLIC_INSTANCE = "1"
 
 // Node >=25 defines a global `localStorage` accessor that returns undefined
 // without --localstorage-file (ExperimentalWarning). Since it is an
@@ -52,9 +71,9 @@ afterEach(() => {
   vi.unstubAllEnvs()
   _resetPinCache()
   // Stato fetch TMDB (negative cache 401) isolato tra i test: senza, un 401
-  // reale (mock esauriti → rete) marchierebbe la chiave per i test seguenti.
+  // reale (mock esauriti â†’ rete) marchierebbe la chiave per i test seguenti.
   __resetKey401Cache()
-  process.env.POSTERIUM_PUBLIC_INSTANCE = "1"
+  process.env.FLAMEFORGE_PUBLIC_INSTANCE = "1"
 })
 
 const itDict: Record<string, string> = {
@@ -71,7 +90,7 @@ const itDict: Record<string, string> = {
   "badge.miniseries": "Miniserie",
   "badge.trueStory": "Tratto da una storia vera",
   "badge.basedOnBook": "Tratto da un libro",
-  "badge.nextEpisode": "Nuovo episodio · {date}",
+  "badge.nextEpisode": "Nuovo episodio Â· {date}",
   "badge.onlyEpisodes": "Solo {n} episodi",
   "badge.returning": "Ritorna",
   "badge.justAddedMovie": "Appena aggiunto",
@@ -81,14 +100,14 @@ const itDict: Record<string, string> = {
   "ui.deleteFailed": "Errore nella cancellazione di {count} poster",
   "ui.loadingCatalogs": "Caricamento cataloghi...",
   "ui.confirmDelete": "Eliminare questo poster?",
-  "ui.confirmDeleteMsg": "Vuoi eliminare {title}? Non può essere annullata.",
+  "ui.confirmDeleteMsg": "Vuoi eliminare {title}? Non puÃ² essere annullata.",
   "ui.confirmDeleteSelected": "Eliminare {count} poster selezionati?",
-  "ui.confirmDeleteSelectedMsg": "Questa azione rimuoverà {count} poster selezionati. Non può essere annullata.",
+  "ui.confirmDeleteSelectedMsg": "Questa azione rimuoverÃ  {count} poster selezionati. Non puÃ² essere annullata.",
   "ui.retry": "Riprova",
   "ui.close": "Chiudi",
   "ui.back": "Indietro",
   "ui.next": "Avanti",
-  "ui.errorDefaultTitle": "Qualcosa è andato storto",
+  "ui.errorDefaultTitle": "Qualcosa Ã¨ andato storto",
   "ui.errorUnknown": "Errore sconosciuto",
   "ui.onboardingStart": "Inizia!",
   "ui.onboardingSkip": "Salta tutorial",
@@ -96,13 +115,13 @@ const itDict: Record<string, string> = {
   "ui.addonProxy": "Addon Proxy",
   "ui.scrollLeft": "Scorri a sinistra",
   "ui.scrollRight": "Scorri a destra",
-  "ui.statusTmdbUnavailable": "Servizio TMDB non disponibile — alcuni dati potrebbero essere incompleti",
+  "ui.statusTmdbUnavailable": "Servizio TMDB non disponibile â€” alcuni dati potrebbero essere incompleti",
   "ui.rename": "Rinomina",
   "ui.collectionNamePh": "Nome collezione",
   "ui.collectionOptions": "Opzioni collezione",
   "ui.posterWithLogo": "Poster con logo",
   "ui.cleanPoster": "Poster pulito",
-  "ui.emptyPostersSub": "Nessun poster salvato. Personalizza un poster dai cataloghi e apparirà qui.",
+  "ui.emptyPostersSub": "Nessun poster salvato. Personalizza un poster dai cataloghi e apparirÃ  qui.",
   "ui.backdrops": "Sfondi",
   "ui.testStremioUrl": "Testa URL Stremio",
   "ui.emptyCollectionTitle": "Nessuna collezione",
@@ -112,7 +131,7 @@ const itDict: Record<string, string> = {
   "ui.confirmDeleteCollection": "Elimina collezione",
   "ui.confirmDeleteCollectionMsg": "Eliminare \"{name}\"?",
   "ui.savedOn": "Salvato il",
-  "ui.noCollections": "Questo poster non è in nessuna collezione.",
+  "ui.noCollections": "Questo poster non Ã¨ in nessuna collezione.",
   "ui.openInEditor": "Apri nell'editor",
   "ui.profileLoaded": "Profilo caricato con successo!",
   "ui.loadError": "Errore di caricamento",
@@ -120,7 +139,7 @@ const itDict: Record<string, string> = {
   "ui.profileUnlock": "Accedi",
   "ui.continueWithoutProfile": "Continua senza profilo",
   "ui.proxyTitle": "Generatore Addon Proxy",
-  "ui.proxySubtitle": "Inietta i poster di Pictorium in qualsiasi Add-on Stremio",
+  "ui.proxySubtitle": "Inietta i poster di FlameForge in qualsiasi Add-on Stremio",
   "ui.proxyPasteLabel": "Incolla il link manifest.json dell'Add-on originale:",
   "ui.proxyPresets": "Preset rapidi:",
   "ui.proxyGeneratedLabel": "URL Addon Proxy generato:",
@@ -131,7 +150,7 @@ const itDict: Record<string, string> = {
   "ui.uuidGenerating": "Generazione UUID...",
   "ui.copyUuid": "Copia UUID",
   "ui.aiomLinkTitle": "Link per AIO e custom URL:",
-  "ui.aiomLinkDesc": "Usa questo template URL nei campi AIOMetadata o Custom URL della tua app o add-on per visualizzare i poster di Pictorium:",
+  "ui.aiomLinkDesc": "Usa questo template URL nei campi AIOMetadata o Custom URL della tua app o add-on per visualizzare i poster di FlameForge:",
   "ui.copyUrl": "Copia URL",
   "ui.copyUrlTooltip": "Copia l'URL del poster personalizzato da usare in AIOMetadata o Stremio",
   "ui.existingProfileUuid": "UUID Profilo Esistente",
@@ -173,13 +192,13 @@ const itDict: Record<string, string> = {
   "ui.setupPinStremioNotice": "Manifest e poster Stremio restano aperti",
   "ui.spacesUsedOf": "{used}/{max} spazi ({active} attivi)",
   "ui.spacesUsed": "{used} spazi ({active} attivi)",
-  "ui.changelogTitle": "Cosa c'è di nuovo",
-  "ui.changelogFeature": "Novità",
+  "ui.changelogTitle": "Cosa c'Ã¨ di nuovo",
+  "ui.changelogFeature": "NovitÃ ",
   "ui.changelogPerf": "Performance",
   "ui.changelogFix": "Fix",
   "ui.changelogRecent": "Aggiornamenti recenti",
   "ui.hostedByToggle": "Info sponsor: ElfHosted",
-  "ui.hostedByTitle": "Ospitato da {name} ❤️",
+  "ui.hostedByTitle": "Ospitato da {name} â¤ï¸",
   "ui.hostedByShared": "Condividi gli slot di rendering e la cache con tutti gli altri.",
   "ui.hostedByElfhosted": "ElfHosted",
   "ui.hostedByDeploy": "Crea la tua istanza privata su ElfHosted",
@@ -209,7 +228,7 @@ const itDict: Record<string, string> = {
   "ui.tagNextEpisode": "Prossimo episodio",
   "ui.tagSubgenresAll": "Tutti i sottogeneri",
   "ui.tmdbFallbackNetworks": "Altri loghi",
-  "ui.tmdbFallbackHint": "Marchi secondari integrati più loghi di studio e network da TMDB per i titoli senza marchio in evidenza. Spegnerlo non nasconde mai i marchi in evidenza qui sopra.",
+  "ui.tmdbFallbackHint": "Marchi secondari integrati piÃ¹ loghi di studio e network da TMDB per i titoli senza marchio in evidenza. Spegnerlo non nasconde mai i marchi in evidenza qui sopra.",
   "ui.otherNetworksMixedHint": "Alcuni marchi secondari restano disattivati singolarmente. Spegni e riaccendi il gruppo per riabilitarli tutti.",
 }
 
@@ -241,3 +260,4 @@ vi.mock("@/lib/i18n", async (importOriginal) => {
     BADGE_KEY_PREFIX: "__",
   }
 })
+

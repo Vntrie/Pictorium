@@ -1,9 +1,9 @@
-import { captureVisualPreset, type VisualPresetValues } from "./visual-presets"
+﻿import { captureVisualPreset, type VisualPresetValues } from "./visual-presets"
 
 /**
  * Built-in 1-click completi (snapshot fedeli dei backup utente BetterPoster e
  * RPDB, solo sottoinsieme visuale; Apple dal preset-export condiviso
- * `pictorium-visual-preset-apple.json`). Single source: BadgeDefaultsSection li
+ * `FlameForge-visual-preset-apple.json`). Single source: BadgeDefaultsSection li
  * applica via `ed.applyVisualPreset` senza duplicare i parametri.
  *
  * Provenienza: `defaults` dei due JSON (coincidenti con `local.badgeDefaults`
@@ -11,7 +11,7 @@ import { captureVisualPreset, type VisualPresetValues } from "./visual-presets"
  * mappings per-titolo, alias,
  * preset utente, cataloghi, endpoint/chiavi custom rating, region, lingue,
  * gradienti custom locali. `ratingSources` preserva la lista esatta a 16
- * (preferenze/priorità): il renderer mostra al max MAX_SEPARATE_RATINGS=5.
+ * (preferenze/prioritÃ ): il renderer mostra al max MAX_SEPARATE_RATINGS=5.
  */
 
 export const BETTER_POSTER_PRESET_LABEL = "BetterPoster"
@@ -135,7 +135,7 @@ export const RPDB_VISUAL_DEFAULTS: VisualPresetValues = captureVisualPreset({
 } as unknown as VisualPresetValues)
 
 /**
- * Snapshot Apple (fedele a `pictorium-visual-preset-apple.json`, entry
+ * Snapshot Apple (fedele a `FlameForge-visual-preset-apple.json`, entry
  * `Apple`): badge minimal, rank `number` + nastro, logo network on, blur
  * leggero, tinta zero. I flat servono il portrait, il `landscape` nested
  * l'orizzontale (es. `genreBadgeOffsetY` -40 vs 0, `blurFade` 50 vs 100,
@@ -264,7 +264,7 @@ export const FRESH_PRESET_LABEL = "Fresh"
  * age fills the canonical OFF/IT/standard, extra stays legacy null
  * (follow own rank). Landscape keeps the file's own profile numbers
  * (grade 50, blur 1/100/100, tint 0, rank `number`, quality `color`,
- * extra `follow-rank`) — never a copy of the portrait flats.
+ * extra `follow-rank`) â€” never a copy of the portrait flats.
  * `captureVisualPreset` validates at import: drift from the export fails
  * fast, never a silent apply. Single canonical source for the Fresh
  * thumbnail/apply/highlight (no second renderer, no RENDER_VERSION bump).
@@ -403,3 +403,4 @@ export const FRESH_VISUAL_DEFAULTS: VisualPresetValues =
       posterFreshScope: "ranked",
     },
   } as VisualPresetValues)
+

@@ -366,3 +366,4 @@ describe("fetchCustomRankingTop20", () => {
     expect(mockedFindByImdb).not.toHaveBeenCalled()
   })
 })
+

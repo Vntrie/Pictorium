@@ -1,4 +1,4 @@
-// Pictorium env tuner — stima variabili ottimizzate per la macchina corrente.
+﻿// FlameForge env tuner â€” stima variabili ottimizzate per la macchina corrente.
 //
 // Livello 1 (default, istantaneo, zero carico): euristica da CPU/RAM/limiti
 // container sui default reali del codice (poster-runtime-cache.ts,
@@ -31,12 +31,12 @@ import { fileURLToPath } from "node:url"
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 
 const TUNED_KEYS = [
-  "PICTORIUM_MAX_CONCURRENT_RENDERS",
+  "FLAMEFORGE_MAX_CONCURRENT_RENDERS",
   "SHARP_CONCURRENCY",
   "SHARP_CACHE_MEMORY_MB",
-  "PICTORIUM_CACHE_MAX_MB",
-  "PICTORIUM_CACHE_MAX",
-  "PICTORIUM_IMG_CACHE_MB",
+  "FLAMEFORGE_CACHE_MAX_MB",
+  "FLAMEFORGE_CACHE_MAX",
+  "FLAMEFORGE_IMG_CACHE_MB",
 ]
 
 function parseArgs(argv) {
@@ -87,7 +87,7 @@ function parseArgs(argv) {
   return o
 }
 
-const HELP = `Pictorium env tuner
+const HELP = `FlameForge env tuner
 Uso: node scripts/tune-env.mjs [flag]
   --bench            sweep dinamico su istanza isolata (altrimenti solo euristica)
   --bench-n N        richieste per candidato (default 20, 8-60)
@@ -108,7 +108,7 @@ Esempi:
 // --- Rilevamento host -------------------------------------------------------
 
 function readContainerLimitMb() {
-  // Solo Linux: altrove i file non esistono → null senza errori.
+  // Solo Linux: altrove i file non esistono â†’ null senza errori.
   const files = [
     "/sys/fs/cgroup/memory.max", // cgroup v2: numero o "max"
     "/sys/fs/cgroup/memory/memory.limit_in_bytes", // cgroup v1
@@ -183,7 +183,7 @@ export function recommend(host) {
   if (host.inDocker) reasons.push("rilevato /.dockerenv")
   if (host.vercel) reasons.push("ambiente Vercel: timeout/slot hobby-safe")
   if (host.hostMismatchRisk) {
-    reasons.push("ATTENZIONE: su macOS/Windows la RAM host sovrastima il container — riusa con --mem-mb o gira dentro il container")
+    reasons.push("ATTENZIONE: su macOS/Windows la RAM host sovrastima il container â€” riusa con --mem-mb o gira dentro il container")
   }
 
   // sharp: mai sopra le CPU; sui piccoli 1 thread (i render si sovrappongono in I/O).
@@ -218,13 +218,13 @@ export function recommend(host) {
       nodeOldSpaceMb: mem >= 16384 ? 2048 : 1024,
     }
   }
-  // NODE heap mai oltre metà RAM effettiva (il resto serve a sharp nativo+RSS).
+  // NODE heap mai oltre metÃ  RAM effettiva (il resto serve a sharp nativo+RSS).
   rec.nodeOldSpaceMb = Math.min(rec.nodeOldSpaceMb, Math.max(256, Math.floor(mem * 0.5)))
   return {
     tier,
     ...rec,
     // Default codice: 15000 (7500 su Vercel); 30000 (8500 su Vercel). Il tuner
-    // non li tocca fuori Vercel: allungare l'attesa è memory-neutral ma è
+    // non li tocca fuori Vercel: allungare l'attesa Ã¨ memory-neutral ma Ã¨
     // policy, non sizing macchina.
     renderSlotWaitMs: host.vercel ? 7500 : 15000,
     renderTimeoutMs: host.vercel ? 8500 : 30000,
@@ -262,26 +262,26 @@ export function parseCandidates(raw, fallback) {
 
 function envBlock(rec) {
   return [
-    `# Pictorium tuning — ${rec.tier} (generato ${new Date().toISOString()}, non editare a mano: riusa tune-env.mjs)`,
-    `PICTORIUM_MAX_CONCURRENT_RENDERS=${rec.maxConcurrentRenders}`,
+    `# FlameForge tuning â€” ${rec.tier} (generato ${new Date().toISOString()}, non editare a mano: riusa tune-env.mjs)`,
+    `FLAMEFORGE_MAX_CONCURRENT_RENDERS=${rec.maxConcurrentRenders}`,
     `SHARP_CONCURRENCY=${rec.sharpConcurrency}`,
     `SHARP_CACHE_MEMORY_MB=${rec.sharpCacheMemoryMb}`,
-    `PICTORIUM_CACHE_MAX_MB=${rec.cacheMaxMb}`,
-    `PICTORIUM_CACHE_MAX=${rec.cacheMaxEntries}`,
-    `PICTORIUM_IMG_CACHE_MB=${rec.imgCacheMb}`,
+    `FLAMEFORGE_CACHE_MAX_MB=${rec.cacheMaxMb}`,
+    `FLAMEFORGE_CACHE_MAX=${rec.cacheMaxEntries}`,
+    `FLAMEFORGE_IMG_CACHE_MB=${rec.imgCacheMb}`,
     `# NODE heap: avvia con NODE_OPTIONS=--max-old-space-size=${rec.nodeOldSpaceMb} (richiede restart, non va in .env)`,
   ].join("\n")
 }
 
 function mergeIntoEnvFile(filePath, rec) {
-  const header = `# Pictorium tuning — ${rec.tier} (${new Date().toISOString()})`
+  const header = `# FlameForge tuning â€” ${rec.tier} (${new Date().toISOString()})`
   const values = {
-    PICTORIUM_MAX_CONCURRENT_RENDERS: String(rec.maxConcurrentRenders),
+    FLAMEFORGE_MAX_CONCURRENT_RENDERS: String(rec.maxConcurrentRenders),
     SHARP_CONCURRENCY: String(rec.sharpConcurrency),
     SHARP_CACHE_MEMORY_MB: String(rec.sharpCacheMemoryMb),
-    PICTORIUM_CACHE_MAX_MB: String(rec.cacheMaxMb),
-    PICTORIUM_CACHE_MAX: String(rec.cacheMaxEntries),
-    PICTORIUM_IMG_CACHE_MB: String(rec.imgCacheMb),
+    FLAMEFORGE_CACHE_MAX_MB: String(rec.cacheMaxMb),
+    FLAMEFORGE_CACHE_MAX: String(rec.cacheMaxEntries),
+    FLAMEFORGE_IMG_CACHE_MB: String(rec.imgCacheMb),
   }
   let lines = []
   try {
@@ -293,14 +293,14 @@ function mergeIntoEnvFile(filePath, rec) {
   const out = []
   let sawHeader = false
   for (const line of lines) {
-    const m = line.match(/^\s*(PICTORIUM_MAX_CONCURRENT_RENDERS|SHARP_CONCURRENCY|SHARP_CACHE_MEMORY_MB|PICTORIUM_CACHE_MAX_MB|PICTORIUM_CACHE_MAX|PICTORIUM_IMG_CACHE_MB)\s*=/)
+    const m = line.match(/^\s*(FLAMEFORGE_MAX_CONCURRENT_RENDERS|SHARP_CONCURRENCY|SHARP_CACHE_MEMORY_MB|FLAMEFORGE_CACHE_MAX_MB|FLAMEFORGE_CACHE_MAX|FLAMEFORGE_IMG_CACHE_MB)\s*=/)
     if (m && wanted.has(m[1])) {
       out.push(`${m[1]}=${values[m[1]]}`)
       wanted.delete(m[1])
     } else {
       out.push(line)
     }
-    if (line.includes("Pictorium tuning")) sawHeader = true
+    if (line.includes("FlameForge tuning")) sawHeader = true
   }
   for (const k of TUNED_KEYS) {
     if (wanted.has(k)) out.push(`${k}=${values[k]}`)
@@ -357,7 +357,7 @@ async function benchCandidate({ appUrl, n, baseId }) {
 }
 
 function pickWinner(rows) {
-  // Primario: zero errori; poi zero 503; poi p95; a parità (entro 20%) vince lo
+  // Primario: zero errori; poi zero 503; poi p95; a paritÃ  (entro 20%) vince lo
   // slot minore (meno RAM per lo stesso servizio).
   const usable = rows.filter((r) => r.ok > 0)
   if (usable.length === 0) return { winner: null, reason: "nessun poster servito" }
@@ -378,9 +378,9 @@ function pickWinner(rows) {
 }
 
 async function runBench({ rec, host, candidates, benchN, port, mockPort, log }) {
-  const remote = process.env.PICTORIUM_BASE_URL || process.env.POSTERIUM_BASE_URL
+  const remote = process.env.FLAMEFORGE_BASE_URL || process.env.FLAMEFORGE_BASE_URL
   if (remote) {
-    throw new Error("PICTORIUM_BASE_URL impostato: il bench cambia env per candidato e richiede un'istanza isolata (togli BASE_URL)")
+    throw new Error("FLAMEFORGE_BASE_URL impostato: il bench cambia env per candidato e richiede un'istanza isolata (togli BASE_URL)")
   }
   const mockUrl = `http://127.0.0.1:${mockPort}`
   const appUrl = `http://127.0.0.1:${port}`
@@ -390,7 +390,7 @@ async function runBench({ rec, host, candidates, benchN, port, mockPort, log }) 
   let baseId = 980001
   for (const slots of candidates) {
     const sharp = sharpForSlots(slots, host.cpus)
-    log(`candidate slot=${slots} sharp=${sharp} (${benchN} titoli freddi)…`)
+    log(`candidate slot=${slots} sharp=${sharp} (${benchN} titoli freddi)â€¦`)
     const children = []
     const spawnNode = (args, env) => {
       const c = spawn(process.execPath, args, { cwd: rootDir, env: { ...process.env, ...env }, stdio: ["ignore", "inherit", "inherit"] })
@@ -398,7 +398,7 @@ async function runBench({ rec, host, candidates, benchN, port, mockPort, log }) 
       return c
     }
     const killAll = () => {
-      for (const c of children) { try { c.kill() } catch { /* già uscito */ } }
+      for (const c of children) { try { c.kill() } catch { /* giÃ  uscito */ } }
     }
     try {
       spawnNode([path.join(rootDir, "e2e", "mock-server.mjs")], { MOCK_PORT: String(mockPort) })
@@ -406,19 +406,19 @@ async function runBench({ rec, host, candidates, benchN, port, mockPort, log }) 
       const dataDir = path.join(rootDir, ".next-tune", `data-${slots}`)
       spawnNode([nextBin, "dev", "-H", "127.0.0.1", "-p", String(port)], {
         NEXT_DIST_DIR: ".next-tune",
-        POSTERIUM_DATA_DIR: dataDir,
-        PICTORIUM_DATA_DIR: dataDir,
+        FLAMEFORGE_DATA_DIR: dataDir,
+        FLAMEFORGE_DATA_DIR: dataDir,
         NODE_OPTIONS: `--max-old-space-size=${rec.nodeOldSpaceMb}`,
         PORT: String(port),
         MAX_CONCURRENT_RENDERS: String(slots),
-        PICTORIUM_MAX_CONCURRENT_RENDERS: String(slots),
+        FLAMEFORGE_MAX_CONCURRENT_RENDERS: String(slots),
         SHARP_CONCURRENCY: String(sharp),
         SHARP_CACHE_MEMORY_MB: String(rec.sharpCacheMemoryMb),
-        PICTORIUM_CACHE_MAX_MB: String(rec.cacheMaxMb),
-        PICTORIUM_CACHE_MAX: String(rec.cacheMaxEntries),
-        PICTORIUM_IMG_CACHE_MB: String(rec.imgCacheMb),
+        FLAMEFORGE_CACHE_MAX_MB: String(rec.cacheMaxMb),
+        FLAMEFORGE_CACHE_MAX: String(rec.cacheMaxEntries),
+        FLAMEFORGE_IMG_CACHE_MB: String(rec.imgCacheMb),
         RATELIMIT_POSTER_MAX: "10000",
-        PICTORIUM_RATELIMIT_POSTER_MAX: "10000",
+        FLAMEFORGE_RATELIMIT_POSTER_MAX: "10000",
         TMDB_BASE_URL: `${mockUrl}/3`,
         TMDB_IMG_URL: `${mockUrl}/t/p`,
         NEXT_PUBLIC_TMDB_IMG_URL: `${mockUrl}/t/p`,
@@ -434,7 +434,7 @@ async function runBench({ rec, host, candidates, benchN, port, mockPort, log }) 
       }
       const m = await benchCandidate({ appUrl, n: benchN, baseId })
       rows.push({ slots, sharp, ...m })
-      log(`  → ok=${m.ok}/${benchN} 503=${m.busy} err=${m.errors} p50=${m.p50}ms p95=${m.p95}ms`)
+      log(`  â†’ ok=${m.ok}/${benchN} 503=${m.busy} err=${m.errors} p50=${m.p50}ms p95=${m.p95}ms`)
       baseId += 10000
     } finally {
       killAll()
@@ -477,7 +477,7 @@ async function main() {
       finalRec = { ...rec, maxConcurrentRenders: winner.slots, sharpConcurrency: winner.sharp }
       log(`vincitore: slot=${winner.slots} sharp=${winner.sharp} (${winnerReason})`)
     } else {
-      log(`WARN: ${winnerReason} — tengo l'euristica`)
+      log(`WARN: ${winnerReason} â€” tengo l'euristica`)
     }
   }
 
@@ -511,7 +511,7 @@ async function main() {
       console.log(`  slot=${r.slots} sharp=${r.sharp} ok=${r.ok} 503=${r.busy} err=${r.errors} p50=${r.p50}ms p95=${r.p95}ms${mark}`)
     }
     if (winner) console.log(`Scelta: ${winnerReason}`)
-    else console.log(`Scelta: ${winnerReason} → euristica`)
+    else console.log(`Scelta: ${winnerReason} â†’ euristica`)
   }
   console.log("\nVariabili consigliate (richiedono restart):\n")
   console.log(block)
@@ -532,3 +532,4 @@ if (invokedAsScript) {
     process.exit(1)
   })
 }
+

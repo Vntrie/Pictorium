@@ -108,3 +108,4 @@ describe("cachedImageBytes", () => {
     expect(s.evictions).toBeGreaterThan(0)
   })
 })
+

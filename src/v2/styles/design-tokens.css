@@ -1,0 +1,33 @@
+:root {
+  /* Obsidian/Charcoal Base */
+  --bg-dark: #0a0a0c;
+  --bg-panel: rgba(20, 20, 24, 0.7);
+
+  /* Flame Accents */
+  --accent-glow: 0 0 20px rgba(255, 100, 0, 0.3);
+  --accent-orange: #ff6400;
+  --accent-amber: #ffaa00;
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a5;
+
+  /* Borders */
+  --border-glass: rgba(255, 255, 255, 0.1);
+
+  /* Transitions */
+  --transition-fluid: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.cinematic-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}

@@ -473,7 +473,7 @@ describe("source adapters: liveCollect integration (mocked fetch)", () => {
   const realFetch = globalThis.fetch
   afterEach(() => {
     globalThis.fetch = realFetch
-    delete process.env.PICTORIUM_TMDB_KEY
+    delete process.env.FLAMEFORGE_TMDB_KEY
   })
 
   const emptySparql = () =>
@@ -562,3 +562,5 @@ describe("source adapters: liveCollect integration (mocked fetch)", () => {
     expect(pageHits).toBe(2)
   })
 })
+
+

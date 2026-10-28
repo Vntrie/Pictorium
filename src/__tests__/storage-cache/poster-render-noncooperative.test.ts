@@ -21,11 +21,11 @@
 // tests so the shared process.env stays consistent): RENDER_TIMEOUT 2s, one
 // slot, slot-wait 500ms, zombie grace 1s (clamp floor), negative-cache TTL 1s
 // (clamp floor, so the not-cached proof below runs fast).
-process.env.PICTORIUM_RENDER_TIMEOUT_MS = "2000"
-process.env.PICTORIUM_MAX_CONCURRENT_RENDERS = "1"
-process.env.PICTORIUM_RENDER_SLOT_WAIT_MS = "500"
-process.env.PICTORIUM_ZOMBIE_GRACE_MS = "1000"
-process.env.PICTORIUM_NEGATIVE_CACHE_TTL_MS = "1000"
+process.env.FLAMEFORGE_RENDER_TIMEOUT_MS = "2000"
+process.env.FLAMEFORGE_MAX_CONCURRENT_RENDERS = "1"
+process.env.FLAMEFORGE_RENDER_SLOT_WAIT_MS = "500"
+process.env.FLAMEFORGE_ZOMBIE_GRACE_MS = "1000"
+process.env.FLAMEFORGE_NEGATIVE_CACHE_TTL_MS = "1000"
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { NextRequest } from "next/server"
@@ -408,3 +408,5 @@ describe("non-cooperative renderer vs render watchdog (H1 fault injection + H2 f
     expect(mockedGenerate.mock.calls.length).toBe(1)
   })
 })
+
+

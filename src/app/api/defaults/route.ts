@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 import { getServerDefaultsChecked, setServerDefaults, getServerDefaultsForUser, getStoredUserDefaults, setServerDefaultsForUser, getInstanceEnvDefaults, type ServerDefaults } from "@/lib/server-defaults"
 import { cacheInvalidatePosterData } from "@/lib/cache"
 import { bumpCatalogEpoch } from "@/lib/catalog-epoch"
@@ -48,14 +48,14 @@ const customCatalogSchema = z.object({
 /**
  * Opt-in streaming selection (service + country). Bounds mirror the
  * contract in `streaming-catalogs.ts`: allowlisted service, free-form
- * country (sanitized fail-closed at every read — unknown never becomes
+ * country (sanitized fail-closed at every read â€” unknown never becomes
  * Italy), sections incl. `all` (mixed overall), optional source policy
  * (absent = `auto`) and feed variant (absent = base chart), max 200 entries
  * per space. Stored raw, sanitized at read like `region`.
  */
 const streamingSelectionSchema = z.object({
   // Loose like `region` on purpose: the allowlist + fail-closed normalization
-  // happen at every read (`sanitizeStreamingSelections`) — unknown services
+  // happen at every read (`sanitizeStreamingSelections`) â€” unknown services
   // never become another service, unknown countries never become Italy.
   service: z.string().max(64),
   country: z.string().max(64),
@@ -120,14 +120,14 @@ const defaultsSchema = z.object({
   badgeYear: z.boolean().optional(),
   badgeRating: z.boolean().optional(),
   badgeQuality: z.boolean().optional(),
-  /** Badge età testuale (default OFF). Flat portrait (il profilo
-   *  `landscape` sotto può divergere per forma). */
+  /** Badge etÃ  testuale (default OFF). Flat portrait (il profilo
+   *  `landscape` sotto puÃ² divergere per forma). */
   ageBadge: z.boolean().optional(),
-  /** Paese classificazione età (default "IT"): validazione lasca, la
+  /** Paese classificazione etÃ  (default "IT"): validazione lasca, la
    *  normalizzazione fail-closed avviene in risoluzione (poster-config). */
   ageCountry: z.string().max(8).optional(),
-  /** Stile pill età (default "standard" = resa storica). Flat portrait come
-   *  il toggle età (profilo `landscape` sotto per la forma orizzontale). */
+  /** Stile pill etÃ  (default "standard" = resa storica). Flat portrait come
+   *  il toggle etÃ  (profilo `landscape` sotto per la forma orizzontale). */
   ageBadgeStyle: z.enum(AGE_BADGE_STYLES).nullable().optional(),
   customRatings: z.boolean().optional(),
   // Endpoint provider custom rating (non-segreto; la chiave resta solo env).
@@ -212,7 +212,7 @@ const defaultsSchema = z.object({
     badgeStyle: z.enum(BADGE_STYLES).optional(),
     /**
      * BadgeLab family map del profilo: stesso contratto sparso del flat
-     * (chiave presente — incluso null — vince, assente eredita il flat).
+     * (chiave presente â€” incluso null â€” vince, assente eredita il flat).
      */
     badgePresets: retiredBadgeFamilyBindingsSchema,
     rankingBadgeStyle: z.enum(RANKING_BADGE_STYLES).optional(),
@@ -227,14 +227,14 @@ const defaultsSchema = z.object({
     badgeRating: z.boolean().optional(),
     badgeQuality: z.boolean().optional(),
     /**
-     * Badge età testuale per-shape (default = flat portrait): assente/null =
+     * Badge etÃ  testuale per-shape (default = flat portrait): assente/null =
      * segue il flat, `false` esplicito vince (un portrait ON non attiva mai un
      * landscape mai configurato).
      */
     ageBadge: z.boolean().optional(),
-    /** Paese classificazione età per-shape (assente/null/invalido = flat). */
+    /** Paese classificazione etÃ  per-shape (assente/null/invalido = flat). */
     ageCountry: z.string().max(8).optional(),
-    /** Stile pill età per-shape (assente/null/invalido = flat). */
+    /** Stile pill etÃ  per-shape (assente/null/invalido = flat). */
     ageBadgeStyle: z.enum(AGE_BADGE_STYLES).nullable().optional(),
     minQuality: z.enum(["SD", "HD", "FHD", "4K"]).optional(),
     customRatings: z.boolean().optional(),
@@ -341,17 +341,17 @@ export async function GET(req: NextRequest) {
   }
   const d = await getServerDefaultsChecked()
   // Flag pubblici (solo booleani): dicono al client se l'istanza ha chiavi
-  // env, così la welcome screen appare solo quando non c'è chiave da nessuna
-  // parte (né browser né server). I VALORI restano dietro requireAdminToken
-  // qui sotto — un booleano non espone alcun segreto (l'health endpoint
-  // rivela già lo stesso segnale via status degraded/healthy).
+  // env, cosÃ¬ la welcome screen appare solo quando non c'Ã¨ chiave da nessuna
+  // parte (nÃ© browser nÃ© server). I VALORI restano dietro requireAdminToken
+  // qui sotto â€” un booleano non espone alcun segreto (l'health endpoint
+  // rivela giÃ  lo stesso segnale via status degraded/healthy).
   const hasInstanceKeys = {
     tmdbKey: !!(envWithFallback("TMDB_KEY") || process.env.TMDB_API_KEY),
     mdblistKey: !!(envWithFallback("MDBLIST_KEY") || process.env.MDBLIST_API_KEY),
     tvdbKey: !!(envWithFallback("TVDB_API_KEY") || process.env.TVDB_API_KEY),
   }
   // Le chiavi d'istanza non devono mai trapelare su istanze pubbliche:
-  // checkAdminToken è true per chiunque con PICTORIUM_PUBLIC_INSTANCE=1,
+  // checkAdminToken Ã¨ true per chiunque con FLAMEFORGE_PUBLIC_INSTANCE=1,
   // quindi qui serve requireAdminToken (solo ADMIN_TOKEN o sessione PIN valida).
   if (requireAdminToken(req)) {
     const serverKeys = {
@@ -397,7 +397,7 @@ export async function PUT(req: NextRequest) {
       // Merge sullo STORATO (mai sull'effettivo ENV+storato): l'env resta
       // dinamica, nel file finiscono solo scelte dell'utente. Lo snapshot
       // landscape usa l'effettivo (storato + env d'istanza) come sorgente
-      // così i default d'istanza dell'operatore sopravvivono al freeze.
+      // cosÃ¬ i default d'istanza dell'operatore sopravvivono al freeze.
       const stored = await getStoredUserDefaults(scoped)
       const storedLand = isPlainLandscapeRecord(stored.landscape)
         ? (stored.landscape as unknown as Record<string, unknown>)
@@ -410,15 +410,15 @@ export async function PUT(req: NextRequest) {
       const next: Record<string, unknown> = { ...stored, ...parsed.data }
       await setServerDefaultsForUser(scoped, next as ServerDefaults)
       // Il cambio defaults ruota le chiavi catalogo/meta del namespace via
-      // epoch utente — niente wipe globale (il save di A non tocca B).
+      // epoch utente â€” niente wipe globale (il save di A non tocca B).
       await bumpCatalogEpoch(scoped)
       return Response.json({ ok: true })
     }
     const current = await getServerDefaultsChecked()
     // Merge invece di replace: un payload parziale NON deve azzerare i default
-    // già salvati (altrimenti salvare un solo campo cancellerebbe gli altri).
-    // Snapshot landscape prima del merge (vedi backfill sopra); `current` è
-    // già l'effettivo (storato + env) quindi la sorgente include i default
+    // giÃ  salvati (altrimenti salvare un solo campo cancellerebbe gli altri).
+    // Snapshot landscape prima del merge (vedi backfill sopra); `current` Ã¨
+    // giÃ  l'effettivo (storato + env) quindi la sorgente include i default
     // d'istanza. Il profilo `landscape` fonde per-chiave (mai replace).
     const currentLand = isPlainLandscapeRecord(current.landscape)
       ? (current.landscape as unknown as Record<string, unknown>)
@@ -430,7 +430,7 @@ export async function PUT(req: NextRequest) {
     )
     const next: Record<string, unknown> = { ...current, ...parsed.data }
     // Await: la 200 arriva solo a persistenza completata (altrimenti una GET
-    // successiva può leggere ancora i vecchi default).
+    // successiva puÃ² leggere ancora i vecchi default).
     await setServerDefaults(next as ServerDefaults)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
@@ -440,10 +440,10 @@ export async function PUT(req: NextRequest) {
   // Bump epoch cataloghi (F3): il cambio default globali impatta tutti i
   // poster URL (con lo sd-hash nel key come seconda rete di sicurezza).
   await bumpCatalogEpoch()
-  // Warm catalog cache — ricostruisci cataloghi principali in background.
+  // Warm catalog cache â€” ricostruisci cataloghi principali in background.
   // Usa un origin interno fisso (127.0.0.1) invece dell'origin derivato dall'
-  // header Host della richiesta: quest'ultimo è controllabile dal client
-  // (host header injection → SSRF). Su Vercel (serverless) il self-fetch non
+  // header Host della richiesta: quest'ultimo Ã¨ controllabile dal client
+  // (host header injection â†’ SSRF). Su Vercel (serverless) il self-fetch non
   // esiste: lo saltiamo per evitare warning ingannevoli.
   if (!process.env.VERCEL) {
     const internalOrigin = `http://127.0.0.1:${process.env.PORT || "3000"}`
@@ -457,3 +457,4 @@ export async function PUT(req: NextRequest) {
   }
   return Response.json({ ok: true })
 }
+

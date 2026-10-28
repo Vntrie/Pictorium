@@ -1,7 +1,7 @@
----
+﻿---
 name: tmdb-api
 description: >
-  TMDB API usage in Pictorium. Covers the v3 endpoints used (find, external_ids,
+  TMDB API usage in FlameForge. Covers the v3 endpoints used (find, external_ids,
   details, images), API key resolution (request > user namespace > permitted
   instance fallback), caching (5 min in-memory, URL without api_key), inflight
   coalescing, health checks, and image URL construction (TMDB_IMG_URL, w500/original).
@@ -9,26 +9,26 @@ description: >
   "poster path", "image.tmdb.org", "chiamata TMDB", "chiave api", "mock server".
 ---
 
-Pictorium has no bundled TMDB key. Scoped routes use `resolveUserApiKeys`:
+FlameForge has no bundled TMDB key. Scoped routes use `resolveUserApiKeys`:
 explicit request credentials > encrypted user namespace > permitted instance
 fallback. `?u=` or `/u/<uuid>/` can select a namespace when multi-user scoping
 is enabled; read `user-auth.ts` for eligibility and `user-keys.ts` for storage.
 Never replace this with the legacy synchronous request-only resolver.
 
 An **opt-in instance fallback** exists for personal single-user deploys (e.g. a
-Vercel instance used by one person): `PICTORIUM_TMDB_KEY` (and
-`PICTORIUM_MDBLIST_KEY` for MDBList) are read as a LAST-RESORT when the request
+Vercel instance used by one person): `FLAMEFORGE_TMDB_KEY` (and
+`FLAMEFORGE_MDBLIST_KEY` for MDBList) are read as a LAST-RESORT when the request
 carries no key. Header/query always win. Do NOT set these on public
 multi-user instances without understanding the quota policy. With multi-user
 ON, scoped requests disable the instance fallback unless
-`PICTORIUM_MULTI_USER_ALLOW_ENV_FALLBACK=1`; global requests retain it.
+`FLAMEFORGE_MULTI_USER_ALLOW_ENV_FALLBACK=1`; global requests retain it.
 
 ## Key resolution
 
 `resolveUserApiKeys(req, scopedUser)` in `src/lib/tmdb.ts`:
 1. Header `x-api-key`, then query `api_key` for TMDB.
 2. Stored namespace key, if a scoped user exists.
-3. Permitted env fallback: `PICTORIUM_TMDB_KEY` (legacy `POSTERIUM_TMDB_KEY`),
+3. Permitted env fallback: `FLAMEFORGE_TMDB_KEY` (legacy `FLAMEFORGE_TMDB_KEY`),
    then `TMDB_KEY` / `TMDB_API_KEY`.
 4. Otherwise key-missing behavior; never manufacture credentials.
 
@@ -80,8 +80,9 @@ image.tmdb.org at render time) and validates paths start with `https://image.tmd
 
 ## Files
 
-- `src/lib/tmdb.ts` — base URLs, `resolveRequestApiKey`, `tmdbFetch`, `checkTmdbEndpoint`, `getDetails`/`getExternalIds`/`getImages`
-- `src/lib/imdb-resolver.ts` — `resolveImdbToTmdb` (find endpoint + cache)
-- `src/lib/flixpatrol.ts` — own `TMDB_BASE` constant for its internal lookups
-- `src/lib/poster-render-helpers.ts` — deterministic image URL handling
-- `e2e/mock-server.mjs` — mock endpoints used by e2e/visual tests
+- `src/lib/tmdb.ts` â€” base URLs, `resolveRequestApiKey`, `tmdbFetch`, `checkTmdbEndpoint`, `getDetails`/`getExternalIds`/`getImages`
+- `src/lib/imdb-resolver.ts` â€” `resolveImdbToTmdb` (find endpoint + cache)
+- `src/lib/flixpatrol.ts` â€” own `TMDB_BASE` constant for its internal lookups
+- `src/lib/poster-render-helpers.ts` â€” deterministic image URL handling
+- `e2e/mock-server.mjs` â€” mock endpoints used by e2e/visual tests
+

@@ -944,3 +944,4 @@ describe("service Card title/provider scales (P14, measured service bytes)", () 
     expect(sha(noProvider)).not.toBe(n100)
   }, 240000)
 })
+

@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test"
+﻿import { expect, test, type Locator, type Page } from "@playwright/test"
 
 // customPosterUrl in "Miei poster": la miniatura (MoodBoardTile) e
 // l'ingrandimento (PosterLightbox) mostrano l'immagine personalizzata
@@ -18,8 +18,8 @@ const CUSTOM_IGNORED = `${MOCK_IMG}/w342/e2e-custom-ignored.jpg`
 // caricherebbe. La precedente porta chiusa :9 era non deterministica sotto
 // carico (origin fuori CSP img-src + unsafe-port + tile lazy/content-
 // visibility: nel full-suite l'onError non scattava entro 10s mentre il
-// lightbox eager con stesso URL passava). Stessa origin dei validi → CSP ok,
-// pattern stretto solo sul rotto → nessun masking di altri image failure.
+// lightbox eager con stesso URL passava). Stessa origin dei validi â†’ CSP ok,
+// pattern stretto solo sul rotto â†’ nessun masking di altri image failure.
 const BROKEN = `${MOCK_IMG}/w342/e2e-rotto.jpg`
 const FALLBACK_B = `${MOCK_IMG}/w342/e2e-fallback-b.jpg`
 const FALLBACK_B_LB = `${MOCK_IMG}/w500/e2e-fallback-b.jpg` // lightbox: fallback TMDB a w500 (storico)
@@ -65,8 +65,8 @@ async function putCustom(page: Page, id: string, url: string) {
 const widthOf = (loc: Locator) => loc.evaluate((img: HTMLImageElement) => img.naturalWidth)
 
 // Il mock risponde 200 JPEG a QUALSIASI /t/p/*: solo l'abort su questo
-// pattern stretto rende BROKEN un errore reale d'immagine (<img> onError →
-// fallback React), senza mutare il DOM né mascherare altri failure.
+// pattern stretto rende BROKEN un errore reale d'immagine (<img> onError â†’
+// fallback React), senza mutare il DOM nÃ© mascherare altri failure.
 async function failBroken(page: Page) {
   await page.route("**/e2e-rotto.jpg", (route) => route.abort("failed"))
 }
@@ -76,9 +76,9 @@ test.describe("customPosterUrl in Miei poster", () => {
     await page.addInitScript(() => {
       try {
         localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
-        localStorage.setItem("pictorium_profile_id", "e2e-custom-poster")
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", "e2e-custom-poster")
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", "it")
       } catch {}
     })
@@ -86,7 +86,7 @@ test.describe("customPosterUrl in Miei poster", () => {
 
   test.afterEach(async ({ page }) => {
     // Pulizia: i mapping seedati vivono nella data-dir CONDIVISA da tutti
-    // gli spec e2e — senza, il badge "I miei poster N" inquinerebbe gli
+    // gli spec e2e â€” senza, il badge "I miei poster N" inquinerebbe gli
     // snapshot visivi degli altri file.
     await page.evaluate(async (ids: string[]) => {
       for (const id of ids) {
@@ -121,8 +121,8 @@ test.describe("customPosterUrl in Miei poster", () => {
     expect(await tileLand.getAttribute("src")).not.toBe(CUSTOM_IGNORED)
 
     // Cambio URL dopo errore SENZA reload: dopo il PUT, il toggle di formato
-    // di UN'ALTRA tile ricarica i mapping e la tile rotta — stessa istanza
-    // (chiave stabile, resta nella sezione verticale) — riceve le nuove
+    // di UN'ALTRA tile ricarica i mapping e la tile rotta â€” stessa istanza
+    // (chiave stabile, resta nella sezione verticale) â€” riceve le nuove
     // props; il reset dello stato d'errore fa caricare la nuova immagine.
     await putCustom(page, "movie:9002", CUSTOM_NEW)
     const cardOk = page.locator(".surface-card", { has: tileOk })
@@ -184,3 +184,4 @@ test.describe("customPosterUrl in Miei poster", () => {
     await expect.poll(() => widthOf(lightFixed), { timeout: 15_000 }).toBeGreaterThan(0)
   })
 })
+

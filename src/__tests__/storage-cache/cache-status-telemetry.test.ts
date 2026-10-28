@@ -122,3 +122,4 @@ describe("Cache Status & Telemetry", () => {
     expect(body.poster.rescues.backdropCrop).toBe(0)
   })
 })
+

@@ -324,3 +324,4 @@ describe("GET /api/tmdb/trending — mutable-selection HTTP caching", () => {
     expect(shared.get(url)).toBeUndefined()
   })
 })
+

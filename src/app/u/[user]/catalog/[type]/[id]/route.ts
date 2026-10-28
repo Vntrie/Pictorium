@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server"
-import { pictoriumCatalog } from "@/lib/catalog-handler"
+import { FlameForgeCatalog } from "@/lib/catalog-handler"
 import { invalidUserResponse, isMultiUserEnabled, resolvePathUser } from "@/lib/user-auth"
 
 export const maxDuration = 60
@@ -18,5 +18,5 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
   // globale); con flag OFF resta il passthrough storico byte-identico.
   if (!canonicalUser && isMultiUserEnabled()) return invalidUserResponse()
   const configParam = req.nextUrl.searchParams.get("config") || req.nextUrl.searchParams.get("c")
-  return pictoriumCatalog(req, mediaType, rawId, canonicalUser, configParam)
+  return FlameForgeCatalog(req, mediaType, rawId, canonicalUser, configParam)
 }

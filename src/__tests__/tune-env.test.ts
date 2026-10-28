@@ -42,7 +42,7 @@ describe("tune-env.mjs (black-box, senza bench)", () => {
     expect(json.recommendation.maxConcurrentRenders).toBe(2)
     expect(json.recommendation.sharpConcurrency).toBe(1)
     expect(json.recommendation.nodeOldSpaceMb).toBeLessThanOrEqual(256)
-    expect(json.envBlock).toContain("PICTORIUM_MAX_CONCURRENT_RENDERS=2")
+    expect(json.envBlock).toContain("FLAMEFORGE_MAX_CONCURRENT_RENDERS=2")
   })
 
   it("profilo large su macchina grossa", async () => {
@@ -64,3 +64,5 @@ describe("tune-env.mjs (black-box, senza bench)", () => {
     await expect(runJson(["--candidates", "xx"])).rejects.toThrow()
   })
 })
+
+

@@ -15,7 +15,7 @@ vi.mock("@vercel/kv", () => ({
   },
 }))
 
-const originalDataDir = process.env.POSTERIUM_DATA_DIR
+const originalDataDir = process.env.FLAMEFORGE_DATA_DIR
 let tempDir: string | undefined
 
 async function freshEpochModule() {
@@ -24,8 +24,8 @@ async function freshEpochModule() {
 }
 
 afterEach(async () => {
-  if (originalDataDir === undefined) delete process.env.POSTERIUM_DATA_DIR
-  else process.env.POSTERIUM_DATA_DIR = originalDataDir
+  if (originalDataDir === undefined) delete process.env.FLAMEFORGE_DATA_DIR
+  else process.env.FLAMEFORGE_DATA_DIR = originalDataDir
   delete process.env.KV_REST_API_URL
   delete process.env.KV_REST_API_TOKEN
   kvStore.clear()
@@ -36,8 +36,8 @@ afterEach(async () => {
 
 describe("catalog epoch (F3)", () => {
   it("starts at 0, bumps to a new value, and persists across reloads", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-epoch-"))
-    process.env.POSTERIUM_DATA_DIR = tempDir
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-epoch-"))
+    process.env.FLAMEFORGE_DATA_DIR = tempDir
 
     const mod = await freshEpochModule()
     expect(await mod.getCatalogEpoch()).toBe("0")
@@ -55,11 +55,11 @@ describe("catalog epoch (F3)", () => {
   })
 
   it("never throws when persistence fails (save must not hard-fail)", async () => {
-    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "pictorium-epoch-"))
+    tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "FlameForge-epoch-"))
     // DATA_DIR punta a un FILE esistente: mkdir/write falliscono sempre.
     const blocker = path.join(tempDir, "blocker")
     await fsp.writeFile(blocker, "x")
-    process.env.POSTERIUM_DATA_DIR = blocker
+    process.env.FLAMEFORGE_DATA_DIR = blocker
 
     const mod = await freshEpochModule()
     await expect(mod.bumpCatalogEpoch()).resolves.toBe("0")
@@ -82,3 +82,5 @@ describe("catalog epoch (F3)", () => {
     expect(await reloaded.getCatalogEpoch()).toBe(first)
   })
 })
+
+

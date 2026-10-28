@@ -248,3 +248,4 @@ describe("POST /api/validate-key", () => {
     expect(json.valid).toBe(false)
   })
 })
+

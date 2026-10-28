@@ -707,3 +707,4 @@ describe("seasonal landscape render (own 768x432 art, frame below chrome)", () =
     expect(framedPortrait.equals(framedLandscape)).toBe(false)
   }, 60000)
 })
+

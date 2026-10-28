@@ -108,3 +108,4 @@ describe("build-anime-id-map generator", () => {
     expect(fs.readFileSync(out, "utf-8")).toBe(before)
   })
 })
+

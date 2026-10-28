@@ -371,3 +371,4 @@ describe("Legacy provider suppression untouched (HEAD behavior, real renders)", 
     expect(manual.equals(withoutBadge)).toBe(false)
   }, 120000)
 })
+

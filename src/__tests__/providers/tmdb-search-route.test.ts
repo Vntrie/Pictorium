@@ -3,7 +3,7 @@ import { NextRequest } from "next/server"
 import { GET } from "@/app/api/tmdb/search/route"
 import { __clearTMDBCache } from "@/lib/tmdb"
 
-const ENV_KEYS = ["PICTORIUM_TMDB_KEY", "POSTERIUM_TMDB_KEY", "TMDB_BASE_URL"] as const
+const ENV_KEYS = ["FLAMEFORGE_TMDB_KEY", "FLAMEFORGE_TMDB_KEY", "TMDB_BASE_URL"] as const
 let savedEnv: Record<string, string | undefined> = {}
 
 function req(url: string): NextRequest {
@@ -99,3 +99,5 @@ describe("GET /api/tmdb/search", () => {
     expect(spy).toHaveBeenCalledTimes(1)
   })
 })
+
+

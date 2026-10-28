@@ -1,4 +1,4 @@
-import { test, expect, type Locator, type Page } from "@playwright/test"
+﻿import { test, expect, type Locator, type Page } from "@playwright/test"
 import { putDefaultsWithRetry } from "./defaults-retry"
 
 // Desktop global-settings preview UX: the title search sits directly below
@@ -81,11 +81,11 @@ async function seed(page: Page) {
     ({ p }: { p: string }) => {
       try {
         localStorage.clear()
-        localStorage.setItem("pictorium_profile_id", p)
-        localStorage.setItem("pictorium_profile_stateless", "1")
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_profile_id", p)
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
         localStorage.setItem("preferred_lang", "it")
-        localStorage.setItem("pictorium_ui_theme", "dark")
+        localStorage.setItem("FLAMEFORGE_ui_theme", "dark")
         localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
       } catch {}
     },
@@ -188,7 +188,7 @@ async function expectSearchVisibleNoScroll(page: Page, dialog: Locator, label: s
   expect(s.x, `${label}: search left inside column`).toBeGreaterThanOrEqual(c.x - 1)
   expect(s.x + s.width, `${label}: search right inside column`).toBeLessThanOrEqual(c.x + c.width + 1)
   // DOM/visual order: the full poster sits ABOVE the search (search
-  // directly below the poster, no flex-order swaps) — geometry proves the
+  // directly below the poster, no flex-order swaps) â€” geometry proves the
   // order, not just DOM position.
   expect(g.media, `${label}: media exists for order check`).not.toBeNull()
   const m = g.media!
@@ -228,7 +228,7 @@ function expectMediaInsideColumn(g: GeometryDump, label: string, landscape: bool
   }
   // No horizontal overflow of the column itself.
   expect(c.scrollWidth, `${label}: no horizontal overflow`).toBeLessThanOrEqual(c.clientWidth + 1)
-  // Ordinary desktop heights: the preview column must NOT scroll — the full
+  // Ordinary desktop heights: the preview column must NOT scroll â€” the full
   // poster, search and caution all fit the remaining body height.
   expect(c.scrollHeight, `${label}: column fits without scroll`).toBeLessThanOrEqual(c.clientHeight + 1)
   expect(c.scrollTop, `${label}: column starts at top`).toBe(0)
@@ -351,7 +351,7 @@ test.describe("desktop global preview: search reachable without scroll", () => {
     expect(optBox.y + optBox.height).toBeLessThanOrEqual(vp.height + 1)
     expect(optBox.x).toBeGreaterThanOrEqual(-1)
     expect(optBox.x + optBox.width).toBeLessThanOrEqual(vp.width + 1)
-    // …and fully inside the preview column content (not merely the
+    // â€¦and fully inside the preview column content (not merely the
     // viewport, not clipped by the column scroll container).
     const colBox = (await dialog.getByTestId("settings-preview").boundingBox())!
     expect(optBox.y, "dropdown option top inside preview column").toBeGreaterThanOrEqual(colBox.y - 1)
@@ -419,3 +419,4 @@ test.describe("desktop global preview: search reachable without scroll", () => {
     await expect(dialog.getByTestId("defaults-preview-title-search").getByRole("textbox")).toBeFocused()
   })
 })
+

@@ -3,7 +3,7 @@ import { NextRequest } from "next/server"
 import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
-import { pictoriumCatalog } from "@/lib/catalog-handler"
+import { FlameForgeCatalog } from "@/lib/catalog-handler"
 import { GET as rankGET } from "@/app/api/trending/rank/route"
 import * as tmdbModule from "@/lib/tmdb"
 import { __resetJWRankingsCache } from "@/lib/justwatch"
@@ -146,11 +146,11 @@ describe("correction1: omitted first defaults to the canonical snapshot", () => 
   })
 
   it("omitted-first rank reads the same published snapshot as the catalog (rank>=2 across 00/12, retired title null, zero extra upstream)", async () => {
-    await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     expect(jwCalls).toBe(1)
     now = utc(2026, 10, 22, 11, 0, 0) // Rome 13:00 -> slot 20261022-12
     jwPhase = "two"
-    const catRes = await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    const catRes = await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     const catIds = (await catRes.json()).metas.map((m: { id: string }) => m.id)
     expect(catIds).toEqual(["tt1000201", "tt1000202"])
     expect(jwCalls).toBe(2)
@@ -168,10 +168,10 @@ describe("correction1: omitted first defaults to the canonical snapshot", () => 
   })
 
   it("explicit first=1 keeps the intended top-1 window (live, never snapshot-sliced, no publication)", async () => {
-    await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     now = utc(2026, 10, 22, 11, 0, 0)
     jwPhase = "two"
-    await pictoriumCatalog(catalogReq("pictorium-jw-movies"), "movie", "pictorium-jw-movies", null, null)
+    await FlameForgeCatalog(catalogReq("FlameForge-jw-movies"), "movie", "FlameForge-jw-movies", null, null)
     const before = (await pinChartFamily(JW_MOVIE)).id
     expect(before).toBe("20261022-12")
     const top1 = await rankGET(
@@ -301,3 +301,5 @@ describe("correction1: file backend retention + commit ordering", () => {
     expect((await pinChartFamily(FAM_B)).id).toBe(CHART_LIVE_PIN_ID)
   })
 })
+
+

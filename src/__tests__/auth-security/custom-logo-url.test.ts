@@ -76,3 +76,4 @@ describe("custom logo URL — query gate R2 (same poster policy)", () => {
     await expect(validateImageBytes(svg, "image/png")).rejects.toBeInstanceOf(ImageValidationError)
   })
 })
+

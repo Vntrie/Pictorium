@@ -19,11 +19,11 @@ async function stubDurableIsolation(): Promise<void> {
   } catch {
     // platform default
   }
-  const dir = await fsp.mkdtemp(path.join(base, "pictorium-awards-"))
+  const dir = await fsp.mkdtemp(path.join(base, "FlameForge-awards-"))
   tmpDirs.push(dir)
-  vi.stubEnv("PICTORIUM_DATA_DIR", dir)
-  vi.stubEnv("PICTORIUM_REDIS_URL", "")
-  vi.stubEnv("POSTERIUM_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_DATA_DIR", dir)
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
+  vi.stubEnv("FLAMEFORGE_REDIS_URL", "")
   vi.stubEnv("REDIS_URL", "")
   vi.stubEnv("KV_REST_API_URL", "")
   vi.stubEnv("KV_REST_API_TOKEN", "")
@@ -93,3 +93,5 @@ describe("Wikidata transient-failure negative cache (60s)", () => {
     expect(spy).toHaveBeenCalled()
   })
 })
+
+

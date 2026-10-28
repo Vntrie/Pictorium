@@ -81,3 +81,4 @@ describe("createCircuitBreaker (generic)", () => {
     expect(a.isOpen()).toBe(false)
   })
 })
+

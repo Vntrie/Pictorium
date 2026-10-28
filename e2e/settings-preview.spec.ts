@@ -1,11 +1,11 @@
-import { test, expect } from "@playwright/test"
+﻿import { test, expect } from "@playwright/test"
 
 // Global preview error contract: a TRUE 503 on the dialog preview stream.
 // The dialog preview (DefaultsPosterPreview) fetches the poster via XHR
 // blob; the same URL pattern is also requested by preset-gallery thumbnails
 // (plain <img>) and by the home demo strips. Failing every matching request
 // (or a one-shot times:1) lets a thumbnail consume the fault while the
-// dialog stays healthy — the old suite then timed out on the never-reached
+// dialog stays healthy â€” the old suite then timed out on the never-reached
 // Riprova button. The route below fails ONLY the dialog XHR
 // (request.resourceType() === "xhr", the HAR-proven dialog discriminator);
 // every other request continues normally. The fault stays armed until the
@@ -23,9 +23,9 @@ for (const width of [900, 1280, 390]) {
   test(`global preview stays visible and updates at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.addInitScript(() => {
-      localStorage.setItem("pictorium_profile_id", "e2e-settings")
-      localStorage.setItem("pictorium_profile_stateless", "1")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_profile_id", "e2e-settings")
+      localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       localStorage.setItem("preferred_lang", "it")
       localStorage.setItem("tmdb_key", "mock-tmdb-key-0000000000")
     })
@@ -50,7 +50,7 @@ for (const width of [900, 1280, 390]) {
       await expect(dialog).toBeVisible({ timeout: 1000 })
     }).toPass()
     // The fault landed on the real preview: the dialog error overlay (with
-    // Riprova) is the hold gate — the 503 is not lifted before this.
+    // Riprova) is the hold gate â€” the 503 is not lifted before this.
     await initialRequest
     await expect(dialog.getByRole("button", { name: "Riprova" })).toBeVisible({ timeout: 30_000 })
     await page.unroute(POSTER_PATTERN)
@@ -100,3 +100,4 @@ for (const width of [900, 1280, 390]) {
     await page.screenshot({ path: `artifacts/settings-preview-${width}.png` })
   })
 }
+

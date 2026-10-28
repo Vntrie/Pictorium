@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+﻿import { test, expect } from "@playwright/test"
 import sharp from "sharp"
 
 // Final integration coverage for the 1.25.9 task batch (diagnostics endpoint,
@@ -59,7 +59,7 @@ test.describe("diagnostics install-key endpoint", () => {
     const body = await res.json()
     expect(body.ok).toBe(false)
     // Keyless e2e env: the endpoint must report missing (or invalid after a
-    // failed live probe) — never ok:true without a working key.
+    // failed live probe) â€” never ok:true without a working key.
     expect(["missing", "invalid"]).toContain(body.code)
     expect(res.headers()["cache-control"]).toContain("no-store")
   })
@@ -118,7 +118,7 @@ test.describe("shared poster renderer (install probe path)", () => {
 test.describe("status page telemetry honesty", () => {
   test("locked cache telemetry shows unavailable, never fabricated zeros", async ({ page }) => {
     // Observe (never swallow) page errors: the initScript key must arrive via
-    // an explicit argument — closing over module MOCK_KEY throws a
+    // an explicit argument â€” closing over module MOCK_KEY throws a
     // ReferenceError inside the browser context.
     const pageErrors: string[] = []
     page.on("pageerror", (err) => {
@@ -126,8 +126,8 @@ test.describe("status page telemetry honesty", () => {
     })
     await page.addInitScript(
       (key: string) => {
-        localStorage.setItem("pictorium_profile_id", "e2e-final-integration")
-        localStorage.setItem("pictorium_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_profile_id", "e2e-final-integration")
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
         localStorage.setItem("preferred_lang", "it")
         localStorage.setItem("tmdb_key", key)
       },
@@ -153,13 +153,13 @@ test.describe("onboarding replay wiring", () => {
   }) => {
     await page.addInitScript(
       (key: string) => {
-        localStorage.setItem("pictorium_profile_id", "e2e-final-replay")
-        localStorage.setItem("pictorium_profile_stateless", "1")
+        localStorage.setItem("FLAMEFORGE_profile_id", "e2e-final-replay")
+        localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
         localStorage.setItem("preferred_lang", "it")
         localStorage.setItem("tmdb_key", key)
         // Old slide-based dismissal: honored read-only for auto-show, but must
         // not block an explicit repeat.
-        localStorage.setItem("pictorium_onboarding_done", "true")
+        localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       },
       MOCK_KEY,
     )
@@ -183,7 +183,7 @@ test.describe("onboarding replay wiring", () => {
     await repeatButton.click()
 
     // The setup wizard runs first (never stacked with the tour).
-    await expect(page.getByRole("heading", { name: "Benvenuto in Pictorium" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Benvenuto in FlameForge" })).toBeVisible({
       timeout: 15_000,
     })
     await page.getByRole("button", { name: "Italiano" }).click()
@@ -197,7 +197,7 @@ test.describe("onboarding replay wiring", () => {
     await page.getByTestId("onboarding-skip").click()
     await expect(page.getByTestId("onboarding-checklist")).toBeHidden()
     const progressRaw = await page.evaluate(() =>
-      localStorage.getItem("pictorium_onboarding_progress:local"),
+      localStorage.getItem("FLAMEFORGE_onboarding_progress:local"),
     )
     expect(progressRaw).not.toBeNull()
     const progress = JSON.parse(progressRaw as string) as Record<string, unknown>
@@ -210,3 +210,4 @@ test.describe("onboarding replay wiring", () => {
     await expect(page.getByTestId("onboarding-checklist")).toBeHidden()
   })
 })
+

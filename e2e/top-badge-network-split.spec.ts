@@ -1,4 +1,4 @@
-import { test, expect, type APIRequestContext, type Page } from "@playwright/test"
+﻿import { test, expect, type APIRequestContext, type Page } from "@playwright/test"
 import { putDefaultsWithRetry } from "./defaults-retry"
 
 // CLASSIFICA vs EXTRA + network-follow split: contract (poster API) and the
@@ -239,9 +239,9 @@ async function seed(page: Page) {
   await page.addInitScript(() => {
     try {
       localStorage.clear()
-      localStorage.setItem("pictorium_profile_id", "e2e-topsplit")
-      localStorage.setItem("pictorium_profile_stateless", "1")
-      localStorage.setItem("pictorium_onboarding_done", "true")
+      localStorage.setItem("FLAMEFORGE_profile_id", "e2e-topsplit")
+      localStorage.setItem("FLAMEFORGE_profile_stateless", "1")
+      localStorage.setItem("FLAMEFORGE_onboarding_done", "true")
       localStorage.setItem("preferred_lang", "it")
       localStorage.setItem("tmdb_key", "")
     } catch {}
@@ -351,7 +351,7 @@ test.describe("Settings Trasforma: network follow + rank/extra cards", () => {
     await expect(follow).toHaveAttribute("aria-checked", "false")
 
     // Moving the title logo must not move the frozen network box.
-    // The title-logo card header carries a "· Auto" suffix span, so an exact
+    // The title-logo card header carries a "Â· Auto" suffix span, so an exact
     // text match never resolves: scope by card (established hasText idiom).
     const logoCard = panel.locator("div.rounded-xl", { hasText: "Loghi" }).first()
     const logoX = logoCard.getByRole("slider", { name: "X", exact: true })
@@ -415,3 +415,4 @@ test.describe("Settings Trasforma: network follow + rank/extra cards", () => {
     expect(p2.get("tscale")).toBe("150")
   })
 })
+

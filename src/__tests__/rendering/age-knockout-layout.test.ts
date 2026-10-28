@@ -141,3 +141,4 @@ describe("age knockout cut-out tag (age-only genuine mask)", () => {
     expect(group!.png.equals(direct.png)).toBe(true)
   }, 30000)
 })
+
